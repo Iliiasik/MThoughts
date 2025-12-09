@@ -9,7 +9,16 @@
     {"text": "Something is behind you.", "rarity": 0.02},
     {"text": "The void stares back.", "rarity": 0.03},
     {"text": "Time doesn't exist here.", "rarity": 0.05},
-    {"text": "You left the door open.", "rarity": 0.04}
+    {"text": "You left the door open.", "rarity": 0.04},
+    {"text": "It's not a game.", "rarity": 0.04},
+    {"text": "You are not alone.", "rarity": 0.03},
+    {"text": "The simulation is breaking.", "rarity": 0.02},
+    {"text": "Look behind the curtain.", "rarity": 0.03},
+    {"text": "The whispers have a name.", "rarity": 0.02},
+    {"text": "Don't trust your eyes.", "rarity": 0.04},
+    {"text": "The sky is a lie.", "rarity": 0.03},
+    {"text": "You are the monster.", "rarity": 0.01},
+    {"text": "The walls are breathing.", "rarity": 0.02},
+    {"text": "It knows your name.", "rarity": 0.01}
   ]
 }
-

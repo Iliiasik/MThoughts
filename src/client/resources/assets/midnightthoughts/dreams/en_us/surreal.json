@@ -24,7 +24,21 @@
     {"text": "You are someone's reason to smile.", "rarity": 1.0},
     {"text": "The moon watches you sleep.", "rarity": 0.9},
     {"text": "Thoughts are just voices without sound.", "rarity": 1.0},
-    {"text": "Time moves faster when you're not watching.", "rarity": 0.8}
+    {"text": "Time moves faster when you're not watching.", "rarity": 0.8},
+    {"text": "Is the color you see as 'red' the same color I see?", "rarity": 0.9},
+    {"text": "Your brain named itself.", "rarity": 1.0},
+    {"text": "At some point, your parents put you down and never picked you up again.", "rarity": 0.7},
+    {"text": "There are colors that we can't see, and sounds we can't hear.", "rarity": 1.0},
+    {"text": "You are the oldest you've ever been, and the youngest you'll ever be again.", "rarity": 1.0},
+    {"text": "The night remembers everything you try to forget.", "rarity": 0.8},
+    {"text": "What if we are just characters in a very advanced simulation?", "rarity": 0.8},
+    {"text": "The last person who will remember you will one day die.", "rarity": 0.7},
+    {"text": "Waking up is just accepting the room you're in.", "rarity": 1.0},
+    {"text": "You are breathing the same air as everyone who has ever lived.", "rarity": 1.0},
+    {"text": "Your heart is a lonely drummer, playing a lifelong solo.", "rarity": 0.9},
+    {"text": "There is a graveyard of cells inside you that died so you could live.", "rarity": 1.0},
+    {"text": "You can never prove that everyone but you isn't a figment of your imagination.", "rarity": 0.7},
+    {"text": "Somewhere, two strangers remember you as the same person.", "rarity": 0.8},
+    {"text": "Your shadow is proof that light has traveled 93 million miles, only to be blocked by you.", "rarity": 1.0}
   ]
 }
-
