@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "midnightthoughts",
+  "version": "${version}",
+  "name": "Midnight Thoughts",
+  "description": "An atmospheric mod that displays interesting facts, Minecraft lore, and player statistics while sleeping.",
+  "authors": ["MidnightThoughts Team"],
+  "contact": {},
+  "license": "MIT",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "mt.client.MidnightThoughtsClient"
+    ]
+  },
+  "mixins": [
+    {
+      "config": "midnightthoughts.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric": "*",
+    "minecraft": "~1.21.1"
+  }
+}

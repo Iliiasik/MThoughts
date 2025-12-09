@@ -1,0 +1,15 @@
+{
+  "entries": [
+    {"text": "Wake up.", "rarity": 0.05},
+    {"text": "They're watching.", "rarity": 0.03},
+    {"text": "This isn't a dream.", "rarity": 0.04},
+    {"text": "Don't turn around.", "rarity": 0.03},
+    {"text": "The night remembers everything.", "rarity": 0.05},
+    {"text": "You've been here before.", "rarity": 0.04},
+    {"text": "Something is behind you.", "rarity": 0.02},
+    {"text": "The void stares back.", "rarity": 0.03},
+    {"text": "Time doesn't exist here.", "rarity": 0.05},
+    {"text": "You left the door open.", "rarity": 0.04}
+  ]
+}
+
