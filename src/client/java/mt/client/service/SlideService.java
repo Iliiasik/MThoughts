@@ -15,14 +15,17 @@ public class SlideService {
     private final SlideRepository slideRepository;
     private final PlayerStatsService playerStatsService;
     private final MidnightThoughtsConfig config;
+    private final FactProvider factProvider;
 
     private int slideCounter = 0;
     private PlayerSleepStats cachedStats;
 
-    public SlideService(SlideRepository slideRepository, PlayerStatsService playerStatsService, MidnightThoughtsConfig config) {
+    public SlideService(SlideRepository slideRepository, PlayerStatsService playerStatsService,
+                        MidnightThoughtsConfig config, FactProvider factProvider) {
         this.slideRepository = slideRepository;
         this.playerStatsService = playerStatsService;
         this.config = config;
+        this.factProvider = factProvider;
     }
 
     public Slide getNextSlide() {
@@ -41,13 +44,20 @@ public class SlideService {
         }
 
         SlideCategory category = selectRandomCategory();
-        Slide slide = slideRepository.getRandomSlide(language, category);
+        Slide slide = getSlideByCategory(language, category);
 
         if (slide == null) {
             return generateStatsSlide();
         }
 
         return slide;
+    }
+
+    private Slide getSlideByCategory(String language, SlideCategory category) {
+        if (category == SlideCategory.FACT) {
+            return factProvider.getNextFact(language);
+        }
+        return slideRepository.getRandomSlide(language, category);
     }
 
     private boolean shouldShowSpecialSlide() {
@@ -151,8 +161,8 @@ public class SlideService {
         LanguageManager langManager = client.getLanguageManager();
         String lang = langManager.getLanguage();
 
-        if (lang.startsWith("ru")) {
-            return "ru_ru";
+        if (lang.startsWith("de")) {
+            return "de_de";
         }
         return "en_us";
     }

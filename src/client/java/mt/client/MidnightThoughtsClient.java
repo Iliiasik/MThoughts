@@ -1,9 +1,11 @@
 package mt.client;
 
+import mt.client.api.UselessFactsApiClient;
 import mt.client.config.MidnightThoughtsConfig;
 import mt.client.manager.SleepStateManager;
 import mt.client.render.SleepOverlayRenderer;
 import mt.client.repository.SlideRepository;
+import mt.client.service.FactProvider;
 import mt.client.service.PlayerStatsService;
 import mt.client.service.SlideService;
 import net.fabricmc.api.ClientModInitializer;
@@ -26,6 +28,8 @@ public class MidnightThoughtsClient implements ClientModInitializer {
     private MidnightThoughtsConfig config;
     private SlideRepository slideRepository;
     private PlayerStatsService playerStatsService;
+    private UselessFactsApiClient apiClient;
+    private FactProvider factProvider;
     private SlideService slideService;
     private SleepStateManager sleepStateManager;
     private SleepOverlayRenderer overlayRenderer;
@@ -46,7 +50,9 @@ public class MidnightThoughtsClient implements ClientModInitializer {
         config = MidnightThoughtsConfig.getInstance();
         slideRepository = new SlideRepository();
         playerStatsService = new PlayerStatsService();
-        slideService = new SlideService(slideRepository, playerStatsService, config);
+        apiClient = new UselessFactsApiClient();
+        factProvider = new FactProvider(apiClient, slideRepository);
+        slideService = new SlideService(slideRepository, playerStatsService, config, factProvider);
         sleepStateManager = new SleepStateManager();
         overlayRenderer = new SleepOverlayRenderer(sleepStateManager, slideService, config);
     }

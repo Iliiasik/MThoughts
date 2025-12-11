@@ -1,0 +1,13 @@
+{
+  "midnightthoughts.stats.fish_caught": "Gefangene Fische: %d",
+  "midnightthoughts.stats.items_crafted": "Hergestellte Gegenstände: %d",
+  "midnightthoughts.stats.blocks_destroyed": "Zerstörte Blöcke: %d",
+  "midnightthoughts.stats.damage_dealt": "Verursachter Schaden: %d HP",
+  "midnightthoughts.stats.sleep_in_bed": "Nächte im Bett geschlafen: %d",
+  "midnightthoughts.stats.deaths": "Tode: %d",
+  "midnightthoughts.stats.mobs_killed": "Getötete Mobs: %d",
+  "midnightthoughts.stats.jumps": "Sprünge insgesamt: %d",
+  "midnightthoughts.stats.walk_distance": "Zurückgelegte Strecke: %s km",
+  "midnightthoughts.stats.playtime": "Du spielst seit: %dh %dm"
+}
+
