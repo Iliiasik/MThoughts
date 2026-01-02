@@ -43,24 +43,57 @@ public class DailyStatsManager {
 
     public static void showDailySummary(MinecraftServer server) {
         LOGGER.info("[DailyStatsManager] Building daily summary...");
-        List<DailySummaryPacket.PlayerDailySummary> summaries = new ArrayList<>();
+
+        List<AchievementCalculator.PlayerSummaryData> playerDataList = new ArrayList<>();
+        Map<String, DailyPlayerStats.DailyDelta> deltaMap = new HashMap<>();
 
         for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
             UUID uuid = player.getUuid();
             DailyPlayerStats stats = getOrCreateStats(uuid);
             DailyPlayerStats.DailyDelta delta = stats.calculateDelta(player);
+            String playerName = player.getGameProfile().getName();
 
-            LOGGER.info("[DailyStatsManager] Player {} stats: blocks={}, distance={}, mobs={}, deaths={}, jumps={}",
-                player.getGameProfile().getName(),
-                delta.blocksDestroyed(), delta.distanceWalked(), delta.mobsKilled(), delta.deaths(), delta.jumps());
-
-            summaries.add(new DailySummaryPacket.PlayerDailySummary(
-                player.getGameProfile().getName(),
+            deltaMap.put(playerName, delta);
+            playerDataList.add(new AchievementCalculator.PlayerSummaryData(
+                playerName,
                 delta.blocksDestroyed(),
                 delta.distanceWalked(),
                 delta.mobsKilled(),
                 delta.deaths(),
                 delta.jumps()
+            ));
+
+            LOGGER.info("[DailyStatsManager] Player {} stats: blocks={}, distance={}, mobs={}, deaths={}, jumps={}",
+                playerName, delta.blocksDestroyed(), delta.distanceWalked(), delta.mobsKilled(), delta.deaths(), delta.jumps());
+        }
+
+        String mvpName = AchievementCalculator.determineMvp(playerDataList);
+        if (mvpName != null) {
+            LOGGER.info("[DailyStatsManager] MVP determined: {}", mvpName);
+        }
+
+        List<DailySummaryPacket.PlayerDailySummary> summaries = new ArrayList<>();
+
+        for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
+            String playerName = player.getGameProfile().getName();
+            DailyPlayerStats.DailyDelta delta = deltaMap.get(playerName);
+
+            List<String> achievements = AchievementCalculator.calculateAchievements(player, delta, server);
+            boolean isMvp = playerName.equals(mvpName);
+
+            if (!achievements.isEmpty()) {
+                LOGGER.info("[DailyStatsManager] Player {} achievements: {}", playerName, achievements);
+            }
+
+            summaries.add(new DailySummaryPacket.PlayerDailySummary(
+                playerName,
+                delta.blocksDestroyed(),
+                delta.distanceWalked(),
+                delta.mobsKilled(),
+                delta.deaths(),
+                delta.jumps(),
+                isMvp,
+                achievements
             ));
         }
 

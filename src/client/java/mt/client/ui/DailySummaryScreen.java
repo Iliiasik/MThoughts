@@ -16,16 +16,24 @@ import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class DailySummaryScreen extends Screen {
     private static final Logger LOGGER = LoggerFactory.getLogger("MidnightThoughts");
     private static final Identifier BACKGROUND_TEXTURE = Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/background.png");
+    private static final Identifier CROWN_TEXTURE = Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/crown.png");
+
+    private static final long STAT_ANIMATION_DURATION = 800;
+    private static final int MVP_GOLD_COLOR = 0xFFD700;
+    private static final int MVP_BORDER_COLOR = 0xDAA520;
 
     private final List<DailySummaryPacket.PlayerDailySummary> allPlayers;
+    private final List<AchievementTooltipArea> achievementAreas = new ArrayList<>();
     private int currentPage = 0;
     private float fadeAlpha = 0.0f;
     private final long screenOpenTime;
+    private final long animationStartTime;
 
     private int panelWidth;
     private int panelHeight;
@@ -41,6 +49,7 @@ public class DailySummaryScreen extends Screen {
         super(Text.literal("Summary"));
         this.allPlayers = players;
         this.screenOpenTime = System.currentTimeMillis();
+        this.animationStartTime = System.currentTimeMillis() + 300;
         int totalPages = Math.max(1, (int) Math.ceil((double) players.size() / 4));
         LOGGER.info("[DailySummaryScreen] Created with {} players, {} pages", players.size(), totalPages);
     }
@@ -131,12 +140,16 @@ public class DailySummaryScreen extends Screen {
         long elapsedTime = System.currentTimeMillis() - screenOpenTime;
         fadeAlpha = Math.min(1.0f, elapsedTime / 300.0f);
 
+        achievementAreas.clear();
+
         calculateDimensions();
         renderBackgroundImage(context);
         renderPanel(context);
         renderPlayerList(context);
 
         super.render(context, mouseX, mouseY, delta);
+
+        renderAchievementTooltips(context, mouseX, mouseY);
     }
 
     @Override
@@ -226,9 +239,41 @@ public class DailySummaryScreen extends Screen {
         int rowWidth = panelWidth - rowPadding * 2;
         int rowHeight = playerRowHeight - (int)(4 * uiScale);
 
-        int rowBgAlpha = (int)(fadeAlpha * 80);
-        int rowBg = (rowBgAlpha << 24) | 0x2a2a4a;
+        int rowBgAlpha = (int)(fadeAlpha * 90);
+        int rowBg;
+        if (player.isMvp()) {
+            rowBg = (rowBgAlpha << 24) | 0x4a4020;
+        } else {
+            rowBg = ((int)(fadeAlpha * 80) << 24) | 0x2a2a4a;
+        }
         context.fill(x, y, x + rowWidth, y + rowHeight, rowBg);
+
+        if (player.isMvp()) {
+            int crownHeight = (int)((isCompactMode ? 14 : 18) * uiScale);
+            int crownWidth = (int)(crownHeight * 1.75f);
+            int mvpBadgeX = x + rowWidth - crownWidth;
+            int mvpBadgeY = y - crownHeight / 2;
+
+            int badgeAlpha = (int)(fadeAlpha * 240);
+            int badgeBg = (badgeAlpha << 24) | 0x8b7320;
+            int badgeBorder = (badgeAlpha << 24) | MVP_GOLD_COLOR;
+
+            context.fill(mvpBadgeX - 1, mvpBadgeY - 1, mvpBadgeX + crownWidth + 1, mvpBadgeY + crownHeight + 1, badgeBorder);
+            context.fill(mvpBadgeX, mvpBadgeY, mvpBadgeX + crownWidth, mvpBadgeY + crownHeight, badgeBg);
+
+            int iconPadding = (int)(2 * uiScale);
+            int iconHeight = crownHeight - iconPadding * 2;
+            int iconWidth = (int)(iconHeight * 1.75f);
+            int iconX = mvpBadgeX + (crownWidth - iconWidth) / 2;
+            int iconY = mvpBadgeY + iconPadding;
+
+            RenderSystem.setShaderTexture(0, CROWN_TEXTURE);
+            RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, fadeAlpha);
+            RenderSystem.enableBlend();
+            context.drawTexture(CROWN_TEXTURE, iconX, iconY, 0, 0, iconWidth, iconHeight, iconWidth, iconHeight);
+            RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+            RenderSystem.disableBlend();
+        }
 
         int headX = x + (int)(6 * uiScale);
         int headY = y + (rowHeight - headSize) / 2;
@@ -254,18 +299,21 @@ public class DailySummaryScreen extends Screen {
         int textX = headX + headSize + (int)(10 * uiScale);
         int nameAlpha = (int)(fadeAlpha * 255);
         int nameColor = (nameAlpha << 24) | 0xFFFFFF;
-        int nameY = y + (int)(3 * uiScale);
+
+        int nameY = y + (int)(4 * uiScale);
 
         if (isCompactMode) {
+            float textScale = Math.max(0.7f, uiScale);
             context.getMatrices().push();
             context.getMatrices().translate(textX, nameY, 0);
-            float textScale = Math.max(0.7f, uiScale);
             context.getMatrices().scale(textScale, textScale, 1.0f);
             context.drawText(textRenderer, player.playerName(), 0, 0, nameColor, true);
             context.getMatrices().pop();
         } else {
             context.drawText(textRenderer, player.playerName(), textX, nameY, nameColor, true);
         }
+
+        float animProgress = getAnimationProgress();
 
         int badgeHeight;
         int badgePadding;
@@ -290,26 +338,145 @@ public class DailySummaryScreen extends Screen {
         int badgeY1 = y + (int)((isCompactMode ? 12 : 16) * uiScale);
         int badgeY2 = badgeY1 + badgeHeight + badgeRowSpacing;
 
-        int distanceMeters = player.distanceWalked() / 100;
+        int animBlocks = (int)(player.blocksDestroyed() * animProgress);
+        int animDistance = (int)((player.distanceWalked() / 100) * animProgress);
+        int animMobs = (int)(player.mobsKilled() * animProgress);
+        int animDeaths = (int)(player.deaths() * animProgress);
+        int animJumps = (int)(player.jumps() * animProgress);
 
-        String blocksText = Text.translatable("midnightthoughts.summary.blocks").getString() + " " + player.blocksDestroyed();
-        String distanceText = Text.translatable("midnightthoughts.summary.distance").getString() + " " + distanceMeters + "m";
-        String mobsText = Text.translatable("midnightthoughts.summary.mobs").getString() + " " + player.mobsKilled();
-        String deathsText = Text.translatable("midnightthoughts.summary.deaths").getString() + " " + player.deaths();
-        String jumpsText = Text.translatable("midnightthoughts.summary.jumps").getString() + " " + player.jumps();
+        String blocksText = Text.translatable("midnightthoughts.summary.blocks").getString() + " " + animBlocks;
+        String distanceText = Text.translatable("midnightthoughts.summary.distance").getString() + " " + animDistance;
+        String mobsText = Text.translatable("midnightthoughts.summary.mobs").getString() + " " + animMobs;
+        String deathsText = Text.translatable("midnightthoughts.summary.deaths").getString() + " " + animDeaths;
+        String jumpsText = Text.translatable("midnightthoughts.summary.jumps").getString() + " " + animJumps;
 
         int currentX = textX;
         currentX = renderBadge(context, currentX, badgeY1, badgeHeight, badgePadding, blocksText, 0x3d5a80, badgeTextScale);
         currentX += badgeSpacing;
         currentX = renderBadge(context, currentX, badgeY1, badgeHeight, badgePadding, distanceText, 0x2a6041, badgeTextScale);
         currentX += badgeSpacing;
-        renderBadge(context, currentX, badgeY1, badgeHeight, badgePadding, mobsText, 0x7a3d3d, badgeTextScale);
+        int statsEndX = renderBadge(context, currentX, badgeY1, badgeHeight, badgePadding, mobsText, 0x7a3d3d, badgeTextScale);
 
         currentX = textX;
         currentX = renderBadge(context, currentX, badgeY2, badgeHeight, badgePadding, deathsText, 0x4a3d5a, badgeTextScale);
         currentX += badgeSpacing;
         renderBadge(context, currentX, badgeY2, badgeHeight, badgePadding, jumpsText, 0x5a4a3d, badgeTextScale);
+
+        if (!player.achievements().isEmpty()) {
+            int achievementX = statsEndX + badgeSpacing * 2;
+            int achievementY = badgeY1;
+            int maxWidth = x + rowWidth - achievementX - (int)(5 * uiScale);
+            renderAchievements(context, achievementX, achievementY, badgeY2, player.achievements(), badgeTextScale, maxWidth, badgeHeight);
+        }
     }
+
+    private float getAnimationProgress() {
+        long elapsed = System.currentTimeMillis() - animationStartTime;
+        if (elapsed < 0) return 0.0f;
+        float progress = Math.min(1.0f, elapsed / (float) STAT_ANIMATION_DURATION);
+        return easeOutQuad(progress);
+    }
+
+    private float easeOutQuad(float t) {
+        return t * (2 - t);
+    }
+
+    private void renderAchievements(DrawContext context, int x, int y1, int y2, List<String> achievements, float textScale, int maxWidth, int badgeHeight) {
+        int achievementHeight = badgeHeight;
+        int padding = (int)(3 * uiScale);
+        int spacing = (int)(3 * uiScale);
+
+        int currentX = x;
+        int currentY = y1;
+        int count = 0;
+        int maxAchievements = isCompactMode ? 2 : 4;
+
+        for (String achievementId : achievements) {
+            if (count >= maxAchievements) break;
+
+            String achievementText = Text.translatable("midnightthoughts.achievement." + achievementId).getString();
+            int textWidth = (int)(textRenderer.getWidth(achievementText) * textScale);
+            int badgeWidth = textWidth + padding * 2;
+
+            if (currentX + badgeWidth > x + maxWidth && currentY == y1) {
+                currentX = x;
+                currentY = y2;
+            }
+
+            if (currentX + badgeWidth > x + maxWidth && currentY == y2) {
+                break;
+            }
+
+            int alpha = (int)(fadeAlpha * 200);
+            int bgColor = (alpha << 24) | 0x8a6a2a;
+
+            context.fill(currentX, currentY, currentX + badgeWidth, currentY + achievementHeight, bgColor);
+
+            int textColor = ((int)(fadeAlpha * 255) << 24) | 0xffd700;
+            int textY = currentY + (achievementHeight - (int)(8 * textScale)) / 2;
+
+            if (textScale < 1.0f) {
+                context.getMatrices().push();
+                context.getMatrices().translate(currentX + padding, textY, 0);
+                context.getMatrices().scale(textScale, textScale, 1.0f);
+                context.drawText(textRenderer, achievementText, 0, 0, textColor, false);
+                context.getMatrices().pop();
+            } else {
+                context.drawText(textRenderer, achievementText, currentX + padding, textY, textColor, false);
+            }
+
+            achievementAreas.add(new AchievementTooltipArea(
+                currentX, currentY, badgeWidth, achievementHeight, achievementId
+            ));
+
+            currentX += badgeWidth + spacing;
+            count++;
+        }
+    }
+
+    private void renderAchievementTooltips(DrawContext context, int mouseX, int mouseY) {
+        for (AchievementTooltipArea area : achievementAreas) {
+            if (mouseX >= area.x && mouseX <= area.x + area.width &&
+                mouseY >= area.y && mouseY <= area.y + area.height) {
+
+                String tooltipKey = "midnightthoughts.achievement." + area.achievementId + ".desc";
+                Text tooltipText = Text.translatable(tooltipKey);
+
+                int tooltipPadding = 4;
+                int tooltipWidth = textRenderer.getWidth(tooltipText) + tooltipPadding * 2;
+                int tooltipHeight = 12;
+
+                int tooltipX = mouseX + 8;
+                int tooltipY = mouseY - tooltipHeight - 4;
+
+                if (tooltipX + tooltipWidth > width) {
+                    tooltipX = mouseX - tooltipWidth - 8;
+                }
+                if (tooltipY < 0) {
+                    tooltipY = mouseY + 16;
+                }
+
+                context.getMatrices().push();
+                context.getMatrices().translate(0, 0, 400);
+
+                int bgAlpha = (int)(fadeAlpha * 240);
+                int bgColor = (bgAlpha << 24) | 0x1a1a2e;
+                int borderColor = (bgAlpha << 24) | 0x8a6a2a;
+
+                context.fill(tooltipX - 1, tooltipY - 1, tooltipX + tooltipWidth + 1, tooltipY + tooltipHeight + 1, borderColor);
+                context.fill(tooltipX, tooltipY, tooltipX + tooltipWidth, tooltipY + tooltipHeight, bgColor);
+
+                int textColor = ((int)(fadeAlpha * 255) << 24) | 0xffd700;
+                context.drawText(textRenderer, tooltipText, tooltipX + tooltipPadding, tooltipY + 2, textColor, false);
+
+                context.getMatrices().pop();
+
+                break;
+            }
+        }
+    }
+
+    private record AchievementTooltipArea(int x, int y, int width, int height, String achievementId) {}
 
     private int renderBadge(DrawContext context, int x, int y, int height, int padding, String text, int bgColor, float textScale) {
         int textWidth = (int)(textRenderer.getWidth(text) * textScale);
@@ -375,4 +542,3 @@ public class DailySummaryScreen extends Screen {
         }
     }
 }
-

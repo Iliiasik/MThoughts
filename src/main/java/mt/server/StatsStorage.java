@@ -98,6 +98,11 @@ public class StatsStorage {
         public int baseDeaths;
         public int baseJumps;
 
+        public int recordBlocks;
+        public int recordDistance;
+        public int recordMobs;
+        public int totalSleeps;
+
         public SavedPlayerStats() {}
 
         public SavedPlayerStats(int baseBlocksDestroyed, int baseDistanceWalked, int baseMobsKilled, int baseDeaths, int baseJumps) {
