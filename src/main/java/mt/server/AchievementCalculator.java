@@ -40,19 +40,22 @@ public class AchievementCalculator {
             player.getGameProfile().getName(), delta.distanceWalked(), delta.blocksDestroyed(),
             delta.mobsKilled(), delta.deaths(), delta.jumps(), saved.totalSleeps);
 
-        if (delta.distanceWalked() > saved.recordDistance && saved.recordDistance > 0) {
+        if (saved.totalSleeps > 0 && delta.distanceWalked() > saved.recordDistance) {
             achievements.add(DailyAchievement.DISTANCE_RECORD.getId());
-            LOGGER.info("[AchievementCalculator] {} earned DISTANCE_RECORD", player.getGameProfile().getName());
+            LOGGER.info("[AchievementCalculator] {} earned DISTANCE_RECORD (new: {}, old: {})",
+                player.getGameProfile().getName(), delta.distanceWalked(), saved.recordDistance);
         }
 
-        if (delta.blocksDestroyed() > saved.recordBlocks && saved.recordBlocks > 0) {
+        if (saved.totalSleeps > 0 && delta.blocksDestroyed() > saved.recordBlocks) {
             achievements.add(DailyAchievement.BLOCKS_RECORD.getId());
-            LOGGER.info("[AchievementCalculator] {} earned BLOCKS_RECORD", player.getGameProfile().getName());
+            LOGGER.info("[AchievementCalculator] {} earned BLOCKS_RECORD (new: {}, old: {})",
+                player.getGameProfile().getName(), delta.blocksDestroyed(), saved.recordBlocks);
         }
 
-        if (delta.mobsKilled() > saved.recordMobs && saved.recordMobs > 0) {
+        if (saved.totalSleeps > 0 && delta.mobsKilled() > saved.recordMobs) {
             achievements.add(DailyAchievement.MOBS_RECORD.getId());
-            LOGGER.info("[AchievementCalculator] {} earned MOBS_RECORD", player.getGameProfile().getName());
+            LOGGER.info("[AchievementCalculator] {} earned MOBS_RECORD (new: {}, old: {})",
+                player.getGameProfile().getName(), delta.mobsKilled(), saved.recordMobs);
         }
 
         if (delta.distanceWalked() >= NOMAD_THRESHOLD) {
@@ -146,28 +149,25 @@ public class AchievementCalculator {
     }
 
     private static void updateRecords(MinecraftServer server, UUID uuid, DailyPlayerStats.DailyDelta delta, StatsStorage.SavedPlayerStats saved) {
-        boolean updated = false;
-
         if (delta.distanceWalked() > saved.recordDistance) {
             saved.recordDistance = delta.distanceWalked();
-            updated = true;
+            LOGGER.info("[AchievementCalculator] New distance record for {}: {}", uuid, saved.recordDistance);
         }
 
         if (delta.blocksDestroyed() > saved.recordBlocks) {
             saved.recordBlocks = delta.blocksDestroyed();
-            updated = true;
+            LOGGER.info("[AchievementCalculator] New blocks record for {}: {}", uuid, saved.recordBlocks);
         }
 
         if (delta.mobsKilled() > saved.recordMobs) {
             saved.recordMobs = delta.mobsKilled();
-            updated = true;
+            LOGGER.info("[AchievementCalculator] New mobs record for {}: {}", uuid, saved.recordMobs);
         }
 
         saved.totalSleeps++;
-
-        if (updated) {
-            StatsStorage.savePlayerStats(server, uuid, saved);
-        }
+        StatsStorage.savePlayerStats(server, uuid, saved);
+        LOGGER.info("[AchievementCalculator] Saved records for {}: distance={}, blocks={}, mobs={}, sleeps={}",
+            uuid, saved.recordDistance, saved.recordBlocks, saved.recordMobs, saved.totalSleeps);
     }
 
     public static String determineMvp(List<PlayerSummaryData> players) {

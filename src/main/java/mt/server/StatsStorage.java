@@ -23,7 +23,14 @@ public class StatsStorage {
 
     public static void savePlayerStats(MinecraftServer server, UUID playerUuid, SavedPlayerStats stats) {
         Path savePath = getStatsFilePath(server);
-        if (savePath == null) return;
+        if (savePath == null) {
+            LOGGER.warn("[StatsStorage] Save path is null, cannot save stats for player {}", playerUuid);
+            return;
+        }
+
+        LOGGER.info("[StatsStorage] Saving stats to path: {}", savePath);
+        LOGGER.info("[StatsStorage] Stats to save: recordDistance={}, recordBlocks={}, recordMobs={}, totalSleeps={}",
+            stats.recordDistance, stats.recordBlocks, stats.recordMobs, stats.totalSleeps);
 
         Map<String, SavedPlayerStats> allStats = loadAllStats(savePath);
         allStats.put(playerUuid.toString(), stats);
@@ -33,7 +40,7 @@ public class StatsStorage {
             try (Writer writer = Files.newBufferedWriter(savePath)) {
                 GSON.toJson(allStats, writer);
             }
-            LOGGER.info("[StatsStorage] Saved stats for player {}", playerUuid);
+            LOGGER.info("[StatsStorage] Saved stats for player {} successfully", playerUuid);
         } catch (IOException e) {
             LOGGER.error("[StatsStorage] Failed to save stats", e);
         }
@@ -41,12 +48,21 @@ public class StatsStorage {
 
     public static SavedPlayerStats loadPlayerStats(MinecraftServer server, UUID playerUuid) {
         Path savePath = getStatsFilePath(server);
-        if (savePath == null) return null;
+        if (savePath == null) {
+            LOGGER.warn("[StatsStorage] Save path is null for player {}", playerUuid);
+            return null;
+        }
 
+        LOGGER.info("[StatsStorage] Loading stats from path: {}", savePath);
         Map<String, SavedPlayerStats> allStats = loadAllStats(savePath);
+        LOGGER.info("[StatsStorage] Loaded {} total player entries", allStats.size());
+
         SavedPlayerStats stats = allStats.get(playerUuid.toString());
         if (stats != null) {
-            LOGGER.info("[StatsStorage] Loaded stats for player {}", playerUuid);
+            LOGGER.info("[StatsStorage] Loaded stats for player {}: recordDistance={}, recordBlocks={}, recordMobs={}, totalSleeps={}",
+                playerUuid, stats.recordDistance, stats.recordBlocks, stats.recordMobs, stats.totalSleeps);
+        } else {
+            LOGGER.info("[StatsStorage] No saved stats found for player {}", playerUuid);
         }
         return stats;
     }

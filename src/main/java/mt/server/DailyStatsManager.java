@@ -103,6 +103,9 @@ public class DailyStatsManager {
             for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
                 NetworkHandler.sendToClient(player, packet);
                 LOGGER.info("[DailyStatsManager] Sent summary to player {}", player.getGameProfile().getName());
+
+                int comfortLevel = ComfortCalculator.calculateComfortLevel(player);
+                WellRestedEffect.applyToPlayer(player, comfortLevel);
             }
         } else {
             LOGGER.warn("[DailyStatsManager] No player summaries to send");

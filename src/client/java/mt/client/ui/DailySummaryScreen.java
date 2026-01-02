@@ -339,7 +339,7 @@ public class DailySummaryScreen extends Screen {
         int badgeY2 = badgeY1 + badgeHeight + badgeRowSpacing;
 
         int animBlocks = (int)(player.blocksDestroyed() * animProgress);
-        int animDistance = (int)((player.distanceWalked() / 100) * animProgress);
+        int animDistance = (int)(player.distanceWalked() * animProgress / 100);
         int animMobs = (int)(player.mobsKilled() * animProgress);
         int animDeaths = (int)(player.deaths() * animProgress);
         int animJumps = (int)(player.jumps() * animProgress);

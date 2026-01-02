@@ -1,4 +1,6 @@
 {
+  "effect.midnightthoughts.well_rested": "Ausgeruht",
+
   "midnightthoughts.stats.fish_caught": "Gefangene Fische: %d",
   "midnightthoughts.stats.items_crafted": "Hergestellte Gegenstände: %d",
   "midnightthoughts.stats.blocks_destroyed": "Zerstörte Blöcke: %d",

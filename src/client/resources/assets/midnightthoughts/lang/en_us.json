@@ -1,4 +1,6 @@
 {
+  "effect.midnightthoughts.well_rested": "Well Rested",
+
   "midnightthoughts.stats.fish_caught": "Fish caught: %d",
   "midnightthoughts.stats.items_crafted": "Items crafted: %d",
   "midnightthoughts.stats.blocks_destroyed": "Blocks destroyed: %d",

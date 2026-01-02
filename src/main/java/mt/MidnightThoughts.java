@@ -2,6 +2,7 @@ package mt;
 
 import mt.network.NetworkHandler;
 import mt.server.DailyStatsManager;
+import mt.server.WellRestedEffect;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -17,6 +18,7 @@ public class MidnightThoughts implements ModInitializer {
     public void onInitialize() {
         LOGGER.info("Initializing Midnight Thoughts Server...");
 
+        WellRestedEffect.register();
         NetworkHandler.registerPackets();
         DailyStatsManager.initialize();
 

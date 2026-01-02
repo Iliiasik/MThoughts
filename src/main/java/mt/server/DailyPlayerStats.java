@@ -43,9 +43,19 @@ public class DailyPlayerStats {
     }
 
     public void saveToStorage(MinecraftServer server) {
+        StatsStorage.SavedPlayerStats existing = StatsStorage.loadPlayerStats(server, playerUuid);
+
         StatsStorage.SavedPlayerStats saved = new StatsStorage.SavedPlayerStats(
             baseBlocksDestroyed, baseDistanceWalked, baseMobsKilled, baseDeaths, baseJumps
         );
+
+        if (existing != null) {
+            saved.recordDistance = existing.recordDistance;
+            saved.recordBlocks = existing.recordBlocks;
+            saved.recordMobs = existing.recordMobs;
+            saved.totalSleeps = existing.totalSleeps;
+        }
+
         StatsStorage.savePlayerStats(server, playerUuid, saved);
     }
 
@@ -58,13 +68,33 @@ public class DailyPlayerStats {
         }
         this.baseBlocksDestroyed = blocksDestroyed;
 
-        this.baseDistanceWalked = stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.WALK_ONE_CM));
+        this.baseDistanceWalked = getTotalDistance(stats);
         this.baseMobsKilled = stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.MOB_KILLS));
         this.baseDeaths = stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.DEATHS));
         this.baseJumps = stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.JUMP));
 
         LOGGER.info("[DailyPlayerStats] Captured base stats for {}: blocks={}, distance={}, mobs={}, deaths={}, jumps={}",
             player.getGameProfile().getName(), baseBlocksDestroyed, baseDistanceWalked, baseMobsKilled, baseDeaths, baseJumps);
+    }
+
+    private int getTotalDistance(StatHandler stats) {
+        int total = 0;
+        total += stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.WALK_ONE_CM));
+        total += stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.SPRINT_ONE_CM));
+        total += stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.CROUCH_ONE_CM));
+        total += stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.SWIM_ONE_CM));
+        total += stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.FALL_ONE_CM));
+        total += stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.CLIMB_ONE_CM));
+        total += stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.FLY_ONE_CM));
+        total += stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.WALK_UNDER_WATER_ONE_CM));
+        total += stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.WALK_ON_WATER_ONE_CM));
+        total += stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.BOAT_ONE_CM));
+        total += stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.PIG_ONE_CM));
+        total += stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.HORSE_ONE_CM));
+        total += stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.MINECART_ONE_CM));
+        total += stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.AVIATE_ONE_CM));
+        total += stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.STRIDER_ONE_CM));
+        return total;
     }
 
     public DailyDelta calculateDelta(ServerPlayerEntity player) {
@@ -75,7 +105,7 @@ public class DailyPlayerStats {
             blocksDestroyed += stats.getStat(Stats.MINED.getOrCreateStat(block));
         }
 
-        int currentDistanceWalked = stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.WALK_ONE_CM));
+        int currentDistanceWalked = getTotalDistance(stats);
         int currentMobsKilled = stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.MOB_KILLS));
         int currentDeaths = stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.DEATHS));
         int currentJumps = stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.JUMP));
