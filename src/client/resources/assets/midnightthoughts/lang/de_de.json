@@ -8,6 +8,19 @@
   "midnightthoughts.stats.mobs_killed": "Getötete Mobs: %d",
   "midnightthoughts.stats.jumps": "Sprünge insgesamt: %d",
   "midnightthoughts.stats.walk_distance": "Zurückgelegte Strecke: %s km",
-  "midnightthoughts.stats.playtime": "Du spielst seit: %dh %dm"
+  "midnightthoughts.stats.playtime": "Du spielst seit: %dh %dm",
+
+  "midnightthoughts.summary.title": "Seit dem letzten Schlaf",
+  "midnightthoughts.summary.page": "Seite %d von %d",
+  "midnightthoughts.summary.previous": "Zurück",
+  "midnightthoughts.summary.next": "Weiter",
+  "midnightthoughts.summary.continue": "Fortfahren",
+  "midnightthoughts.summary.blocks": "Blöcke",
+  "midnightthoughts.summary.distance": "Entfernung",
+  "midnightthoughts.summary.mobs": "Mobs",
+  "midnightthoughts.summary.deaths": "Tode",
+  "midnightthoughts.summary.jumps": "Sprünge",
+
+  "midnightthoughts.hud.sleeping": "Schlafen"
 }
 

@@ -3,11 +3,13 @@ package mt.client;
 import mt.client.api.UselessFactsApiClient;
 import mt.client.config.MidnightThoughtsConfig;
 import mt.client.manager.SleepStateManager;
+import mt.client.network.ClientNetworkHandler;
 import mt.client.render.SleepOverlayRenderer;
 import mt.client.repository.SlideRepository;
 import mt.client.service.FactProvider;
 import mt.client.service.PlayerStatsService;
 import mt.client.service.SlideService;
+import mt.client.ui.SleepingPlayersHud;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
@@ -25,39 +27,39 @@ public class MidnightThoughtsClient implements ClientModInitializer {
 
     private static MidnightThoughtsClient instance;
 
-    private MidnightThoughtsConfig config;
     private SlideRepository slideRepository;
-    private PlayerStatsService playerStatsService;
-    private UselessFactsApiClient apiClient;
-    private FactProvider factProvider;
-    private SlideService slideService;
     private SleepStateManager sleepStateManager;
     private SleepOverlayRenderer overlayRenderer;
 
     @Override
     public void onInitializeClient() {
         instance = this;
-        LOGGER.info("Initializing Midnight Thoughts...");
+        LOGGER.info("[MidnightThoughtsClient] Initializing Midnight Thoughts...");
 
         initializeComponents();
         registerEventListeners();
         registerResourceReloadListener();
+        ClientNetworkHandler.registerPacketHandlers();
 
-        LOGGER.info("Midnight Thoughts initialized successfully!");
+        LOGGER.info("[MidnightThoughtsClient] Midnight Thoughts initialized successfully!");
     }
 
     private void initializeComponents() {
-        config = MidnightThoughtsConfig.getInstance();
+        LOGGER.info("[MidnightThoughtsClient] Initializing components...");
+        MidnightThoughtsConfig config = MidnightThoughtsConfig.getInstance();
         slideRepository = new SlideRepository();
-        playerStatsService = new PlayerStatsService();
-        apiClient = new UselessFactsApiClient();
-        factProvider = new FactProvider(apiClient, slideRepository);
-        slideService = new SlideService(slideRepository, playerStatsService, config, factProvider);
+        PlayerStatsService playerStatsService = new PlayerStatsService();
+        UselessFactsApiClient apiClient = new UselessFactsApiClient();
+        FactProvider factProvider = new FactProvider(apiClient, slideRepository);
+        SlideService slideService = new SlideService(slideRepository, playerStatsService, config, factProvider);
         sleepStateManager = new SleepStateManager();
         overlayRenderer = new SleepOverlayRenderer(sleepStateManager, slideService, config);
+        LOGGER.info("[MidnightThoughtsClient] Components initialized");
     }
 
     private void registerEventListeners() {
+        LOGGER.info("[MidnightThoughtsClient] Registering event listeners...");
+
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (client.player != null) {
                 sleepStateManager.tick(client.player);
@@ -69,7 +71,10 @@ public class MidnightThoughtsClient implements ClientModInitializer {
             int width = context.getScaledWindowWidth();
             int height = context.getScaledWindowHeight();
             overlayRenderer.render(context, width, height);
+            SleepingPlayersHud.render(context, width, height);
         });
+
+        LOGGER.info("[MidnightThoughtsClient] Event listeners registered");
     }
 
     private void registerResourceReloadListener() {
@@ -82,7 +87,7 @@ public class MidnightThoughtsClient implements ClientModInitializer {
 
                 @Override
                 public void reload(ResourceManager manager) {
-                    LOGGER.info("Reloading slide data...");
+                    LOGGER.info("[MidnightThoughtsClient] Reloading slide data...");
                     slideRepository.clearCache();
                     slideRepository.loadAllSlides(manager);
                 }

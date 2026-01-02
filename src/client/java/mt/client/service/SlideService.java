@@ -39,15 +39,11 @@ public class SlideService {
             }
         }
 
-        if (slideCounter % config.getStatsSlideFrequency() == 0) {
-            return generateStatsSlide();
-        }
-
         SlideCategory category = selectRandomCategory();
         Slide slide = getSlideByCategory(language, category);
 
         if (slide == null) {
-            return generateStatsSlide();
+            return slideRepository.getRandomSlide(language, SlideCategory.FACT);
         }
 
         return slide;

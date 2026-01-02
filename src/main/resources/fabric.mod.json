@@ -7,8 +7,11 @@
   "authors": ["MidnightThoughts Team"],
   "contact": {},
   "license": "MIT",
-  "environment": "client",
+  "environment": "*",
   "entrypoints": {
+    "main": [
+      "mt.MidnightThoughts"
+    ],
     "client": [
       "mt.client.MidnightThoughtsClient"
     ]
