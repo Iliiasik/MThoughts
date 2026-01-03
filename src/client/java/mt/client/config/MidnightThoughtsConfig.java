@@ -76,7 +76,6 @@ public final class MidnightThoughtsConfig {
         return FabricLoader.getInstance().getConfigDir().resolve(CONFIG_FILE_NAME);
     }
 
-
     public int getFadeInDurationMs() {
         return fadeInDurationMs;
     }
@@ -93,10 +92,6 @@ public final class MidnightThoughtsConfig {
         return textOpacity;
     }
 
-    public int getStatsSlideFrequency() {
-        return statsSlideFrequency;
-    }
-
     public float getSpecialSlideChance() {
         return specialSlideChance;
     }
@@ -109,9 +104,7 @@ public final class MidnightThoughtsConfig {
         return enableImage;
     }
 
-
     public int getRandomSlideDisplayTime() {
         return minSlideDisplayTimeMs + (int) (Math.random() * (maxSlideDisplayTimeMs - minSlideDisplayTimeMs));
     }
 }
-
