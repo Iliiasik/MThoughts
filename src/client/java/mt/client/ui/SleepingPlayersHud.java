@@ -13,15 +13,12 @@ public class SleepingPlayersHud {
     private static int sleepingCount = 0;
     private static int totalPlayers = 0;
     private static float displayAlpha = 0.0f;
-    private static long lastUpdateTime = 0;
-    private static final long FADE_DELAY = 3000;
-    private static final float FADE_SPEED = 0.05f;
+    private static final float FADE_SPEED = 0.1f;
 
     public static void updateSleepingCount(int sleeping, int total) {
         LOGGER.info("[SleepingPlayersHud] Updating sleeping count: {} / {}", sleeping, total);
         sleepingCount = sleeping;
         totalPlayers = total;
-        lastUpdateTime = System.currentTimeMillis();
     }
 
     public static void render(DrawContext context, int screenWidth, int screenHeight) {
@@ -31,9 +28,8 @@ public class SleepingPlayersHud {
         }
 
         boolean shouldShow = sleepingCount > 0 && totalPlayers > 0;
-        long timeSinceUpdate = System.currentTimeMillis() - lastUpdateTime;
 
-        if (shouldShow && timeSinceUpdate < FADE_DELAY) {
+        if (shouldShow) {
             displayAlpha = Math.min(1.0f, displayAlpha + FADE_SPEED);
         } else {
             displayAlpha = Math.max(0.0f, displayAlpha - FADE_SPEED);
@@ -90,6 +86,10 @@ public class SleepingPlayersHud {
         sleepingCount = 0;
         totalPlayers = 0;
         displayAlpha = 0.0f;
+    }
+
+    public static boolean isShowingSleepingHud() {
+        return sleepingCount > 0 && totalPlayers > 0;
     }
 }
 
