@@ -11,11 +11,8 @@ import net.minecraft.registry.Registry;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class WellRestedEffect extends StatusEffect {
-    private static final Logger LOGGER = LoggerFactory.getLogger("MidnightThoughts");
 
     public static RegistryEntry<StatusEffect> WELL_RESTED;
 
@@ -88,12 +85,10 @@ public class WellRestedEffect extends StatusEffect {
             Identifier.of(MidnightThoughts.MOD_ID, "well_rested"),
             effect
         );
-        LOGGER.info("[WellRestedEffect] Registered well_rested effect");
     }
 
     public static void applyToPlayer(ServerPlayerEntity player, int comfortLevel) {
         if (comfortLevel <= 0) {
-            LOGGER.info("[WellRestedEffect] Comfort level 0, no effect applied to {}", player.getGameProfile().getName());
             return;
         }
 
@@ -116,9 +111,5 @@ public class WellRestedEffect extends StatusEffect {
         } else {
             player.setHealth(player.getHealth() + 2.0f);
         }
-
-        LOGGER.info("[WellRestedEffect] Applied Well Rested level {} ({} seconds) to {}",
-            comfortLevel, duration / 20, player.getGameProfile().getName());
     }
 }
-

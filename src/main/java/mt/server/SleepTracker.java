@@ -6,13 +6,9 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.World;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class SleepTracker {
-    private static final Logger LOGGER = LoggerFactory.getLogger("MidnightThoughts");
     private static final long NIGHT_START = 12542;
-    private static final long NIGHT_END = 23460;
     private static final long MORNING_TIME = 1000;
 
     private final MinecraftServer server;
@@ -23,7 +19,6 @@ public class SleepTracker {
 
     public SleepTracker(MinecraftServer server) {
         this.server = server;
-        LOGGER.info("[SleepTracker] Created new SleepTracker for server");
     }
 
     public void tick() {
@@ -37,7 +32,6 @@ public class SleepTracker {
         int totalPlayers = countNonSpectatorPlayers();
 
         if (sleepingCount != lastSleepingCount) {
-            LOGGER.info("[SleepTracker] Sleeping players changed: {} -> {} (total: {})", lastSleepingCount, sleepingCount, totalPlayers);
             sendSleepingCountToAllPlayers(sleepingCount, totalPlayers);
             lastSleepingCount = sleepingCount;
         }
@@ -45,9 +39,7 @@ public class SleepTracker {
         boolean allSleepingNow = totalPlayers > 0 && sleepingCount == totalPlayers;
 
         if (allSleepingNow && !allPlayersSleeping) {
-            LOGGER.info("[SleepTracker] All players are now sleeping, night will be skipped");
             wasNightBeforeSleep = isNightTime(timeOfDay);
-            LOGGER.info("[SleepTracker] Was night before sleep: {}, time: {}", wasNightBeforeSleep, timeOfDay);
         }
 
         if (allPlayersSleeping && sleepingCount == 0) {
@@ -55,14 +47,8 @@ public class SleepTracker {
             boolean wasNightLastTick = isNightTime(lastTimeOfDay);
             boolean timeJumped = lastTimeOfDay >= 0 && (lastTimeOfDay > timeOfDay || (wasNightLastTick && isMorningNow));
 
-            LOGGER.info("[SleepTracker] Players woke up. wasNightBeforeSleep: {}, timeJumped: {}, lastTime: {}, currentTime: {}",
-                wasNightBeforeSleep, timeJumped, lastTimeOfDay, timeOfDay);
-
             if (wasNightBeforeSleep && (timeJumped || isMorningNow)) {
-                LOGGER.info("[SleepTracker] Night was successfully skipped - showing daily summary");
                 DailyStatsManager.showDailySummaryAndReset(server);
-            } else {
-                LOGGER.info("[SleepTracker] Players woke up without completing sleep - not showing summary");
             }
 
             wasNightBeforeSleep = false;
@@ -107,4 +93,3 @@ public class SleepTracker {
         }
     }
 }
-

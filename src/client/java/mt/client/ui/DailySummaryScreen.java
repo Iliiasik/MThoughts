@@ -13,20 +13,16 @@ import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class DailySummaryScreen extends Screen {
-    private static final Logger LOGGER = LoggerFactory.getLogger("MidnightThoughts");
     private static final Identifier BACKGROUND_TEXTURE = Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/background.png");
     private static final Identifier CROWN_TEXTURE = Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/crown.png");
 
     private static final long STAT_ANIMATION_DURATION = 800;
     private static final int MVP_GOLD_COLOR = 0xFFD700;
-    private static final int MVP_BORDER_COLOR = 0xDAA520;
 
     private final List<DailySummaryPacket.PlayerDailySummary> allPlayers;
     private final List<AchievementTooltipArea> achievementAreas = new ArrayList<>();
@@ -50,8 +46,6 @@ public class DailySummaryScreen extends Screen {
         this.allPlayers = players;
         this.screenOpenTime = System.currentTimeMillis();
         this.animationStartTime = System.currentTimeMillis() + 300;
-        int totalPages = Math.max(1, (int) Math.ceil((double) players.size() / 4));
-        LOGGER.info("[DailySummaryScreen] Created with {} players, {} pages", players.size(), totalPages);
     }
 
     private void calculateDimensions() {
@@ -85,8 +79,6 @@ public class DailySummaryScreen extends Screen {
     protected void init() {
         super.init();
         calculateDimensions();
-        LOGGER.info("[DailySummaryScreen] init() - compact: {}, scale: {}, panel: {}x{}",
-            isCompactMode, uiScale, panelWidth, panelHeight);
 
         int buttonWidth = isCompactMode ? Math.max(60, (int)(70 * uiScale)) : (int)(90 * uiScale);
         int buttonHeight = isCompactMode ? Math.max(16, (int)(16 * uiScale)) : (int)(20 * uiScale);
@@ -128,7 +120,6 @@ public class DailySummaryScreen extends Screen {
             width / 2 - buttonWidth / 2, buttonY, buttonWidth, buttonHeight,
             Text.translatable("midnightthoughts.summary.continue"),
             button -> {
-                LOGGER.info("[DailySummaryScreen] Continue button pressed");
                 ClientNetworkHandler.sendSummaryAcknowledge();
                 close();
             }
@@ -292,8 +283,7 @@ public class DailySummaryScreen extends Screen {
                     context.drawTexture(skin, headX, headY, headSize, headSize, 40, 8, 8, 8, 64, 64);
                 }
             }
-        } catch (Exception e) {
-            LOGGER.warn("[DailySummaryScreen] Failed to render player head: {}", e.getMessage());
+        } catch (Exception ignored) {
         }
 
         int textX = headX + headSize + (int)(10 * uiScale);
@@ -364,9 +354,8 @@ public class DailySummaryScreen extends Screen {
 
         if (!player.achievements().isEmpty()) {
             int achievementX = statsEndX + badgeSpacing * 2;
-            int achievementY = badgeY1;
             int maxWidth = x + rowWidth - achievementX - (int)(5 * uiScale);
-            renderAchievements(context, achievementX, achievementY, badgeY2, player.achievements(), badgeTextScale, maxWidth, badgeHeight);
+            renderAchievements(context, achievementX, badgeY1, badgeY2, player.achievements(), badgeTextScale, maxWidth, badgeHeight);
         }
     }
 
@@ -382,7 +371,6 @@ public class DailySummaryScreen extends Screen {
     }
 
     private void renderAchievements(DrawContext context, int x, int y1, int y2, List<String> achievements, float textScale, int maxWidth, int badgeHeight) {
-        int achievementHeight = badgeHeight;
         int padding = (int)(3 * uiScale);
         int spacing = (int)(3 * uiScale);
 
@@ -410,10 +398,10 @@ public class DailySummaryScreen extends Screen {
             int alpha = (int)(fadeAlpha * 200);
             int bgColor = (alpha << 24) | 0x8a6a2a;
 
-            context.fill(currentX, currentY, currentX + badgeWidth, currentY + achievementHeight, bgColor);
+            context.fill(currentX, currentY, currentX + badgeWidth, currentY + badgeHeight, bgColor);
 
             int textColor = ((int)(fadeAlpha * 255) << 24) | 0xffd700;
-            int textY = currentY + (achievementHeight - (int)(8 * textScale)) / 2;
+            int textY = currentY + (badgeHeight - (int)(8 * textScale)) / 2;
 
             if (textScale < 1.0f) {
                 context.getMatrices().push();
@@ -426,7 +414,7 @@ public class DailySummaryScreen extends Screen {
             }
 
             achievementAreas.add(new AchievementTooltipArea(
-                currentX, currentY, badgeWidth, achievementHeight, achievementId
+                currentX, currentY, badgeWidth, badgeHeight, achievementId
             ));
 
             currentX += badgeWidth + spacing;
@@ -510,7 +498,6 @@ public class DailySummaryScreen extends Screen {
 
     @Override
     public void close() {
-        LOGGER.info("[DailySummaryScreen] Screen closed");
         super.close();
     }
 

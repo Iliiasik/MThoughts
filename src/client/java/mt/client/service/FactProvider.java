@@ -97,9 +97,4 @@ public class FactProvider {
         }
         return slideRepository.getRandomSlide("en_us", SlideCategory.FACT);
     }
-
-    public void shutdown() {
-        apiClient.shutdown();
-    }
 }
-

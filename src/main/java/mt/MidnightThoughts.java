@@ -16,8 +16,6 @@ public class MidnightThoughts implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        LOGGER.info("Initializing Midnight Thoughts Server...");
-
         WellRestedEffect.register();
         NetworkHandler.registerPackets();
         DailyStatsManager.initialize();
@@ -34,7 +32,6 @@ public class MidnightThoughts implements ModInitializer {
 
         ServerLifecycleEvents.SERVER_STOPPING.register(DailyStatsManager::onServerStop);
 
-        LOGGER.info("Midnight Thoughts Server initialized successfully!");
+        LOGGER.info("Midnight Thoughts initialized successfully!");
     }
 }
-

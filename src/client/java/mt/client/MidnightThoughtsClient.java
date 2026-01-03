@@ -34,7 +34,6 @@ public class MidnightThoughtsClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         instance = this;
-        LOGGER.info("[MidnightThoughtsClient] Initializing Midnight Thoughts...");
 
         initializeComponents();
         registerEventListeners();
@@ -45,7 +44,6 @@ public class MidnightThoughtsClient implements ClientModInitializer {
     }
 
     private void initializeComponents() {
-        LOGGER.info("[MidnightThoughtsClient] Initializing components...");
         MidnightThoughtsConfig config = MidnightThoughtsConfig.getInstance();
         slideRepository = new SlideRepository();
         PlayerStatsService playerStatsService = new PlayerStatsService();
@@ -54,12 +52,9 @@ public class MidnightThoughtsClient implements ClientModInitializer {
         SlideService slideService = new SlideService(slideRepository, playerStatsService, config, factProvider);
         sleepStateManager = new SleepStateManager();
         overlayRenderer = new SleepOverlayRenderer(sleepStateManager, slideService, config);
-        LOGGER.info("[MidnightThoughtsClient] Components initialized");
     }
 
     private void registerEventListeners() {
-        LOGGER.info("[MidnightThoughtsClient] Registering event listeners...");
-
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (client.player != null) {
                 sleepStateManager.tick(client.player);
@@ -73,8 +68,6 @@ public class MidnightThoughtsClient implements ClientModInitializer {
             overlayRenderer.render(context, width, height);
             SleepingPlayersHud.render(context, width, height);
         });
-
-        LOGGER.info("[MidnightThoughtsClient] Event listeners registered");
     }
 
     private void registerResourceReloadListener() {
@@ -87,7 +80,6 @@ public class MidnightThoughtsClient implements ClientModInitializer {
 
                 @Override
                 public void reload(ResourceManager manager) {
-                    LOGGER.info("[MidnightThoughtsClient] Reloading slide data...");
                     slideRepository.clearCache();
                     slideRepository.loadAllSlides(manager);
                 }

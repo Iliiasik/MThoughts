@@ -6,14 +6,11 @@ import net.minecraft.block.Blocks;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.Set;
 
 public class ComfortCalculator {
-    private static final Logger LOGGER = LoggerFactory.getLogger("MidnightThoughts");
     private static final int SCAN_RADIUS = 5;
 
     private static final Set<Block> LIGHTING_BLOCKS = new HashSet<>();
@@ -258,10 +255,7 @@ public class ComfortCalculator {
         if (hasDecor) comfortLevel++;
         if (hasStructure) comfortLevel++;
 
-        LOGGER.info("[ComfortCalculator] Player {} comfort level: {} (lighting={}, carpet={}, furniture={}, decor={}, structure={})",
-            player.getGameProfile().getName(), comfortLevel, hasLighting, hasCarpet, hasFurniture, hasDecor, hasStructure);
 
         return comfortLevel;
     }
 }
-

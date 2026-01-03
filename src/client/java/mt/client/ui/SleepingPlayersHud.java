@@ -4,19 +4,14 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.text.Text;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class SleepingPlayersHud {
-    private static final Logger LOGGER = LoggerFactory.getLogger("MidnightThoughts");
-
     private static int sleepingCount = 0;
     private static int totalPlayers = 0;
     private static float displayAlpha = 0.0f;
     private static final float FADE_SPEED = 0.1f;
 
     public static void updateSleepingCount(int sleeping, int total) {
-        LOGGER.info("[SleepingPlayersHud] Updating sleeping count: {} / {}", sleeping, total);
         sleepingCount = sleeping;
         totalPlayers = total;
     }
@@ -82,7 +77,6 @@ public class SleepingPlayersHud {
     }
 
     public static void reset() {
-        LOGGER.info("[SleepingPlayersHud] Resetting hud state");
         sleepingCount = 0;
         totalPlayers = 0;
         displayAlpha = 0.0f;

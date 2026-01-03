@@ -6,14 +6,10 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.stat.StatHandler;
 import net.minecraft.stat.Stats;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.UUID;
 
 public class DailyPlayerStats {
-    private static final Logger LOGGER = LoggerFactory.getLogger("MidnightThoughts");
-
     private final UUID playerUuid;
     private int baseBlocksDestroyed = 0;
     private int baseDistanceWalked = 0;
@@ -36,8 +32,6 @@ public class DailyPlayerStats {
             this.baseMobsKilled = saved.baseMobsKilled;
             this.baseDeaths = saved.baseDeaths;
             this.baseJumps = saved.baseJumps;
-            LOGGER.info("[DailyPlayerStats] Loaded saved base stats for {}: blocks={}, distance={}, mobs={}, deaths={}, jumps={}",
-                playerUuid, baseBlocksDestroyed, baseDistanceWalked, baseMobsKilled, baseDeaths, baseJumps);
             hasLoadedFromFile = true;
         }
     }
@@ -72,9 +66,6 @@ public class DailyPlayerStats {
         this.baseMobsKilled = stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.MOB_KILLS));
         this.baseDeaths = stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.DEATHS));
         this.baseJumps = stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.JUMP));
-
-        LOGGER.info("[DailyPlayerStats] Captured base stats for {}: blocks={}, distance={}, mobs={}, deaths={}, jumps={}",
-            player.getGameProfile().getName(), baseBlocksDestroyed, baseDistanceWalked, baseMobsKilled, baseDeaths, baseJumps);
     }
 
     private int getTotalDistance(StatHandler stats) {
@@ -116,8 +107,6 @@ public class DailyPlayerStats {
         int deltaDeaths = Math.max(0, currentDeaths - baseDeaths);
         int deltaJumps = Math.max(0, currentJumps - baseJumps);
 
-        LOGGER.info("[DailyPlayerStats] Delta for {}: blocks={}, distance={}, mobs={}, deaths={}, jumps={}",
-            player.getGameProfile().getName(), deltaBlocks, deltaDistance, deltaMobs, deltaDeaths, deltaJumps);
 
         return new DailyDelta(deltaBlocks, deltaDistance, deltaMobs, deltaDeaths, deltaJumps);
     }

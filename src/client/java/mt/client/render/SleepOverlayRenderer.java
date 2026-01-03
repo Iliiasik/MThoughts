@@ -52,8 +52,6 @@ public class SleepOverlayRenderer {
     private static final float ALPHA_LERP_SPEED = 0.15f;
     private static final long SLEEP_DEBOUNCE_MS = 200;
 
-
-
     private enum SlideState {
         HIDDEN,
         FADING_IN,
