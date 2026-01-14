@@ -4,6 +4,7 @@
   "version": "${version}",
   "name": "MThoughts Expanded",
   "description": "An atmospheric sleep enhancement mod. Features random facts and Minecraft lore during sleep, daily player statistics summary (Stardew Valley style), MVP system for multiplayer, personal achievements, Well Rested effect with comfort levels, and a stylish sleeping players HUD.",
+  "icon": "assets/midnightthoughts/icon.png",
   "authors": ["MidnightThoughts Team"],
   "contact": {},
   "license": "MIT",
