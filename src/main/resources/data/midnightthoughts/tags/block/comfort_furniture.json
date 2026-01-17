@@ -1,0 +1,32 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:bookshelf",
+    "minecraft:chest",
+    "minecraft:trapped_chest",
+    "minecraft:crafting_table",
+    "minecraft:furnace",
+    "minecraft:blast_furnace",
+    "minecraft:smoker",
+    "minecraft:enchanting_table",
+    "minecraft:anvil",
+    "minecraft:chipped_anvil",
+    "minecraft:damaged_anvil",
+    "minecraft:lectern",
+    "minecraft:barrel",
+    "minecraft:cartography_table",
+    "minecraft:fletching_table",
+    "minecraft:grindstone",
+    "minecraft:loom",
+    "minecraft:smithing_table",
+    "minecraft:stonecutter",
+    "minecraft:brewing_stand",
+    "minecraft:cauldron",
+    "minecraft:water_cauldron",
+    "minecraft:lava_cauldron",
+    "minecraft:powder_snow_cauldron",
+    "minecraft:jukebox",
+    "minecraft:bell",
+    "minecraft:decorated_pot"
+  ]
+}
