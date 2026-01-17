@@ -9,17 +9,6 @@ import java.util.UUID;
 
 public class AchievementCalculator {
 
-    private static final int EXPLORER_THRESHOLD = 5000;
-    private static final int MARATHON_THRESHOLD = 20000;
-    private static final int NOMAD_THRESHOLD = 50000;
-    private static final int MINER_PRO_THRESHOLD = 200;
-    private static final int WORKAHOLIC_THRESHOLD = 500;
-    private static final int HUNTER_THRESHOLD = 10;
-    private static final int MASS_MURDERER_THRESHOLD = 30;
-    private static final int JUMPER_THRESHOLD = 200;
-    private static final int SURVIVOR_THRESHOLD = 3;
-    private static final int CLUMSY_THRESHOLD = 5;
-
     public static List<String> calculateAchievements(
             ServerPlayerEntity player,
             DailyPlayerStats.DailyDelta delta,
@@ -33,99 +22,34 @@ public class AchievementCalculator {
             saved = new StatsStorage.SavedPlayerStats();
         }
 
-        if (saved.totalSleeps > 0 && delta.distanceWalked() > saved.recordDistance) {
-            achievements.add(DailyAchievement.DISTANCE_RECORD.getId());
+        int distance = delta.distanceWalked();
+        int blocks = delta.blocksDestroyed();
+        int mobs = delta.mobsKilled();
+        int deaths = delta.deaths();
+        int jumps = delta.jumps();
+
+        if (distance > saved.recordDistance && saved.totalSleeps > 0) {
+            achievements.add("distance_record");
+        }
+        if (blocks > saved.recordBlocks && saved.totalSleeps > 0) {
+            achievements.add("blocks_record");
+        }
+        if (mobs > saved.recordMobs && saved.totalSleeps > 0) {
+            achievements.add("mobs_record");
         }
 
-        if (saved.totalSleeps > 0 && delta.blocksDestroyed() > saved.recordBlocks) {
-            achievements.add(DailyAchievement.BLOCKS_RECORD.getId());
-        }
+        int blocksWalked = distance / 100;
 
-        if (saved.totalSleeps > 0 && delta.mobsKilled() > saved.recordMobs) {
-            achievements.add(DailyAchievement.MOBS_RECORD.getId());
-        }
-
-        if (delta.distanceWalked() >= NOMAD_THRESHOLD) {
-            achievements.add(DailyAchievement.NOMAD.getId());
-        } else if (delta.distanceWalked() >= MARATHON_THRESHOLD) {
-            achievements.add(DailyAchievement.MARATHON.getId());
-        } else if (delta.distanceWalked() >= EXPLORER_THRESHOLD) {
-            achievements.add(DailyAchievement.EXPLORER.getId());
-        }
-
-        if (delta.blocksDestroyed() >= WORKAHOLIC_THRESHOLD) {
-            achievements.add(DailyAchievement.WORKAHOLIC.getId());
-        } else if (delta.blocksDestroyed() >= MINER_PRO_THRESHOLD) {
-            achievements.add(DailyAchievement.MINER_PRO.getId());
-        }
-
-        if (delta.mobsKilled() >= MASS_MURDERER_THRESHOLD) {
-            achievements.add(DailyAchievement.MASS_MURDERER.getId());
-        } else if (delta.mobsKilled() >= HUNTER_THRESHOLD) {
-            achievements.add(DailyAchievement.HUNTER.getId());
-        }
-
-        if (delta.mobsKilled() > 0 && saved.recordMobs == 0 && saved.totalSleeps > 0) {
-            achievements.add(DailyAchievement.FIRST_BLOOD.getId());
-        }
-
-        if (delta.deaths() == 0 && (delta.blocksDestroyed() > 50 || delta.distanceWalked() > 2000 || delta.mobsKilled() > 3)) {
-            achievements.add(DailyAchievement.DEATHLESS.getId());
-        }
-
-        if (delta.deaths() >= CLUMSY_THRESHOLD) {
-            achievements.add(DailyAchievement.CLUMSY.getId());
-        } else if (delta.deaths() >= SURVIVOR_THRESHOLD && delta.mobsKilled() > delta.deaths()) {
-            achievements.add(DailyAchievement.SURVIVOR.getId());
-        }
-
-        if (delta.deaths() == 0 && delta.mobsKilled() >= 5) {
-            achievements.add(DailyAchievement.UNTOUCHABLE.getId());
-        }
-
-        if (delta.jumps() >= JUMPER_THRESHOLD) {
-            achievements.add(DailyAchievement.JUMPER.getId());
-        }
-
-        if (delta.mobsKilled() == 0 && delta.distanceWalked() >= 3000) {
-            achievements.add(DailyAchievement.PACIFIST.getId());
-        }
-
-        if (delta.distanceWalked() >= 10000 && delta.blocksDestroyed() >= 100 && delta.mobsKilled() >= 5) {
-            achievements.add(DailyAchievement.SPEEDRUNNER.getId());
-        }
-
-        if (delta.distanceWalked() < 500 && delta.blocksDestroyed() < 20 && delta.jumps() < 50) {
-            achievements.add(DailyAchievement.LAZY.getId());
-        }
-
-        if (delta.jumps() >= 500) {
-            achievements.add(DailyAchievement.HYPERACTIVE.getId());
-        }
-
-        if (delta.blocksDestroyed() >= 1000) {
-            achievements.add(DailyAchievement.DEMOLITION_EXPERT.getId());
-        }
-
-        if (delta.jumps() >= 100 && delta.distanceWalked() >= 5000) {
-            achievements.add(DailyAchievement.BUNNY_HOP.getId());
-        }
-
-        if (delta.deaths() == 0 && delta.distanceWalked() >= 10000) {
-            achievements.add(DailyAchievement.IRON_WILL.getId());
-        }
-
-        if (delta.mobsKilled() >= 50) {
-            achievements.add(DailyAchievement.BLOODTHIRSTY.getId());
-        }
-
-        if (delta.deaths() <= 1 && delta.blocksDestroyed() >= 300) {
-            achievements.add(DailyAchievement.CAREFUL.getId());
-        }
-
-        if (delta.distanceWalked() >= 8000 && delta.mobsKilled() >= 10 && delta.blocksDestroyed() >= 50) {
-            achievements.add(DailyAchievement.ADVENTURER.getId());
-        }
+        if (deaths == 0 && mobs >= 10 && blocks >= 50) achievements.add("flawless");
+        if (mobs == 0 && blocksWalked >= 5000) achievements.add("pacifist");
+        if (mobs >= 50 && deaths <= 1) achievements.add("juggernaut");
+        if (blocksWalked >= 30000) achievements.add("marathoner");
+        if (jumps >= 500) achievements.add("hyperactive");
+        if (blocks >= 1000 && jumps >= 200) achievements.add("demolition_maniac");
+        if (blocksWalked >= 15000 && blocks >= 100) achievements.add("explorer");
+        if (deaths <= 1 && mobs >= 10) achievements.add("survivor");
+        if (blocksWalked >= 10000 && blocks >= 200 && mobs >= 20) achievements.add("combo_master");
+        if (deaths == 0 && blocksWalked >= 20000 && blocks >= 200) achievements.add("iron_will");
 
         updateRecords(server, uuid, delta, saved);
 
