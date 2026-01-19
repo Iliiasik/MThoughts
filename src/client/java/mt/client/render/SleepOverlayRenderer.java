@@ -255,18 +255,20 @@ public class SleepOverlayRenderer {
         RenderSystem.defaultBlendFunc();
 
         Matrix4f matrix = context.getMatrices().peek().getPositionMatrix();
-        BufferBuilder buffer = Tessellator.getInstance().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
 
-        buffer.vertex(matrix, x, y + height, 0).texture(0, 1).color(255, 255, 255, alpha);
-        buffer.vertex(matrix, x + width, y + height, 0).texture(1, 1).color(255, 255, 255, alpha);
-        buffer.vertex(matrix, x + width, y, 0).texture(1, 0).color(255, 255, 255, alpha);
-        buffer.vertex(matrix, x, y, 0).texture(0, 0).color(255, 255, 255, alpha);
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder buffer = tessellator.getBuffer();
+        buffer.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
 
-        BufferRenderer.drawWithGlobalProgram(buffer.end());
+        buffer.vertex(matrix, x, y + height, 0).texture(0, 1).color(255, 255, 255, alpha).next();
+        buffer.vertex(matrix, x + width, y + height, 0).texture(1, 1).color(255, 255, 255, alpha).next();
+        buffer.vertex(matrix, x + width, y, 0).texture(1, 0).color(255, 255, 255, alpha).next();
+        buffer.vertex(matrix, x, y, 0).texture(0, 0).color(255, 255, 255, alpha).next();
+
+        tessellator.draw();
 
         RenderSystem.disableBlend();
     }
-
     private void renderSlideText(DrawContext context, TextRenderer textRenderer, List<String> lines, int areaX, int centerY, float scale) {
         int alpha = (int) (config.getTextOpacity() * textAlpha * 255);
         int textColor = (alpha << 24) | 0xFFFFFF;

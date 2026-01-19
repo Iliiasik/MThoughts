@@ -45,12 +45,12 @@ public class DailyStatsManager {
 
             deltaMap.put(playerName, delta);
             playerDataList.add(new AchievementCalculator.PlayerSummaryData(
-                playerName,
-                delta.blocksDestroyed(),
-                delta.distanceWalked(),
-                delta.mobsKilled(),
-                delta.deaths(),
-                delta.jumps()
+                    playerName,
+                    delta.blocksDestroyed(),
+                    delta.distanceWalked(),
+                    delta.mobsKilled(),
+                    delta.deaths(),
+                    delta.jumps()
             ));
         }
 
@@ -66,27 +66,26 @@ public class DailyStatsManager {
             boolean isMvp = playerName.equals(mvpName);
 
             summaries.add(new DailySummaryPacket.PlayerDailySummary(
-                playerName,
-                delta.blocksDestroyed(),
-                delta.distanceWalked(),
-                delta.mobsKilled(),
-                delta.deaths(),
-                delta.jumps(),
-                isMvp,
-                achievements
+                    playerName,
+                    delta.blocksDestroyed(),
+                    delta.distanceWalked(),
+                    delta.mobsKilled(),
+                    delta.deaths(),
+                    delta.jumps(),
+                    isMvp,
+                    achievements
             ));
         }
 
         if (!summaries.isEmpty()) {
             DailySummaryPacket packet = new DailySummaryPacket(summaries);
             for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
-                NetworkHandler.sendToClient(player, packet);
+                NetworkHandler.sendDailySummary(player, packet);
                 int comfortLevel = ComfortCalculator.calculateComfortLevel(player);
                 WellRestedEffect.applyToPlayer(player, comfortLevel);
             }
         }
     }
-
     public static void showDailySummaryAndReset(MinecraftServer server) {
         showDailySummary(server);
         resetDailyStats(server);

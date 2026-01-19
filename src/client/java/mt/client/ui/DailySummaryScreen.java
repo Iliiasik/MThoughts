@@ -143,10 +143,6 @@ public class DailySummaryScreen extends Screen {
         renderAchievementTooltips(context, mouseX, mouseY);
     }
 
-    @Override
-    public void renderBackground(DrawContext context, int mouseX, int mouseY, float delta) {
-    }
-
     private void renderBackgroundImage(DrawContext context) {
         RenderSystem.setShader(GameRenderer::getPositionTexProgram);
         RenderSystem.setShaderTexture(0, BACKGROUND_TEXTURE);
@@ -278,7 +274,7 @@ public class DailySummaryScreen extends Screen {
                     .orElse(null);
 
                 if (playerEntry != null) {
-                    Identifier skin = playerEntry.getSkinTextures().texture();
+                    Identifier skin = playerEntry.getSkinTexture();
                     context.drawTexture(skin, headX, headY, headSize, headSize, 8, 8, 8, 8, 64, 64);
                     context.drawTexture(skin, headX, headY, headSize, headSize, 40, 8, 8, 8, 64, 64);
                 }
@@ -507,7 +503,7 @@ public class DailySummaryScreen extends Screen {
         }
 
         @Override
-        protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
+        public void renderButton(DrawContext context, int mouseX, int mouseY, float delta) {
             MinecraftClient client = MinecraftClient.getInstance();
             TextRenderer textRenderer = client.textRenderer;
 

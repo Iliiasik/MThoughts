@@ -1,25 +1,35 @@
 package mt.network.packet;
 
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.codec.PacketCodecs;
-import net.minecraft.network.packet.CustomPayload;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
 
-public record SleepingPlayersPacket(int sleepingCount, int totalPlayers) implements CustomPayload {
-    public static final CustomPayload.Id<SleepingPlayersPacket> ID =
-        new CustomPayload.Id<>(Identifier.of("midnightthoughts", "sleeping_players"));
+public class SleepingPlayersPacket {
+    public static final Identifier ID = new Identifier("midnightthoughts", "sleeping_players");
 
-    public static final PacketCodec<RegistryByteBuf, SleepingPlayersPacket> CODEC =
-        PacketCodec.tuple(
-            PacketCodecs.VAR_INT, SleepingPlayersPacket::sleepingCount,
-            PacketCodecs.VAR_INT, SleepingPlayersPacket::totalPlayers,
-            SleepingPlayersPacket::new
-        );
+    private final int sleepingCount;
+    private final int totalPlayers;
 
-    @Override
-    public Id<? extends CustomPayload> getId() {
-        return ID;
+    public SleepingPlayersPacket(int sleepingCount, int totalPlayers) {
+        this.sleepingCount = sleepingCount;
+        this.totalPlayers = totalPlayers;
+    }
+
+    public int sleepingCount() {
+        return sleepingCount;
+    }
+
+    public int totalPlayers() {
+        return totalPlayers;
+    }
+
+    public static void encode(SleepingPlayersPacket packet, PacketByteBuf buf) {
+        buf.writeVarInt(packet.sleepingCount);
+        buf.writeVarInt(packet.totalPlayers);
+    }
+
+    public static SleepingPlayersPacket decode(PacketByteBuf buf) {
+        int sleepingCount = buf.readVarInt();
+        int totalPlayers = buf.readVarInt();
+        return new SleepingPlayersPacket(sleepingCount, totalPlayers);
     }
 }
-

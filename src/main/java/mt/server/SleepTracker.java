@@ -89,7 +89,7 @@ public class SleepTracker {
     private void sendSleepingCountToAllPlayers(int sleeping, int total) {
         SleepingPlayersPacket packet = new SleepingPlayersPacket(sleeping, total);
         for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
-            NetworkHandler.sendToClient(player, packet);
+            NetworkHandler.sendSleepingPlayers(player, packet);
         }
     }
 }

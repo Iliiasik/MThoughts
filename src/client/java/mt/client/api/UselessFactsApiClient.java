@@ -82,10 +82,6 @@ public class UselessFactsApiClient {
         return Optional.empty();
     }
 
-    public void shutdown() {
-        executor.shutdown();
-    }
-
     private static class ApiResponse {
         @SerializedName("text")
         String text;

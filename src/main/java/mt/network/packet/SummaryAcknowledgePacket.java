@@ -1,23 +1,15 @@
 package mt.network.packet;
 
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.packet.CustomPayload;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
 
-public record SummaryAcknowledgePacket() implements CustomPayload {
-    public static final CustomPayload.Id<SummaryAcknowledgePacket> ID =
-        new CustomPayload.Id<>(Identifier.of("midnightthoughts", "summary_acknowledge"));
+public class SummaryAcknowledgePacket {
+    public static final Identifier ID = new Identifier("midnightthoughts", "summary_acknowledge");
 
-    public static final PacketCodec<RegistryByteBuf, SummaryAcknowledgePacket> CODEC =
-        PacketCodec.of(
-            (value, buf) -> {},
-            buf -> new SummaryAcknowledgePacket()
-        );
+    public static void encode(SummaryAcknowledgePacket packet, PacketByteBuf buf) {
+    }
 
-    @Override
-    public Id<? extends CustomPayload> getId() {
-        return ID;
+    public static SummaryAcknowledgePacket decode(PacketByteBuf buf) {
+        return new SummaryAcknowledgePacket();
     }
 }
-
