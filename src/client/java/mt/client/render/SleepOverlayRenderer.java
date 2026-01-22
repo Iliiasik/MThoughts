@@ -1,6 +1,5 @@
 package mt.client.render;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import mt.client.MidnightThoughtsClient;
 import mt.client.config.MidnightThoughtsConfig;
 import mt.client.manager.SleepStateManager;
@@ -9,14 +8,9 @@ import mt.client.service.SlideService;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.render.BufferBuilder;
-import net.minecraft.client.render.BufferRenderer;
-import net.minecraft.client.render.GameRenderer;
-import net.minecraft.client.render.Tessellator;
-import net.minecraft.client.render.VertexFormat;
-import net.minecraft.client.render.VertexFormats;
+import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.util.Identifier;
-import org.joml.Matrix4f;
+import org.joml.Matrix3x2fStack;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -78,7 +72,7 @@ public class SleepOverlayRenderer {
 
         if (sleepStateManager.justStartedSleeping()) {
             boolean wasRecentlySleeping = (now - lastSleepEndTime) < SLEEP_DEBOUNCE_MS;
-            if (!isOverlayVisible && !wasRecentlySleeping) {
+            if (!isOverlayVisible &&!wasRecentlySleeping) {
                 onSleepStart();
             }
         }
@@ -159,7 +153,7 @@ public class SleepOverlayRenderer {
                 targetTextAlpha = 1f - easeInOut(Math.min(progressFadeOut, 1f));
 
                 if (progressFadeOut >= 1f && textAlpha < 0.05f) {
-                    if (nextSlide != null) {
+                    if (nextSlide!= null) {
                         currentSlide = nextSlide;
                         nextSlide = null;
                     } else {
@@ -186,15 +180,15 @@ public class SleepOverlayRenderer {
 
     private float easeInOut(float t) {
         t = Math.max(0f, Math.min(1f, t));
-        return t < 0.5f ? 2 * t * t : 1 - (float) Math.pow(-2 * t + 2, 2) / 2;
+        return t < 0.5f? 2 * t * t : 1 - (float) Math.pow(-2 * t + 2, 2) / 2;
     }
 
     public void render(DrawContext context, int screenWidth, int screenHeight) {
-        if (!sleepStateManager.isSleeping() || !config.isEnableOverlay()) {
+        if (!sleepStateManager.isSleeping() ||!config.isEnableOverlay()) {
             return;
         }
 
-        if (overlayAlpha <= 0 && !isOverlayVisible) {
+        if (overlayAlpha <= 0 &&!isOverlayVisible) {
             return;
         }
 
@@ -234,7 +228,7 @@ public class SleepOverlayRenderer {
             renderImage(context, imageX, imageY, imageWidth, imageHeight);
         }
 
-        if (currentSlide != null && textAlpha > 0.01f) {
+        if (currentSlide!= null && textAlpha > 0.01f) {
             int scaledTextWidth = (int) (textAreaWidth / textScale);
             List<String> lines = wrapText(currentSlide.text(), textRenderer, scaledTextWidth);
             renderSlideText(context, textRenderer, lines, textAreaX, centerY, textScale);
@@ -248,23 +242,18 @@ public class SleepOverlayRenderer {
 
     private void renderImage(DrawContext context, int x, int y, int width, int height) {
         int alpha = (int) (overlayAlpha * IMAGE_OPACITY * 255);
+        int color = (alpha << 24) | 0xFFFFFF;
 
-        RenderSystem.setShaderTexture(0, IMAGE_TEXTURE);
-        RenderSystem.setShader(GameRenderer::getPositionTexColorProgram);
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-
-        Matrix4f matrix = context.getMatrices().peek().getPositionMatrix();
-        BufferBuilder buffer = Tessellator.getInstance().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
-
-        buffer.vertex(matrix, x, y + height, 0).texture(0, 1).color(255, 255, 255, alpha);
-        buffer.vertex(matrix, x + width, y + height, 0).texture(1, 1).color(255, 255, 255, alpha);
-        buffer.vertex(matrix, x + width, y, 0).texture(1, 0).color(255, 255, 255, alpha);
-        buffer.vertex(matrix, x, y, 0).texture(0, 0).color(255, 255, 255, alpha);
-
-        BufferRenderer.drawWithGlobalProgram(buffer.end());
-
-        RenderSystem.disableBlend();
+        context.drawTexture(
+                RenderPipelines.GUI_TEXTURED,
+                IMAGE_TEXTURE,
+                x, y,
+                0.0f, 0.0f,
+                width, height,
+                IMAGE_ORIGINAL_WIDTH, IMAGE_ORIGINAL_HEIGHT,
+                IMAGE_ORIGINAL_WIDTH, IMAGE_ORIGINAL_HEIGHT,
+                color
+        );
     }
 
     private void renderSlideText(DrawContext context, TextRenderer textRenderer, List<String> lines, int areaX, int centerY, float scale) {
@@ -276,9 +265,10 @@ public class SleepOverlayRenderer {
 
         int textY = centerY - totalTextHeight / 2;
 
-        context.getMatrices().push();
-        context.getMatrices().translate(areaX, textY, 0);
-        context.getMatrices().scale(scale, scale, 1.0f);
+        Matrix3x2fStack matrices = context.getMatrices();
+        matrices.pushMatrix();
+        matrices.translate(areaX, textY);
+        matrices.scale(scale, scale);
 
         for (int i = 0; i < lines.size(); i++) {
             String line = lines.get(i);
@@ -286,7 +276,7 @@ public class SleepOverlayRenderer {
             context.drawTextWithShadow(textRenderer, line, 0, y, textColor);
         }
 
-        context.getMatrices().pop();
+        matrices.popMatrix();
     }
 
     private List<String> wrapText(String text, TextRenderer textRenderer, int maxWidth) {
@@ -300,7 +290,7 @@ public class SleepOverlayRenderer {
         StringBuilder currentLine = new StringBuilder();
 
         for (String word : words) {
-            String testLine = currentLine.isEmpty() ? word : currentLine + " " + word;
+            String testLine = currentLine.isEmpty()? word : currentLine + " " + word;
 
             if (textRenderer.getWidth(testLine) <= maxWidth) {
                 if (!currentLine.isEmpty()) {
@@ -323,7 +313,6 @@ public class SleepOverlayRenderer {
 
         return lines;
     }
-
     public boolean shouldHideCrosshair() {
         return sleepStateManager.isSleeping() && isOverlayVisible;
     }

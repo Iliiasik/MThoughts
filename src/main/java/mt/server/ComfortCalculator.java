@@ -20,7 +20,7 @@ public class ComfortCalculator {
 
     public static int calculateComfortLevel(ServerPlayerEntity player) {
         BlockPos bedPos = player.getSleepingPosition().orElse(player.getBlockPos());
-        World world = player.getWorld();
+        World world = player.getEntityWorld();
 
         boolean hasLighting = false;
         boolean hasCarpet = false;

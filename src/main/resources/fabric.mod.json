@@ -18,6 +18,7 @@
     ]
   },
   "mixins": [
+    "midnightthoughts.mixins.json",
     {
       "config": "midnightthoughts.client.mixins.json",
       "environment": "client"
@@ -26,6 +27,6 @@
   "depends": {
     "fabricloader": ">=${loader_version}",
     "fabric": "*",
-    "minecraft": "~1.21.1"
+    "minecraft": "~1.21.11"
   }
 }

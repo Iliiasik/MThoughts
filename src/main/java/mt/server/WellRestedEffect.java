@@ -1,6 +1,8 @@
 package mt.server;
 
 import mt.MidnightThoughts;
+import mt.mixin.HungerManagerAccessor;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.effect.StatusEffect;
@@ -10,6 +12,7 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 
 public class WellRestedEffect extends StatusEffect {
@@ -29,27 +32,30 @@ public class WellRestedEffect extends StatusEffect {
     }
 
     @Override
-    public boolean applyUpdateEffect(net.minecraft.entity.LivingEntity entity, int amplifier) {
+    public boolean applyUpdateEffect(ServerWorld world, LivingEntity entity, int amplifier) {
         if (entity instanceof ServerPlayerEntity player) {
             int level = amplifier + 1;
             float exhaustionReduction = getExhaustionReduction(level);
 
-            if (player.getHungerManager().getExhaustion() > 0) {
-                float currentExhaustion = player.getHungerManager().getExhaustion();
+            HungerManagerAccessor hungerManager = (HungerManagerAccessor) player.getHungerManager();
+            float currentExhaustion = hungerManager.getExhaustion();
+
+            if (currentExhaustion > 0) {
                 float reducedExhaustion = Math.max(0, currentExhaustion - exhaustionReduction);
-                player.getHungerManager().setExhaustion(reducedExhaustion);
+                hungerManager.setExhaustion(reducedExhaustion);
             }
+            return true;
         }
-        return true;
+        return false;
     }
 
     private float getExhaustionReduction(int level) {
         return switch (level) {
-            case 1 -> 0.005f;
-            case 2 -> 0.01f;
-            case 3 -> 0.015f;
-            case 4 -> 0.02f;
-            default -> 0.025f;
+            case 1 -> 0.05f;
+            case 2 -> 0.1f;
+            case 3 -> 0.15f;
+            case 4 -> 0.2f;
+            default -> 0.25f;
         };
     }
 
@@ -67,23 +73,23 @@ public class WellRestedEffect extends StatusEffect {
         WellRestedEffect effect = new WellRestedEffect();
 
         effect.addAttributeModifier(
-            EntityAttributes.GENERIC_MAX_HEALTH,
-            HEALTH_MODIFIER_ID,
-            2.0,
-            EntityAttributeModifier.Operation.ADD_VALUE
+                EntityAttributes.MAX_HEALTH,
+                HEALTH_MODIFIER_ID,
+                2.0,
+                EntityAttributeModifier.Operation.ADD_VALUE
         );
 
         effect.addAttributeModifier(
-            EntityAttributes.GENERIC_LUCK,
-            LUCK_MODIFIER_ID,
-            0.25,
-            EntityAttributeModifier.Operation.ADD_VALUE
+                EntityAttributes.LUCK,
+                LUCK_MODIFIER_ID,
+                0.25,
+                EntityAttributeModifier.Operation.ADD_VALUE
         );
 
         WELL_RESTED = Registry.registerReference(
-            Registries.STATUS_EFFECT,
-            Identifier.of(MidnightThoughts.MOD_ID, "well_rested"),
-            effect
+                Registries.STATUS_EFFECT,
+                Identifier.of(MidnightThoughts.MOD_ID, "well_rested"),
+                effect
         );
     }
 
@@ -96,12 +102,12 @@ public class WellRestedEffect extends StatusEffect {
         int amplifier = comfortLevel - 1;
 
         StatusEffectInstance instance = new StatusEffectInstance(
-            WELL_RESTED,
-            duration,
-            amplifier,
-            true,
-            false,
-            true
+                WELL_RESTED,
+                duration,
+                amplifier,
+                true,
+                false,
+                true
         );
 
         player.addStatusEffect(instance);

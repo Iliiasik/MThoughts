@@ -41,7 +41,7 @@ public class DailyStatsManager {
             UUID uuid = player.getUuid();
             DailyPlayerStats stats = getOrCreateStats(uuid);
             DailyPlayerStats.DailyDelta delta = stats.calculateDelta(player);
-            String playerName = player.getGameProfile().getName();
+            String playerName = player.getGameProfile().name();
 
             deltaMap.put(playerName, delta);
             playerDataList.add(new AchievementCalculator.PlayerSummaryData(
@@ -59,7 +59,7 @@ public class DailyStatsManager {
         List<DailySummaryPacket.PlayerDailySummary> summaries = new ArrayList<>();
 
         for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
-            String playerName = player.getGameProfile().getName();
+            String playerName = player.getGameProfile().name();
             DailyPlayerStats.DailyDelta delta = deltaMap.get(playerName);
 
             List<String> achievements = AchievementCalculator.calculateAchievements(player, delta, server);
@@ -93,7 +93,7 @@ public class DailyStatsManager {
     }
 
     public static void onPlayerJoin(ServerPlayerEntity player) {
-        MinecraftServer server = player.getServer();
+        MinecraftServer server = player.getEntityWorld().getServer();
         DailyPlayerStats stats = getOrCreateStats(player.getUuid());
 
         if (server != null) {
@@ -112,7 +112,7 @@ public class DailyStatsManager {
     }
 
     public static void onPlayerLeave(ServerPlayerEntity player) {
-        MinecraftServer server = player.getServer();
+        MinecraftServer server = player.getEntityWorld().getServer();
         DailyPlayerStats stats = dailyStats.get(player.getUuid());
 
         if (stats != null && server != null) {

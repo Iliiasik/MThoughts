@@ -1,26 +1,28 @@
 package mt.client.ui;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import mt.client.MidnightThoughtsClient;
 import mt.client.network.ClientNetworkHandler;
 import mt.network.packet.DailySummaryPacket;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.PlayerSkinDrawer;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
+import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.network.PlayerListEntry;
-import net.minecraft.client.render.GameRenderer;
+import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.text.Text;
+import net.minecraft.util.AssetInfo;
 import net.minecraft.util.Identifier;
-
+import org.joml.Matrix3x2fStack;
 import java.util.ArrayList;
 import java.util.List;
 
 public class DailySummaryScreen extends Screen {
     private static final Identifier BACKGROUND_TEXTURE = Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/background.png");
     private static final Identifier CROWN_TEXTURE = Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/crown.png");
-
     private static final long STAT_ANIMATION_DURATION = 800;
     private static final int MVP_GOLD_COLOR = 0xFFD700;
 
@@ -50,12 +52,10 @@ public class DailySummaryScreen extends Screen {
 
     private void calculateDimensions() {
         isCompactMode = height < 350 || width < 500;
-
         if (isCompactMode) {
             uiScale = Math.min((float)width / 420.0f, (float)height / 300.0f);
             uiScale = Math.max(0.4f, Math.min(1.0f, uiScale));
             playersPerPage = 3;
-
             panelWidth = Math.min(width - 20, (int)(320 * uiScale));
             panelHeight = Math.min(height - 50, (int)(190 * uiScale));
             playerRowHeight = (int)(45 * uiScale);
@@ -64,13 +64,11 @@ public class DailySummaryScreen extends Screen {
             uiScale = Math.min((float)width / 854.0f, (float)height / 480.0f);
             uiScale = Math.max(0.6f, Math.min(1.5f, uiScale));
             playersPerPage = 4;
-
             panelWidth = (int)(480 * uiScale);
             panelHeight = (int)(320 * uiScale);
             playerRowHeight = (int)(60 * uiScale);
             headSize = (int)(32 * uiScale);
         }
-
         panelX = (width - panelWidth) / 2;
         panelY = (height - panelHeight) / 2;
     }
@@ -84,45 +82,39 @@ public class DailySummaryScreen extends Screen {
         int buttonHeight = isCompactMode ? Math.max(16, (int)(16 * uiScale)) : (int)(20 * uiScale);
         int buttonY = panelY + panelHeight + (int)(6 * uiScale);
         int buttonSpacing = (int)(6 * uiScale);
-
-        int recalculatedPages = Math.max(1, (int) Math.ceil((double) allPlayers.size() / playersPerPage));
-
+        int recalculatedPages = Math.max(1, (int)Math.ceil((double)allPlayers.size() / playersPerPage));
         if (recalculatedPages > 1) {
             int navButtonsWidth = buttonWidth * 2 + buttonSpacing;
             int navStartX = width / 2 - navButtonsWidth / 2;
-
-            addDrawableChild(new StyledButtonWidget(
-                navStartX, buttonY, buttonWidth, buttonHeight,
-                Text.translatable("midnightthoughts.summary.previous"),
-                button -> {
-                    if (currentPage > 0) {
-                        currentPage--;
-                        clearAndInit();
+            addDrawableChild(new PurpleButtonWidget(
+                    navStartX, buttonY, buttonWidth, buttonHeight,
+                    Text.translatable("midnightthoughts.summary.previous"),
+                    (PurpleButtonWidget btn) -> {
+                        if (currentPage > 0) {
+                            currentPage--;
+                            clearAndInit();
+                        }
                     }
-                }
             ));
-
-            addDrawableChild(new StyledButtonWidget(
-                navStartX + buttonWidth + buttonSpacing, buttonY, buttonWidth, buttonHeight,
-                Text.translatable("midnightthoughts.summary.next"),
-                button -> {
-                    if (currentPage < recalculatedPages - 1) {
-                        currentPage++;
-                        clearAndInit();
+            addDrawableChild(new PurpleButtonWidget(
+                    navStartX + buttonWidth + buttonSpacing, buttonY, buttonWidth, buttonHeight,
+                    Text.translatable("midnightthoughts.summary.next"),
+                    (PurpleButtonWidget btn) -> {
+                        if (currentPage < recalculatedPages - 1) {
+                            currentPage++;
+                            clearAndInit();
+                        }
                     }
-                }
             ));
-
             buttonY += buttonHeight + buttonSpacing;
         }
-
-        addDrawableChild(new StyledButtonWidget(
-            width / 2 - buttonWidth / 2, buttonY, buttonWidth, buttonHeight,
-            Text.translatable("midnightthoughts.summary.continue"),
-            button -> {
-                ClientNetworkHandler.sendSummaryAcknowledge();
-                close();
-            }
+        addDrawableChild(new PurpleButtonWidget(
+                width / 2 - buttonWidth / 2, buttonY, buttonWidth, buttonHeight,
+                Text.translatable("midnightthoughts.summary.continue"),
+                (PurpleButtonWidget btn) -> {
+                    ClientNetworkHandler.sendSummaryAcknowledge();
+                    close();
+                }
         ));
     }
 
@@ -130,31 +122,21 @@ public class DailySummaryScreen extends Screen {
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         long elapsedTime = System.currentTimeMillis() - screenOpenTime;
         fadeAlpha = Math.min(1.0f, elapsedTime / 300.0f);
-
         achievementAreas.clear();
-
         calculateDimensions();
         renderBackgroundImage(context);
         renderPanel(context);
         renderPlayerList(context);
-
         super.render(context, mouseX, mouseY, delta);
-
         renderAchievementTooltips(context, mouseX, mouseY);
     }
 
     @Override
-    public void renderBackground(DrawContext context, int mouseX, int mouseY, float delta) {
-    }
+    public void renderBackground(DrawContext context, int mouseX, int mouseY, float delta) {}
 
     private void renderBackgroundImage(DrawContext context) {
-        RenderSystem.setShader(GameRenderer::getPositionTexProgram);
-        RenderSystem.setShaderTexture(0, BACKGROUND_TEXTURE);
-        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
-
         float bgAspect = 16.0f / 9.0f;
         float screenAspect = (float)width / (float)height;
-
         int bgWidth, bgHeight, bgX, bgY;
         if (screenAspect > bgAspect) {
             bgWidth = width;
@@ -167,20 +149,17 @@ public class DailySummaryScreen extends Screen {
             bgX = (width - bgWidth) / 2;
             bgY = 0;
         }
-
-        context.drawTexture(BACKGROUND_TEXTURE, bgX, bgY, 0, 0, bgWidth, bgHeight, bgWidth, bgHeight);
+        context.drawTexture(RenderPipelines.GUI_TEXTURED, BACKGROUND_TEXTURE, bgX, bgY, 0.0f, 0.0f, bgWidth, bgHeight, bgWidth, bgHeight);
     }
 
     private void renderPanel(DrawContext context) {
         int panelAlpha = (int)(fadeAlpha * 220);
         int panelBg = (panelAlpha << 24) | 0x1a1a2e;
         context.fill(panelX, panelY, panelX + panelWidth, panelY + panelHeight, panelBg);
-
         int borderAlpha = (int)(fadeAlpha * 255);
         int borderColor1 = (borderAlpha << 24) | 0x6a5a8a;
         int borderColor2 = (borderAlpha << 24) | 0x8a6a9a;
         int borderThickness = Math.max(1, (int)(2 * uiScale));
-
         context.fill(panelX, panelY, panelX + panelWidth, panelY + borderThickness, borderColor1);
         context.fill(panelX, panelY + panelHeight - borderThickness, panelX + panelWidth, panelY + panelHeight, borderColor2);
         context.fill(panelX, panelY, panelX + borderThickness, panelY + panelHeight, borderColor1);
@@ -217,7 +196,6 @@ public class DailySummaryScreen extends Screen {
         int startY = panelY + (int)(38 * uiScale);
         int startIndex = currentPage * playersPerPage;
         int endIndex = Math.min(startIndex + playersPerPage, allPlayers.size());
-
         for (int i = startIndex; i < endIndex; i++) {
             DailySummaryPacket.PlayerDailySummary player = allPlayers.get(i);
             int rowY = startY + (i - startIndex) * playerRowHeight;
@@ -229,103 +207,71 @@ public class DailySummaryScreen extends Screen {
         int rowPadding = (int)(10 * uiScale);
         int rowWidth = panelWidth - rowPadding * 2;
         int rowHeight = playerRowHeight - (int)(4 * uiScale);
-
         int rowBgAlpha = (int)(fadeAlpha * 90);
-        int rowBg;
-        if (player.isMvp()) {
-            rowBg = (rowBgAlpha << 24) | 0x4a4020;
-        } else {
-            rowBg = ((int)(fadeAlpha * 80) << 24) | 0x2a2a4a;
-        }
+        int rowBg = player.isMvp() ? (rowBgAlpha << 24) | 0x4a4020 : ((int)(fadeAlpha * 80) << 24) | 0x2a2a4a;
         context.fill(x, y, x + rowWidth, y + rowHeight, rowBg);
 
         if (player.isMvp()) {
-            int crownHeight = (int)((isCompactMode ? 14 : 18) * uiScale);
+            int crownHeight = (int)((isCompactMode? 14 : 18) * uiScale);
             int crownWidth = (int)(crownHeight * 1.75f);
             int mvpBadgeX = x + rowWidth - crownWidth;
             int mvpBadgeY = y - crownHeight / 2;
-
             int badgeAlpha = (int)(fadeAlpha * 240);
             int badgeBg = (badgeAlpha << 24) | 0x8b7320;
             int badgeBorder = (badgeAlpha << 24) | MVP_GOLD_COLOR;
-
             context.fill(mvpBadgeX - 1, mvpBadgeY - 1, mvpBadgeX + crownWidth + 1, mvpBadgeY + crownHeight + 1, badgeBorder);
             context.fill(mvpBadgeX, mvpBadgeY, mvpBadgeX + crownWidth, mvpBadgeY + crownHeight, badgeBg);
-
             int iconPadding = (int)(2 * uiScale);
             int iconHeight = crownHeight - iconPadding * 2;
             int iconWidth = (int)(iconHeight * 1.75f);
             int iconX = mvpBadgeX + (crownWidth - iconWidth) / 2;
             int iconY = mvpBadgeY + iconPadding;
-
-            RenderSystem.setShaderTexture(0, CROWN_TEXTURE);
-            RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, fadeAlpha);
-            RenderSystem.enableBlend();
-            context.drawTexture(CROWN_TEXTURE, iconX, iconY, 0, 0, iconWidth, iconHeight, iconWidth, iconHeight);
-            RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
-            RenderSystem.disableBlend();
+            context.drawTexture(RenderPipelines.GUI_TEXTURED, CROWN_TEXTURE, iconX, iconY, 0.0f, 0.0f, iconWidth, iconHeight, iconWidth, iconHeight);
         }
 
         int headX = x + (int)(6 * uiScale);
         int headY = y + (rowHeight - headSize) / 2;
-
         try {
-            if (MinecraftClient.getInstance().getNetworkHandler() != null) {
+            if (MinecraftClient.getInstance().getNetworkHandler()!= null) {
                 PlayerListEntry playerEntry = MinecraftClient.getInstance().getNetworkHandler()
-                    .getPlayerList().stream()
-                    .filter(entry -> entry.getProfile().getName().equals(player.playerName()))
-                    .findFirst()
-                    .orElse(null);
+                        .getPlayerList().stream()
+                        .filter(entry -> entry.getProfile().name().equals(player.playerName()))
+                        .findFirst()
+                        .orElse(null);
 
-                if (playerEntry != null) {
-                    Identifier skin = playerEntry.getSkinTextures().texture();
-                    context.drawTexture(skin, headX, headY, headSize, headSize, 8, 8, 8, 8, 64, 64);
-                    context.drawTexture(skin, headX, headY, headSize, headSize, 40, 8, 8, 8, 64, 64);
+                if (playerEntry!= null) {
+                    var skinTextures = playerEntry.getSkinTextures();
+                    PlayerSkinDrawer.draw(context, skinTextures, headX, headY, headSize);
                 }
             }
-        } catch (Exception ignored) {
-        }
+        } catch (Exception ignored) {}
 
         int textX = headX + headSize + (int)(10 * uiScale);
         int nameAlpha = (int)(fadeAlpha * 255);
         int nameColor = (nameAlpha << 24) | 0xFFFFFF;
-
         int nameY = y + (int)(4 * uiScale);
 
         if (isCompactMode) {
             float textScale = Math.max(0.7f, uiScale);
-            context.getMatrices().push();
-            context.getMatrices().translate(textX, nameY, 0);
-            context.getMatrices().scale(textScale, textScale, 1.0f);
+            Matrix3x2fStack matrices = context.getMatrices();
+            matrices.pushMatrix();
+            matrices.translate(textX, nameY);
+            matrices.scale(textScale, textScale);
             context.drawText(textRenderer, player.playerName(), 0, 0, nameColor, true);
-            context.getMatrices().pop();
+            matrices.popMatrix();
         } else {
             context.drawText(textRenderer, player.playerName(), textX, nameY, nameColor, true);
         }
 
         float animProgress = getAnimationProgress();
 
-        int badgeHeight;
-        int badgePadding;
-        int badgeSpacing;
-        int badgeRowSpacing;
-        float badgeTextScale;
+        int badgeHeight = isCompactMode ? Math.max(9, (int)(10 * uiScale)) : Math.max(12, (int)(14 * uiScale));
+        int badgePadding = isCompactMode ? Math.max(2, (int)(3 * uiScale)) : (int)(5 * uiScale);
+        int badgeSpacing = isCompactMode ? Math.max(2, (int)(2 * uiScale)) : (int)(4 * uiScale);
+        int badgeRowSpacing = isCompactMode ? Math.max(1, (int)(2 * uiScale)) : (int)(3 * uiScale);
+        float badgeTextScale = isCompactMode ? Math.max(0.6f, uiScale * 0.85f) : 1.0f;
 
-        if (isCompactMode) {
-            badgeHeight = Math.max(9, (int)(10 * uiScale));
-            badgePadding = Math.max(2, (int)(3 * uiScale));
-            badgeSpacing = Math.max(2, (int)(2 * uiScale));
-            badgeRowSpacing = Math.max(1, (int)(2 * uiScale));
-            badgeTextScale = Math.max(0.6f, uiScale * 0.85f);
-        } else {
-            badgeHeight = Math.max(12, (int)(14 * uiScale));
-            badgePadding = (int)(5 * uiScale);
-            badgeSpacing = (int)(4 * uiScale);
-            badgeRowSpacing = (int)(3 * uiScale);
-            badgeTextScale = 1.0f;
-        }
-
-        int badgeY1 = y + (int)((isCompactMode ? 12 : 16) * uiScale);
+        int badgeY1 = y + (int)((isCompactMode? 12 : 16) * uiScale);
         int badgeY2 = badgeY1 + badgeHeight + badgeRowSpacing;
 
         int animBlocks = (int)(player.blocksDestroyed() * animProgress);
@@ -362,7 +308,7 @@ public class DailySummaryScreen extends Screen {
     private float getAnimationProgress() {
         long elapsed = System.currentTimeMillis() - animationStartTime;
         if (elapsed < 0) return 0.0f;
-        float progress = Math.min(1.0f, elapsed / (float) STAT_ANIMATION_DURATION);
+        float progress = Math.min(1.0f, (float)elapsed / (float)STAT_ANIMATION_DURATION);
         return easeOutQuad(progress);
     }
 
@@ -373,50 +319,38 @@ public class DailySummaryScreen extends Screen {
     private void renderAchievements(DrawContext context, int x, int y1, int y2, List<String> achievements, float textScale, int maxWidth, int badgeHeight) {
         int padding = (int)(3 * uiScale);
         int spacing = (int)(3 * uiScale);
-
         int currentX = x;
         int currentY = y1;
         int count = 0;
-        int maxAchievements = isCompactMode ? 2 : 4;
-
+        int maxAchievements = isCompactMode? 2 : 4;
         for (String achievementId : achievements) {
             if (count >= maxAchievements) break;
-
             String achievementText = Text.translatable("midnightthoughts.achievement." + achievementId).getString();
             int textWidth = (int)(textRenderer.getWidth(achievementText) * textScale);
             int badgeWidth = textWidth + padding * 2;
-
             if (currentX + badgeWidth > x + maxWidth && currentY == y1) {
                 currentX = x;
                 currentY = y2;
             }
-
             if (currentX + badgeWidth > x + maxWidth && currentY == y2) {
                 break;
             }
-
             int alpha = (int)(fadeAlpha * 200);
             int bgColor = (alpha << 24) | 0x8a6a2a;
-
             context.fill(currentX, currentY, currentX + badgeWidth, currentY + badgeHeight, bgColor);
-
             int textColor = ((int)(fadeAlpha * 255) << 24) | 0xffd700;
             int textY = currentY + (badgeHeight - (int)(8 * textScale)) / 2;
-
             if (textScale < 1.0f) {
-                context.getMatrices().push();
-                context.getMatrices().translate(currentX + padding, textY, 0);
-                context.getMatrices().scale(textScale, textScale, 1.0f);
+                Matrix3x2fStack matrices = context.getMatrices();
+                matrices.pushMatrix();
+                matrices.translate(currentX + padding, textY);
+                matrices.scale(textScale, textScale);
                 context.drawText(textRenderer, achievementText, 0, 0, textColor, false);
-                context.getMatrices().pop();
+                matrices.popMatrix();
             } else {
                 context.drawText(textRenderer, achievementText, currentX + padding, textY, textColor, false);
             }
-
-            achievementAreas.add(new AchievementTooltipArea(
-                currentX, currentY, badgeWidth, badgeHeight, achievementId
-            ));
-
+            achievementAreas.add(new AchievementTooltipArea(currentX, currentY, badgeWidth, badgeHeight, achievementId));
             currentX += badgeWidth + spacing;
             count++;
         }
@@ -425,40 +359,23 @@ public class DailySummaryScreen extends Screen {
     private void renderAchievementTooltips(DrawContext context, int mouseX, int mouseY) {
         for (AchievementTooltipArea area : achievementAreas) {
             if (mouseX >= area.x && mouseX <= area.x + area.width &&
-                mouseY >= area.y && mouseY <= area.y + area.height) {
-
+                    mouseY >= area.y && mouseY <= area.y + area.height) {
                 String tooltipKey = "midnightthoughts.achievement." + area.achievementId + ".desc";
                 Text tooltipText = Text.translatable(tooltipKey);
-
                 int tooltipPadding = 4;
                 int tooltipWidth = textRenderer.getWidth(tooltipText) + tooltipPadding * 2;
                 int tooltipHeight = 12;
-
                 int tooltipX = mouseX + 8;
                 int tooltipY = mouseY - tooltipHeight - 4;
-
-                if (tooltipX + tooltipWidth > width) {
-                    tooltipX = mouseX - tooltipWidth - 8;
-                }
-                if (tooltipY < 0) {
-                    tooltipY = mouseY + 16;
-                }
-
-                context.getMatrices().push();
-                context.getMatrices().translate(0, 0, 400);
-
+                if (tooltipX + tooltipWidth > width) tooltipX = mouseX - tooltipWidth - 8;
+                if (tooltipY < 0) tooltipY = mouseY + 16;
                 int bgAlpha = (int)(fadeAlpha * 240);
                 int bgColor = (bgAlpha << 24) | 0x1a1a2e;
                 int borderColor = (bgAlpha << 24) | 0x8a6a2a;
-
                 context.fill(tooltipX - 1, tooltipY - 1, tooltipX + tooltipWidth + 1, tooltipY + tooltipHeight + 1, borderColor);
                 context.fill(tooltipX, tooltipY, tooltipX + tooltipWidth, tooltipY + tooltipHeight, bgColor);
-
                 int textColor = ((int)(fadeAlpha * 255) << 24) | 0xffd700;
                 context.drawText(textRenderer, tooltipText, tooltipX + tooltipPadding, tooltipY + 2, textColor, false);
-
-                context.getMatrices().pop();
-
                 break;
             }
         }
@@ -469,41 +386,48 @@ public class DailySummaryScreen extends Screen {
     private int renderBadge(DrawContext context, int x, int y, int height, int padding, String text, int bgColor, float textScale) {
         int textWidth = (int)(textRenderer.getWidth(text) * textScale);
         int badgeWidth = textWidth + padding * 2;
-
         int alpha = (int)(fadeAlpha * 180);
         int bg = (alpha << 24) | bgColor;
-
         context.fill(x, y, x + badgeWidth, y + height, bg);
-
         int textColor = ((int)(fadeAlpha * 255) << 24) | 0xeeeeee;
         int textY = y + (height - (int)(8 * textScale)) / 2;
-
         if (textScale < 1.0f) {
-            context.getMatrices().push();
-            context.getMatrices().translate(x + padding, textY, 0);
-            context.getMatrices().scale(textScale, textScale, 1.0f);
+            Matrix3x2fStack matrices = context.getMatrices();
+            matrices.pushMatrix();
+            matrices.translate(x + padding, textY);
+            matrices.scale(textScale, textScale);
             context.drawText(textRenderer, text, 0, 0, textColor, false);
-            context.getMatrices().pop();
+            matrices.popMatrix();
         } else {
             context.drawText(textRenderer, text, x + padding, textY, textColor, false);
         }
-
         return x + badgeWidth;
     }
 
     @Override
-    public boolean shouldPause() {
-        return false;
-    }
+    public boolean shouldPause() { return false; }
 
     @Override
-    public void close() {
-        super.close();
-    }
+    public void close() { super.close(); }
 
-    private static class StyledButtonWidget extends ButtonWidget {
-        public StyledButtonWidget(int x, int y, int width, int height, Text message, PressAction onPress) {
-            super(x, y, width, height, message, onPress, DEFAULT_NARRATION_SUPPLIER);
+    public static class PurpleButtonWidget extends ClickableWidget {
+
+        public interface PressAction {
+            void onPress(PurpleButtonWidget button);
+        }
+
+        private final PressAction onPress;
+
+        public PurpleButtonWidget(int x, int y, int width, int height, Text message, PressAction onPress) {
+            super(x, y, width, height, message);
+            this.onPress = onPress;
+        }
+
+        @Override
+        public void onClick(Click click, boolean doubled) {
+            if (this.active && this.visible && this.onPress != null) {
+                this.onPress.onPress(this);
+            }
         }
 
         @Override
@@ -511,8 +435,7 @@ public class DailySummaryScreen extends Screen {
             MinecraftClient client = MinecraftClient.getInstance();
             TextRenderer textRenderer = client.textRenderer;
 
-            boolean hovered = isMouseOver(mouseX, mouseY);
-
+            boolean hovered = this.isHovered();
             int bgColor = hovered ? 0xDD6a5a8a : 0xCC4a3a6a;
             int borderColor = hovered ? 0xFFaa8acc : 0xFF8a6a9a;
 
@@ -525,7 +448,11 @@ public class DailySummaryScreen extends Screen {
             int textColor = hovered ? 0xFFeeddff : 0xFFddccee;
             int textX = getX() + (getWidth() - textRenderer.getWidth(getMessage())) / 2;
             int textY = getY() + (getHeight() - 8) / 2;
+
             context.drawText(textRenderer, getMessage(), textX, textY, textColor, true);
         }
+
+        @Override
+        protected void appendClickableNarrations(NarrationMessageBuilder builder) {}
     }
 }
