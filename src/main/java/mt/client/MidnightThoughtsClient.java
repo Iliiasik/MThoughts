@@ -43,6 +43,12 @@ public class MidnightThoughtsClient {
     private void initializeComponents() {
         MidnightThoughtsConfig config = MidnightThoughtsConfig.getInstance();
         slideRepository = new SlideRepository();
+
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.getResourceManager() != null) {
+            slideRepository.loadAllSlides(mc.getResourceManager());
+        }
+
         PlayerStatsService playerStatsService = new PlayerStatsService();
         UselessFactsApiClient apiClient = new UselessFactsApiClient();
         FactProvider factProvider = new FactProvider(apiClient, slideRepository);
@@ -74,18 +80,30 @@ public class MidnightThoughtsClient {
         }
 
         @SubscribeEvent
-        public void onRenderGui(RenderGuiOverlayEvent.Pre event) {
+        public void onRenderGuiPre(RenderGuiOverlayEvent.Pre event) {
             if (!event.getOverlay().id().equals(VanillaGuiOverlay.HOTBAR.id())) return;
 
-            Minecraft client = Minecraft.getInstance();
+            Minecraft mc = Minecraft.getInstance();
             MidnightThoughtsClient inst = MidnightThoughtsClient.getInstance();
-            if (client.player == null || inst == null) return;
+            if (mc.player == null || inst == null) return;
 
-            int width = client.getWindow().getGuiScaledWidth();
-            int height = client.getWindow().getGuiScaledHeight();
+            int w = mc.getWindow().getGuiScaledWidth();
+            int h = mc.getWindow().getGuiScaledHeight();
 
-            inst.overlayRenderer.render(event.getGuiGraphics(), width, height);
-            SleepingPlayersHud.render(event.getGuiGraphics(), width, height);
+            inst.overlayRenderer.renderOverlayOnly(event.getGuiGraphics(), w, h);
+        }
+
+        @SubscribeEvent
+        public void onRenderGuiPost(RenderGuiOverlayEvent.Post event) {
+            Minecraft mc = Minecraft.getInstance();
+            MidnightThoughtsClient inst = MidnightThoughtsClient.getInstance();
+            if (mc.player == null || inst == null) return;
+
+            int w = mc.getWindow().getGuiScaledWidth();
+            int h = mc.getWindow().getGuiScaledHeight();
+
+            inst.overlayRenderer.renderContentOnly(event.getGuiGraphics(), w, h);
+            SleepingPlayersHud.render(event.getGuiGraphics(), w, h);
         }
 
         @SubscribeEvent

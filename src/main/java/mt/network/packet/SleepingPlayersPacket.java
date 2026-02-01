@@ -4,7 +4,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 
 public class SleepingPlayersPacket {
-    public static final ResourceLocation ID = new ResourceLocation("midnightthoughts", "sleeping_players");
+    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath("midnightthoughts", "sleeping_players");
 
     private final int sleepingCount;
     private final int totalPlayers;

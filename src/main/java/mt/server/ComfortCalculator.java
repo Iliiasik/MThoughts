@@ -11,11 +11,11 @@ import net.minecraft.world.level.block.state.BlockState;
 public class ComfortCalculator {
     private static final int SCAN_RADIUS = 5;
 
-    private static final TagKey<Block> LIGHTING_TAG = TagKey.create(net.minecraft.core.registries.Registries.BLOCK, new ResourceLocation("midnightthoughts", "comfort_lighting"));
-    private static final TagKey<Block> CARPET_TAG = TagKey.create(net.minecraft.core.registries.Registries.BLOCK, new ResourceLocation("midnightthoughts", "comfort_carpet"));
-    private static final TagKey<Block> FURNITURE_TAG = TagKey.create(net.minecraft.core.registries.Registries.BLOCK, new ResourceLocation("midnightthoughts", "comfort_furniture"));
-    private static final TagKey<Block> DECOR_TAG = TagKey.create(net.minecraft.core.registries.Registries.BLOCK, new ResourceLocation("midnightthoughts", "comfort_decoration"));
-    private static final TagKey<Block> STRUCTURE_TAG = TagKey.create(net.minecraft.core.registries.Registries.BLOCK, new ResourceLocation("midnightthoughts", "comfort_structure"));
+    private static final TagKey<Block> LIGHTING_TAG = TagKey.create(net.minecraft.core.registries.Registries.BLOCK, ResourceLocation.fromNamespaceAndPath("midnightthoughts", "comfort_lighting"));
+    private static final TagKey<Block> CARPET_TAG = TagKey.create(net.minecraft.core.registries.Registries.BLOCK, ResourceLocation.fromNamespaceAndPath("midnightthoughts", "comfort_carpet"));
+    private static final TagKey<Block> FURNITURE_TAG = TagKey.create(net.minecraft.core.registries.Registries.BLOCK, ResourceLocation.fromNamespaceAndPath("midnightthoughts", "comfort_furniture"));
+    private static final TagKey<Block> DECOR_TAG = TagKey.create(net.minecraft.core.registries.Registries.BLOCK, ResourceLocation.fromNamespaceAndPath("midnightthoughts", "comfort_decoration"));
+    private static final TagKey<Block> STRUCTURE_TAG = TagKey.create(net.minecraft.core.registries.Registries.BLOCK, ResourceLocation.fromNamespaceAndPath("midnightthoughts", "comfort_structure"));
 
     public static int calculateComfortLevel(ServerPlayer player) {
         BlockPos bedPos = player.getSleepingPos().orElse(player.blockPosition());

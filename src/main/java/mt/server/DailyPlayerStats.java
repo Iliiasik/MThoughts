@@ -24,6 +24,7 @@ public class DailyPlayerStats {
 
     public void loadFromStorage(MinecraftServer server) {
         if (hasLoadedFromFile) return;
+
         StatsStorage.SavedPlayerStats saved = StatsStorage.loadPlayerStats(server, playerUuid);
         if (saved != null) {
             this.baseBlocksDestroyed = saved.baseBlocksDestroyed;
@@ -37,25 +38,30 @@ public class DailyPlayerStats {
 
     public void saveToStorage(MinecraftServer server) {
         StatsStorage.SavedPlayerStats existing = StatsStorage.loadPlayerStats(server, playerUuid);
+
         StatsStorage.SavedPlayerStats saved = new StatsStorage.SavedPlayerStats(
             baseBlocksDestroyed, baseDistanceWalked, baseMobsKilled, baseDeaths, baseJumps
         );
+
         if (existing != null) {
             saved.recordDistance = existing.recordDistance;
             saved.recordBlocks = existing.recordBlocks;
             saved.recordMobs = existing.recordMobs;
             saved.totalSleeps = existing.totalSleeps;
         }
+
         StatsStorage.savePlayerStats(server, playerUuid, saved);
     }
 
     public void captureCurrentStats(ServerPlayer player) {
         StatsCounter stats = player.getStats();
+
         int blocksDestroyed = 0;
         for (Block block : player.level().registryAccess().registryOrThrow(Registries.BLOCK)) {
             blocksDestroyed += stats.getValue(Stats.BLOCK_MINED.get(block));
         }
         this.baseBlocksDestroyed = blocksDestroyed;
+
         this.baseDistanceWalked = getTotalDistance(stats);
         this.baseMobsKilled = stats.getValue(Stats.CUSTOM.get(Stats.MOB_KILLS));
         this.baseDeaths = stats.getValue(Stats.CUSTOM.get(Stats.DEATHS));
@@ -84,19 +90,24 @@ public class DailyPlayerStats {
 
     public DailyDelta calculateDelta(ServerPlayer player) {
         StatsCounter stats = player.getStats();
+
         int blocksDestroyed = 0;
         for (Block block : player.level().registryAccess().registryOrThrow(Registries.BLOCK)) {
             blocksDestroyed += stats.getValue(Stats.BLOCK_MINED.get(block));
         }
+
         int currentDistanceWalked = getTotalDistance(stats);
         int currentMobsKilled = stats.getValue(Stats.CUSTOM.get(Stats.MOB_KILLS));
         int currentDeaths = stats.getValue(Stats.CUSTOM.get(Stats.DEATHS));
         int currentJumps = stats.getValue(Stats.CUSTOM.get(Stats.JUMP));
+
         int deltaBlocks = Math.max(0, blocksDestroyed - baseBlocksDestroyed);
         int deltaDistance = Math.max(0, currentDistanceWalked - baseDistanceWalked);
         int deltaMobs = Math.max(0, currentMobsKilled - baseMobsKilled);
         int deltaDeaths = Math.max(0, currentDeaths - baseDeaths);
         int deltaJumps = Math.max(0, currentJumps - baseJumps);
+
+
         return new DailyDelta(deltaBlocks, deltaDistance, deltaMobs, deltaDeaths, deltaJumps);
     }
 

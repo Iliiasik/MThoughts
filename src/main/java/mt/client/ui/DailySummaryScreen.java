@@ -17,8 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DailySummaryScreen extends Screen {
-    private static final ResourceLocation BACKGROUND_TEXTURE = new ResourceLocation(MidnightThoughtsClient.MOD_ID, "textures/gui/background.png");
-    private static final ResourceLocation CROWN_TEXTURE = new ResourceLocation(MidnightThoughtsClient.MOD_ID, "textures/gui/crown.png");
+    private static final ResourceLocation BACKGROUND_TEXTURE = ResourceLocation.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/background.png");
+    private static final ResourceLocation CROWN_TEXTURE = ResourceLocation.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/crown.png");
     private static final long STAT_ANIMATION_DURATION = 800;
     private static final int MVP_GOLD_COLOR = 0xFFD700;
 
@@ -260,8 +260,9 @@ public class DailySummaryScreen extends Screen {
                 if (info != null) {
                     ResourceLocation skin = info.getSkinLocation();
                     RenderSystem.enableBlend();
-                    context.blit(skin, headX, headY, 8, 8, headSize, headSize, 64, 64);
-                    context.blit(skin, headX, headY, 40, 8, headSize, headSize, 64, 64);
+                    RenderSystem.setShaderTexture(0, skin);
+                    context.blit(skin, headX, headY, headSize, headSize, 8.0f, 8.0f, 8, 8, 64, 64);
+                    context.blit(skin, headX, headY, headSize, headSize, 40.0f, 8.0f, 8, 8, 64, 64);
                     RenderSystem.disableBlend();
                 }
             }

@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DailySummaryPacket {
-    public static final ResourceLocation ID = new ResourceLocation("midnightthoughts", "daily_summary");
+    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath("midnightthoughts", "daily_summary");
 
     private final List<PlayerDailySummary> summaries;
 

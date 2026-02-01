@@ -4,7 +4,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 
 public class SummaryAcknowledgePacket {
-    public static final ResourceLocation ID = new ResourceLocation("midnightthoughts", "summary_acknowledge");
+    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath("midnightthoughts", "summary_acknowledge");
 
     public static void encode(SummaryAcknowledgePacket packet, FriendlyByteBuf buf) {
     }

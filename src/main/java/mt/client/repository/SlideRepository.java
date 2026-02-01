@@ -49,7 +49,7 @@ public class SlideRepository {
 
     private List<Slide> loadCategory(ResourceManager manager, String language, String fileName, SlideCategory category) {
         List<Slide> slides = new ArrayList<>();
-        ResourceLocation resourceId = new ResourceLocation(MidnightThoughtsClient.MOD_ID, "dreams/" + language + "/" + fileName + ".json");
+        ResourceLocation resourceId = ResourceLocation.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "dreams/" + language + "/" + fileName + ".json");
 
         try {
             Optional<Resource> resourceOpt = manager.getResource(resourceId);

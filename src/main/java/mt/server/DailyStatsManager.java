@@ -101,16 +101,6 @@ public class DailyStatsManager {
         if (server != null) {
             stats.loadFromStorage(server);
         }
-
-        StatsStorage.SavedPlayerStats saved = server != null ?
-            StatsStorage.loadPlayerStats(server, player.getUUID()) : null;
-
-        if (saved == null) {
-            stats.captureCurrentStats(player);
-            if (server != null) {
-                stats.saveToStorage(server);
-            }
-        }
     }
 
     public static void onPlayerLeave(ServerPlayer player) {

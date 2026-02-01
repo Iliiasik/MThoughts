@@ -12,7 +12,7 @@ import net.minecraft.resources.ResourceLocation;
 public class NetworkHandler {
     private static final String PROTOCOL_VERSION = "1";
     public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(
-            new ResourceLocation("midnightthoughts", "main"),
+            ResourceLocation.fromNamespaceAndPath("midnightthoughts", "main"),
             () -> PROTOCOL_VERSION,
             PROTOCOL_VERSION::equals,
             PROTOCOL_VERSION::equals
