@@ -10,6 +10,7 @@ import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.common.MinecraftForge;
@@ -26,15 +27,16 @@ public class MidnightThoughts {
     public static final DeferredRegister<MobEffect> EFFECTS = DeferredRegister.create(ForgeRegistries.MOB_EFFECTS, MOD_ID);
     public static final RegistryObject<WellRestedEffect> WELL_RESTED = EFFECTS.register("well_rested", WellRestedEffect::new);
     public static final Logger LOGGER = LoggerFactory.getLogger("MidnightThoughts");
+
     public MidnightThoughts() {
-        EFFECTS.register(FMLJavaModLoadingContext.get().getModEventBus());
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onClientSetup);
+        IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+        EFFECTS.register(modEventBus);
+        modEventBus.addListener(this::setup);
+        modEventBus.addListener(this::onClientSetup);
         MinecraftForge.EVENT_BUS.register(this);
     }
     private void setup(final FMLCommonSetupEvent event) {
         NetworkHandler.registerPackets();
-        LOGGER.info("MidnightThoughts setup called");
     }
     private void onClientSetup(final FMLClientSetupEvent event) {
         mt.client.MidnightThoughtsClient.init();
@@ -48,7 +50,6 @@ public class MidnightThoughts {
     @SubscribeEvent
     public void onServerStarted(ServerStartedEvent event) {
         DailyStatsManager.initialize();
-        LOGGER.info("Server started event received");
     }
 
     @SubscribeEvent
@@ -68,6 +69,5 @@ public class MidnightThoughts {
     @SubscribeEvent
     public void onServerStopping(ServerStoppingEvent event) {
         DailyStatsManager.onServerStop(event.getServer());
-        LOGGER.info("Server stopping event received");
     }
 }

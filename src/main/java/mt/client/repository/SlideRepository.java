@@ -54,7 +54,6 @@ public class SlideRepository {
         try {
             Optional<Resource> resourceOpt = manager.getResource(resourceId);
             if (resourceOpt.isEmpty()) {
-                LOGGER.debug("Resource not found: {}", resourceId);
                 return slides;
             }
             try (InputStreamReader reader = new InputStreamReader(resourceOpt.get().open(), StandardCharsets.UTF_8)) {
@@ -64,7 +63,6 @@ public class SlideRepository {
                         slides.add(Slide.ofRare(entry.text(), category, entry.rarity()));
                     }
                 }
-                LOGGER.debug("Loaded {} slides from {}", slides.size(), resourceId);
             }
         } catch (Exception e) {
             LOGGER.error("Failed to load slides from {}: {}", resourceId, e.getMessage());

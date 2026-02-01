@@ -58,7 +58,6 @@ public class UselessFactsApiClient {
                     return Optional.<String>empty();
                 })
                 .exceptionally(e -> {
-                    LOGGER.debug("Failed to fetch fact from API: {}", e.getMessage());
                     return Optional.empty();
                 });
     }

@@ -78,8 +78,6 @@ public class SleepOverlayRenderer {
         }
     }
     private void onSleepStart() {
-        slideService.refreshStats();
-        slideService.resetSlideCounter();
         isOverlayVisible = true;
         overlayAlpha = 1f;
         textAlpha = 0f;

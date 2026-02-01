@@ -46,7 +46,6 @@ public final class MidnightThoughtsConfig {
                 String json = Files.readString(configPath);
                 MidnightThoughtsConfig config = GSON.fromJson(json, MidnightThoughtsConfig.class);
                 if (config != null) {
-                    LOGGER.info("Configuration loaded from {}", configPath);
                     return config;
                 }
             } catch (IOException e) {
@@ -66,7 +65,6 @@ public final class MidnightThoughtsConfig {
             Files.createDirectories(configPath.getParent());
             String json = GSON.toJson(this);
             Files.writeString(configPath, json);
-            LOGGER.info("Configuration saved to {}", configPath);
         } catch (IOException e) {
             LOGGER.error("Failed to save configuration: {}", e.getMessage());
         }

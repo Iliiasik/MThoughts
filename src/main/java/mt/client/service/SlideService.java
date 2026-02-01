@@ -9,14 +9,11 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class SlideService {
     private final SlideRepository slideRepository;
-    private final PlayerStatsService playerStatsService;
     private final MidnightThoughtsConfig config;
     private final FactProvider factProvider;
 
-    public SlideService(SlideRepository slideRepository, PlayerStatsService playerStatsService,
-                        MidnightThoughtsConfig config, FactProvider factProvider) {
+    public SlideService(SlideRepository slideRepository, MidnightThoughtsConfig config, FactProvider factProvider) {
         this.slideRepository = slideRepository;
-        this.playerStatsService = playerStatsService;
         this.config = config;
         this.factProvider = factProvider;
     }
@@ -64,20 +61,12 @@ public class SlideService {
         }
     }
 
-    public void refreshStats() {
-        playerStatsService.collectStats();
-    }
-
-    public void resetSlideCounter() {
-    }
 
     public String getCurrentLanguage() {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.getLanguageManager() != null) {
-            String lang = mc.getLanguageManager().getSelected();
-            if (lang != null && lang.startsWith("de")) {
-                return "de_de";
-            }
+        String lang = mc.getLanguageManager().getSelected();
+        if (lang.startsWith("de")) {
+            return "de_de";
         }
         return "en_us";
     }

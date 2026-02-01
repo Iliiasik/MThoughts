@@ -6,7 +6,6 @@ import mt.client.manager.SleepStateManager;
 import mt.client.render.SleepOverlayRenderer;
 import mt.client.repository.SlideRepository;
 import mt.client.service.FactProvider;
-import mt.client.service.PlayerStatsService;
 import mt.client.service.SlideService;
 import mt.client.ui.SleepingPlayersHud;
 import net.minecraft.client.Minecraft;
@@ -45,14 +44,11 @@ public class MidnightThoughtsClient {
         slideRepository = new SlideRepository();
 
         Minecraft mc = Minecraft.getInstance();
-        if (mc.getResourceManager() != null) {
-            slideRepository.loadAllSlides(mc.getResourceManager());
-        }
+        slideRepository.loadAllSlides(mc.getResourceManager());
 
-        PlayerStatsService playerStatsService = new PlayerStatsService();
         UselessFactsApiClient apiClient = new UselessFactsApiClient();
         FactProvider factProvider = new FactProvider(apiClient, slideRepository);
-        SlideService slideService = new SlideService(slideRepository, playerStatsService, config, factProvider);
+        SlideService slideService = new SlideService(slideRepository, config, factProvider);
         sleepStateManager = new SleepStateManager();
         overlayRenderer = new SleepOverlayRenderer(sleepStateManager, slideService, config);
     }
