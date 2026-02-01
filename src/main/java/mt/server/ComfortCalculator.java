@@ -1,5 +1,6 @@
 package mt.server;
 
+import mt.client.config.MidnightThoughtsConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -9,7 +10,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class ComfortCalculator {
-    private static final int SCAN_RADIUS = 5;
+    private static final MidnightThoughtsConfig CONFIG = MidnightThoughtsConfig.getInstance();
 
     private static final TagKey<Block> LIGHTING_TAG = TagKey.create(net.minecraft.core.registries.Registries.BLOCK, ResourceLocation.fromNamespaceAndPath("midnightthoughts", "comfort_lighting"));
     private static final TagKey<Block> CARPET_TAG = TagKey.create(net.minecraft.core.registries.Registries.BLOCK, ResourceLocation.fromNamespaceAndPath("midnightthoughts", "comfort_carpet"));
@@ -18,6 +19,11 @@ public class ComfortCalculator {
     private static final TagKey<Block> STRUCTURE_TAG = TagKey.create(net.minecraft.core.registries.Registries.BLOCK, ResourceLocation.fromNamespaceAndPath("midnightthoughts", "comfort_structure"));
 
     public static int calculateComfortLevel(ServerPlayer player) {
+        if (!CONFIG.getComfort().enabled) {
+            return 0;
+        }
+
+        int scanRadius = CONFIG.getComfort().scanRadius;
         BlockPos bedPos = player.getSleepingPos().orElse(player.blockPosition());
         Level world = player.level();
 
@@ -27,9 +33,9 @@ public class ComfortCalculator {
         boolean hasDecor = false;
         boolean hasStructure = false;
 
-        for (int x = -SCAN_RADIUS; x <= SCAN_RADIUS; x++) {
-            for (int y = -SCAN_RADIUS; y <= SCAN_RADIUS; y++) {
-                for (int z = -SCAN_RADIUS; z <= SCAN_RADIUS; z++) {
+        for (int x = -scanRadius; x <= scanRadius; x++) {
+            for (int y = -scanRadius; y <= scanRadius; y++) {
+                for (int z = -scanRadius; z <= scanRadius; z++) {
                     BlockPos checkPos = bedPos.offset(x, y, z);
                     BlockState state = world.getBlockState(checkPos);
 

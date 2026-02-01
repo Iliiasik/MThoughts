@@ -1,5 +1,6 @@
 package mt.server;
 
+import mt.client.config.MidnightThoughtsConfig;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 
@@ -8,6 +9,7 @@ import java.util.List;
 import java.util.UUID;
 
 public class AchievementCalculator {
+    private static final MidnightThoughtsConfig CONFIG = MidnightThoughtsConfig.getInstance();
 
     public static List<String> calculateAchievements(
             ServerPlayer player,
@@ -40,20 +42,34 @@ public class AchievementCalculator {
 
         int blocksWalked = distance / 100;
 
-        if (deaths == 0 && mobs >= 10 && blocks >= 50) achievements.add("flawless");
-        if (mobs == 0 && blocksWalked >= 5000) achievements.add("pacifist");
-        if (mobs >= 50 && deaths <= 1) achievements.add("juggernaut");
-        if (blocksWalked >= 30000) achievements.add("marathoner");
-        if (jumps >= 500) achievements.add("hyperactive");
-        if (blocks >= 1000 && jumps >= 200) achievements.add("demolition_maniac");
-        if (blocksWalked >= 15000 && blocks >= 100) achievements.add("explorer");
-        if (deaths <= 1 && mobs >= 10) achievements.add("survivor");
-        if (blocksWalked >= 10000 && blocks >= 200 && mobs >= 20) achievements.add("combo_master");
-        if (deaths == 0 && blocksWalked >= 20000 && blocks >= 200) achievements.add("iron_will");
+        checkAchievement(achievements, "flawless", deaths, mobs, blocks, blocksWalked, jumps);
+        checkAchievement(achievements, "pacifist", deaths, mobs, blocks, blocksWalked, jumps);
+        checkAchievement(achievements, "juggernaut", deaths, mobs, blocks, blocksWalked, jumps);
+        checkAchievement(achievements, "marathoner", deaths, mobs, blocks, blocksWalked, jumps);
+        checkAchievement(achievements, "hyperactive", deaths, mobs, blocks, blocksWalked, jumps);
+        checkAchievement(achievements, "demolition_maniac", deaths, mobs, blocks, blocksWalked, jumps);
+        checkAchievement(achievements, "explorer", deaths, mobs, blocks, blocksWalked, jumps);
+        checkAchievement(achievements, "survivor", deaths, mobs, blocks, blocksWalked, jumps);
+        checkAchievement(achievements, "combo_master", deaths, mobs, blocks, blocksWalked, jumps);
+        checkAchievement(achievements, "iron_will", deaths, mobs, blocks, blocksWalked, jumps);
 
         updateRecords(server, uuid, delta, saved);
 
         return achievements;
+    }
+
+    private static void checkAchievement(List<String> achievements, String achievementId, int deaths, int mobs, int blocks, int blocksWalked, int jumps) {
+        MidnightThoughtsConfig.AchievementRequirement req = CONFIG.getAchievements().getRequirement(achievementId);
+
+        if (req.deaths != null && deaths != req.deaths) return;
+        if (req.deathsMax != null && deaths > req.deathsMax) return;
+        if (req.mobsMin != null && mobs < req.mobsMin) return;
+        if (req.mobsMax != null && mobs > req.mobsMax) return;
+        if (req.blocksMin != null && blocks < req.blocksMin) return;
+        if (req.distanceMin != null && blocksWalked < req.distanceMin) return;
+        if (req.jumpsMin != null && jumps < req.jumpsMin) return;
+
+        achievements.add(achievementId);
     }
 
     private static void updateRecords(MinecraftServer server, UUID uuid, DailyPlayerStats.DailyDelta delta, StatsStorage.SavedPlayerStats saved) {
@@ -74,7 +90,9 @@ public class AchievementCalculator {
     }
 
     public static String determineMvp(List<PlayerSummaryData> players) {
-        if (players.size() <= 1) {
+        MidnightThoughtsConfig.MvpSettings mvpSettings = CONFIG.getMvp();
+
+        if (!mvpSettings.enabled || players.size() <= 1) {
             return null;
         }
 
@@ -100,7 +118,7 @@ public class AchievementCalculator {
             return null;
         }
 
-        if (highestScore < 10) {
+        if (highestScore < mvpSettings.minScoreRequired) {
             return null;
         }
 
@@ -108,13 +126,14 @@ public class AchievementCalculator {
     }
 
     private static int calculateMvpScore(PlayerSummaryData player) {
+        MidnightThoughtsConfig.MvpSettings mvp = CONFIG.getMvp();
         int score = 0;
 
-        score += player.distanceWalked() / 50;
-        score += player.blocksDestroyed() * 3;
-        score += player.mobsKilled() * 15;
-        score += player.jumps() / 10;
-        score -= player.deaths() * 30;
+        score += (player.distanceWalked() / 100) / 100 * mvp.pointsPerDistance100;
+        score += player.blocksDestroyed() * mvp.pointsPerBlock;
+        score += player.mobsKilled() * mvp.pointsPerMob;
+        score += player.jumps() / 10 * mvp.pointsPerJump10;
+        score -= player.deaths() * mvp.penaltyPerDeath;
 
         return Math.max(0, score);
     }
