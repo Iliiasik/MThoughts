@@ -185,8 +185,8 @@ public final class MidnightThoughtsConfig {
         public Map<String, AchievementRequirement> requirements = new HashMap<>();
 
         public AchievementsSettings() {
-            requirements.put("flawless", new AchievementRequirement(0, null, 10, 50, null));
-            requirements.put("pacifist", new AchievementRequirement(null, 0, null, null, 500000));
+            requirements.put("flawless", new AchievementRequirement(0, 10, null, 50, null));
+            requirements.put("pacifist", new AchievementRequirement(null, null, 0, null, 500000));
             requirements.put("juggernaut", new AchievementRequirement(null, 50, null, null, null, 1));
             requirements.put("marathoner", new AchievementRequirement(null, null, null, null, 3000000));
             requirements.put("hyperactive", new AchievementRequirement(null, null, null, null, null, null, 500));
