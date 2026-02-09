@@ -1,7 +1,7 @@
 package mt.client.render;
 
 import mt.client.MidnightThoughtsClient;
-import mt.client.config.MidnightThoughtsConfig;
+import mt.config.MidnightThoughtsConfig;
 import mt.client.manager.SleepStateManager;
 import mt.client.model.Slide;
 import mt.client.service.SlideService;

@@ -1,7 +1,7 @@
 package mt.client;
 
 import mt.client.api.UselessFactsApiClient;
-import mt.client.config.MidnightThoughtsConfig;
+import mt.config.MidnightThoughtsConfig;
 import mt.client.manager.SleepStateManager;
 import mt.client.network.ClientNetworkHandler;
 import mt.client.render.SleepOverlayRenderer;

@@ -1,5 +1,6 @@
 package mt.server;
 
+import mt.config.MidnightThoughtsConfig;
 import net.minecraft.block.BlockState;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
@@ -10,7 +11,7 @@ import net.minecraft.block.Block;
 import net.minecraft.registry.RegistryKeys;
 
 public class ComfortCalculator {
-    private static final int SCAN_RADIUS = 5;
+    private static final MidnightThoughtsConfig CONFIG = MidnightThoughtsConfig.getInstance();
 
     private static final TagKey<Block> LIGHTING_TAG = TagKey.of(RegistryKeys.BLOCK, Identifier.of("midnightthoughts", "comfort_lighting"));
     private static final TagKey<Block> CARPET_TAG = TagKey.of(RegistryKeys.BLOCK, Identifier.of("midnightthoughts", "comfort_carpet"));
@@ -19,6 +20,11 @@ public class ComfortCalculator {
     private static final TagKey<Block> STRUCTURE_TAG = TagKey.of(RegistryKeys.BLOCK, Identifier.of("midnightthoughts", "comfort_structure"));
 
     public static int calculateComfortLevel(ServerPlayerEntity player) {
+        if (!CONFIG.getComfort().enabled) {
+            return 0;
+        }
+
+        int scanRadius = CONFIG.getComfort().scanRadius;
         BlockPos bedPos = player.getSleepingPosition().orElse(player.getBlockPos());
         World world = player.getEntityWorld();
 
@@ -28,9 +34,9 @@ public class ComfortCalculator {
         boolean hasDecor = false;
         boolean hasStructure = false;
 
-        for (int x = -SCAN_RADIUS; x <= SCAN_RADIUS; x++) {
-            for (int y = -SCAN_RADIUS; y <= SCAN_RADIUS; y++) {
-                for (int z = -SCAN_RADIUS; z <= SCAN_RADIUS; z++) {
+        for (int x = -scanRadius; x <= scanRadius; x++) {
+            for (int y = -scanRadius; y <= scanRadius; y++) {
+                for (int z = -scanRadius; z <= scanRadius; z++) {
                     BlockPos checkPos = bedPos.add(x, y, z);
                     BlockState state = world.getBlockState(checkPos);
 

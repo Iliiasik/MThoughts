@@ -1,11 +1,19 @@
 package mt.client.ui;
 
+import mt.client.MidnightThoughtsClient;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
+import org.joml.Matrix3x2fStack;
 
 public class SleepingPlayersHud {
+    private static final Identifier SLEEPING_HUD_TEXTURE = Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/sleeping_hud.png");
+    private static final int TEXTURE_WIDTH = 260;
+    private static final int TEXTURE_HEIGHT = 160;
+
     private static int sleepingCount = 0;
     private static int totalPlayers = 0;
     private static float displayAlpha = 0.0f;
@@ -36,44 +44,48 @@ public class SleepingPlayersHud {
 
         TextRenderer textRenderer = client.textRenderer;
 
+        float scale = Math.min(screenWidth / 1920.0f, screenHeight / 1080.0f);
+        scale = Math.max(0.8f, Math.min(1.5f, scale));
+
+        int hudHeight = (int)(55 * scale);
+        int hudWidth = (int)(hudHeight * (TEXTURE_WIDTH / (float)TEXTURE_HEIGHT));
+        int hudX = (int)(10 * scale);
+        int hudY = (int)(10 * scale);
+
+        context.drawTexture(RenderPipelines.GUI_TEXTURED, SLEEPING_HUD_TEXTURE, hudX, hudY,
+            0.0f, 0.0f, hudWidth, hudHeight, TEXTURE_WIDTH, TEXTURE_HEIGHT,
+            TEXTURE_WIDTH, TEXTURE_HEIGHT,
+            0xFFFFFFFF);
+
         String sleepText = sleepingCount + " / " + totalPlayers;
         Text titleText = Text.translatable("midnightthoughts.hud.sleeping");
 
-        int innerPadding = 6;
-        int titleWidth = textRenderer.getWidth(titleText);
-        int sleepTextWidth = textRenderer.getWidth(sleepText);
-        int maxTextWidth = Math.max(titleWidth, sleepTextWidth);
-
-        int boxWidth = maxTextWidth + innerPadding * 2 + 4;
-        int boxHeight = 32;
-        int boxX = screenWidth - boxWidth - 10;
-        int boxY = 10;
-
-        int alpha = (int)(displayAlpha * 220);
-        int bgColor = (alpha << 24) | 0x1a1a2e;
-        context.fill(boxX, boxY, boxX + boxWidth, boxY + boxHeight, bgColor);
-
-        int borderAlpha = (int)(displayAlpha * 255);
-        int borderColor = (borderAlpha << 24) | 0x4a4a6a;
-        context.fill(boxX, boxY, boxX + boxWidth, boxY + 2, borderColor);
-        context.fill(boxX, boxY + boxHeight - 2, boxX + boxWidth, boxY + boxHeight, borderColor);
-        context.fill(boxX, boxY, boxX + 2, boxY + boxHeight, borderColor);
-        context.fill(boxX + boxWidth - 2, boxY, boxX + boxWidth, boxY + boxHeight, borderColor);
-
-        int cornerColor = (borderAlpha << 24) | 0x7a7aaa;
-        context.fill(boxX, boxY, boxX + 4, boxY + 4, cornerColor);
-        context.fill(boxX + boxWidth - 4, boxY, boxX + boxWidth, boxY + 4, cornerColor);
-        context.fill(boxX, boxY + boxHeight - 4, boxX + 4, boxY + boxHeight, cornerColor);
-        context.fill(boxX + boxWidth - 4, boxY + boxHeight - 4, boxX + boxWidth, boxY + boxHeight, cornerColor);
-
         int textAlpha = (int)(displayAlpha * 255);
-        int titleColor = (textAlpha << 24) | 0xaaaacc;
-        int titleX = boxX + (boxWidth - titleWidth) / 2;
-        context.drawText(textRenderer, titleText, titleX, boxY + 5, titleColor, false);
+        int titleColor = (textAlpha << 24) | 0xd8b3e6;
+
+        float textScale = scale * 1.1f;
+        int titleWidth = (int)(textRenderer.getWidth(titleText) * textScale);
+        int titleX = hudX + (hudWidth - titleWidth) / 2;
+        int titleY = hudY + (int)(14 * scale);
+
+        Matrix3x2fStack matrices = context.getMatrices();
+        matrices.pushMatrix();
+        matrices.translate(titleX, titleY);
+        matrices.scale(textScale, textScale);
+        context.drawText(textRenderer, titleText, 0, 0, titleColor, false);
+        matrices.popMatrix();
 
         int sleepColor = (textAlpha << 24) | 0xffee88;
-        int sleepX = boxX + (boxWidth - sleepTextWidth) / 2;
-        context.drawText(textRenderer, sleepText, sleepX, boxY + 18, sleepColor, true);
+        float sleepTextScale = scale * 1.2f;
+        int sleepTextWidth = (int)(textRenderer.getWidth(sleepText) * sleepTextScale);
+        int sleepX = hudX + (hudWidth - sleepTextWidth) / 2;
+        int sleepY = hudY + (int)(32 * scale);
+
+        matrices.pushMatrix();
+        matrices.translate(sleepX, sleepY);
+        matrices.scale(sleepTextScale, sleepTextScale);
+        context.drawText(textRenderer, sleepText, 0, 0, sleepColor, true);
+        matrices.popMatrix();
     }
 
     public static void reset() {

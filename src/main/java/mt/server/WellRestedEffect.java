@@ -1,6 +1,7 @@
 package mt.server;
 
 import mt.MidnightThoughts;
+import mt.config.MidnightThoughtsConfig;
 import mt.mixin.HungerManagerAccessor;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
@@ -18,6 +19,7 @@ import net.minecraft.util.Identifier;
 public class WellRestedEffect extends StatusEffect {
 
     public static RegistryEntry<StatusEffect> WELL_RESTED;
+    private static final MidnightThoughtsConfig CONFIG = MidnightThoughtsConfig.getInstance();
 
     private static final Identifier HEALTH_MODIFIER_ID = Identifier.of(MidnightThoughts.MOD_ID, "well_rested_health");
     private static final Identifier LUCK_MODIFIER_ID = Identifier.of(MidnightThoughts.MOD_ID, "well_rested_luck");
@@ -50,39 +52,29 @@ public class WellRestedEffect extends StatusEffect {
     }
 
     private float getExhaustionReduction(int level) {
-        return switch (level) {
-            case 1 -> 0.05f;
-            case 2 -> 0.1f;
-            case 3 -> 0.15f;
-            case 4 -> 0.2f;
-            default -> 0.25f;
-        };
+        return CONFIG.getWellRested().getLevel(level).exhaustionReduction;
     }
 
     public static int getDurationForLevel(int level) {
-        return switch (level) {
-            case 1 -> 3 * 60 * 20;
-            case 2 -> 5 * 60 * 20;
-            case 3 -> 7 * 60 * 20;
-            case 4 -> 10 * 60 * 20;
-            default -> 15 * 60 * 20;
-        };
+        int durationMinutes = CONFIG.getWellRested().getLevel(level).durationMinutes;
+        return durationMinutes * 60 * 20;
     }
 
     public static void register() {
         WellRestedEffect effect = new WellRestedEffect();
 
+        MidnightThoughtsConfig.WellRestedLevel level1 = CONFIG.getWellRested().getLevel(1);
         effect.addAttributeModifier(
                 EntityAttributes.MAX_HEALTH,
                 HEALTH_MODIFIER_ID,
-                2.0,
+                level1.healthBonus,
                 EntityAttributeModifier.Operation.ADD_VALUE
         );
 
         effect.addAttributeModifier(
                 EntityAttributes.LUCK,
                 LUCK_MODIFIER_ID,
-                0.25,
+                level1.luckBonus,
                 EntityAttributeModifier.Operation.ADD_VALUE
         );
 
@@ -112,10 +104,7 @@ public class WellRestedEffect extends StatusEffect {
 
         player.addStatusEffect(instance);
 
-        if (comfortLevel >= 3) {
-            player.setHealth(player.getHealth() + 4.0f);
-        } else {
-            player.setHealth(player.getHealth() + 2.0f);
-        }
+        float instantHeal = CONFIG.getWellRested().getLevel(comfortLevel).instantHeal;
+        player.setHealth(player.getHealth() + instantHeal);
     }
 }
