@@ -1,6 +1,6 @@
 package mt.client.service;
 
-import mt.client.config.MidnightThoughtsConfig;
+import mt.config.MidnightThoughtsConfig;
 import mt.client.model.Slide;
 import mt.client.model.SlideCategory;
 import mt.client.repository.SlideRepository;
