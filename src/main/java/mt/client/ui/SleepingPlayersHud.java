@@ -1,10 +1,6 @@
 package mt.client.ui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexFormat;
 import mt.client.MidnightThoughtsClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -12,7 +8,6 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import org.joml.Matrix4f;
 
 public class SleepingPlayersHud {
     private static final ResourceLocation SLEEPING_HUD_TEXTURE = ResourceLocation.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/sleeping_hud.png");
@@ -57,23 +52,15 @@ public class SleepingPlayersHud {
         int hudX = (int)(10 * scale);
         int hudY = (int)(10 * scale);
 
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, SLEEPING_HUD_TEXTURE);
-        RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
+        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, displayAlpha);
         RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
 
-        Matrix4f matrix = context.pose().last().pose();
-        Tesselator tessellator = Tesselator.getInstance();
-        BufferBuilder buffer = tessellator.getBuilder();
+        context.blit(SLEEPING_HUD_TEXTURE, hudX, hudY, hudWidth, hudHeight,
+            0.0f, 0.0f, TEXTURE_WIDTH, TEXTURE_HEIGHT, TEXTURE_WIDTH, TEXTURE_HEIGHT);
 
-        int alpha = (int)(displayAlpha * 255);
-        buffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
-        buffer.vertex(matrix, hudX, hudY + hudHeight, 0).uv(0, 1).color(255, 255, 255, alpha).endVertex();
-        buffer.vertex(matrix, hudX + hudWidth, hudY + hudHeight, 0).uv(1, 1).color(255, 255, 255, alpha).endVertex();
-        buffer.vertex(matrix, hudX + hudWidth, hudY, 0).uv(1, 0).color(255, 255, 255, alpha).endVertex();
-        buffer.vertex(matrix, hudX, hudY, 0).uv(0, 0).color(255, 255, 255, alpha).endVertex();
-        tessellator.end();
-
+        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
         RenderSystem.disableBlend();
 
         String sleepText = sleepingCount + " / " + totalPlayers;

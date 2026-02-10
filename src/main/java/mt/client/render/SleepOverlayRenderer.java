@@ -80,14 +80,14 @@ public class SleepOverlayRenderer {
     private void onSleepStart() {
         isOverlayVisible = true;
         overlayAlpha = 1f;
-        textAlpha = 0f;
-        targetTextAlpha = 0f;
+        textAlpha = 1f;
+        targetTextAlpha = 1f;
         currentSlide = slideService.getNextSlide();
         nextSlide = slideService.getNextSlide();
         currentSlideDuration = config.getRandomSlideDisplayTime();
         slideStartTime = System.currentTimeMillis();
         visibleStartTime = System.currentTimeMillis();
-        slideState = SlideState.FADING_IN;
+        slideState = SlideState.VISIBLE;
     }
     private void onSleepEnd() {
         currentSlide = null;
@@ -157,6 +157,19 @@ public class SleepOverlayRenderer {
         t = Math.max(0f, Math.min(1f, t));
         return t < 0.5f ? 2 * t * t : 1 - (float) Math.pow(-2 * t + 2, 2) / 2;
     }
+    public void render(GuiGraphics context, int screenWidth, int screenHeight) {
+        if (!sleepStateManager.isSleeping() || !config.isEnableOverlay()) {
+            return;
+        }
+
+        if (overlayAlpha <= 0 && !isOverlayVisible) {
+            return;
+        }
+
+        renderOverlay(context, screenWidth, screenHeight);
+        renderContent(context, screenWidth, screenHeight);
+    }
+
     public void renderOverlayOnly(GuiGraphics context, int screenWidth, int screenHeight) {
         if (!sleepStateManager.isSleeping() || !config.isEnableOverlay()) {
             return;
