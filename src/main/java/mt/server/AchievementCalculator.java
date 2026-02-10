@@ -98,27 +98,20 @@ public class AchievementCalculator {
 
         String mvpName = null;
         int highestScore = 0;
+        int mvpCount = 0;
 
         for (PlayerSummaryData player : players) {
             int score = calculateMvpScore(player);
             if (score > highestScore) {
                 highestScore = score;
                 mvpName = player.playerName();
-            }
-        }
-
-        int mvpCount = 0;
-        for (PlayerSummaryData player : players) {
-            if (calculateMvpScore(player) == highestScore) {
+                mvpCount = 1;
+            } else if (score == highestScore) {
                 mvpCount++;
             }
         }
 
-        if (mvpCount > 1) {
-            return null;
-        }
-
-        if (highestScore < mvpSettings.minScoreRequired) {
+        if (mvpCount > 1 || highestScore < mvpSettings.minScoreRequired) {
             return null;
         }
 

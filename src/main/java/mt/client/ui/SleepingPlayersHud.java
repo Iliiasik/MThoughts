@@ -44,8 +44,7 @@ public class SleepingPlayersHud {
 
         Font textRenderer = client.font;
 
-        float scale = Math.min(screenWidth / 1920.0f, screenHeight / 1080.0f);
-        scale = Math.max(0.8f, Math.min(1.5f, scale));
+        float scale = Math.max(0.8f, Math.min(1.5f, Math.min(screenWidth / 1920.0f, screenHeight / 1080.0f)));
 
         int hudHeight = (int)(55 * scale);
         int hudWidth = (int)(hudHeight * (TEXTURE_WIDTH / (float)TEXTURE_HEIGHT));
@@ -63,6 +62,10 @@ public class SleepingPlayersHud {
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
         RenderSystem.disableBlend();
 
+        renderText(context, textRenderer, hudX, hudY, hudWidth, hudHeight, scale);
+    }
+
+    private static void renderText(GuiGraphics context, Font textRenderer, int hudX, int hudY, int hudWidth, int hudHeight, float scale) {
         String sleepText = sleepingCount + " / " + totalPlayers;
         Component titleText = Component.translatable("midnightthoughts.hud.sleeping");
 
@@ -91,15 +94,5 @@ public class SleepingPlayersHud {
         context.pose().scale(sleepTextScale, sleepTextScale, 1.0f);
         context.drawString(textRenderer, sleepText, 0, 0, sleepColor, true);
         context.pose().popPose();
-    }
-
-    public static void reset() {
-        sleepingCount = 0;
-        totalPlayers = 0;
-        displayAlpha = 0.0f;
-    }
-
-    public static boolean isShowingSleepingHud() {
-        return sleepingCount > 0 && totalPlayers > 0;
     }
 }

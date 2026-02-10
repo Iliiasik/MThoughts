@@ -79,9 +79,11 @@ public class MidnightThoughtsClient {
         public void onRenderGuiPre(RenderGuiOverlayEvent.Pre event) {
             if (!event.getOverlay().id().equals(VanillaGuiOverlay.HOTBAR.id())) return;
 
-            Minecraft mc = Minecraft.getInstance();
             MidnightThoughtsClient inst = MidnightThoughtsClient.getInstance();
-            if (mc.player == null || inst == null) return;
+            if (inst == null) return;
+
+            Minecraft mc = Minecraft.getInstance();
+            if (mc.player == null) return;
 
             int w = mc.getWindow().getGuiScaledWidth();
             int h = mc.getWindow().getGuiScaledHeight();
@@ -91,9 +93,11 @@ public class MidnightThoughtsClient {
 
         @SubscribeEvent
         public void onRenderGuiPost(RenderGuiOverlayEvent.Post event) {
-            Minecraft mc = Minecraft.getInstance();
             MidnightThoughtsClient inst = MidnightThoughtsClient.getInstance();
-            if (mc.player == null || inst == null) return;
+            if (inst == null) return;
+
+            Minecraft mc = Minecraft.getInstance();
+            if (mc.player == null) return;
 
             int w = mc.getWindow().getGuiScaledWidth();
             int h = mc.getWindow().getGuiScaledHeight();

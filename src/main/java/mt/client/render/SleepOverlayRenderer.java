@@ -1,9 +1,6 @@
 package mt.client.render;
+
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexFormat;
 import mt.client.MidnightThoughtsClient;
 import mt.client.config.MidnightThoughtsConfig;
 import mt.client.manager.SleepStateManager;
@@ -14,7 +11,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.resources.ResourceLocation;
-import org.joml.Matrix4f;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -157,18 +154,6 @@ public class SleepOverlayRenderer {
         t = Math.max(0f, Math.min(1f, t));
         return t < 0.5f ? 2 * t * t : 1 - (float) Math.pow(-2 * t + 2, 2) / 2;
     }
-    public void render(GuiGraphics context, int screenWidth, int screenHeight) {
-        if (!sleepStateManager.isSleeping() || !config.isEnableOverlay()) {
-            return;
-        }
-
-        if (overlayAlpha <= 0 && !isOverlayVisible) {
-            return;
-        }
-
-        renderOverlay(context, screenWidth, screenHeight);
-        renderContent(context, screenWidth, screenHeight);
-    }
 
     public void renderOverlayOnly(GuiGraphics context, int screenWidth, int screenHeight) {
         if (!sleepStateManager.isSleeping() || !config.isEnableOverlay()) {
@@ -222,20 +207,14 @@ public class SleepOverlayRenderer {
         return Math.max(MIN_TEXT_SCALE, Math.min(MAX_TEXT_SCALE, baseScale));
     }
     private void renderImage(GuiGraphics context, int x, int y, int width, int height) {
-        int alpha = (int) (overlayAlpha * IMAGE_OPACITY * 255);
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, IMAGE_TEXTURE);
-        RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
+        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, overlayAlpha * IMAGE_OPACITY);
         RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        Matrix4f matrix = context.pose().last().pose();
-        Tesselator tessellator = Tesselator.getInstance();
-        BufferBuilder buffer = tessellator.getBuilder();
-        buffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
-        buffer.vertex(matrix, x, y + height, 0).uv(0, 1).color(255, 255, 255, alpha).endVertex();
-        buffer.vertex(matrix, x + width, y + height, 0).uv(1, 1).color(255, 255, 255, alpha).endVertex();
-        buffer.vertex(matrix, x + width, y, 0).uv(1, 0).color(255, 255, 255, alpha).endVertex();
-        buffer.vertex(matrix, x, y, 0).uv(0, 0).color(255, 255, 255, alpha).endVertex();
-        tessellator.end();
+
+        context.blit(IMAGE_TEXTURE, x, y, 0, 0, width, height, width, height);
+
+        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
         RenderSystem.disableBlend();
     }
     private void renderSlideText(GuiGraphics context, Font textRenderer, List<String> lines, int areaX, int centerY, float scale) {

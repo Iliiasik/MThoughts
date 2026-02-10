@@ -80,7 +80,7 @@ public class DailySummaryScreen extends Screen {
     private void navigateToPreviousPage() {
         if (currentPage > 0) {
             currentPage--;
-            clearAndInit();
+            rebuildWidgets();
         }
     }
 
@@ -88,11 +88,12 @@ public class DailySummaryScreen extends Screen {
         int totalPages = dimensions.getTotalPages(allPlayers.size());
         if (currentPage < totalPages - 1) {
             currentPage++;
-            clearAndInit();
+            rebuildWidgets();
         }
     }
 
-    private void clearAndInit() {
+    @Override
+    protected void rebuildWidgets() {
         this.clearWidgets();
         this.init();
     }
@@ -149,10 +150,5 @@ public class DailySummaryScreen extends Screen {
     @Override
     public boolean isPauseScreen() {
         return false;
-    }
-
-    @Override
-    public void onClose() {
-        super.onClose();
     }
 }

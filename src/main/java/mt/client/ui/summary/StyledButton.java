@@ -30,7 +30,7 @@ public class StyledButton extends Button {
         int textColor = hovered ? 0xFFeeddff : 0xFFddccee;
         int textX = getX() + (getWidth() - textRenderer.width(getMessage())) / 2;
         int textY = getY() + (getHeight() - 8) / 2;
-        textRenderer.drawInBatch(getMessage().getString(), textX, textY, textColor, true, context.pose().last().pose(), context.bufferSource(), Font.DisplayMode.NORMAL, 0, 15728880);
+        context.drawString(textRenderer, getMessage(), textX, textY, textColor, true);
     }
 }
 

@@ -1,10 +1,6 @@
 package mt.client.ui.summary;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexFormat;
 import mt.network.packet.DailySummaryPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -12,7 +8,6 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.resources.ResourceLocation;
-import org.joml.Matrix4f;
 
 import java.util.List;
 
@@ -73,23 +68,14 @@ public class PlayerRowRenderer {
         int iconX = badgeX + (badgeWidth - iconWidth) / 2;
         int iconY = badgeY + iconPadding;
 
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, SummaryConstants.CROWN_TEXTURE);
-        RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
+        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, fadeAlpha);
         RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
 
-        Matrix4f matrix = context.pose().last().pose();
-        Tesselator tessellator = Tesselator.getInstance();
-        BufferBuilder buffer = tessellator.getBuilder();
+        context.blit(SummaryConstants.CROWN_TEXTURE, iconX, iconY, 0, 0, iconWidth, iconHeight, iconWidth, iconHeight);
 
-        int alpha = (int)(fadeAlpha * 255);
-        buffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
-        buffer.vertex(matrix, iconX, iconY + iconHeight, 0).uv(0, 1).color(255, 255, 255, alpha).endVertex();
-        buffer.vertex(matrix, iconX + iconWidth, iconY + iconHeight, 0).uv(1, 1).color(255, 255, 255, alpha).endVertex();
-        buffer.vertex(matrix, iconX + iconWidth, iconY, 0).uv(1, 0).color(255, 255, 255, alpha).endVertex();
-        buffer.vertex(matrix, iconX, iconY, 0).uv(0, 0).color(255, 255, 255, alpha).endVertex();
-        tessellator.end();
-
+        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
         RenderSystem.disableBlend();
     }
 
