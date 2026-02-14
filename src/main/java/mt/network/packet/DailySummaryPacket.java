@@ -49,11 +49,11 @@ public record DailySummaryPacket(List<PlayerDailySummary> summaries) implements 
     ) {
         public static PlayerDailySummary decode(RegistryByteBuf buf) {
             String playerName = buf.readString();
-            int blocksDestroyed = buf.readVarInt();
-            int distanceWalked = buf.readVarInt();
-            int mobsKilled = buf.readVarInt();
-            int deaths = buf.readVarInt();
-            int jumps = buf.readVarInt();
+            int blocksDestroyed = clampValue(buf.readVarInt());
+            int distanceWalked = clampValue(buf.readVarInt());
+            int mobsKilled = clampValue(buf.readVarInt());
+            int deaths = clampValue(buf.readVarInt());
+            int jumps = clampValue(buf.readVarInt());
             boolean isMvp = buf.readBoolean();
             int achievementCount = buf.readVarInt();
             List<String> achievements = new ArrayList<>(achievementCount);
@@ -65,16 +65,23 @@ public record DailySummaryPacket(List<PlayerDailySummary> summaries) implements 
 
         public static void encode(RegistryByteBuf buf, PlayerDailySummary summary) {
             buf.writeString(summary.playerName());
-            buf.writeVarInt(summary.blocksDestroyed());
-            buf.writeVarInt(summary.distanceWalked());
-            buf.writeVarInt(summary.mobsKilled());
-            buf.writeVarInt(summary.deaths());
-            buf.writeVarInt(summary.jumps());
+            buf.writeVarInt(clampValue(summary.blocksDestroyed()));
+            buf.writeVarInt(clampValue(summary.distanceWalked()));
+            buf.writeVarInt(clampValue(summary.mobsKilled()));
+            buf.writeVarInt(clampValue(summary.deaths()));
+            buf.writeVarInt(clampValue(summary.jumps()));
             buf.writeBoolean(summary.isMvp());
             buf.writeVarInt(summary.achievements().size());
             for (String achievement : summary.achievements()) {
                 buf.writeString(achievement);
             }
+        }
+
+        private static int clampValue(int value) {
+            if (value < 0) {
+                return 0;
+            }
+            return Math.min(value, Integer.MAX_VALUE / 2);
         }
     }
 }
