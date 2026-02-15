@@ -1,5 +1,6 @@
 package mt.client.ui.summary;
 
+import mt.client.util.NumberFormatter;
 import mt.network.packet.DailySummaryPacket;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
@@ -11,17 +12,17 @@ public class StatBadgeRenderer {
                              int startX, int badgeY1, int badgeY2, BadgeDimensions dims,
                              float animProgress, float fadeAlpha) {
 
-        int animBlocks = (int)(player.blocksDestroyed() * animProgress);
-        int animDistance = (int)(player.distanceWalked() * animProgress / 100);
-        int animMobs = (int)(player.mobsKilled() * animProgress);
-        int animDeaths = (int)(player.deaths() * animProgress);
-        int animJumps = (int)(player.jumps() * animProgress);
+        int animBlocks = NumberFormatter.safeAnimatedValue(player.blocksDestroyed(), animProgress);
+        int animDistance = NumberFormatter.safeAnimatedValue(NumberFormatter.safeDivide(player.distanceWalked(), 100), animProgress);
+        int animMobs = NumberFormatter.safeAnimatedValue(player.mobsKilled(), animProgress);
+        int animDeaths = NumberFormatter.safeAnimatedValue(player.deaths(), animProgress);
+        int animJumps = NumberFormatter.safeAnimatedValue(player.jumps(), animProgress);
 
-        String blocksText = Text.translatable("midnightthoughts.summary.blocks").getString() + " " + animBlocks;
-        String distanceText = Text.translatable("midnightthoughts.summary.distance").getString() + " " + animDistance;
-        String mobsText = Text.translatable("midnightthoughts.summary.mobs").getString() + " " + animMobs;
-        String deathsText = Text.translatable("midnightthoughts.summary.deaths").getString() + " " + animDeaths;
-        String jumpsText = Text.translatable("midnightthoughts.summary.jumps").getString() + " " + animJumps;
+        String blocksText = Text.translatable("midnightthoughts.summary.blocks").getString() + " " + NumberFormatter.formatLargeNumber(animBlocks);
+        String distanceText = Text.translatable("midnightthoughts.summary.distance").getString() + " " + NumberFormatter.formatLargeNumber(animDistance);
+        String mobsText = Text.translatable("midnightthoughts.summary.mobs").getString() + " " + NumberFormatter.formatLargeNumber(animMobs);
+        String deathsText = Text.translatable("midnightthoughts.summary.deaths").getString() + " " + NumberFormatter.formatLargeNumber(animDeaths);
+        String jumpsText = Text.translatable("midnightthoughts.summary.jumps").getString() + " " + NumberFormatter.formatLargeNumber(animJumps);
 
         int currentX = startX;
         currentX = renderBadge(context, textRenderer, currentX, badgeY1, dims.height(), dims.padding(),
