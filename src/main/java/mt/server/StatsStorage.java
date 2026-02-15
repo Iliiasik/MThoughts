@@ -1,7 +1,6 @@
 package mt.server;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.storage.LevelResource;
@@ -21,7 +20,10 @@ import java.util.UUID;
 public class StatsStorage {
     private static final Logger LOGGER = LoggerFactory.getLogger("MidnightThoughts");
     private static final String STATS_FILE = "midnightthoughts_stats.json";
-    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+    private static final Gson GSON = new GsonBuilder()
+        .setPrettyPrinting()
+        .registerTypeAdapter(SavedPlayerStats.class, new SafeStatsDeserializer())
+        .create();
 
     public static void savePlayerStats(MinecraftServer server, UUID playerUuid, SavedPlayerStats stats) {
         Path savePath = getStatsFilePath(server);
@@ -98,6 +100,57 @@ public class StatsStorage {
             this.baseMobsKilled = baseMobsKilled;
             this.baseDeaths = baseDeaths;
             this.baseJumps = baseJumps;
+        }
+    }
+
+    private static class SafeStatsDeserializer implements JsonDeserializer<SavedPlayerStats> {
+        @Override
+        public SavedPlayerStats deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+            JsonObject obj = json.getAsJsonObject();
+            SavedPlayerStats stats = new SavedPlayerStats();
+
+            stats.baseBlocksDestroyed = safeGetInt(obj, "baseBlocksDestroyed");
+            stats.baseDistanceWalked = safeGetInt(obj, "baseDistanceWalked");
+            stats.baseMobsKilled = safeGetInt(obj, "baseMobsKilled");
+            stats.baseDeaths = safeGetInt(obj, "baseDeaths");
+            stats.baseJumps = safeGetInt(obj, "baseJumps");
+            stats.recordBlocks = safeGetInt(obj, "recordBlocks");
+            stats.recordDistance = safeGetInt(obj, "recordDistance");
+            stats.recordMobs = safeGetInt(obj, "recordMobs");
+            stats.totalSleeps = safeGetInt(obj, "totalSleeps");
+
+            return stats;
+        }
+
+        private int safeGetInt(JsonObject obj, String field) {
+            if (!obj.has(field)) {
+                return 0;
+            }
+
+            try {
+                JsonElement element = obj.get(field);
+                if (element.isJsonPrimitive()) {
+                    JsonPrimitive primitive = element.getAsJsonPrimitive();
+                    if (primitive.isNumber()) {
+                        long value = primitive.getAsLong();
+                        return clampToSafeInt(value);
+                    }
+                }
+                return 0;
+            } catch (Exception e) {
+                LOGGER.warn("[StatsStorage] Failed to parse field {}, defaulting to 0", field);
+                return 0;
+            }
+        }
+
+        private int clampToSafeInt(long value) {
+            if (value < 0) {
+                return 0;
+            }
+            if (value > Integer.MAX_VALUE / 2) {
+                return Integer.MAX_VALUE / 2;
+            }
+            return (int) value;
         }
     }
 }
