@@ -10,6 +10,8 @@ import net.minecraft.stat.Stats;
 import java.util.UUID;
 
 public class DailyPlayerStats {
+    private static final int MAX_SAFE_VALUE = Integer.MAX_VALUE / 2;
+
     private final UUID playerUuid;
     private int baseBlocksDestroyed = 0;
     private int baseDistanceWalked = 0;
@@ -56,20 +58,24 @@ public class DailyPlayerStats {
     public void captureCurrentStats(ServerPlayerEntity player) {
         StatHandler stats = player.getStatHandler();
 
-        int blocksDestroyed = 0;
+        long blocksDestroyed = 0;
         for (Block block : Registries.BLOCK) {
             blocksDestroyed += stats.getStat(Stats.MINED.getOrCreateStat(block));
+            if (blocksDestroyed > MAX_SAFE_VALUE) {
+                blocksDestroyed = MAX_SAFE_VALUE;
+                break;
+            }
         }
-        this.baseBlocksDestroyed = blocksDestroyed;
+        this.baseBlocksDestroyed = (int) blocksDestroyed;
 
         this.baseDistanceWalked = getTotalDistance(stats);
-        this.baseMobsKilled = stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.MOB_KILLS));
-        this.baseDeaths = stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.DEATHS));
-        this.baseJumps = stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.JUMP));
+        this.baseMobsKilled = clampStat(stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.MOB_KILLS)));
+        this.baseDeaths = clampStat(stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.DEATHS)));
+        this.baseJumps = clampStat(stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.JUMP)));
     }
 
     private int getTotalDistance(StatHandler stats) {
-        int total = 0;
+        long total = 0;
         total += stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.WALK_ONE_CM));
         total += stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.SPRINT_ONE_CM));
         total += stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.CROUCH_ONE_CM));
@@ -85,28 +91,55 @@ public class DailyPlayerStats {
         total += stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.MINECART_ONE_CM));
         total += stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.AVIATE_ONE_CM));
         total += stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.STRIDER_ONE_CM));
-        return total;
+
+        if (total > MAX_SAFE_VALUE) {
+            return MAX_SAFE_VALUE;
+        }
+        return (int) total;
+    }
+
+    private int clampStat(int value) {
+        if (value < 0) {
+            return 0;
+        }
+        if (value > MAX_SAFE_VALUE) {
+            return MAX_SAFE_VALUE;
+        }
+        return value;
+    }
+
+    private int clampDelta(long value) {
+        if (value < 0) {
+            return 0;
+        }
+        if (value > MAX_SAFE_VALUE) {
+            return MAX_SAFE_VALUE;
+        }
+        return (int) value;
     }
 
     public DailyDelta calculateDelta(ServerPlayerEntity player) {
         StatHandler stats = player.getStatHandler();
 
-        int blocksDestroyed = 0;
+        long blocksDestroyed = 0;
         for (Block block : Registries.BLOCK) {
             blocksDestroyed += stats.getStat(Stats.MINED.getOrCreateStat(block));
+            if (blocksDestroyed > MAX_SAFE_VALUE) {
+                blocksDestroyed = MAX_SAFE_VALUE;
+                break;
+            }
         }
 
         int currentDistanceWalked = getTotalDistance(stats);
-        int currentMobsKilled = stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.MOB_KILLS));
-        int currentDeaths = stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.DEATHS));
-        int currentJumps = stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.JUMP));
+        int currentMobsKilled = clampStat(stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.MOB_KILLS)));
+        int currentDeaths = clampStat(stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.DEATHS)));
+        int currentJumps = clampStat(stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.JUMP)));
 
-        int deltaBlocks = Math.max(0, blocksDestroyed - baseBlocksDestroyed);
-        int deltaDistance = Math.max(0, currentDistanceWalked - baseDistanceWalked);
-        int deltaMobs = Math.max(0, currentMobsKilled - baseMobsKilled);
-        int deltaDeaths = Math.max(0, currentDeaths - baseDeaths);
-        int deltaJumps = Math.max(0, currentJumps - baseJumps);
-
+        int deltaBlocks = clampDelta((long) blocksDestroyed - baseBlocksDestroyed);
+        int deltaDistance = clampDelta((long) currentDistanceWalked - baseDistanceWalked);
+        int deltaMobs = clampDelta((long) currentMobsKilled - baseMobsKilled);
+        int deltaDeaths = clampDelta((long) currentDeaths - baseDeaths);
+        int deltaJumps = clampDelta((long) currentJumps - baseJumps);
 
         return new DailyDelta(deltaBlocks, deltaDistance, deltaMobs, deltaDeaths, deltaJumps);
     }
