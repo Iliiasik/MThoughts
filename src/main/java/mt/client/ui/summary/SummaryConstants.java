@@ -1,14 +1,32 @@
 package mt.client.ui.summary;
 
 import mt.client.MidnightThoughtsClient;
+import mt.client.config.MidnightThoughtsConfig;
 import net.minecraft.resources.ResourceLocation;
 
 public class SummaryConstants {
     public static final ResourceLocation BACKGROUND_TEXTURE = ResourceLocation.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/background.png");
     public static final ResourceLocation CROWN_TEXTURE = ResourceLocation.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/crown.png");
-    public static final ResourceLocation FRAME_TEXTURE = ResourceLocation.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/frame.png");
-    public static final ResourceLocation BADGE_TEXTURE = ResourceLocation.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/badge.png");
-    public static final ResourceLocation PAGES_HOLDER_TEXTURE = ResourceLocation.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/pages_holder.png");
+
+    public static ResourceLocation getFrameTexture() {
+        String theme = MidnightThoughtsConfig.getInstance().getUiTheme();
+        return ResourceLocation.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/" + theme + "/frame.png");
+    }
+
+    public static ResourceLocation getBadgeTexture() {
+        String theme = MidnightThoughtsConfig.getInstance().getUiTheme();
+        return ResourceLocation.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/" + theme + "/badge.png");
+    }
+
+    public static ResourceLocation getPagesHolderTexture() {
+        String theme = MidnightThoughtsConfig.getInstance().getUiTheme();
+        return ResourceLocation.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/" + theme + "/pages_holder.png");
+    }
+
+    public static ResourceLocation getSleepingHudTexture() {
+        String theme = MidnightThoughtsConfig.getInstance().getUiTheme();
+        return ResourceLocation.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/" + theme + "/sleeping_hud.png");
+    }
 
     public static final long STAT_ANIMATION_DURATION = 800;
     public static final int MVP_GOLD_COLOR = 0xFFD700;

@@ -34,6 +34,7 @@ public class DailySummaryScreen extends Screen {
     @Override
     protected void init() {
         super.init();
+
         dimensions.calculate(width, height);
 
         int buttonWidth = dimensions.getButtonWidth();
@@ -105,12 +106,12 @@ public class DailySummaryScreen extends Screen {
 
     @Override
     public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
+        renderBackground(context);
         updateFadeAnimation();
         achievementAreas.clear();
 
         dimensions.calculate(width, height);
 
-        BackgroundRenderer.render(context, width, height);
         renderPanel(context);
         renderPlayerList(context);
 
@@ -118,6 +119,7 @@ public class DailySummaryScreen extends Screen {
 
         TooltipRenderer.render(context, font, mouseX, mouseY, achievementAreas, width, height, fadeAlpha);
     }
+
 
     private void updateFadeAnimation() {
         long elapsedTime = System.currentTimeMillis() - screenOpenTime;

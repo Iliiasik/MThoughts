@@ -24,6 +24,7 @@ public final class MidnightThoughtsConfig {
     private AchievementsSettings achievements = new AchievementsSettings();
     private MvpSettings mvp = new MvpSettings();
     private ComfortSettings comfort = new ComfortSettings();
+    private UISettings ui = new UISettings();
 
     private MidnightThoughtsConfig() {
     }
@@ -74,6 +75,7 @@ public final class MidnightThoughtsConfig {
         if (achievements == null) achievements = new AchievementsSettings();
         if (mvp == null) mvp = new MvpSettings();
         if (comfort == null) comfort = new ComfortSettings();
+        if (ui == null) ui = new UISettings();
     }
 
     private static Path getConfigPath() {
@@ -99,6 +101,14 @@ public final class MidnightThoughtsConfig {
 
     public ComfortSettings getComfort() {
         return comfort;
+    }
+
+    public UISettings getUi() {
+        return ui;
+    }
+
+    public String getUiTheme() {
+        return ui.theme;
     }
 
     public int getFadeInDurationMs() {
@@ -246,6 +256,10 @@ public final class MidnightThoughtsConfig {
     public static class ComfortSettings {
         public boolean enabled = true;
         public int scanRadius = 5;
+    }
+
+    public static class UISettings {
+        public String theme = "magic";
     }
 }
 
