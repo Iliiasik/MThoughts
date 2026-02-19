@@ -108,7 +108,7 @@ public final class MidnightThoughtsConfig {
     }
 
     public String getUiTheme() {
-        return ui.theme;
+        return ClientConfig.getInstance().getEffectiveTheme();
     }
 
     public int getFadeInDurationMs() {

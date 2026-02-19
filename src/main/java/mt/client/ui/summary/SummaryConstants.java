@@ -30,13 +30,8 @@ public class SummaryConstants {
 
     public static final long STAT_ANIMATION_DURATION = 800;
     public static final int MVP_GOLD_COLOR = 0xFFD700;
-    public static final int FRAME_TEXTURE_WIDTH = 1000;
-    public static final int FRAME_TEXTURE_HEIGHT = 640;
     public static final float FRAME_ASPECT_RATIO = 1000.0f / 640.0f;
     public static final float BACKGROUND_ASPECT_RATIO = 16.0f / 9.0f;
-
-    public static final int BADGE_TEXTURE_WIDTH = 480;
-    public static final int BADGE_TEXTURE_HEIGHT = 160;
 
     public static final int PAGES_HOLDER_TEXTURE_WIDTH = 380;
     public static final int PAGES_HOLDER_TEXTURE_HEIGHT = 170;

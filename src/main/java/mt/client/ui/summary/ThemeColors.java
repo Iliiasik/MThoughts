@@ -5,7 +5,7 @@ public class ThemeColors {
     public static ThemeColor getThemeColors(String theme) {
         return switch (theme) {
             case "classic" -> new ThemeColor(
-                    0x68503c,
+                    0x3b1a17,
                     0x3b1a17,
                     0x5a3a1a,
                     0x8a5a2a,

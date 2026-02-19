@@ -18,6 +18,7 @@ public class DailySummaryScreen extends Screen {
     private final long screenOpenTime;
     private final long animationStartTime;
     private final SummaryDimensions dimensions = new SummaryDimensions();
+    private ThemeSwitchButton themeSwitchButton;
 
     public DailySummaryScreen(List<DailySummaryPacket.PlayerDailySummary> players) {
         super(Component.literal("Summary"));
@@ -49,6 +50,15 @@ public class DailySummaryScreen extends Screen {
         }
 
         addContinueButton(buttonWidth, buttonHeight, buttonY);
+        addThemeSwitchButton();
+    }
+
+    private void addThemeSwitchButton() {
+        int iconSize = (int)(16 * dimensions.uiScale);
+        int iconX = dimensions.panelX + dimensions.panelWidth + (int)(5 * dimensions.uiScale);
+        int iconY = dimensions.panelY + (int)(8 * dimensions.uiScale);
+        themeSwitchButton = new ThemeSwitchButton(iconX, iconY, iconSize);
+        addRenderableWidget(themeSwitchButton);
     }
 
     private int addNavigationButtons(int buttonWidth, int buttonHeight, int buttonY, int buttonSpacing) {
@@ -118,6 +128,10 @@ public class DailySummaryScreen extends Screen {
         super.render(context, mouseX, mouseY, delta);
 
         TooltipRenderer.render(context, font, mouseX, mouseY, achievementAreas, width, height, fadeAlpha);
+
+        if (themeSwitchButton != null && themeSwitchButton.isMouseOver(mouseX, mouseY)) {
+            context.renderTooltip(font, themeSwitchButton.getTooltipText(), mouseX, mouseY);
+        }
     }
 
 

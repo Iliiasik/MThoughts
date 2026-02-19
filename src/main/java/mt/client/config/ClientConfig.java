@@ -1,0 +1,93 @@
+package mt.client.config;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+public final class ClientConfig {
+    private static final Logger LOGGER = LoggerFactory.getLogger("MidnightThoughts");
+    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+    private static final String CONFIG_FILE_NAME = "midnightthoughts-client.json";
+
+    private static ClientConfig instance;
+
+    private String theme = null;
+
+    private ClientConfig() {
+    }
+
+    public static ClientConfig getInstance() {
+        if (instance == null) {
+            instance = load();
+        }
+        return instance;
+    }
+
+    public static ClientConfig load() {
+        Path configPath = getConfigPath();
+
+        if (Files.exists(configPath)) {
+            try {
+                String json = Files.readString(configPath);
+                ClientConfig config = GSON.fromJson(json, ClientConfig.class);
+                if (config != null) {
+                    return config;
+                }
+            } catch (IOException e) {
+                LOGGER.error("Failed to load client configuration: {}", e.getMessage());
+            }
+        }
+
+        return new ClientConfig();
+    }
+
+    public void save() {
+        Path configPath = getConfigPath();
+
+        try {
+            Files.createDirectories(configPath.getParent());
+            String json = GSON.toJson(this);
+            Files.writeString(configPath, json);
+        } catch (IOException e) {
+            LOGGER.error("Failed to save client configuration: {}", e.getMessage());
+        }
+    }
+
+    private static Path getConfigPath() {
+        String configDir = System.getProperty("user.dir") + "/config";
+        return Paths.get(configDir, CONFIG_FILE_NAME);
+    }
+
+    public String getTheme() {
+        return theme;
+    }
+
+    public void setTheme(String theme) {
+        this.theme = theme;
+        save();
+    }
+
+    public String getEffectiveTheme() {
+        if (theme != null && !theme.isEmpty()) {
+            return theme;
+        }
+        return MidnightThoughtsConfig.getInstance().getUi().theme;
+    }
+
+    public void cycleTheme() {
+        String currentTheme = getEffectiveTheme();
+        String nextTheme = switch (currentTheme) {
+            case "magic" -> "classic";
+            case "classic" -> "tech";
+            case "tech" -> "magic";
+            default -> "magic";
+        };
+        setTheme(nextTheme);
+    }
+}
