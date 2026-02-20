@@ -2,6 +2,8 @@ package mt.client.ui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import mt.client.MidnightThoughtsClient;
+import mt.client.config.ClientConfig;
+import mt.client.config.ThemeColors;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
@@ -10,7 +12,6 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 public class SleepingPlayersHud {
-    private static final Identifier SLEEPING_HUD_TEXTURE = Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/sleeping_hud.png");
     private static final int TEXTURE_WIDTH = 260;
     private static final int TEXTURE_HEIGHT = 160;
 
@@ -42,6 +43,9 @@ public class SleepingPlayersHud {
             return;
         }
 
+        String theme = ClientConfig.getInstance().getEffectiveTheme();
+        Identifier sleepingHudTexture = Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/" + theme + "/sleeping_hud.png");
+        ThemeColors.ThemeColor colors = ThemeColors.getThemeColors(theme);
         TextRenderer textRenderer = client.textRenderer;
 
         float scale = Math.min(screenWidth / 1920.0f, screenHeight / 1080.0f);
@@ -53,11 +57,11 @@ public class SleepingPlayersHud {
         int hudY = (int)(10 * scale);
 
         RenderSystem.setShader(GameRenderer::getPositionTexProgram);
-        RenderSystem.setShaderTexture(0, SLEEPING_HUD_TEXTURE);
+        RenderSystem.setShaderTexture(0, sleepingHudTexture);
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, displayAlpha);
         RenderSystem.enableBlend();
 
-        context.drawTexture(SLEEPING_HUD_TEXTURE, hudX, hudY, hudWidth, hudHeight,
+        context.drawTexture(sleepingHudTexture, hudX, hudY, hudWidth, hudHeight,
             0.0f, 0.0f, TEXTURE_WIDTH, TEXTURE_HEIGHT, TEXTURE_WIDTH, TEXTURE_HEIGHT);
 
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -67,7 +71,7 @@ public class SleepingPlayersHud {
         Text titleText = Text.translatable("midnightthoughts.hud.sleeping");
 
         int textAlpha = (int)(displayAlpha * 255);
-        int titleColor = (textAlpha << 24) | 0xd8b3e6;
+        int titleColor = (textAlpha << 24) | colors.sleepingHudTitleColor();
 
         float textScale = scale * 1.1f;
         int titleWidth = (int)(textRenderer.getWidth(titleText) * textScale);
@@ -80,7 +84,7 @@ public class SleepingPlayersHud {
         context.drawText(textRenderer, titleText, 0, 0, titleColor, false);
         context.getMatrices().pop();
 
-        int sleepColor = (textAlpha << 24) | 0xffee88;
+        int sleepColor = (textAlpha << 24) | colors.sleepingHudCountColor();
         float sleepTextScale = scale * 1.2f;
         int sleepTextWidth = (int)(textRenderer.getWidth(sleepText) * sleepTextScale);
         int sleepX = hudX + (hudWidth - sleepTextWidth) / 2;
