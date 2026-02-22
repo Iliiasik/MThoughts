@@ -1,6 +1,8 @@
 package mt.client.ui;
 
 import mt.client.MidnightThoughtsClient;
+import mt.client.config.ClientConfig;
+import mt.client.config.ThemeColors;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
@@ -10,7 +12,6 @@ import net.minecraft.util.Identifier;
 import org.joml.Matrix3x2fStack;
 
 public class SleepingPlayersHud {
-    private static final Identifier SLEEPING_HUD_TEXTURE = Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/sleeping_hud.png");
     private static final int TEXTURE_WIDTH = 260;
     private static final int TEXTURE_HEIGHT = 160;
 
@@ -42,6 +43,9 @@ public class SleepingPlayersHud {
             return;
         }
 
+        String theme = ClientConfig.getInstance().getEffectiveTheme();
+        Identifier sleepingHudTexture = Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/" + theme + "/sleeping_hud.png");
+        ThemeColors.ThemeColor colors = ThemeColors.getThemeColors(theme);
         TextRenderer textRenderer = client.textRenderer;
 
         float scale = Math.min(screenWidth / 1920.0f, screenHeight / 1080.0f);
@@ -52,7 +56,7 @@ public class SleepingPlayersHud {
         int hudX = (int)(10 * scale);
         int hudY = (int)(10 * scale);
 
-        context.drawTexture(RenderPipelines.GUI_TEXTURED, SLEEPING_HUD_TEXTURE, hudX, hudY,
+        context.drawTexture(RenderPipelines.GUI_TEXTURED, sleepingHudTexture, hudX, hudY,
             0.0f, 0.0f, hudWidth, hudHeight, TEXTURE_WIDTH, TEXTURE_HEIGHT,
             TEXTURE_WIDTH, TEXTURE_HEIGHT,
             0xFFFFFFFF);
@@ -61,7 +65,7 @@ public class SleepingPlayersHud {
         Text titleText = Text.translatable("midnightthoughts.hud.sleeping");
 
         int textAlpha = (int)(displayAlpha * 255);
-        int titleColor = (textAlpha << 24) | 0xd8b3e6;
+        int titleColor = (textAlpha << 24) | colors.sleepingHudTitleColor();
 
         float textScale = scale * 1.1f;
         int titleWidth = (int)(textRenderer.getWidth(titleText) * textScale);
@@ -75,7 +79,7 @@ public class SleepingPlayersHud {
         context.drawText(textRenderer, titleText, 0, 0, titleColor, false);
         matrices.popMatrix();
 
-        int sleepColor = (textAlpha << 24) | 0xffee88;
+        int sleepColor = (textAlpha << 24) | colors.sleepingHudCountColor();
         float sleepTextScale = scale * 1.2f;
         int sleepTextWidth = (int)(textRenderer.getWidth(sleepText) * sleepTextScale);
         int sleepX = hudX + (hudWidth - sleepTextWidth) / 2;
@@ -98,4 +102,3 @@ public class SleepingPlayersHud {
         return sleepingCount > 0 && totalPlayers > 0;
     }
 }
-

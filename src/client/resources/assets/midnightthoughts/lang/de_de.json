@@ -50,5 +50,10 @@
   "midnightthoughts.achievement.combo_master": "Kombinationsmeister",
   "midnightthoughts.achievement.combo_master.desc": "Ausgewogene Kombination aller Aktionen",
   "midnightthoughts.achievement.iron_will": "Eiserner Wille",
-  "midnightthoughts.achievement.iron_will.desc": "Keine Tode, lange Reise und viel Abbau"
+  "midnightthoughts.achievement.iron_will.desc": "Keine Tode, lange Reise und viel Abbau",
+
+  "midnightthoughts.theme.magic": "Magie",
+  "midnightthoughts.theme.classic": "Klassiker",
+  "midnightthoughts.theme.tech": "Techn",
+  "midnightthoughts.theme.current": "Thema: %s"
 }

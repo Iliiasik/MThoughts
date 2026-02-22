@@ -1,16 +1,21 @@
 package mt.client.ui.summary;
 
+import mt.client.config.ClientConfig;
+import mt.client.config.ThemeColors;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import org.joml.Matrix3x2fStack;
 
 public class FrameRenderer {
 
     public static void render(DrawContext context, SummaryDimensions dims, float fadeAlpha) {
+        String theme = ClientConfig.getInstance().getEffectiveTheme();
+        Identifier frameTexture = SummaryConstants.getFrameTexture();
         int color = ((int)(fadeAlpha * 255) << 24) | 0xFFFFFF;
-        context.drawTexture(RenderPipelines.GUI_TEXTURED, SummaryConstants.FRAME_TEXTURE, dims.panelX, dims.panelY,
+        context.drawTexture(RenderPipelines.GUI_TEXTURED, frameTexture, dims.panelX, dims.panelY,
             0.0f, 0.0f, dims.panelWidth, dims.panelHeight,
             SummaryConstants.FRAME_TEXTURE_WIDTH, SummaryConstants.FRAME_TEXTURE_HEIGHT,
             SummaryConstants.FRAME_TEXTURE_WIDTH, SummaryConstants.FRAME_TEXTURE_HEIGHT,
@@ -19,6 +24,9 @@ public class FrameRenderer {
 
     public static void renderBadge(DrawContext context, TextRenderer textRenderer, SummaryDimensions dims, float fadeAlpha) {
         Text title = Text.translatable("midnightthoughts.summary.title");
+        String theme = ClientConfig.getInstance().getEffectiveTheme();
+        Identifier badgeTexture = SummaryConstants.getBadgeTexture();
+        ThemeColors.ThemeColor colors = ThemeColors.getThemeColors(theme);
 
         float badgeScale = dims.panelWidth / 1000.0f;
         int badgeWidth = (int)(240 * badgeScale);
@@ -30,14 +38,14 @@ public class FrameRenderer {
         int badgeX = dims.panelX + contentPaddingSides + badgeOffsetX;
         int badgeY = dims.panelY - badgeHeight / 2 + badgeOffsetY;
 
-        context.drawTexture(RenderPipelines.GUI_TEXTURED, SummaryConstants.BADGE_TEXTURE, badgeX, badgeY,
+        context.drawTexture(RenderPipelines.GUI_TEXTURED, badgeTexture, badgeX, badgeY,
             0.0f, 0.0f, badgeWidth, badgeHeight,
             SummaryConstants.BADGE_TEXTURE_WIDTH, SummaryConstants.BADGE_TEXTURE_HEIGHT,
             SummaryConstants.BADGE_TEXTURE_WIDTH, SummaryConstants.BADGE_TEXTURE_HEIGHT,
             0xFFFFFFFF);
 
         int titleAlpha = (int)(fadeAlpha * 255);
-        int titleColor = (titleAlpha << 24) | 0x68503c;
+        int titleColor = (titleAlpha << 24) | colors.badgeTextColor();
 
         float textScale = badgeScale * 1.8f;
         int scaledTextWidth = (int)(textRenderer.getWidth(title) * textScale);
@@ -59,6 +67,9 @@ public class FrameRenderer {
         }
 
         Text pageInfo = Text.translatable("midnightthoughts.summary.page", currentPage + 1, totalPages);
+        String theme = ClientConfig.getInstance().getEffectiveTheme();
+        Identifier pagesHolderTexture = SummaryConstants.getPagesHolderTexture();
+        ThemeColors.ThemeColor colors = ThemeColors.getThemeColors(theme);
 
         float pagesHolderScale = dims.panelWidth / 1000.0f;
         int pagesHolderHeight = (int)(60 * pagesHolderScale);
@@ -73,14 +84,14 @@ public class FrameRenderer {
         int pagesHolderX = dims.panelX + (dims.panelWidth - pagesHolderWidth) / 2;
         int pagesHolderY = dims.panelY + (int)contentPaddingTop + listAreaHeight + (availableSpace - pagesHolderHeight) / 2;
 
-        context.drawTexture(RenderPipelines.GUI_TEXTURED, SummaryConstants.PAGES_HOLDER_TEXTURE, pagesHolderX, pagesHolderY,
+        context.drawTexture(RenderPipelines.GUI_TEXTURED, pagesHolderTexture, pagesHolderX, pagesHolderY,
             0.0f, 0.0f, pagesHolderWidth, pagesHolderHeight,
             SummaryConstants.PAGES_HOLDER_TEXTURE_WIDTH, SummaryConstants.PAGES_HOLDER_TEXTURE_HEIGHT,
             SummaryConstants.PAGES_HOLDER_TEXTURE_WIDTH, SummaryConstants.PAGES_HOLDER_TEXTURE_HEIGHT,
             0xFFFFFFFF);
 
         int pageTextAlpha = (int)(fadeAlpha * 255);
-        int pageTextColor = (pageTextAlpha << 24) | 0x3b1a17;
+        int pageTextColor = (pageTextAlpha << 24) | colors.pagesHolderTextColor();
 
         float textScale = pagesHolderScale * 1.5f;
         int scaledTextWidth = (int)(textRenderer.getWidth(pageInfo) * textScale);
@@ -95,4 +106,3 @@ public class FrameRenderer {
         matrices.popMatrix();
     }
 }
-

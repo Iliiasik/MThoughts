@@ -19,6 +19,7 @@ public class DailySummaryScreen extends Screen {
     private float fadeAlpha = 0.0f;
     private final long screenOpenTime;
     private final long animationStartTime;
+    private ThemeSwitchButton themeSwitchButton;
 
     public DailySummaryScreen(List<DailySummaryPacket.PlayerDailySummary> players) {
         super(Text.literal("Summary"));
@@ -77,16 +78,23 @@ public class DailySummaryScreen extends Screen {
                 close();
             }
         ));
+
+        int iconSize = (int)(16 * dims.uiScale);
+        int iconX = dims.panelX + dims.panelWidth + (int)(5 * dims.uiScale);
+        int iconY = dims.panelY + (int)(8 * dims.uiScale);
+        themeSwitchButton = new ThemeSwitchButton(iconX, iconY, iconSize);
+        addDrawableChild(themeSwitchButton);
     }
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+        context.fill(0, 0, this.width, this.height, 0x88000000);
+
         long elapsedTime = System.currentTimeMillis() - screenOpenTime;
         fadeAlpha = Math.min(1.0f, elapsedTime / 300.0f);
 
         achievementAreas.clear();
 
-        BackgroundRenderer.render(context, width, height);
         FrameRenderer.render(context, dims, fadeAlpha);
         FrameRenderer.renderBadge(context, textRenderer, dims, fadeAlpha);
 
@@ -98,6 +106,10 @@ public class DailySummaryScreen extends Screen {
         super.render(context, mouseX, mouseY, delta);
 
         TooltipRenderer.render(context, textRenderer, mouseX, mouseY, achievementAreas, width, height, fadeAlpha);
+
+        if (themeSwitchButton != null) {
+            themeSwitchButton.renderTooltip(context, mouseX, mouseY);
+        }
     }
 
     @Override
@@ -130,4 +142,3 @@ public class DailySummaryScreen extends Screen {
         super.close();
     }
 }
-

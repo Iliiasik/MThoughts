@@ -50,5 +50,10 @@
   "midnightthoughts.achievement.combo_master": "Combo Master",
   "midnightthoughts.achievement.combo_master.desc": "Balanced combination of all actions",
   "midnightthoughts.achievement.iron_will": "Iron Will",
-  "midnightthoughts.achievement.iron_will.desc": "No deaths, long travel and mining"
+  "midnightthoughts.achievement.iron_will.desc": "No deaths, long travel and mining",
+
+  "midnightthoughts.theme.magic": "Magic",
+  "midnightthoughts.theme.classic": "Classic",
+  "midnightthoughts.theme.tech": "Tech",
+  "midnightthoughts.theme.current": "Theme: %s"
 }

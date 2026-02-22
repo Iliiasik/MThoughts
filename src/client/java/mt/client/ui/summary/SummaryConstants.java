@@ -31,5 +31,21 @@ public class SummaryConstants {
     public static final int FRAME_CONTENT_PADDING_TOP = 70;
     public static final int FRAME_CONTENT_PADDING_BOTTOM = 50;
     public static final int FRAME_CONTENT_PADDING_SIDES = 80;
-}
 
+    public static Identifier getThemedTexture(String fileName) {
+        String theme = mt.client.config.ClientConfig.getInstance().getEffectiveTheme();
+        return Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/" + theme + "/" + fileName);
+    }
+
+    public static Identifier getFrameTexture() {
+        return getThemedTexture("frame.png");
+    }
+
+    public static Identifier getBadgeTexture() {
+        return getThemedTexture("badge.png");
+    }
+
+    public static Identifier getPagesHolderTexture() {
+        return getThemedTexture("pages_holder.png");
+    }
+}
