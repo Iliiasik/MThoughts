@@ -1,20 +1,25 @@
 package mt.client.ui.summary;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import mt.client.config.ClientConfig;
+import mt.client.config.ThemeColors;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 
 public class FrameRenderer {
 
     public static void render(DrawContext context, SummaryDimensions dims, float fadeAlpha) {
+        Identifier frameTexture = SummaryConstants.getFrameTexture();
+
         RenderSystem.setShader(GameRenderer::getPositionTexProgram);
-        RenderSystem.setShaderTexture(0, SummaryConstants.FRAME_TEXTURE);
+        RenderSystem.setShaderTexture(0, frameTexture);
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, fadeAlpha);
         RenderSystem.enableBlend();
 
-        context.drawTexture(SummaryConstants.FRAME_TEXTURE, dims.panelX, dims.panelY, dims.panelWidth, dims.panelHeight,
+        context.drawTexture(frameTexture, dims.panelX, dims.panelY, dims.panelWidth, dims.panelHeight,
             0.0f, 0.0f, SummaryConstants.FRAME_TEXTURE_WIDTH, SummaryConstants.FRAME_TEXTURE_HEIGHT,
             SummaryConstants.FRAME_TEXTURE_WIDTH, SummaryConstants.FRAME_TEXTURE_HEIGHT);
 
@@ -24,6 +29,9 @@ public class FrameRenderer {
 
     public static void renderBadge(DrawContext context, TextRenderer textRenderer, SummaryDimensions dims, float fadeAlpha) {
         Text title = Text.translatable("midnightthoughts.summary.title");
+        String theme = ClientConfig.getInstance().getEffectiveTheme();
+        Identifier badgeTexture = SummaryConstants.getBadgeTexture();
+        ThemeColors.ThemeColor colors = ThemeColors.getThemeColors(theme);
 
         float badgeScale = dims.panelWidth / 1000.0f;
         int badgeWidth = (int)(240 * badgeScale);
@@ -36,11 +44,11 @@ public class FrameRenderer {
         int badgeY = dims.panelY - badgeHeight / 2 + badgeOffsetY;
 
         RenderSystem.setShader(GameRenderer::getPositionTexProgram);
-        RenderSystem.setShaderTexture(0, SummaryConstants.BADGE_TEXTURE);
+        RenderSystem.setShaderTexture(0, badgeTexture);
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, fadeAlpha);
         RenderSystem.enableBlend();
 
-        context.drawTexture(SummaryConstants.BADGE_TEXTURE, badgeX, badgeY, badgeWidth, badgeHeight,
+        context.drawTexture(badgeTexture, badgeX, badgeY, badgeWidth, badgeHeight,
             0.0f, 0.0f, SummaryConstants.BADGE_TEXTURE_WIDTH, SummaryConstants.BADGE_TEXTURE_HEIGHT,
             SummaryConstants.BADGE_TEXTURE_WIDTH, SummaryConstants.BADGE_TEXTURE_HEIGHT);
 
@@ -48,7 +56,7 @@ public class FrameRenderer {
         RenderSystem.disableBlend();
 
         int titleAlpha = (int)(fadeAlpha * 255);
-        int titleColor = (titleAlpha << 24) | 0x68503c;
+        int titleColor = (titleAlpha << 24) | colors.badgeTextColor();
 
         float textScale = badgeScale * 1.8f;
         int scaledTextWidth = (int)(textRenderer.getWidth(title) * textScale);
@@ -69,6 +77,9 @@ public class FrameRenderer {
         }
 
         Text pageInfo = Text.translatable("midnightthoughts.summary.page", currentPage + 1, totalPages);
+        String theme = ClientConfig.getInstance().getEffectiveTheme();
+        Identifier pagesHolderTexture = SummaryConstants.getPagesHolderTexture();
+        ThemeColors.ThemeColor colors = ThemeColors.getThemeColors(theme);
 
         float pagesHolderScale = dims.panelWidth / 1000.0f;
         int pagesHolderHeight = (int)(60 * pagesHolderScale);
@@ -84,11 +95,11 @@ public class FrameRenderer {
         int pagesHolderY = dims.panelY + (int)contentPaddingTop + listAreaHeight + (availableSpace - pagesHolderHeight) / 2;
 
         RenderSystem.setShader(GameRenderer::getPositionTexProgram);
-        RenderSystem.setShaderTexture(0, SummaryConstants.PAGES_HOLDER_TEXTURE);
+        RenderSystem.setShaderTexture(0, pagesHolderTexture);
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, fadeAlpha);
         RenderSystem.enableBlend();
 
-        context.drawTexture(SummaryConstants.PAGES_HOLDER_TEXTURE, pagesHolderX, pagesHolderY, pagesHolderWidth, pagesHolderHeight,
+        context.drawTexture(pagesHolderTexture, pagesHolderX, pagesHolderY, pagesHolderWidth, pagesHolderHeight,
             0.0f, 0.0f, SummaryConstants.PAGES_HOLDER_TEXTURE_WIDTH, SummaryConstants.PAGES_HOLDER_TEXTURE_HEIGHT,
             SummaryConstants.PAGES_HOLDER_TEXTURE_WIDTH, SummaryConstants.PAGES_HOLDER_TEXTURE_HEIGHT);
 
@@ -96,7 +107,7 @@ public class FrameRenderer {
         RenderSystem.disableBlend();
 
         int pageTextAlpha = (int)(fadeAlpha * 255);
-        int pageTextColor = (pageTextAlpha << 24) | 0x3b1a17;
+        int pageTextColor = (pageTextAlpha << 24) | colors.pagesHolderTextColor();
 
         float textScale = pagesHolderScale * 1.5f;
         int scaledTextWidth = (int)(textRenderer.getWidth(pageInfo) * textScale);
@@ -110,4 +121,3 @@ public class FrameRenderer {
         context.getMatrices().pop();
     }
 }
-
