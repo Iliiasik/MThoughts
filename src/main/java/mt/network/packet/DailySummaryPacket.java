@@ -1,92 +1,42 @@
 package mt.network.packet;
 
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class DailySummaryPacket {
-    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath("midnightthoughts", "daily_summary");
+public record DailySummaryPacket(List<PlayerDailySummary> summaries) implements CustomPacketPayload {
+    public static final ResourceLocation ID_LOC = ResourceLocation.fromNamespaceAndPath("midnightthoughts", "daily_summary");
+    public static final CustomPacketPayload.Type<DailySummaryPacket> TYPE = new CustomPacketPayload.Type<>(ID_LOC);
 
-    private final List<PlayerDailySummary> summaries;
+    public static final StreamCodec<FriendlyByteBuf, DailySummaryPacket> CODEC = StreamCodec.of(
+            (buf, packet) -> {
+                buf.writeVarInt(packet.summaries().size());
+                for (PlayerDailySummary summary : packet.summaries()) {
+                    PlayerDailySummary.encode(buf, summary);
+                }
+            },
+            buf -> {
+                int size = buf.readVarInt();
+                List<PlayerDailySummary> summaries = new ArrayList<>(size);
+                for (int i = 0; i < size; i++) {
+                    summaries.add(PlayerDailySummary.decode(buf));
+                }
+                return new DailySummaryPacket(summaries);
+            }
+    );
 
-    public DailySummaryPacket(List<PlayerDailySummary> summaries) {
-        this.summaries = summaries;
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 
-    public List<PlayerDailySummary> summaries() {
-        return summaries;
-    }
-
-    public static void encode(DailySummaryPacket packet, FriendlyByteBuf buf) {
-        buf.writeVarInt(packet.summaries.size());
-        for (PlayerDailySummary summary : packet.summaries) {
-            PlayerDailySummary.encode(buf, summary);
-        }
-    }
-
-    public static DailySummaryPacket decode(FriendlyByteBuf buf) {
-        int size = buf.readVarInt();
-        List<PlayerDailySummary> summaries = new ArrayList<>(size);
-        for (int i = 0; i < size; i++) {
-            summaries.add(PlayerDailySummary.decode(buf));
-        }
-        return new DailySummaryPacket(summaries);
-    }
-
-    public static class PlayerDailySummary {
-        private final String playerName;
-        private final int blocksDestroyed;
-        private final int distanceWalked;
-        private final int mobsKilled;
-        private final int deaths;
-        private final int jumps;
-        private final boolean isMvp;
-        private final List<String> achievements;
-
-        public PlayerDailySummary(String playerName, int blocksDestroyed, int distanceWalked, int mobsKilled, int deaths, int jumps, boolean isMvp, List<String> achievements) {
-            this.playerName = playerName;
-            this.blocksDestroyed = blocksDestroyed;
-            this.distanceWalked = distanceWalked;
-            this.mobsKilled = mobsKilled;
-            this.deaths = deaths;
-            this.jumps = jumps;
-            this.isMvp = isMvp;
-            this.achievements = achievements;
-        }
-
-        public String playerName() {
-            return playerName;
-        }
-
-        public int blocksDestroyed() {
-            return blocksDestroyed;
-        }
-
-        public int distanceWalked() {
-            return distanceWalked;
-        }
-
-        public int mobsKilled() {
-            return mobsKilled;
-        }
-
-        public int deaths() {
-            return deaths;
-        }
-
-        public int jumps() {
-            return jumps;
-        }
-
-        public boolean isMvp() {
-            return isMvp;
-        }
-
-        public List<String> achievements() {
-            return achievements;
-        }
+    public record PlayerDailySummary(String playerName, int blocksDestroyed, int distanceWalked,
+                                     int mobsKilled, int deaths, int jumps, boolean isMvp,
+                                     List<String> achievements) {
 
         public static PlayerDailySummary decode(FriendlyByteBuf buf) {
             String playerName = buf.readUtf();
@@ -105,24 +55,21 @@ public class DailySummaryPacket {
         }
 
         public static void encode(FriendlyByteBuf buf, PlayerDailySummary summary) {
-            buf.writeUtf(summary.playerName);
-            buf.writeVarInt(clampValue(summary.blocksDestroyed));
-            buf.writeVarInt(clampValue(summary.distanceWalked));
-            buf.writeVarInt(clampValue(summary.mobsKilled));
-            buf.writeVarInt(clampValue(summary.deaths));
-            buf.writeVarInt(clampValue(summary.jumps));
-            buf.writeBoolean(summary.isMvp);
-            buf.writeVarInt(summary.achievements.size());
-            for (String achievement : summary.achievements) {
+            buf.writeUtf(summary.playerName());
+            buf.writeVarInt(clampValue(summary.blocksDestroyed()));
+            buf.writeVarInt(clampValue(summary.distanceWalked()));
+            buf.writeVarInt(clampValue(summary.mobsKilled()));
+            buf.writeVarInt(clampValue(summary.deaths()));
+            buf.writeVarInt(clampValue(summary.jumps()));
+            buf.writeBoolean(summary.isMvp());
+            buf.writeVarInt(summary.achievements().size());
+            for (String achievement : summary.achievements()) {
                 buf.writeUtf(achievement);
             }
         }
 
         private static int clampValue(int value) {
-            if (value < 0) {
-                return 0;
-            }
-            return Math.min(value, Integer.MAX_VALUE / 2);
+            return value < 0 ? 0 : Math.min(value, Integer.MAX_VALUE / 2);
         }
     }
 }

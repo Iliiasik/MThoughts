@@ -1,15 +1,21 @@
 package mt.network.packet;
 
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 
-public class SummaryAcknowledgePacket {
-    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath("midnightthoughts", "summary_acknowledge");
+public record SummaryAcknowledgePacket() implements CustomPacketPayload {
+    public static final ResourceLocation ID_LOC = ResourceLocation.fromNamespaceAndPath("midnightthoughts", "summary_acknowledge");
+    public static final CustomPacketPayload.Type<SummaryAcknowledgePacket> TYPE = new CustomPacketPayload.Type<>(ID_LOC);
 
-    public static void encode(SummaryAcknowledgePacket packet, FriendlyByteBuf buf) {
-    }
+    public static final StreamCodec<FriendlyByteBuf, SummaryAcknowledgePacket> CODEC = StreamCodec.of(
+            (buf, packet) -> {},
+            buf -> new SummaryAcknowledgePacket()
+    );
 
-    public static SummaryAcknowledgePacket decode(FriendlyByteBuf buf) {
-        return new SummaryAcknowledgePacket();
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 }

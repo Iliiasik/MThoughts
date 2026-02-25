@@ -5,7 +5,6 @@ import mt.client.config.MidnightThoughtsConfig;
 import net.minecraft.resources.ResourceLocation;
 
 public class SummaryConstants {
-    public static final ResourceLocation BACKGROUND_TEXTURE = ResourceLocation.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/background.png");
     public static final ResourceLocation CROWN_TEXTURE = ResourceLocation.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/crown.png");
 
     public static ResourceLocation getFrameTexture() {

@@ -2,6 +2,7 @@ package mt.client.ui.summary;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
@@ -21,16 +22,14 @@ public class FrameRenderer {
         RenderSystem.defaultBlendFunc();
 
         Matrix4f matrix = context.pose().last().pose();
-        Tesselator tessellator = Tesselator.getInstance();
-        BufferBuilder buffer = tessellator.getBuilder();
+        BufferBuilder buffer = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
 
         int alpha = (int)(fadeAlpha * 255);
-        buffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
-        buffer.vertex(matrix, dims.panelX, dims.panelY + dims.panelHeight, 0).uv(0, 1).color(255, 255, 255, alpha).endVertex();
-        buffer.vertex(matrix, dims.panelX + dims.panelWidth, dims.panelY + dims.panelHeight, 0).uv(1, 1).color(255, 255, 255, alpha).endVertex();
-        buffer.vertex(matrix, dims.panelX + dims.panelWidth, dims.panelY, 0).uv(1, 0).color(255, 255, 255, alpha).endVertex();
-        buffer.vertex(matrix, dims.panelX, dims.panelY, 0).uv(0, 0).color(255, 255, 255, alpha).endVertex();
-        tessellator.end();
+        buffer.addVertex(matrix, dims.panelX, dims.panelY + dims.panelHeight, 0).setUv(0, 1).setColor(255, 255, 255, alpha);
+        buffer.addVertex(matrix, dims.panelX + dims.panelWidth, dims.panelY + dims.panelHeight, 0).setUv(1, 1).setColor(255, 255, 255, alpha);
+        buffer.addVertex(matrix, dims.panelX + dims.panelWidth, dims.panelY, 0).setUv(1, 0).setColor(255, 255, 255, alpha);
+        buffer.addVertex(matrix, dims.panelX, dims.panelY, 0).setUv(0, 0).setColor(255, 255, 255, alpha);
+        BufferUploader.drawWithShader(buffer.buildOrThrow());
 
         RenderSystem.disableBlend();
     }
@@ -54,16 +53,14 @@ public class FrameRenderer {
         RenderSystem.defaultBlendFunc();
 
         Matrix4f matrix = context.pose().last().pose();
-        Tesselator tessellator = Tesselator.getInstance();
-        BufferBuilder buffer = tessellator.getBuilder();
+        BufferBuilder buffer = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
 
         int alpha = (int)(fadeAlpha * 255);
-        buffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
-        buffer.vertex(matrix, badgeX, badgeY + badgeHeight, 0).uv(0, 1).color(255, 255, 255, alpha).endVertex();
-        buffer.vertex(matrix, badgeX + badgeWidth, badgeY + badgeHeight, 0).uv(1, 1).color(255, 255, 255, alpha).endVertex();
-        buffer.vertex(matrix, badgeX + badgeWidth, badgeY, 0).uv(1, 0).color(255, 255, 255, alpha).endVertex();
-        buffer.vertex(matrix, badgeX, badgeY, 0).uv(0, 0).color(255, 255, 255, alpha).endVertex();
-        tessellator.end();
+        buffer.addVertex(matrix, badgeX, badgeY + badgeHeight, 0).setUv(0, 1).setColor(255, 255, 255, alpha);
+        buffer.addVertex(matrix, badgeX + badgeWidth, badgeY + badgeHeight, 0).setUv(1, 1).setColor(255, 255, 255, alpha);
+        buffer.addVertex(matrix, badgeX + badgeWidth, badgeY, 0).setUv(1, 0).setColor(255, 255, 255, alpha);
+        buffer.addVertex(matrix, badgeX, badgeY, 0).setUv(0, 0).setColor(255, 255, 255, alpha);
+        BufferUploader.drawWithShader(buffer.buildOrThrow());
 
         RenderSystem.disableBlend();
 
@@ -112,16 +109,14 @@ public class FrameRenderer {
         RenderSystem.defaultBlendFunc();
 
         Matrix4f matrix = context.pose().last().pose();
-        Tesselator tessellator = Tesselator.getInstance();
-        BufferBuilder buffer = tessellator.getBuilder();
+        BufferBuilder buffer = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
 
         int alpha = (int)(fadeAlpha * 255);
-        buffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
-        buffer.vertex(matrix, pagesHolderX, pagesHolderY + pagesHolderHeight, 0).uv(0, 1).color(255, 255, 255, alpha).endVertex();
-        buffer.vertex(matrix, pagesHolderX + pagesHolderWidth, pagesHolderY + pagesHolderHeight, 0).uv(1, 1).color(255, 255, 255, alpha).endVertex();
-        buffer.vertex(matrix, pagesHolderX + pagesHolderWidth, pagesHolderY, 0).uv(1, 0).color(255, 255, 255, alpha).endVertex();
-        buffer.vertex(matrix, pagesHolderX, pagesHolderY, 0).uv(0, 0).color(255, 255, 255, alpha).endVertex();
-        tessellator.end();
+        buffer.addVertex(matrix, pagesHolderX, pagesHolderY + pagesHolderHeight, 0).setUv(0, 1).setColor(255, 255, 255, alpha);
+        buffer.addVertex(matrix, pagesHolderX + pagesHolderWidth, pagesHolderY + pagesHolderHeight, 0).setUv(1, 1).setColor(255, 255, 255, alpha);
+        buffer.addVertex(matrix, pagesHolderX + pagesHolderWidth, pagesHolderY, 0).setUv(1, 0).setColor(255, 255, 255, alpha);
+        buffer.addVertex(matrix, pagesHolderX, pagesHolderY, 0).setUv(0, 0).setColor(255, 255, 255, alpha);
+        BufferUploader.drawWithShader(buffer.buildOrThrow());
 
         RenderSystem.disableBlend();
 
@@ -143,4 +138,3 @@ public class FrameRenderer {
         context.pose().popPose();
     }
 }
-

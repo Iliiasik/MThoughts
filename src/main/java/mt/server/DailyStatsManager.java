@@ -1,11 +1,9 @@
 package mt.server;
 
-import mt.MidnightThoughts;
 import mt.network.NetworkHandler;
 import mt.network.packet.DailySummaryPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.registries.RegistryObject;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -81,14 +79,13 @@ public class DailyStatsManager {
 
         if (!summaries.isEmpty()) {
             DailySummaryPacket packet = new DailySummaryPacket(summaries);
-            RegistryObject<WellRestedEffect> wellRested = MidnightThoughts.WELL_RESTED;
             for (ServerPlayer player : server.getPlayerList().getPlayers()) {
                 NetworkHandler.sendDailySummary(player, packet);
                 int comfortLevel = ComfortCalculator.calculateComfortLevel(player);
-                WellRestedEffect.applyToPlayer(player, comfortLevel, wellRested.get());
-            }
+                WellRestedEffect.applyToPlayer(player, comfortLevel);            }
         }
     }
+
     public static void showDailySummaryAndReset(MinecraftServer server) {
         showDailySummary(server);
         resetDailyStats(server);

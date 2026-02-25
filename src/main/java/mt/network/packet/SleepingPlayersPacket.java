@@ -1,35 +1,24 @@
 package mt.network.packet;
 
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 
-public class SleepingPlayersPacket {
-    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath("midnightthoughts", "sleeping_players");
+public record SleepingPlayersPacket(int sleepingCount, int totalPlayers) implements CustomPacketPayload {
+    public static final ResourceLocation ID_LOC = ResourceLocation.fromNamespaceAndPath("midnightthoughts", "sleeping_players");
+    public static final CustomPacketPayload.Type<SleepingPlayersPacket> TYPE = new CustomPacketPayload.Type<>(ID_LOC);
 
-    private final int sleepingCount;
-    private final int totalPlayers;
+    public static final StreamCodec<FriendlyByteBuf, SleepingPlayersPacket> CODEC = StreamCodec.of(
+            (buf, packet) -> {
+                buf.writeInt(packet.sleepingCount());
+                buf.writeInt(packet.totalPlayers());
+            },
+            buf -> new SleepingPlayersPacket(buf.readInt(), buf.readInt())
+    );
 
-    public SleepingPlayersPacket(int sleepingCount, int totalPlayers) {
-        this.sleepingCount = sleepingCount;
-        this.totalPlayers = totalPlayers;
-    }
-
-    public int sleepingCount() {
-        return sleepingCount;
-    }
-
-    public int totalPlayers() {
-        return totalPlayers;
-    }
-
-    public static void encode(SleepingPlayersPacket packet, FriendlyByteBuf buf) {
-        buf.writeInt(packet.sleepingCount);
-        buf.writeInt(packet.totalPlayers);
-    }
-
-    public static SleepingPlayersPacket decode(FriendlyByteBuf buf) {
-        int sleepingCount = buf.readInt();
-        int totalPlayers = buf.readInt();
-        return new SleepingPlayersPacket(sleepingCount, totalPlayers);
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 }

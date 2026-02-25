@@ -93,7 +93,7 @@ public class PlayerRowRenderer {
                     .orElse(null);
 
                 if (playerEntry != null) {
-                    ResourceLocation skin = playerEntry.getSkinLocation();
+                    ResourceLocation skin = playerEntry.getSkin().texture();
                     context.blit(skin, headX, headY, dims.headSize, dims.headSize, 8, 8, 8, 8, 64, 64);
                     context.blit(skin, headX, headY, dims.headSize, dims.headSize, 40, 8, 8, 8, 64, 64);
                 }
