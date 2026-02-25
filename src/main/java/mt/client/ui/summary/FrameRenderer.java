@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import mt.client.config.MidnightThoughtsConfig;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.GameRenderer;
@@ -14,7 +15,7 @@ import org.joml.Matrix4f;
 public class FrameRenderer {
 
     public static void render(GuiGraphics context, SummaryDimensions dims, float fadeAlpha) {
-        RenderSystem.setShaderTexture(0, SummaryConstants.FRAME_TEXTURE);
+        RenderSystem.setShaderTexture(0, SummaryConstants.getFrameTexture());
         RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
@@ -47,7 +48,7 @@ public class FrameRenderer {
         int badgeX = dims.panelX + contentPaddingSides + badgeOffsetX;
         int badgeY = dims.panelY - badgeHeight / 2 + badgeOffsetY;
 
-        RenderSystem.setShaderTexture(0, SummaryConstants.BADGE_TEXTURE);
+        RenderSystem.setShaderTexture(0, SummaryConstants.getBadgeTexture());
         RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
@@ -66,8 +67,11 @@ public class FrameRenderer {
 
         RenderSystem.disableBlend();
 
+        String theme = MidnightThoughtsConfig.getInstance().getUiTheme();
+        ThemeColors.ThemeColor colors = ThemeColors.getThemeColors(theme);
+
         int titleAlpha = (int)(fadeAlpha * 255);
-        int titleColor = (titleAlpha << 24) | 0x68503c;
+        int titleColor = (titleAlpha << 24) | colors.badgeTextColor();
 
         float textScale = badgeScale * 1.8f;
         int scaledTextWidth = (int)(textRenderer.width(title) * textScale);
@@ -102,7 +106,7 @@ public class FrameRenderer {
         int pagesHolderX = dims.panelX + (dims.panelWidth - pagesHolderWidth) / 2;
         int pagesHolderY = dims.panelY + (int)contentPaddingTop + listAreaHeight + (availableSpace - pagesHolderHeight) / 2;
 
-        RenderSystem.setShaderTexture(0, SummaryConstants.PAGES_HOLDER_TEXTURE);
+        RenderSystem.setShaderTexture(0, SummaryConstants.getPagesHolderTexture());
         RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
@@ -121,8 +125,11 @@ public class FrameRenderer {
 
         RenderSystem.disableBlend();
 
+        String theme = MidnightThoughtsConfig.getInstance().getUiTheme();
+        ThemeColors.ThemeColor colors = ThemeColors.getThemeColors(theme);
+
         int pageTextAlpha = (int)(fadeAlpha * 255);
-        int pageTextColor = (pageTextAlpha << 24) | 0x3b1a17;
+        int pageTextColor = (pageTextAlpha << 24) | colors.pagesHolderTextColor();
 
         float textScale = pagesHolderScale * 1.5f;
         int scaledTextWidth = (int)(textRenderer.width(pageInfo) * textScale);
