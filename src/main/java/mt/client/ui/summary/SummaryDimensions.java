@@ -80,4 +80,3 @@ public class SummaryDimensions {
         return isCompactMode ? Math.max(16, (int)(16 * uiScale)) : (int)(20 * uiScale);
     }
 }
-
