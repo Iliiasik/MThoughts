@@ -6,6 +6,7 @@ import mt.server.WellRestedEffect;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.event.TickEvent;
@@ -27,7 +28,14 @@ public class MidnightThoughts {
     public static final RegistryObject<WellRestedEffect> WELL_RESTED = EFFECTS.register("well_rested", WellRestedEffect::new);
     public static final Logger LOGGER = LoggerFactory.getLogger("MidnightThoughts");
 
+    private final IEventBus modEventBus;
+
+    public MidnightThoughts() {
+        this(FMLJavaModLoadingContext.get().getModEventBus());
+    }
+
     public MidnightThoughts(IEventBus modEventBus) {
+        this.modEventBus = modEventBus;
         EFFECTS.register(modEventBus);
         modEventBus.addListener(this::setup);
         modEventBus.addListener(this::onClientSetup);
@@ -41,7 +49,7 @@ public class MidnightThoughts {
     }
 
     private void onClientSetup(final FMLClientSetupEvent event) {
-        mt.client.MidnightThoughtsClient.init();
+        mt.client.MidnightThoughtsClient.init(modEventBus);
         LOGGER.info("Midnight Thoughts client setup complete");
     }
 

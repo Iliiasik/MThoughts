@@ -14,6 +14,7 @@ import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 public class MidnightThoughtsClient {
@@ -25,10 +26,11 @@ public class MidnightThoughtsClient {
     private SleepStateManager sleepStateManager;
     private SleepOverlayRenderer overlayRenderer;
 
-    public static void init() {
+    public static void init(IEventBus modEventBus) {
         if (instance == null) {
             instance = new MidnightThoughtsClient();
-            MinecraftForge.EVENT_BUS.register(new ForgeClientEvents());
+            MinecraftForge.EVENT_BUS.register(new ForgeClientTickEvents());
+            modEventBus.addListener(instance::onRegisterReloadListeners);
         }
     }
 
@@ -50,6 +52,23 @@ public class MidnightThoughtsClient {
         overlayRenderer = new SleepOverlayRenderer(sleepStateManager, slideService, config);
     }
 
+    public void onRegisterReloadListeners(RegisterClientReloadListenersEvent event) {
+        event.registerReloadListener(new SimplePreparableReloadListener<ResourceManager>() {
+            @Override
+            protected ResourceManager prepare(ResourceManager manager, ProfilerFiller profiler) {
+                return manager;
+            }
+
+            @Override
+            protected void apply(ResourceManager manager, ResourceManager unused, ProfilerFiller profiler) {
+                if (instance != null) {
+                    instance.slideRepository.clearCache();
+                    instance.slideRepository.loadAllSlides(manager);
+                }
+            }
+        });
+    }
+
     public static MidnightThoughtsClient getInstance() {
         return instance;
     }
@@ -58,37 +77,19 @@ public class MidnightThoughtsClient {
         return overlayRenderer;
     }
 
-    private static class ForgeClientEvents {
-
+    private static class ForgeClientTickEvents {
         @SubscribeEvent
         public void onClientTick(TickEvent.ClientTickEvent event) {
             if (event.phase == TickEvent.Phase.END) {
                 Minecraft client = Minecraft.getInstance();
                 if (client.player != null) {
                     MidnightThoughtsClient inst = MidnightThoughtsClient.getInstance();
-                    inst.sleepStateManager.tick(client.player);
-                    inst.overlayRenderer.tick();
-                }
-            }
-        }
-
-        @SubscribeEvent
-        public void onRegisterReloadListeners(RegisterClientReloadListenersEvent event) {
-            event.registerReloadListener(new SimplePreparableReloadListener<ResourceManager>() {
-                @Override
-                protected ResourceManager prepare(ResourceManager manager, ProfilerFiller profiler) {
-                    return manager;
-                }
-
-                @Override
-                protected void apply(ResourceManager manager, ResourceManager unused, ProfilerFiller profiler) {
-                    MidnightThoughtsClient inst = MidnightThoughtsClient.getInstance();
                     if (inst != null) {
-                        inst.slideRepository.clearCache();
-                        inst.slideRepository.loadAllSlides(manager);
+                        inst.sleepStateManager.tick(client.player);
+                        inst.overlayRenderer.tick();
                     }
                 }
-            });
+            }
         }
     }
 }
