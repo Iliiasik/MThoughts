@@ -116,7 +116,7 @@ public class DailySummaryScreen extends Screen {
 
     @Override
     public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
-        renderBackground(context, mouseX, mouseY, delta);
+        context.fill(0, 0, this.width, this.height, 0x88000000);
         updateFadeAnimation();
         achievementAreas.clear();
 
@@ -134,6 +134,9 @@ public class DailySummaryScreen extends Screen {
         }
     }
 
+    @Override
+    public void renderBackground(GuiGraphics context, int mouseX, int mouseY, float delta) {
+    }
 
     private void updateFadeAnimation() {
         long elapsedTime = System.currentTimeMillis() - screenOpenTime;
