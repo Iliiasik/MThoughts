@@ -2,7 +2,6 @@ package mt.server;
 
 import mt.MidnightThoughts;
 import mt.client.config.MidnightThoughtsConfig;
-import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffect;
@@ -60,13 +59,11 @@ public class WellRestedEffect extends MobEffect {
         return durationMinutes * 60 * 20;
     }
 
-    @SuppressWarnings("unchecked")
     public static void applyToPlayer(ServerPlayer player, int comfortLevel) {
         if (comfortLevel <= 0) return;
         int duration = getDurationForLevel(comfortLevel);
         int amplifier = comfortLevel - 1;
-        Holder<MobEffect> holder = (Holder<MobEffect>)(Holder<?>) MidnightThoughts.WELL_RESTED.getHolder().orElseThrow();
-        MobEffectInstance instance = new MobEffectInstance(holder, duration, amplifier, true, false, true);
+        MobEffectInstance instance = new MobEffectInstance(MidnightThoughts.WELL_RESTED, duration, amplifier, true, false, true);
         player.addEffect(instance);
         float instantHeal = CONFIG.getWellRested().getLevel(comfortLevel).instantHeal;
         player.setHealth(player.getHealth() + instantHeal);

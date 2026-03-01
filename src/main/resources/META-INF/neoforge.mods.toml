@@ -1,0 +1,28 @@
+modLoader = "javafml"
+loaderVersion = "${loader_version_range}"
+license = "MIT"
+
+[[mixins]]
+config = "mthoughts.mixins.json"
+
+[[mods]]
+modId = "midnightthoughts"
+version = "1.2.2"
+displayName = "Midnight Thoughts"
+logoFile = "assets/midnightthoughts/icon.png"
+authors = "iliiasik"
+description = '''An atmospheric sleep enhancement mod. Features random facts and Minecraft lore during sleep, daily player statistics summary (Stardew Valley style), MVP system for multiplayer, personal achievements, Well Rested effect with comfort levels, and a stylish sleeping players HUD.'''
+
+[[dependencies.midnightthoughts]]
+modId = "neoforge"
+type = "required"
+versionRange = "[21.1.0,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.midnightthoughts]]
+modId = "minecraft"
+type = "required"
+versionRange = "[1.21.1,1.22)"
+ordering = "NONE"
+side = "BOTH"

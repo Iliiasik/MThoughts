@@ -3,49 +3,49 @@ package mt;
 import mt.network.NetworkHandler;
 import mt.server.DailyStatsManager;
 import mt.server.WellRestedEffect;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.event.server.ServerStartedEvent;
-import net.minecraftforge.event.server.ServerStoppingEvent;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
 import net.minecraft.world.effect.MobEffect;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.server.ServerStartedEvent;
+import net.neoforged.neoforge.event.server.ServerStoppingEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.registries.DeferredRegister;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.minecraft.core.registries.BuiltInRegistries;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Mod(MidnightThoughts.MOD_ID)
 public class MidnightThoughts {
     public static final String MOD_ID = "midnightthoughts";
-    public static final DeferredRegister<MobEffect> EFFECTS = DeferredRegister.create(ForgeRegistries.MOB_EFFECTS, MOD_ID);
-    public static final RegistryObject<WellRestedEffect> WELL_RESTED = EFFECTS.register("well_rested", WellRestedEffect::new);
+    public static final DeferredRegister<MobEffect> EFFECTS = DeferredRegister.create(BuiltInRegistries.MOB_EFFECT, MOD_ID);
+    public static final DeferredHolder<MobEffect, WellRestedEffect> WELL_RESTED = EFFECTS.register("well_rested", WellRestedEffect::new);
     public static final Logger LOGGER = LoggerFactory.getLogger("MidnightThoughts");
 
     private final IEventBus modEventBus;
-
-    public MidnightThoughts() {
-        this(FMLJavaModLoadingContext.get().getModEventBus());
-    }
 
     public MidnightThoughts(IEventBus modEventBus) {
         this.modEventBus = modEventBus;
         EFFECTS.register(modEventBus);
         modEventBus.addListener(this::setup);
         modEventBus.addListener(this::onClientSetup);
-        MinecraftForge.EVENT_BUS.register(this);
+        modEventBus.addListener(this::onRegisterPayloads);
+        NeoForge.EVENT_BUS.register(this);
         LOGGER.info("Midnight Thoughts initialized successfully!");
     }
 
     private void setup(final FMLCommonSetupEvent event) {
-        NetworkHandler.registerPackets();
         LOGGER.info("Midnight Thoughts common setup complete");
+    }
+
+    private void onRegisterPayloads(final RegisterPayloadHandlersEvent event) {
+        NetworkHandler.registerPackets(event);
     }
 
     private void onClientSetup(final FMLClientSetupEvent event) {
@@ -54,10 +54,8 @@ public class MidnightThoughts {
     }
 
     @SubscribeEvent
-    public void onServerTick(TickEvent.ServerTickEvent event) {
-        if (event.phase == TickEvent.Phase.END && event.getServer() != null) {
-            DailyStatsManager.tick(event.getServer());
-        }
+    public void onServerTick(ServerTickEvent.Post event) {
+        DailyStatsManager.tick(event.getServer());
     }
 
     @SubscribeEvent
