@@ -52,9 +52,12 @@ public class SleepingPlayersHud {
         int hudY = (int)(10 * scale);
 
         int color = ARGB.colorFromFloat(displayAlpha, 1.0f, 1.0f, 1.0f);
+        context.pose().pushMatrix();
+        context.pose().translate(hudX, hudY);
+        context.pose().scale(hudWidth / (float)TEXTURE_WIDTH, hudHeight / (float)TEXTURE_HEIGHT);
         context.blit(RenderPipelines.GUI_TEXTURED, SummaryConstants.getSleepingHudTexture(),
-            hudX, hudY, 0.0f, 0.0f, hudWidth, hudHeight,
-            TEXTURE_WIDTH, TEXTURE_HEIGHT, color);
+            0, 0, 0.0f, 0.0f, TEXTURE_WIDTH, TEXTURE_HEIGHT, TEXTURE_WIDTH, TEXTURE_HEIGHT, color);
+        context.pose().popMatrix();
 
         renderText(context, textRenderer, hudX, hudY, hudWidth, scale);
     }

@@ -11,11 +11,15 @@ public class FrameRenderer {
 
     public static void render(GuiGraphics context, SummaryDimensions dims, float fadeAlpha) {
         int color = ARGB.colorFromFloat(fadeAlpha, 1.0f, 1.0f, 1.0f);
+        context.pose().pushMatrix();
+        context.pose().translate(dims.panelX, dims.panelY);
+        context.pose().scale(dims.panelWidth / (float)SummaryConstants.FRAME_TEXTURE_WIDTH, dims.panelHeight / (float)SummaryConstants.FRAME_TEXTURE_HEIGHT);
         context.blit(RenderPipelines.GUI_TEXTURED, SummaryConstants.getFrameTexture(),
-                dims.panelX, dims.panelY, 0.0f, 0.0f,
-                dims.panelWidth, dims.panelHeight,
+                0, 0, 0.0f, 0.0f,
+                SummaryConstants.FRAME_TEXTURE_WIDTH, SummaryConstants.FRAME_TEXTURE_HEIGHT,
                 SummaryConstants.FRAME_TEXTURE_WIDTH, SummaryConstants.FRAME_TEXTURE_HEIGHT,
                 color);
+        context.pose().popMatrix();
     }
 
     public static void renderBadge(GuiGraphics context, Font textRenderer, SummaryDimensions dims, float fadeAlpha) {
@@ -32,11 +36,15 @@ public class FrameRenderer {
         int badgeY = dims.panelY - badgeHeight / 2 + badgeOffsetY;
 
         int color = ARGB.colorFromFloat(fadeAlpha, 1.0f, 1.0f, 1.0f);
+        context.pose().pushMatrix();
+        context.pose().translate(badgeX, badgeY);
+        context.pose().scale(badgeWidth / (float)SummaryConstants.BADGE_TEXTURE_WIDTH, badgeHeight / (float)SummaryConstants.BADGE_TEXTURE_HEIGHT);
         context.blit(RenderPipelines.GUI_TEXTURED, SummaryConstants.getBadgeTexture(),
-                badgeX, badgeY, 0.0f, 0.0f,
-                badgeWidth, badgeHeight,
+                0, 0, 0.0f, 0.0f,
+                SummaryConstants.BADGE_TEXTURE_WIDTH, SummaryConstants.BADGE_TEXTURE_HEIGHT,
                 SummaryConstants.BADGE_TEXTURE_WIDTH, SummaryConstants.BADGE_TEXTURE_HEIGHT,
                 color);
+        context.pose().popMatrix();
 
         String theme = MidnightThoughtsConfig.getInstance().getUiTheme();
         ThemeColors.ThemeColor colors = ThemeColors.getThemeColors(theme);
@@ -78,11 +86,15 @@ public class FrameRenderer {
         int pagesHolderY = dims.panelY + (int)contentPaddingTop + listAreaHeight + (availableSpace - pagesHolderHeight) / 2;
 
         int color = ARGB.colorFromFloat(fadeAlpha, 1.0f, 1.0f, 1.0f);
+        context.pose().pushMatrix();
+        context.pose().translate(pagesHolderX, pagesHolderY);
+        context.pose().scale(pagesHolderWidth / (float)SummaryConstants.PAGES_HOLDER_TEXTURE_WIDTH, pagesHolderHeight / (float)SummaryConstants.PAGES_HOLDER_TEXTURE_HEIGHT);
         context.blit(RenderPipelines.GUI_TEXTURED, SummaryConstants.getPagesHolderTexture(),
-                pagesHolderX, pagesHolderY, 0.0f, 0.0f,
-                pagesHolderWidth, pagesHolderHeight,
+                0, 0, 0.0f, 0.0f,
+                SummaryConstants.PAGES_HOLDER_TEXTURE_WIDTH, SummaryConstants.PAGES_HOLDER_TEXTURE_HEIGHT,
                 SummaryConstants.PAGES_HOLDER_TEXTURE_WIDTH, SummaryConstants.PAGES_HOLDER_TEXTURE_HEIGHT,
                 color);
+        context.pose().popMatrix();
 
         String theme = MidnightThoughtsConfig.getInstance().getUiTheme();
         ThemeColors.ThemeColor colors = ThemeColors.getThemeColors(theme);

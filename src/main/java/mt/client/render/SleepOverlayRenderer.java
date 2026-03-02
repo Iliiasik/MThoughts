@@ -208,7 +208,11 @@ public class SleepOverlayRenderer {
     }
     private void renderImage(GuiGraphics context, int x, int y, int width, int height) {
         int color = ARGB.colorFromFloat(overlayAlpha * IMAGE_OPACITY, 1.0f, 1.0f, 1.0f);
-        context.blit(RenderPipelines.GUI_TEXTURED, IMAGE_TEXTURE, x, y, 0, 0, width, height, IMAGE_ORIGINAL_WIDTH, IMAGE_ORIGINAL_HEIGHT, color);
+        context.pose().pushMatrix();
+        context.pose().translate(x, y);
+        context.pose().scale(width / (float)IMAGE_ORIGINAL_WIDTH, height / (float)IMAGE_ORIGINAL_HEIGHT);
+        context.blit(RenderPipelines.GUI_TEXTURED, IMAGE_TEXTURE, 0, 0, 0.0f, 0.0f, IMAGE_ORIGINAL_WIDTH, IMAGE_ORIGINAL_HEIGHT, IMAGE_ORIGINAL_WIDTH, IMAGE_ORIGINAL_HEIGHT, color);
+        context.pose().popMatrix();
     }
     private void renderSlideText(GuiGraphics context, Font textRenderer, List<String> lines, int areaX, int centerY, float scale) {
         int alpha = (int) (config.getTextOpacity() * textAlpha * 255);
