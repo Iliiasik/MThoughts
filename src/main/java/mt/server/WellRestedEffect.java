@@ -2,7 +2,7 @@ package mt.server;
 
 import mt.MidnightThoughts;
 import mt.client.config.MidnightThoughtsConfig;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
@@ -19,13 +19,13 @@ public class WellRestedEffect extends MobEffect {
         MidnightThoughtsConfig.WellRestedLevel level1 = CONFIG.getWellRested().getLevel(1);
         addAttributeModifier(
                 Attributes.MAX_HEALTH,
-                ResourceLocation.fromNamespaceAndPath("midnightthoughts", "well_rested_health"),
+                Identifier.fromNamespaceAndPath("midnightthoughts", "well_rested_health"),
                 level1.healthBonus,
                 AttributeModifier.Operation.ADD_VALUE
         );
         addAttributeModifier(
                 Attributes.LUCK,
-                ResourceLocation.fromNamespaceAndPath("midnightthoughts", "well_rested_luck"),
+                Identifier.fromNamespaceAndPath("midnightthoughts", "well_rested_luck"),
                 level1.luckBonus,
                 AttributeModifier.Operation.ADD_VALUE
         );
@@ -36,16 +36,11 @@ public class WellRestedEffect extends MobEffect {
         return duration % 20 == 0;
     }
 
-    @Override
     public boolean applyEffectTick(LivingEntity entity, int amplifier) {
         if (entity instanceof ServerPlayer player) {
             int level = amplifier + 1;
             float exhaustionReduction = getExhaustionReduction(level);
-            if (player.getFoodData().getExhaustionLevel() > 0) {
-                float currentExhaustion = player.getFoodData().getExhaustionLevel();
-                float reducedExhaustion = Math.max(0, currentExhaustion - exhaustionReduction);
-                player.getFoodData().setExhaustion(reducedExhaustion);
-            }
+            player.causeFoodExhaustion(-exhaustionReduction);
         }
         return true;
     }

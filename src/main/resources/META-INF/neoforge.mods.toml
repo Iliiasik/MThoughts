@@ -16,13 +16,13 @@ description = '''An atmospheric sleep enhancement mod. Features random facts and
 [[dependencies.midnightthoughts]]
 modId = "neoforge"
 type = "required"
-versionRange = "[21.1.0,)"
+versionRange = "[21.11.0,)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.midnightthoughts]]
 modId = "minecraft"
 type = "required"
-versionRange = "[1.21.1,1.22)"
+versionRange = "[1.21.11,1.22)"
 ordering = "NONE"
 side = "BOTH"

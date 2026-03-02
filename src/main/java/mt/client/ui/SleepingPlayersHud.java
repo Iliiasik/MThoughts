@@ -1,14 +1,14 @@
 package mt.client.ui;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import mt.client.config.MidnightThoughtsConfig;
 import mt.client.ui.summary.SummaryConstants;
 import mt.client.ui.summary.ThemeColors;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.ARGB;
 
 public class SleepingPlayersHud {
     private static final int TEXTURE_WIDTH = 260;
@@ -51,21 +51,15 @@ public class SleepingPlayersHud {
         int hudX = (int)(10 * scale);
         int hudY = (int)(10 * scale);
 
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        RenderSystem.setShaderTexture(0, SummaryConstants.getSleepingHudTexture());
-        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, displayAlpha);
-        RenderSystem.enableBlend();
+        int color = ARGB.colorFromFloat(displayAlpha, 1.0f, 1.0f, 1.0f);
+        context.blit(RenderPipelines.GUI_TEXTURED, SummaryConstants.getSleepingHudTexture(),
+            hudX, hudY, 0.0f, 0.0f, hudWidth, hudHeight,
+            TEXTURE_WIDTH, TEXTURE_HEIGHT, color);
 
-        context.blit(SummaryConstants.getSleepingHudTexture(), hudX, hudY, hudWidth, hudHeight,
-            0.0f, 0.0f, TEXTURE_WIDTH, TEXTURE_HEIGHT, TEXTURE_WIDTH, TEXTURE_HEIGHT);
-
-        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
-        RenderSystem.disableBlend();
-
-        renderText(context, textRenderer, hudX, hudY, hudWidth, hudHeight, scale);
+        renderText(context, textRenderer, hudX, hudY, hudWidth, scale);
     }
 
-    private static void renderText(GuiGraphics context, Font textRenderer, int hudX, int hudY, int hudWidth, int hudHeight, float scale) {
+    private static void renderText(GuiGraphics context, Font textRenderer, int hudX, int hudY, int hudWidth, float scale) {
         String sleepText = sleepingCount + " / " + totalPlayers;
         Component titleText = Component.translatable("midnightthoughts.hud.sleeping");
 
@@ -80,11 +74,11 @@ public class SleepingPlayersHud {
         int titleX = hudX + (hudWidth - titleWidth) / 2;
         int titleY = hudY + (int)(14 * scale);
 
-        context.pose().pushPose();
-        context.pose().translate(titleX, titleY, 0);
-        context.pose().scale(textScale, textScale, 1.0f);
+        context.pose().pushMatrix();
+        context.pose().translate(titleX, titleY);
+        context.pose().scale(textScale, textScale);
         context.drawString(textRenderer, titleText, 0, 0, titleColor, false);
-        context.pose().popPose();
+        context.pose().popMatrix();
 
         int sleepColor = (textAlpha << 24) | colors.sleepingHudCountColor();
         float sleepTextScale = scale * 1.2f;
@@ -92,10 +86,10 @@ public class SleepingPlayersHud {
         int sleepX = hudX + (hudWidth - sleepTextWidth) / 2;
         int sleepY = hudY + (int)(32 * scale);
 
-        context.pose().pushPose();
-        context.pose().translate(sleepX, sleepY, 0);
-        context.pose().scale(sleepTextScale, sleepTextScale, 1.0f);
+        context.pose().pushMatrix();
+        context.pose().translate(sleepX, sleepY);
+        context.pose().scale(sleepTextScale, sleepTextScale);
         context.drawString(textRenderer, sleepText, 0, 0, sleepColor, true);
-        context.pose().popPose();
+        context.pose().popMatrix();
     }
 }

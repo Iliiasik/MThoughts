@@ -1,37 +1,21 @@
 package mt.client.ui.summary;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.BufferUploader;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexFormat;
 import mt.client.config.MidnightThoughtsConfig;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import org.joml.Matrix4f;
+import net.minecraft.util.ARGB;
 
 public class FrameRenderer {
 
     public static void render(GuiGraphics context, SummaryDimensions dims, float fadeAlpha) {
-        RenderSystem.setShaderTexture(0, SummaryConstants.getFrameTexture());
-        RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-
-        Matrix4f matrix = context.pose().last().pose();
-        BufferBuilder buffer = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
-
-        int alpha = (int)(fadeAlpha * 255);
-        buffer.addVertex(matrix, dims.panelX, dims.panelY + dims.panelHeight, 0).setUv(0, 1).setColor(255, 255, 255, alpha);
-        buffer.addVertex(matrix, dims.panelX + dims.panelWidth, dims.panelY + dims.panelHeight, 0).setUv(1, 1).setColor(255, 255, 255, alpha);
-        buffer.addVertex(matrix, dims.panelX + dims.panelWidth, dims.panelY, 0).setUv(1, 0).setColor(255, 255, 255, alpha);
-        buffer.addVertex(matrix, dims.panelX, dims.panelY, 0).setUv(0, 0).setColor(255, 255, 255, alpha);
-        BufferUploader.drawWithShader(buffer.buildOrThrow());
-
-        RenderSystem.disableBlend();
+        int color = ARGB.colorFromFloat(fadeAlpha, 1.0f, 1.0f, 1.0f);
+        context.blit(RenderPipelines.GUI_TEXTURED, SummaryConstants.getFrameTexture(),
+                dims.panelX, dims.panelY, 0.0f, 0.0f,
+                dims.panelWidth, dims.panelHeight,
+                SummaryConstants.FRAME_TEXTURE_WIDTH, SummaryConstants.FRAME_TEXTURE_HEIGHT,
+                color);
     }
 
     public static void renderBadge(GuiGraphics context, Font textRenderer, SummaryDimensions dims, float fadeAlpha) {
@@ -47,22 +31,12 @@ public class FrameRenderer {
         int badgeX = dims.panelX + contentPaddingSides + badgeOffsetX;
         int badgeY = dims.panelY - badgeHeight / 2 + badgeOffsetY;
 
-        RenderSystem.setShaderTexture(0, SummaryConstants.getBadgeTexture());
-        RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-
-        Matrix4f matrix = context.pose().last().pose();
-        BufferBuilder buffer = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
-
-        int alpha = (int)(fadeAlpha * 255);
-        buffer.addVertex(matrix, badgeX, badgeY + badgeHeight, 0).setUv(0, 1).setColor(255, 255, 255, alpha);
-        buffer.addVertex(matrix, badgeX + badgeWidth, badgeY + badgeHeight, 0).setUv(1, 1).setColor(255, 255, 255, alpha);
-        buffer.addVertex(matrix, badgeX + badgeWidth, badgeY, 0).setUv(1, 0).setColor(255, 255, 255, alpha);
-        buffer.addVertex(matrix, badgeX, badgeY, 0).setUv(0, 0).setColor(255, 255, 255, alpha);
-        BufferUploader.drawWithShader(buffer.buildOrThrow());
-
-        RenderSystem.disableBlend();
+        int color = ARGB.colorFromFloat(fadeAlpha, 1.0f, 1.0f, 1.0f);
+        context.blit(RenderPipelines.GUI_TEXTURED, SummaryConstants.getBadgeTexture(),
+                badgeX, badgeY, 0.0f, 0.0f,
+                badgeWidth, badgeHeight,
+                SummaryConstants.BADGE_TEXTURE_WIDTH, SummaryConstants.BADGE_TEXTURE_HEIGHT,
+                color);
 
         String theme = MidnightThoughtsConfig.getInstance().getUiTheme();
         ThemeColors.ThemeColor colors = ThemeColors.getThemeColors(theme);
@@ -75,11 +49,11 @@ public class FrameRenderer {
         int titleX = badgeX + (badgeWidth - scaledTextWidth) / 2;
         int titleY = badgeY + (badgeHeight - (int)(textRenderer.lineHeight * textScale)) / 2;
 
-        context.pose().pushPose();
-        context.pose().translate(titleX, titleY, 0);
-        context.pose().scale(textScale, textScale, 1.0f);
+        context.pose().pushMatrix();
+        context.pose().translate(titleX, titleY);
+        context.pose().scale(textScale, textScale);
         context.drawString(textRenderer, title, 0, 0, titleColor, false);
-        context.pose().popPose();
+        context.pose().popMatrix();
     }
 
     public static void renderPagesHolder(GuiGraphics context, Font textRenderer, SummaryDimensions dims,
@@ -103,22 +77,12 @@ public class FrameRenderer {
         int pagesHolderX = dims.panelX + (dims.panelWidth - pagesHolderWidth) / 2;
         int pagesHolderY = dims.panelY + (int)contentPaddingTop + listAreaHeight + (availableSpace - pagesHolderHeight) / 2;
 
-        RenderSystem.setShaderTexture(0, SummaryConstants.getPagesHolderTexture());
-        RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-
-        Matrix4f matrix = context.pose().last().pose();
-        BufferBuilder buffer = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
-
-        int alpha = (int)(fadeAlpha * 255);
-        buffer.addVertex(matrix, pagesHolderX, pagesHolderY + pagesHolderHeight, 0).setUv(0, 1).setColor(255, 255, 255, alpha);
-        buffer.addVertex(matrix, pagesHolderX + pagesHolderWidth, pagesHolderY + pagesHolderHeight, 0).setUv(1, 1).setColor(255, 255, 255, alpha);
-        buffer.addVertex(matrix, pagesHolderX + pagesHolderWidth, pagesHolderY, 0).setUv(1, 0).setColor(255, 255, 255, alpha);
-        buffer.addVertex(matrix, pagesHolderX, pagesHolderY, 0).setUv(0, 0).setColor(255, 255, 255, alpha);
-        BufferUploader.drawWithShader(buffer.buildOrThrow());
-
-        RenderSystem.disableBlend();
+        int color = ARGB.colorFromFloat(fadeAlpha, 1.0f, 1.0f, 1.0f);
+        context.blit(RenderPipelines.GUI_TEXTURED, SummaryConstants.getPagesHolderTexture(),
+                pagesHolderX, pagesHolderY, 0.0f, 0.0f,
+                pagesHolderWidth, pagesHolderHeight,
+                SummaryConstants.PAGES_HOLDER_TEXTURE_WIDTH, SummaryConstants.PAGES_HOLDER_TEXTURE_HEIGHT,
+                color);
 
         String theme = MidnightThoughtsConfig.getInstance().getUiTheme();
         ThemeColors.ThemeColor colors = ThemeColors.getThemeColors(theme);
@@ -131,10 +95,10 @@ public class FrameRenderer {
         int pageTextX = pagesHolderX + (pagesHolderWidth - scaledTextWidth) / 2;
         int pageTextY = pagesHolderY + (pagesHolderHeight - (int)(textRenderer.lineHeight * textScale)) / 2;
 
-        context.pose().pushPose();
-        context.pose().translate(pageTextX, pageTextY, 0);
-        context.pose().scale(textScale, textScale, 1.0f);
+        context.pose().pushMatrix();
+        context.pose().translate(pageTextX, pageTextY);
+        context.pose().scale(textScale, textScale);
         context.drawString(textRenderer, pageInfo, 0, 0, pageTextColor, false);
-        context.pose().popPose();
+        context.pose().popMatrix();
     }
 }

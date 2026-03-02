@@ -6,9 +6,9 @@ import mt.network.packet.DailySummaryPacket;
 import mt.network.packet.SleepingPlayersPacket;
 import mt.network.packet.SummaryAcknowledgePacket;
 import net.minecraft.client.Minecraft;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
@@ -27,21 +27,13 @@ public class NetworkHandler {
         registrar.playToClient(
             DailySummaryPacket.TYPE,
             DailySummaryPacket.CODEC,
-            (packet, ctx) -> {
-                if (FMLEnvironment.dist == Dist.CLIENT) {
-                    ctx.enqueueWork(() -> Minecraft.getInstance().setScreen(new DailySummaryScreen(packet.summaries())));
-                }
-            }
+            (packet, ctx) -> ctx.enqueueWork(() -> Minecraft.getInstance().setScreen(new DailySummaryScreen(packet.summaries())))
         );
 
         registrar.playToClient(
             SleepingPlayersPacket.TYPE,
             SleepingPlayersPacket.CODEC,
-            (packet, ctx) -> {
-                if (FMLEnvironment.dist == Dist.CLIENT) {
-                    ctx.enqueueWork(() -> SleepingPlayersHud.updateSleepingCount(packet.sleepingCount(), packet.totalPlayers()));
-                }
-            }
+            (packet, ctx) -> ctx.enqueueWork(() -> SleepingPlayersHud.updateSleepingCount(packet.sleepingCount(), packet.totalPlayers()))
         );
     }
 
@@ -51,5 +43,9 @@ public class NetworkHandler {
 
     public static void sendSleepingPlayers(ServerPlayer player, SleepingPlayersPacket packet) {
         PacketDistributor.sendToPlayer(player, packet);
+    }
+
+    public static void sendToServer(CustomPacketPayload packet) {
+        ClientPacketDistributor.sendToServer(packet);
     }
 }

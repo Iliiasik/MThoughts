@@ -20,11 +20,6 @@ java {
 neoForge {
     version = neoforge_version
 
-    parchment {
-        minecraftVersion = '1.21.1'
-        mappingsVersion = '2024.11.17'
-    }
-
     runs {
         client {
             client()
@@ -32,8 +27,11 @@ neoForge {
         server {
             server()
         }
-        data {
-            data()
+        clientData {
+            clientData()
+        }
+        serverData {
+            serverData()
         }
     }
 

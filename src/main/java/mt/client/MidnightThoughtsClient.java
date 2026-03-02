@@ -9,16 +9,15 @@ import mt.client.service.FactProvider;
 import mt.client.service.PlayerStatsService;
 import mt.client.service.SlideService;
 import net.minecraft.client.Minecraft;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.client.event.AddClientReloadListenersEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
 import net.neoforged.neoforge.common.NeoForge;
-
-import javax.annotation.Nonnull;
 
 public class MidnightThoughtsClient {
     public static final String MOD_ID = "midnightthoughts";
@@ -33,7 +32,7 @@ public class MidnightThoughtsClient {
         if (instance == null) {
             instance = new MidnightThoughtsClient();
             NeoForge.EVENT_BUS.register(new NeoForgeClientTickEvents());
-            modEventBus.addListener(instance::onRegisterReloadListeners);
+            modEventBus.addListener(instance::onAddReloadListeners);
         }
     }
 
@@ -56,16 +55,15 @@ public class MidnightThoughtsClient {
         overlayRenderer = new SleepOverlayRenderer(sleepStateManager, slideService, config);
     }
 
-    public void onRegisterReloadListeners(RegisterClientReloadListenersEvent event) {
-        event.registerReloadListener(new SimplePreparableReloadListener<ResourceManager>() {
-            @Nonnull
+    public void onAddReloadListeners(AddClientReloadListenersEvent event) {
+        event.addListener(Identifier.fromNamespaceAndPath(MOD_ID, "slide_reloader"), new SimplePreparableReloadListener<ResourceManager>() {
             @Override
-            protected ResourceManager prepare(@Nonnull ResourceManager manager, @Nonnull ProfilerFiller profiler) {
+            protected ResourceManager prepare(ResourceManager manager, ProfilerFiller profiler) {
                 return manager;
             }
 
             @Override
-            protected void apply(@Nonnull ResourceManager manager, @Nonnull ResourceManager unused, @Nonnull ProfilerFiller profiler) {
+            protected void apply(ResourceManager manager, ResourceManager unused, ProfilerFiller profiler) {
                 if (instance != null) {
                     instance.slideRepository.clearCache();
                     instance.slideRepository.loadAllSlides(manager);

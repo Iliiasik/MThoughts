@@ -6,7 +6,7 @@ import mt.client.MidnightThoughtsClient;
 import mt.client.model.Slide;
 import mt.client.model.SlideCategory;
 import mt.client.model.SlideCollection;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import org.slf4j.Logger;
@@ -49,7 +49,7 @@ public class SlideRepository {
 
     private List<Slide> loadCategory(ResourceManager manager, String language, String fileName, SlideCategory category) {
         List<Slide> slides = new ArrayList<>();
-        ResourceLocation resourceId = ResourceLocation.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "dreams/" + language + "/" + fileName + ".json");
+        Identifier resourceId = Identifier.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "dreams/" + language + "/" + fileName + ".json");
 
         try {
             Optional<Resource> resourceOpt = manager.getResource(resourceId);

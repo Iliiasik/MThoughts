@@ -1,13 +1,13 @@
 package mt.client.ui.summary;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import mt.network.packet.DailySummaryPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.multiplayer.PlayerInfo;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.ARGB;
 
 import java.util.List;
 
@@ -68,15 +68,9 @@ public class PlayerRowRenderer {
         int iconX = badgeX + (badgeWidth - iconWidth) / 2;
         int iconY = badgeY + iconPadding;
 
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        RenderSystem.setShaderTexture(0, SummaryConstants.CROWN_TEXTURE);
-        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, fadeAlpha);
-        RenderSystem.enableBlend();
-
-        context.blit(SummaryConstants.CROWN_TEXTURE, iconX, iconY, 0, 0, iconWidth, iconHeight, iconWidth, iconHeight);
-
-        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
-        RenderSystem.disableBlend();
+        int color = ARGB.colorFromFloat(fadeAlpha, 1.0f, 1.0f, 1.0f);
+        context.blit(RenderPipelines.GUI_TEXTURED, SummaryConstants.CROWN_TEXTURE,
+                iconX, iconY, 0.0f, 0.0f, iconWidth, iconHeight, iconWidth, iconHeight, color);
     }
 
     private static void renderHead(GuiGraphics context, DailySummaryPacket.PlayerDailySummary player,
@@ -88,14 +82,16 @@ public class PlayerRowRenderer {
             if (Minecraft.getInstance().getConnection() != null) {
                 PlayerInfo playerEntry = Minecraft.getInstance().getConnection()
                     .getOnlinePlayers().stream()
-                    .filter(entry -> entry.getProfile().getName().equals(player.playerName()))
+                    .filter(entry -> entry.getProfile().name().equals(player.playerName()))
                     .findFirst()
                     .orElse(null);
 
                 if (playerEntry != null) {
-                    ResourceLocation skin = playerEntry.getSkin().texture();
-                    context.blit(skin, headX, headY, dims.headSize, dims.headSize, 8, 8, 8, 8, 64, 64);
-                    context.blit(skin, headX, headY, dims.headSize, dims.headSize, 40, 8, 8, 8, 64, 64);
+                    Identifier skin = playerEntry.getSkin().body().texturePath();
+                    context.blit(RenderPipelines.GUI_TEXTURED, skin,
+                            headX, headY, 8.0f, 8.0f, dims.headSize, dims.headSize, 8, 8, 64, 64, -1);
+                    context.blit(RenderPipelines.GUI_TEXTURED, skin,
+                            headX, headY, 40.0f, 8.0f, dims.headSize, dims.headSize, 8, 8, 64, 64, -1);
                 }
             }
         } catch (Exception ignored) {
@@ -112,11 +108,11 @@ public class PlayerRowRenderer {
 
         if (dims.isCompactMode) {
             float textScale = Math.max(0.7f, dims.uiScale);
-            context.pose().pushPose();
-            context.pose().translate(textX, nameY, 0);
-            context.pose().scale(textScale, textScale, 1.0f);
+            context.pose().pushMatrix();
+            context.pose().translate(textX, nameY);
+            context.pose().scale(textScale, textScale);
             context.drawString(textRenderer, player.playerName(), 0, 0, nameColor, true);
-            context.pose().popPose();
+            context.pose().popMatrix();
         } else {
             context.drawString(textRenderer, player.playerName(), textX, nameY, nameColor, true);
         }
@@ -145,4 +141,3 @@ public class PlayerRowRenderer {
         }
     }
 }
-

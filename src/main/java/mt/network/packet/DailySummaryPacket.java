@@ -3,13 +3,13 @@ package mt.network.packet;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public record DailySummaryPacket(List<PlayerDailySummary> summaries) implements CustomPacketPayload {
-    public static final ResourceLocation ID_LOC = ResourceLocation.fromNamespaceAndPath("midnightthoughts", "daily_summary");
+    public static final Identifier ID_LOC = Identifier.fromNamespaceAndPath("midnightthoughts", "daily_summary");
     public static final CustomPacketPayload.Type<DailySummaryPacket> TYPE = new CustomPacketPayload.Type<>(ID_LOC);
 
     public static final StreamCodec<FriendlyByteBuf, DailySummaryPacket> CODEC = StreamCodec.of(

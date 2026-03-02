@@ -1,6 +1,5 @@
 package mt.client.render;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import mt.client.MidnightThoughtsClient;
 import mt.client.config.MidnightThoughtsConfig;
 import mt.client.manager.SleepStateManager;
@@ -9,14 +8,15 @@ import mt.client.service.SlideService;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.ARGB;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class SleepOverlayRenderer {
-    private static final ResourceLocation IMAGE_TEXTURE = ResourceLocation.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/moon.png");
+    private static final Identifier IMAGE_TEXTURE = Identifier.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/moon.png");
     private static final int IMAGE_ORIGINAL_WIDTH = 421;
     private static final int IMAGE_ORIGINAL_HEIGHT = 407;
     private static final float IMAGE_SCALE_PERCENT = 0.35f;
@@ -207,15 +207,8 @@ public class SleepOverlayRenderer {
         return Math.max(MIN_TEXT_SCALE, Math.min(MAX_TEXT_SCALE, baseScale));
     }
     private void renderImage(GuiGraphics context, int x, int y, int width, int height) {
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        RenderSystem.setShaderTexture(0, IMAGE_TEXTURE);
-        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, overlayAlpha * IMAGE_OPACITY);
-        RenderSystem.enableBlend();
-
-        context.blit(IMAGE_TEXTURE, x, y, 0, 0, width, height, width, height);
-
-        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
-        RenderSystem.disableBlend();
+        int color = ARGB.colorFromFloat(overlayAlpha * IMAGE_OPACITY, 1.0f, 1.0f, 1.0f);
+        context.blit(RenderPipelines.GUI_TEXTURED, IMAGE_TEXTURE, x, y, 0, 0, width, height, IMAGE_ORIGINAL_WIDTH, IMAGE_ORIGINAL_HEIGHT, color);
     }
     private void renderSlideText(GuiGraphics context, Font textRenderer, List<String> lines, int areaX, int centerY, float scale) {
         int alpha = (int) (config.getTextOpacity() * textAlpha * 255);
@@ -223,15 +216,15 @@ public class SleepOverlayRenderer {
         int lineHeight = textRenderer.lineHeight + 4;
         int totalTextHeight = (int) (lines.size() * lineHeight * scale);
         int textY = centerY - totalTextHeight / 2;
-        context.pose().pushPose();
-        context.pose().translate(areaX, textY, 0);
-        context.pose().scale(scale, scale, 1.0f);
+        context.pose().pushMatrix();
+        context.pose().translate(areaX, textY);
+        context.pose().scale(scale, scale);
         for (int i = 0; i < lines.size(); i++) {
             String line = lines.get(i);
             int y = i * lineHeight;
             context.drawString(textRenderer, line, 0, y, textColor, true);
         }
-        context.pose().popPose();
+        context.pose().popMatrix();
     }
     private List<String> wrapText(String text, Font textRenderer, int maxWidth) {
         List<String> lines = new ArrayList<>();

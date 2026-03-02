@@ -14,7 +14,7 @@ public class StyledButton extends Button {
     }
 
     @Override
-    public void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
+    public void renderContents(GuiGraphics context, int mouseX, int mouseY, float delta) {
         Font textRenderer = Minecraft.getInstance().font;
 
         boolean hovered = isMouseOver(mouseX, mouseY);

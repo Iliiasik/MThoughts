@@ -57,7 +57,7 @@ public class DailyPlayerStats {
         StatsCounter stats = player.getStats();
 
         long blocksDestroyed = 0;
-        for (Block block : player.level().registryAccess().registryOrThrow(Registries.BLOCK)) {
+        for (Block block : player.level().registryAccess().lookupOrThrow(Registries.BLOCK)) {
             blocksDestroyed += stats.getValue(Stats.BLOCK_MINED.get(block));
         }
         this.baseBlocksDestroyed = (blocksDestroyed > Integer.MAX_VALUE) ? Integer.MAX_VALUE : (int) blocksDestroyed;
@@ -97,7 +97,7 @@ public class DailyPlayerStats {
         StatsCounter stats = player.getStats();
 
         long blocksDestroyed = 0;
-        for (Block block : player.level().registryAccess().registryOrThrow(Registries.BLOCK)) {
+        for (Block block : player.level().registryAccess().lookupOrThrow(Registries.BLOCK)) {
             blocksDestroyed += stats.getValue(Stats.BLOCK_MINED.get(block));
         }
         int currentBlocksDestroyed = (blocksDestroyed > Integer.MAX_VALUE) ? Integer.MAX_VALUE : (int) blocksDestroyed;

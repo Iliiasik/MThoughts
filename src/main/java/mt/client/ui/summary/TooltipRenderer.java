@@ -38,9 +38,6 @@ public class TooltipRenderer {
             tooltipY = mouseY + 16;
         }
 
-        context.pose().pushPose();
-        context.pose().translate(0, 0, 400);
-
         int bgAlpha = (int)(fadeAlpha * 240);
         int bgColor = (bgAlpha << 24) | 0x1a1a2e;
         int borderColor = (bgAlpha << 24) | 0x8a6a2a;
@@ -50,8 +47,6 @@ public class TooltipRenderer {
 
         int textColor = ((int)(fadeAlpha * 255) << 24) | 0xffd700;
         context.drawString(textRenderer, tooltipText, tooltipX + tooltipPadding, tooltipY + 2, textColor, false);
-
-        context.pose().popPose();
     }
 }
 

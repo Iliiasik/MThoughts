@@ -92,7 +92,7 @@ public class DailyStatsManager {
     }
 
     public static void onPlayerJoin(ServerPlayer player) {
-        MinecraftServer server = player.server;
+        MinecraftServer server = player.level().getServer();
         DailyPlayerStats stats = getOrCreateStats(player.getUUID());
 
         if (server != null) {
@@ -101,7 +101,7 @@ public class DailyStatsManager {
     }
 
     public static void onPlayerLeave(ServerPlayer player) {
-        MinecraftServer server = player.server;
+        MinecraftServer server = player.level().getServer();
         DailyPlayerStats stats = dailyStats.get(player.getUUID());
 
         if (stats != null && server != null) {

@@ -2,7 +2,7 @@ package mt.server;
 
 import mt.client.config.MidnightThoughtsConfig;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.Level;
@@ -12,11 +12,11 @@ import net.minecraft.world.level.block.state.BlockState;
 public class ComfortCalculator {
     private static final MidnightThoughtsConfig CONFIG = MidnightThoughtsConfig.getInstance();
 
-    private static final TagKey<Block> LIGHTING_TAG = TagKey.create(net.minecraft.core.registries.Registries.BLOCK, ResourceLocation.fromNamespaceAndPath("midnightthoughts", "comfort_lighting"));
-    private static final TagKey<Block> CARPET_TAG = TagKey.create(net.minecraft.core.registries.Registries.BLOCK, ResourceLocation.fromNamespaceAndPath("midnightthoughts", "comfort_carpet"));
-    private static final TagKey<Block> FURNITURE_TAG = TagKey.create(net.minecraft.core.registries.Registries.BLOCK, ResourceLocation.fromNamespaceAndPath("midnightthoughts", "comfort_furniture"));
-    private static final TagKey<Block> DECOR_TAG = TagKey.create(net.minecraft.core.registries.Registries.BLOCK, ResourceLocation.fromNamespaceAndPath("midnightthoughts", "comfort_decoration"));
-    private static final TagKey<Block> STRUCTURE_TAG = TagKey.create(net.minecraft.core.registries.Registries.BLOCK, ResourceLocation.fromNamespaceAndPath("midnightthoughts", "comfort_structure"));
+    private static final TagKey<Block> LIGHTING_TAG = TagKey.create(net.minecraft.core.registries.Registries.BLOCK, Identifier.fromNamespaceAndPath("midnightthoughts", "comfort_lighting"));
+    private static final TagKey<Block> CARPET_TAG = TagKey.create(net.minecraft.core.registries.Registries.BLOCK, Identifier.fromNamespaceAndPath("midnightthoughts", "comfort_carpet"));
+    private static final TagKey<Block> FURNITURE_TAG = TagKey.create(net.minecraft.core.registries.Registries.BLOCK, Identifier.fromNamespaceAndPath("midnightthoughts", "comfort_furniture"));
+    private static final TagKey<Block> DECOR_TAG = TagKey.create(net.minecraft.core.registries.Registries.BLOCK, Identifier.fromNamespaceAndPath("midnightthoughts", "comfort_decoration"));
+    private static final TagKey<Block> STRUCTURE_TAG = TagKey.create(net.minecraft.core.registries.Registries.BLOCK, Identifier.fromNamespaceAndPath("midnightthoughts", "comfort_structure"));
 
     public static int calculateComfortLevel(ServerPlayer player) {
         if (!CONFIG.getComfort().enabled) {

@@ -2,35 +2,41 @@ package mt.client.ui.summary;
 
 import mt.client.MidnightThoughtsClient;
 import mt.client.config.MidnightThoughtsConfig;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public class SummaryConstants {
-    public static final ResourceLocation CROWN_TEXTURE = ResourceLocation.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/crown.png");
+    public static final Identifier CROWN_TEXTURE = Identifier.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/crown.png");
 
-    public static ResourceLocation getFrameTexture() {
+    public static Identifier getFrameTexture() {
         String theme = MidnightThoughtsConfig.getInstance().getUiTheme();
-        return ResourceLocation.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/" + theme + "/frame.png");
+        return Identifier.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/" + theme + "/frame.png");
     }
 
-    public static ResourceLocation getBadgeTexture() {
+    public static Identifier getBadgeTexture() {
         String theme = MidnightThoughtsConfig.getInstance().getUiTheme();
-        return ResourceLocation.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/" + theme + "/badge.png");
+        return Identifier.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/" + theme + "/badge.png");
     }
 
-    public static ResourceLocation getPagesHolderTexture() {
+    public static Identifier getPagesHolderTexture() {
         String theme = MidnightThoughtsConfig.getInstance().getUiTheme();
-        return ResourceLocation.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/" + theme + "/pages_holder.png");
+        return Identifier.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/" + theme + "/pages_holder.png");
     }
 
-    public static ResourceLocation getSleepingHudTexture() {
+    public static Identifier getSleepingHudTexture() {
         String theme = MidnightThoughtsConfig.getInstance().getUiTheme();
-        return ResourceLocation.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/" + theme + "/sleeping_hud.png");
+        return Identifier.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/" + theme + "/sleeping_hud.png");
     }
 
     public static final long STAT_ANIMATION_DURATION = 800;
     public static final int MVP_GOLD_COLOR = 0xFFD700;
     public static final float FRAME_ASPECT_RATIO = 1000.0f / 640.0f;
     public static final float BACKGROUND_ASPECT_RATIO = 16.0f / 9.0f;
+
+    public static final int FRAME_TEXTURE_WIDTH = 1000;
+    public static final int FRAME_TEXTURE_HEIGHT = 640;
+
+    public static final int BADGE_TEXTURE_WIDTH = 480;
+    public static final int BADGE_TEXTURE_HEIGHT = 160;
 
     public static final int PAGES_HOLDER_TEXTURE_WIDTH = 380;
     public static final int PAGES_HOLDER_TEXTURE_HEIGHT = 170;

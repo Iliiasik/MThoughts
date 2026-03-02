@@ -130,7 +130,7 @@ public class DailySummaryScreen extends Screen {
         TooltipRenderer.render(context, font, mouseX, mouseY, achievementAreas, width, height, fadeAlpha);
 
         if (themeSwitchButton != null && themeSwitchButton.isMouseOver(mouseX, mouseY)) {
-            context.renderTooltip(font, themeSwitchButton.getTooltipText(), mouseX, mouseY);
+            context.setTooltipForNextFrame(font, themeSwitchButton.getTooltipText(), mouseX, mouseY);
         }
     }
 
