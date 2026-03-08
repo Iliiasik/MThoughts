@@ -2,24 +2,14 @@ package mt.client.ui.summary;
 
 public record BadgeDimensions(int height, int padding, int spacing, int rowSpacing, float textScale) {
 
+    public static final BadgeDimensions DEFAULT = new BadgeDimensions(16, 5, 4, 3, 0.9f);
+
     public static BadgeDimensions calculate(SummaryDimensions dims) {
-        if (dims.isCompactMode) {
-            return new BadgeDimensions(
-                Math.max(8, (int)(8 * dims.uiScale)),
-                Math.max(2, (int)(2 * dims.uiScale)),
-                Math.max(2, (int)(2 * dims.uiScale)),
-                Math.max(1, (int)(1 * dims.uiScale)),
-                Math.max(0.5f, dims.uiScale * 0.75f)
-            );
-        } else {
-            return new BadgeDimensions(
-                Math.max(12, (int)(14 * dims.uiScale)),
-                (int)(5 * dims.uiScale),
-                (int)(4 * dims.uiScale),
-                (int)(3 * dims.uiScale),
-                1.0f
-            );
-        }
+        int height = (int)(16 * dims.uiScale);
+        int padding = (int)(5 * dims.uiScale);
+        int spacing = (int)(4 * dims.uiScale);
+        int rowSpacing = (int)(3 * dims.uiScale);
+        float textScale = Math.max(0.7f, dims.uiScale * 0.95f);
+        return new BadgeDimensions(height, padding, spacing, rowSpacing, textScale);
     }
 }
-

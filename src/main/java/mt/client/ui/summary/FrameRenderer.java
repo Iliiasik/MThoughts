@@ -76,14 +76,10 @@ public class FrameRenderer {
         int pagesHolderHeight = (int)(60 * pagesHolderScale);
         int pagesHolderWidth = (int)(pagesHolderHeight * (SummaryConstants.PAGES_HOLDER_TEXTURE_WIDTH / (float)SummaryConstants.PAGES_HOLDER_TEXTURE_HEIGHT));
 
-        float contentPaddingTop = SummaryConstants.FRAME_CONTENT_PADDING_TOP * (dims.panelHeight / 640.0f);
         float contentPaddingBottom = SummaryConstants.FRAME_CONTENT_PADDING_BOTTOM * (dims.panelHeight / 640.0f);
 
-        int listAreaHeight = dims.playersPerPage * dims.playerRowHeight;
-        int availableSpace = dims.panelHeight - (int)contentPaddingTop - (int)contentPaddingBottom - listAreaHeight;
-
         int pagesHolderX = dims.panelX + (dims.panelWidth - pagesHolderWidth) / 2;
-        int pagesHolderY = dims.panelY + (int)contentPaddingTop + listAreaHeight + (availableSpace - pagesHolderHeight) / 2;
+        int pagesHolderY = dims.panelY + dims.panelHeight - (int)contentPaddingBottom - pagesHolderHeight + (int)(pagesHolderHeight * 0.1f);
 
         int color = ARGB.colorFromFloat(fadeAlpha, 1.0f, 1.0f, 1.0f);
         context.pose().pushMatrix();

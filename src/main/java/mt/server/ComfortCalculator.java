@@ -17,6 +17,9 @@ public class ComfortCalculator {
     private static final TagKey<Block> FURNITURE_TAG = TagKey.create(net.minecraft.core.registries.Registries.BLOCK, Identifier.fromNamespaceAndPath("midnightthoughts", "comfort_furniture"));
     private static final TagKey<Block> DECOR_TAG = TagKey.create(net.minecraft.core.registries.Registries.BLOCK, Identifier.fromNamespaceAndPath("midnightthoughts", "comfort_decoration"));
     private static final TagKey<Block> STRUCTURE_TAG = TagKey.create(net.minecraft.core.registries.Registries.BLOCK, Identifier.fromNamespaceAndPath("midnightthoughts", "comfort_structure"));
+    private static final TagKey<Block> NEGATIVE_MACABRE_TAG = TagKey.create(net.minecraft.core.registries.Registries.BLOCK, Identifier.fromNamespaceAndPath("midnightthoughts", "comfort_negative_macabre"));
+    private static final TagKey<Block> NEGATIVE_HOSTILE_TAG = TagKey.create(net.minecraft.core.registries.Registries.BLOCK, Identifier.fromNamespaceAndPath("midnightthoughts", "comfort_negative_hostile"));
+    private static final TagKey<Block> NEGATIVE_DARK_TAG = TagKey.create(net.minecraft.core.registries.Registries.BLOCK, Identifier.fromNamespaceAndPath("midnightthoughts", "comfort_negative_dark"));
 
     public static int calculateComfortLevel(ServerPlayer player) {
         if (!CONFIG.getComfort().enabled) {
@@ -32,6 +35,9 @@ public class ComfortCalculator {
         boolean hasFurniture = false;
         boolean hasDecor = false;
         boolean hasStructure = false;
+        boolean hasMacabre = false;
+        boolean hasHostile = false;
+        boolean hasDark = false;
 
         for (int x = -scanRadius; x <= scanRadius; x++) {
             for (int y = -scanRadius; y <= scanRadius; y++) {
@@ -39,31 +45,17 @@ public class ComfortCalculator {
                     BlockPos checkPos = bedPos.offset(x, y, z);
                     BlockState state = world.getBlockState(checkPos);
 
-                    boolean inLighting = state.is(LIGHTING_TAG);
-                    boolean inCarpet = state.is(CARPET_TAG);
-                    boolean inFurniture = state.is(FURNITURE_TAG);
-                    boolean inDecor = state.is(DECOR_TAG);
-                    boolean inStructure = state.is(STRUCTURE_TAG);
+                    if (!hasLighting && state.is(LIGHTING_TAG)) hasLighting = true;
+                    if (!hasCarpet && state.is(CARPET_TAG)) hasCarpet = true;
+                    if (!hasFurniture && state.is(FURNITURE_TAG)) hasFurniture = true;
+                    if (!hasDecor && state.is(DECOR_TAG)) hasDecor = true;
+                    if (!hasStructure && state.is(STRUCTURE_TAG)) hasStructure = true;
+                    if (!hasMacabre && state.is(NEGATIVE_MACABRE_TAG)) hasMacabre = true;
+                    if (!hasHostile && state.is(NEGATIVE_HOSTILE_TAG)) hasHostile = true;
+                    if (!hasDark && state.is(NEGATIVE_DARK_TAG)) hasDark = true;
 
-                    if (!hasLighting && inLighting) {
-                        hasLighting = true;
-                    }
-                    if (!hasCarpet && inCarpet) {
-                        hasCarpet = true;
-                    }
-                    if (!hasFurniture && inFurniture) {
-                        hasFurniture = true;
-                    }
-                    if (!hasDecor && inDecor) {
-                        hasDecor = true;
-                    }
-                    if (!hasStructure && inStructure) {
-                        hasStructure = true;
-                    }
-
-                    if (hasLighting && hasCarpet && hasFurniture && hasDecor && hasStructure) {
-                        break;
-                    }
+                    if (hasLighting && hasCarpet && hasFurniture && hasDecor && hasStructure
+                            && hasMacabre && hasHostile && hasDark) break;
                 }
             }
         }
@@ -75,6 +67,18 @@ public class ComfortCalculator {
         if (hasDecor) comfortLevel++;
         if (hasStructure) comfortLevel++;
 
+        if (hasMacabre) comfortLevel--;
+        if (hasHostile) comfortLevel--;
+        if (hasDark) comfortLevel--;
+
         return comfortLevel;
+    }
+
+    public static boolean isNightmareMode(ServerPlayer player) {
+        return calculateComfortLevel(player) < 0;
+    }
+
+    public static boolean isSleepBlocked(ServerPlayer player) {
+        return calculateComfortLevel(player) <= -2;
     }
 }

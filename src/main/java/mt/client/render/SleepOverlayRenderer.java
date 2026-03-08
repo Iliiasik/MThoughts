@@ -3,7 +3,9 @@ package mt.client.render;
 import mt.client.MidnightThoughtsClient;
 import mt.client.config.MidnightThoughtsConfig;
 import mt.client.manager.SleepStateManager;
+import mt.client.manager.WellRestedClientState;
 import mt.client.model.Slide;
+import mt.client.model.SlideCategory;
 import mt.client.service.SlideService;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -16,7 +18,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SleepOverlayRenderer {
-    private static final Identifier IMAGE_TEXTURE = Identifier.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/moon.png");
+    private static final Identifier IMAGE_TEXTURE = Identifier.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/moon.png");
+    private static final Identifier SKULL_TEXTURE = Identifier.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/skull.png");
     private static final int IMAGE_ORIGINAL_WIDTH = 421;
     private static final int IMAGE_ORIGINAL_HEIGHT = 407;
     private static final float IMAGE_SCALE_PERCENT = 0.35f;
@@ -79,12 +82,20 @@ public class SleepOverlayRenderer {
         overlayAlpha = 1f;
         textAlpha = 1f;
         targetTextAlpha = 1f;
-        currentSlide = slideService.getNextSlide();
-        nextSlide = slideService.getNextSlide();
+        currentSlide = getNightmareAwareSlide();
+        nextSlide = getNightmareAwareSlide();
         currentSlideDuration = config.getRandomSlideDisplayTime();
         slideStartTime = System.currentTimeMillis();
         visibleStartTime = System.currentTimeMillis();
         slideState = SlideState.VISIBLE;
+    }
+
+    private Slide getNightmareAwareSlide() {
+        if (WellRestedClientState.isNightmareMode()) {
+            Slide s = slideService.getSlideByCategory(slideService.getCurrentLanguage(), SlideCategory.NIGHTMARE);
+            if (s != null) return s;
+        }
+        return slideService.getNextSlide();
     }
     private void onSleepEnd() {
         currentSlide = null;
@@ -110,7 +121,7 @@ public class SleepOverlayRenderer {
                     targetTextAlpha = 1f;
                     slideState = SlideState.VISIBLE;
                     visibleStartTime = now;
-                    nextSlide = slideService.getNextSlide();
+                    nextSlide = getNightmareAwareSlide();
                 } else {
                     targetTextAlpha = easeInOut(Math.min(progressFadeIn, 1f));
                 }
@@ -132,7 +143,7 @@ public class SleepOverlayRenderer {
                         currentSlide = nextSlide;
                         nextSlide = null;
                     } else {
-                        currentSlide = slideService.getNextSlide();
+                        currentSlide = getNightmareAwareSlide();
                     }
                     currentSlideDuration = config.getRandomSlideDisplayTime();
                     slideStartTime = now;
@@ -175,7 +186,12 @@ public class SleepOverlayRenderer {
     }
     private void renderOverlay(GuiGraphics context, int screenWidth, int screenHeight) {
         int alpha = (int) (config.getOverlayOpacity() * overlayAlpha * 255);
-        int overlayColor = (alpha << 24);
+        int overlayColor;
+        if (WellRestedClientState.isNightmareMode()) {
+            overlayColor = (alpha << 24) | 0x1A0000;
+        } else {
+            overlayColor = (alpha << 24);
+        }
         context.fill(0, 0, screenWidth, screenHeight, overlayColor);
     }
     private void renderContent(GuiGraphics context, int screenWidth, int screenHeight) {
@@ -207,11 +223,12 @@ public class SleepOverlayRenderer {
         return Math.max(MIN_TEXT_SCALE, Math.min(MAX_TEXT_SCALE, baseScale));
     }
     private void renderImage(GuiGraphics context, int x, int y, int width, int height) {
+        Identifier texture = WellRestedClientState.isNightmareMode() ? SKULL_TEXTURE : IMAGE_TEXTURE;
         int color = ARGB.colorFromFloat(overlayAlpha * IMAGE_OPACITY, 1.0f, 1.0f, 1.0f);
         context.pose().pushMatrix();
         context.pose().translate(x, y);
         context.pose().scale(width / (float)IMAGE_ORIGINAL_WIDTH, height / (float)IMAGE_ORIGINAL_HEIGHT);
-        context.blit(RenderPipelines.GUI_TEXTURED, IMAGE_TEXTURE, 0, 0, 0.0f, 0.0f, IMAGE_ORIGINAL_WIDTH, IMAGE_ORIGINAL_HEIGHT, IMAGE_ORIGINAL_WIDTH, IMAGE_ORIGINAL_HEIGHT, color);
+        context.blit(RenderPipelines.GUI_TEXTURED, texture, 0, 0, 0.0f, 0.0f, IMAGE_ORIGINAL_WIDTH, IMAGE_ORIGINAL_HEIGHT, IMAGE_ORIGINAL_WIDTH, IMAGE_ORIGINAL_HEIGHT, color);
         context.pose().popMatrix();
     }
     private void renderSlideText(GuiGraphics context, Font textRenderer, List<String> lines, int areaX, int centerY, float scale) {

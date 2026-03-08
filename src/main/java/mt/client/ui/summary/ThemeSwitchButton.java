@@ -12,7 +12,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
 
 public class ThemeSwitchButton extends AbstractWidget {
-    private static final Identifier GEAR_ICON = Identifier.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/gear.png");
+    private static final Identifier GEAR_ICON = Identifier.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/gear.png");
 
     public ThemeSwitchButton(int x, int y, int size) {
         super(x, y, size, size, Component.empty());

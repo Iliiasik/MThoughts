@@ -2,67 +2,62 @@ package mt.client.ui.summary;
 
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.ARGB;
 
 import java.util.List;
 
 public class AchievementRenderer {
 
-    public static void render(GuiGraphics context, Font textRenderer, int x, int y1, int y2,
-                             List<String> achievements, BadgeDimensions dims, int maxWidth,
-                             SummaryDimensions screenDims, float fadeAlpha, List<AchievementTooltipArea> achievementAreas) {
+    public static void render(GuiGraphics context, Font textRenderer, List<String> achievements,
+                              int x, int y, int width, int height, SummaryDimensions dims,
+                              float fadeAlpha, List<AchievementTooltipArea> achievementAreas) {
+        int maxAchievements = 3;
+        int count = Math.min(achievements.size(), maxAchievements);
+        if (count == 0) return;
 
-        int padding = (int)(3 * screenDims.uiScale);
-        int spacing = (int)(3 * screenDims.uiScale);
-        int maxAchievements = screenDims.isCompactMode ? 2 : 4;
+        BadgeDimensions badgeDims = BadgeDimensions.calculate(dims);
+        int badgeH = badgeDims.height();
+        int rowSpacing = badgeDims.rowSpacing();
+        float textScale = badgeDims.textScale();
 
-        int currentX = x;
-        int currentY = y1;
-        int count = 0;
+        int totalH = count * badgeH + (count - 1) * rowSpacing;
+        int startY = y + Math.max(0, (height - totalH) / 2);
 
-        for (String achievementId : achievements) {
-            if (count >= maxAchievements) break;
-
-            String achievementText = Component.translatable("midnightthoughts.achievement." + achievementId).getString();
-            int textWidth = (int)(textRenderer.width(achievementText) * dims.textScale());
-            int badgeWidth = textWidth + padding * 2;
-
-            if (shouldMoveToNextRow(currentX, badgeWidth, x, maxWidth, currentY, y1)) {
-                currentX = x;
-                currentY = y2;
-            }
-
-            if (shouldStopRendering(currentX, badgeWidth, x, maxWidth, currentY, y2)) {
-                break;
-            }
-
-            renderBadge(context, textRenderer, currentX, currentY, badgeWidth, dims.height(), padding,
-                       achievementText, dims.textScale(), fadeAlpha);
-            achievementAreas.add(new AchievementTooltipArea(currentX, currentY, badgeWidth, dims.height(), achievementId));
-
-            currentX += badgeWidth + spacing;
-            count++;
+        for (int i = 0; i < count; i++) {
+            String achievementId = achievements.get(i);
+            int rowY = startY + i * (badgeH + rowSpacing);
+            if (rowY + badgeH > y + height) break;
+            renderBadge(context, textRenderer, x, rowY, width, badgeH, achievementId, textScale, fadeAlpha);
+            achievementAreas.add(new AchievementTooltipArea(x, rowY, width, badgeH, achievementId));
         }
     }
 
-    private static boolean shouldMoveToNextRow(int currentX, int badgeWidth, int x, int maxWidth, int currentY, int y1) {
-        return currentX + badgeWidth > x + maxWidth && currentY == y1;
-    }
+    private static void renderBadge(GuiGraphics context, Font textRenderer,
+                                    int x, int y, int width, int height,
+                                    String achievementId, float textScale, float fadeAlpha) {
+        int texW = SummaryConstants.ACHIEVEMENT_BADGE_TEXTURE_WIDTH;
+        int texH = SummaryConstants.ACHIEVEMENT_BADGE_TEXTURE_HEIGHT;
+        float scaleH = (float) height / texH;
+        float scaleW = (float) width / texW;
+        float scale = Math.min(scaleH, scaleW);
+        int renderW = (int)(texW * scale);
+        int renderH = (int)(texH * scale);
+        int renderY = y + (height - renderH) / 2;
 
-    private static boolean shouldStopRendering(int currentX, int badgeWidth, int x, int maxWidth, int currentY, int y2) {
-        return currentX + badgeWidth > x + maxWidth && currentY == y2;
-    }
+        int color = ARGB.colorFromFloat(fadeAlpha, 1.0f, 1.0f, 1.0f);
+        context.pose().pushMatrix();
+        context.pose().translate(x, renderY);
+        context.pose().scale((float) renderW / texW, (float) renderH / texH);
+        context.blit(RenderPipelines.GUI_TEXTURED, SummaryConstants.getAchievementBadgeTexture(),
+                0, 0, 0.0f, 0.0f, texW, texH, texW, texH, color);
+        context.pose().popMatrix();
 
-    private static void renderBadge(GuiGraphics context, Font textRenderer, int x, int y, int width,
-                                    int height, int padding, String text, float textScale, float fadeAlpha) {
-        int alpha = (int)(fadeAlpha * 200);
-        int bgColor = (alpha << 24) | 0x8a6a2a;
-        context.fill(x, y, x + width, y + height, bgColor);
-
-        int textColor = ((int)(fadeAlpha * 255) << 24) | 0xffd700;
+        int padX = Math.max(3, (int)(4 * scale));
+        String text = Component.translatable("midnightthoughts.achievement." + achievementId).getString();
+        int textColor = ARGB.colorFromFloat(fadeAlpha, 1.0f, 1.0f, 1.0f);
         int textY = y + (height - (int)(8 * textScale)) / 2;
-
-        RenderUtils.renderScaledText(context, textRenderer, text, x + padding, textY, textColor, textScale, false);
+        RenderUtils.renderScaledText(context, textRenderer, text, x + padX, textY, textColor, textScale, false);
     }
 }
-

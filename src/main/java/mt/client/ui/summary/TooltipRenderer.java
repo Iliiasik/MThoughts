@@ -9,18 +9,20 @@ import java.util.List;
 public class TooltipRenderer {
 
     public static void render(GuiGraphics context, Font textRenderer, int mouseX, int mouseY,
-                             List<AchievementTooltipArea> achievementAreas, int screenWidth, int screenHeight, float fadeAlpha) {
-
+                              List<AchievementTooltipArea> achievementAreas,
+                              int screenWidth, int screenHeight, float fadeAlpha) {
         for (AchievementTooltipArea area : achievementAreas) {
             if (area.contains(mouseX, mouseY)) {
-                renderTooltip(context, textRenderer, mouseX, mouseY, area.achievementId(), screenWidth, screenHeight, fadeAlpha);
+                renderTooltip(context, textRenderer, mouseX, mouseY,
+                        area.achievementId(), screenWidth, screenHeight, fadeAlpha);
                 break;
             }
         }
     }
 
-    private static void renderTooltip(GuiGraphics context, Font textRenderer, int mouseX, int mouseY,
-                                      String achievementId, int screenWidth, int screenHeight, float fadeAlpha) {
+    private static void renderTooltip(GuiGraphics context, Font textRenderer,
+                                      int mouseX, int mouseY, String achievementId,
+                                      int screenWidth, int screenHeight, float fadeAlpha) {
         String tooltipKey = "midnightthoughts.achievement." + achievementId + ".desc";
         Component tooltipText = Component.translatable(tooltipKey);
 
@@ -31,12 +33,8 @@ public class TooltipRenderer {
         int tooltipX = mouseX + 8;
         int tooltipY = mouseY - tooltipHeight - 4;
 
-        if (tooltipX + tooltipWidth > screenWidth) {
-            tooltipX = mouseX - tooltipWidth - 8;
-        }
-        if (tooltipY < 0) {
-            tooltipY = mouseY + 16;
-        }
+        if (tooltipX + tooltipWidth > screenWidth) tooltipX = mouseX - tooltipWidth - 8;
+        if (tooltipY < 0) tooltipY = mouseY + 16;
 
         int bgAlpha = (int)(fadeAlpha * 240);
         int bgColor = (bgAlpha << 24) | 0x1a1a2e;
@@ -49,4 +47,3 @@ public class TooltipRenderer {
         context.drawString(textRenderer, tooltipText, tooltipX + tooltipPadding, tooltipY + 2, textColor, false);
     }
 }
-

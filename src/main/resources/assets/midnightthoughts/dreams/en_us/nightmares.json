@@ -1,0 +1,11 @@
+{
+  "entries": [
+    {"text": "You cannot sleep in such a dreadful place.", "rarity": 1.0},
+    {"text": "A shiver runs down your spine.", "rarity": 1.0},
+    {"text": "You are haunted by nightmares.", "rarity": 1.0},
+    {"text": "Make your resting place more comfortable.", "rarity": 1.0},
+    {"text": "Something watches you from the shadows.", "rarity": 0.8},
+    {"text": "The darkness feels suffocating tonight.", "rarity": 0.9},
+    {"text": "Rest is impossible in this grim surrounding.", "rarity": 1.0}
+  ]
+}

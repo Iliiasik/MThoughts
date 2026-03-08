@@ -72,6 +72,7 @@ public class DailyStatsManager {
                     delta.mobsKilled(),
                     delta.deaths(),
                     delta.jumps(),
+                    delta.damageDealt(),
                     isMvp,
                     achievements
             ));
@@ -81,8 +82,14 @@ public class DailyStatsManager {
             DailySummaryPacket packet = new DailySummaryPacket(summaries);
             for (ServerPlayer player : server.getPlayerList().getPlayers()) {
                 NetworkHandler.sendDailySummary(player, packet);
-                int comfortLevel = ComfortCalculator.calculateComfortLevel(player);
-                WellRestedEffect.applyToPlayer(player, comfortLevel);            }
+                boolean isMvp = player.getName().getString().equals(mvpName);
+                if (isMvp) {
+                    WellRestedEffect.applyMvpToPlayer(player);
+                } else {
+                    int comfortLevel = ComfortCalculator.calculateComfortLevel(player);
+                    WellRestedEffect.applyToPlayer(player, comfortLevel);
+                }
+            }
         }
     }
 

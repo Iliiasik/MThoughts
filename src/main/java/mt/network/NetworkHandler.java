@@ -1,10 +1,12 @@
 package mt.network;
 
+import mt.client.manager.WellRestedClientState;
 import mt.client.ui.DailySummaryScreen;
 import mt.client.ui.SleepingPlayersHud;
 import mt.network.packet.DailySummaryPacket;
 import mt.network.packet.SleepingPlayersPacket;
 import mt.network.packet.SummaryAcknowledgePacket;
+import mt.network.packet.WellRestedPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
@@ -35,6 +37,14 @@ public class NetworkHandler {
             SleepingPlayersPacket.CODEC,
             (packet, ctx) -> ctx.enqueueWork(() -> SleepingPlayersHud.updateSleepingCount(packet.sleepingCount(), packet.totalPlayers()))
         );
+
+        registrar.playToClient(
+            WellRestedPacket.TYPE,
+            WellRestedPacket.CODEC,
+            (packet, ctx) -> ctx.enqueueWork(() ->
+                WellRestedClientState.update(packet.active(), packet.level(), packet.ticksRemaining(), packet.totalTicks(), packet.phase(), packet.nightmareMode(), packet.mvp())
+            )
+        );
     }
 
     public static void sendDailySummary(ServerPlayer player, DailySummaryPacket packet) {
@@ -42,6 +52,10 @@ public class NetworkHandler {
     }
 
     public static void sendSleepingPlayers(ServerPlayer player, SleepingPlayersPacket packet) {
+        PacketDistributor.sendToPlayer(player, packet);
+    }
+
+    public static void sendWellRested(ServerPlayer player, WellRestedPacket packet) {
         PacketDistributor.sendToPlayer(player, packet);
     }
 

@@ -20,6 +20,13 @@ public class SlideService {
         this.factProvider = factProvider;
     }
 
+    public Slide getSlideByCategory(String language, SlideCategory category) {
+        if (category == SlideCategory.FACT) {
+            return factProvider.getNextFact(language);
+        }
+        return slideRepository.getRandomSlide(language, category);
+    }
+
     public Slide getNextSlide() {
         String language = getCurrentLanguage();
 
@@ -40,12 +47,6 @@ public class SlideService {
         return slide;
     }
 
-    private Slide getSlideByCategory(String language, SlideCategory category) {
-        if (category == SlideCategory.FACT) {
-            return factProvider.getNextFact(language);
-        }
-        return slideRepository.getRandomSlide(language, category);
-    }
 
     private boolean shouldShowSpecialSlide() {
         return ThreadLocalRandom.current().nextFloat() < config.getSpecialSlideChance();
