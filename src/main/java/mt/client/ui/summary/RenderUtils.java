@@ -7,14 +7,10 @@ public class RenderUtils {
 
     public static void renderScaledText(GuiGraphics context, Font textRenderer, String text,
                                         int x, int y, int color, float scale, boolean shadow) {
-        if (scale < 1.0f) {
-            context.pose().pushMatrix();
-            context.pose().translate(x, y);
-            context.pose().scale(scale, scale);
-            context.drawString(textRenderer, text, 0, 0, color, shadow);
-            context.pose().popMatrix();
-        } else {
-            context.drawString(textRenderer, text, x, y, color, shadow);
-        }
+        context.pose().pushMatrix();
+        context.pose().translate(x, y);
+        context.pose().scale(scale, scale);
+        context.drawString(textRenderer, text, 0, 0, color, shadow);
+        context.pose().popMatrix();
     }
 }

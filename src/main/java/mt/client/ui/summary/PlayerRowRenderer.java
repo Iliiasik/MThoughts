@@ -118,7 +118,7 @@ public class PlayerRowRenderer {
         int texW = SummaryConstants.NAME_BADGE_TEXTURE_WIDTH;
         int texH = SummaryConstants.NAME_BADGE_TEXTURE_HEIGHT;
 
-        float scale = Math.min(1.0f, (float) rowHeight * 0.18f / texH);
+        float scale = Math.min(dims.uiScale * 1.5f, (float) rowHeight * 0.27f / texH);
         int renderW = (int)(texW * scale);
         int renderH = (int)(texH * scale);
 
@@ -133,7 +133,7 @@ public class PlayerRowRenderer {
                 0, 0, 0.0f, 0.0f, texW, texH, texW, texH, color);
         context.pose().popMatrix();
 
-        float textScale = Math.min(0.9f, scale * 1.2f);
+        float textScale = dims.uiScale * 1.35f;
         String name = player.playerName();
         int textW = (int)(textRenderer.width(name) * textScale);
         int textX = badgeX + (renderW - textW) / 2;
