@@ -51,10 +51,6 @@ public class NetworkHandler {
         PacketDistributor.sendToPlayer(player, packet);
     }
 
-    public static void sendSleepingPlayers(ServerPlayer player, SleepingPlayersPacket packet) {
-        PacketDistributor.sendToPlayer(player, packet);
-    }
-
     public static void sendWellRested(ServerPlayer player, WellRestedPacket packet) {
         PacketDistributor.sendToPlayer(player, packet);
     }

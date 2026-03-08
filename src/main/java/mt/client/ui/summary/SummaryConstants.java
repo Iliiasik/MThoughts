@@ -14,7 +14,6 @@ public class SummaryConstants {
     public static final Identifier ICON_JUMP = Identifier.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/icon_jump.png");
     public static final Identifier ICON_AXE = Identifier.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/icon_axe.png");
 
-    public static final int ICON_TEXTURE_SIZE = 16;
 
     public static final int ROW_TEXTURE_WIDTH = 320;
     public static final int ROW_TEXTURE_HEIGHT = 64;
@@ -77,7 +76,6 @@ public class SummaryConstants {
     public static final long STAT_ANIMATION_DURATION = 800;
     public static final int MVP_GOLD_COLOR = 0xFFD700;
     public static final float FRAME_ASPECT_RATIO = 1000.0f / 640.0f;
-    public static final float BACKGROUND_ASPECT_RATIO = 16.0f / 9.0f;
 
     public static final int FRAME_TEXTURE_WIDTH = 1000;
     public static final int FRAME_TEXTURE_HEIGHT = 640;
@@ -90,8 +88,5 @@ public class SummaryConstants {
 
     public static final int NORMAL_MODE_PLAYERS_PER_PAGE = 2;
 
-    public static final int FRAME_CONTENT_PADDING_TOP = 70;
-    public static final int FRAME_CONTENT_PADDING_BOTTOM = 50;
-    public static final int FRAME_CONTENT_PADDING_SIDES = 80;
 }
 

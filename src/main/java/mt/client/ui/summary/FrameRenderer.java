@@ -75,7 +75,7 @@ public class FrameRenderer {
         int contentPaddingBottom = dims.s(37);
 
         int pagesHolderX = dims.panelX + (dims.panelWidth - pagesHolderWidth) / 2;
-        int pagesHolderY = dims.panelY + dims.panelHeight - contentPaddingBottom - pagesHolderHeight + (int)(pagesHolderHeight * 0.1f);
+        int pagesHolderY = dims.panelY + dims.panelHeight - contentPaddingBottom - pagesHolderHeight - dims.s(5);
 
         int color = ARGB.colorFromFloat(fadeAlpha, 1.0f, 1.0f, 1.0f);
         context.pose().pushMatrix();
