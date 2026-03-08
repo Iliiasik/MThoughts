@@ -13,7 +13,8 @@ public class FrameRenderer {
         int color = ARGB.colorFromFloat(fadeAlpha, 1.0f, 1.0f, 1.0f);
         context.pose().pushMatrix();
         context.pose().translate(dims.panelX, dims.panelY);
-        context.pose().scale(dims.panelWidth / (float)SummaryConstants.FRAME_TEXTURE_WIDTH, dims.panelHeight / (float)SummaryConstants.FRAME_TEXTURE_HEIGHT);
+        context.pose().scale(dims.panelWidth / (float)SummaryConstants.FRAME_TEXTURE_WIDTH,
+                dims.panelHeight / (float)SummaryConstants.FRAME_TEXTURE_HEIGHT);
         context.blit(RenderPipelines.GUI_TEXTURED, SummaryConstants.getFrameTexture(),
                 0, 0, 0.0f, 0.0f,
                 SummaryConstants.FRAME_TEXTURE_WIDTH, SummaryConstants.FRAME_TEXTURE_HEIGHT,
@@ -25,20 +26,18 @@ public class FrameRenderer {
     public static void renderBadge(GuiGraphics context, Font textRenderer, SummaryDimensions dims, float fadeAlpha) {
         Component title = Component.translatable("midnightthoughts.summary.title");
 
-        float badgeScale = dims.panelWidth / 1000.0f;
-        int badgeWidth = (int)(240 * badgeScale);
-        int badgeHeight = (int)(80 * badgeScale);
+        int badgeWidth = dims.s(180);
+        int badgeHeight = dims.s(60);
 
-        int contentPaddingSides = (int)(SummaryConstants.FRAME_CONTENT_PADDING_SIDES * (dims.panelWidth / 1000.0f));
-        int badgeOffsetX = (int)(15 * badgeScale);
-        int badgeOffsetY = (int)(25 * badgeScale);
-        int badgeX = dims.panelX + contentPaddingSides + badgeOffsetX;
-        int badgeY = dims.panelY - badgeHeight / 2 + badgeOffsetY;
+        int contentPaddingSides = dims.s(60);
+        int badgeX = dims.panelX + contentPaddingSides + dims.s(11);
+        int badgeY = dims.panelY - badgeHeight / 2 + dims.s(19);
 
         int color = ARGB.colorFromFloat(fadeAlpha, 1.0f, 1.0f, 1.0f);
         context.pose().pushMatrix();
         context.pose().translate(badgeX, badgeY);
-        context.pose().scale(badgeWidth / (float)SummaryConstants.BADGE_TEXTURE_WIDTH, badgeHeight / (float)SummaryConstants.BADGE_TEXTURE_HEIGHT);
+        context.pose().scale(badgeWidth / (float)SummaryConstants.BADGE_TEXTURE_WIDTH,
+                badgeHeight / (float)SummaryConstants.BADGE_TEXTURE_HEIGHT);
         context.blit(RenderPipelines.GUI_TEXTURED, SummaryConstants.getBadgeTexture(),
                 0, 0, 0.0f, 0.0f,
                 SummaryConstants.BADGE_TEXTURE_WIDTH, SummaryConstants.BADGE_TEXTURE_HEIGHT,
@@ -52,7 +51,7 @@ public class FrameRenderer {
         int titleAlpha = (int)(fadeAlpha * 255);
         int titleColor = (titleAlpha << 24) | colors.badgeTextColor();
 
-        float textScale = badgeScale * 1.8f;
+        float textScale = dims.uiScale * 1.35f;
         int scaledTextWidth = (int)(textRenderer.width(title) * textScale);
         int titleX = badgeX + (badgeWidth - scaledTextWidth) / 2;
         int titleY = badgeY + (badgeHeight - (int)(textRenderer.lineHeight * textScale)) / 2;
@@ -66,25 +65,23 @@ public class FrameRenderer {
 
     public static void renderPagesHolder(GuiGraphics context, Font textRenderer, SummaryDimensions dims,
                                          int currentPage, int totalPages, float fadeAlpha) {
-        if (totalPages <= 1) {
-            return;
-        }
+        if (totalPages <= 1) return;
 
         Component pageInfo = Component.translatable("midnightthoughts.summary.page", currentPage + 1, totalPages);
 
-        float pagesHolderScale = dims.panelWidth / 1000.0f;
-        int pagesHolderHeight = (int)(60 * pagesHolderScale);
+        int pagesHolderHeight = dims.s(45);
         int pagesHolderWidth = (int)(pagesHolderHeight * (SummaryConstants.PAGES_HOLDER_TEXTURE_WIDTH / (float)SummaryConstants.PAGES_HOLDER_TEXTURE_HEIGHT));
 
-        float contentPaddingBottom = SummaryConstants.FRAME_CONTENT_PADDING_BOTTOM * (dims.panelHeight / 640.0f);
+        int contentPaddingBottom = dims.s(37);
 
         int pagesHolderX = dims.panelX + (dims.panelWidth - pagesHolderWidth) / 2;
-        int pagesHolderY = dims.panelY + dims.panelHeight - (int)contentPaddingBottom - pagesHolderHeight + (int)(pagesHolderHeight * 0.1f);
+        int pagesHolderY = dims.panelY + dims.panelHeight - contentPaddingBottom - pagesHolderHeight + (int)(pagesHolderHeight * 0.1f);
 
         int color = ARGB.colorFromFloat(fadeAlpha, 1.0f, 1.0f, 1.0f);
         context.pose().pushMatrix();
         context.pose().translate(pagesHolderX, pagesHolderY);
-        context.pose().scale(pagesHolderWidth / (float)SummaryConstants.PAGES_HOLDER_TEXTURE_WIDTH, pagesHolderHeight / (float)SummaryConstants.PAGES_HOLDER_TEXTURE_HEIGHT);
+        context.pose().scale(pagesHolderWidth / (float)SummaryConstants.PAGES_HOLDER_TEXTURE_WIDTH,
+                pagesHolderHeight / (float)SummaryConstants.PAGES_HOLDER_TEXTURE_HEIGHT);
         context.blit(RenderPipelines.GUI_TEXTURED, SummaryConstants.getPagesHolderTexture(),
                 0, 0, 0.0f, 0.0f,
                 SummaryConstants.PAGES_HOLDER_TEXTURE_WIDTH, SummaryConstants.PAGES_HOLDER_TEXTURE_HEIGHT,
@@ -98,7 +95,7 @@ public class FrameRenderer {
         int pageTextAlpha = (int)(fadeAlpha * 255);
         int pageTextColor = (pageTextAlpha << 24) | colors.pagesHolderTextColor();
 
-        float textScale = pagesHolderScale * 1.5f;
+        float textScale = dims.uiScale * 1.12f;
         int scaledTextWidth = (int)(textRenderer.width(pageInfo) * textScale);
         int pageTextX = pagesHolderX + (pagesHolderWidth - scaledTextWidth) / 2;
         int pageTextY = pagesHolderY + (pagesHolderHeight - (int)(textRenderer.lineHeight * textScale)) / 2;

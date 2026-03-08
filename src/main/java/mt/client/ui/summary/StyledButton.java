@@ -47,8 +47,16 @@ public class StyledButton extends Button {
         Font font = Minecraft.getInstance().font;
         ThemeColors.ThemeColor colors = ThemeColors.getThemeColors(theme);
         int textColor = hovered ? (0xFF000000 | colors.buttonTextHoverColor()) : (0xFF000000 | colors.buttonTextColor());
-        int textX = getX() + (getWidth() - font.width(getMessage())) / 2;
-        int textY = getY() + (getHeight() - font.lineHeight) / 2;
-        context.drawString(font, getMessage(), textX, textY, textColor, true);
+
+        float textScale = Math.min(scale * 1.5f, (float) getHeight() / font.lineHeight * 0.6f);
+        int scaledTextW = (int)(font.width(getMessage()) * textScale);
+        int textX = getX() + (getWidth() - scaledTextW) / 2;
+        int textY = getY() + (getHeight() - (int)(font.lineHeight * textScale)) / 2;
+
+        context.pose().pushMatrix();
+        context.pose().translate(textX, textY);
+        context.pose().scale(textScale, textScale);
+        context.drawString(font, getMessage(), 0, 0, textColor, true);
+        context.pose().popMatrix();
     }
 }

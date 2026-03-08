@@ -17,9 +17,9 @@ public class PlayerRowRenderer {
                               int x, int y, SummaryDimensions dims, float fadeAlpha, long animationStartTime,
                               List<AchievementTooltipArea> achievementAreas) {
 
-        float contentPaddingSides = SummaryConstants.FRAME_CONTENT_PADDING_SIDES * (dims.panelWidth / 1000.0f);
-        int rowWidth = dims.panelWidth - (int)(contentPaddingSides * 2);
-        int rowHeight = dims.playerRowHeight - (int)(8 * dims.uiScale);
+        int contentPaddingSides = dims.s(60);
+        int rowWidth = dims.panelWidth - contentPaddingSides * 2;
+        int rowHeight = dims.playerRowHeight - dims.s(11);
 
         renderRowBackground(context, player, x, y, rowWidth, rowHeight, fadeAlpha);
 
@@ -28,13 +28,13 @@ public class PlayerRowRenderer {
         }
 
         int headSize = (int)(dims.headSize * 0.75f);
-        int leftPad = (int)(18 * dims.uiScale);
-        int headColumnWidth = leftPad + headSize + (int)(14 * dims.uiScale);
+        int leftPad = dims.s(24);
+        int headColumnWidth = leftPad + headSize + dims.s(19);
 
         renderHead(context, player, x, y, rowHeight, headSize, leftPad, fadeAlpha);
         renderNameBadge(context, textRenderer, player, x, y, rowWidth, rowHeight, dims, fadeAlpha);
 
-        int pad = (int)(6 * dims.uiScale);
+        int pad = dims.s(8);
         int contentX = x + headColumnWidth;
         int contentY = y + pad;
         int contentH = rowHeight - pad * 2;
@@ -70,7 +70,7 @@ public class PlayerRowRenderer {
     }
 
     private static void renderMvpBadge(GuiGraphics context, int x, int y, int rowWidth, SummaryDimensions dims, float fadeAlpha) {
-        int crownHeight = (int)(18 * dims.uiScale);
+        int crownHeight = dims.s(24);
         int crownWidth = (int)(crownHeight * 1.75f);
         int mvpBadgeX = x + rowWidth - crownWidth;
         int mvpBadgeY = y - crownHeight / 2;
@@ -81,7 +81,7 @@ public class PlayerRowRenderer {
         context.fill(mvpBadgeX, mvpBadgeY, mvpBadgeX + crownWidth, mvpBadgeY + crownHeight,
                 (badgeAlpha << 24) | 0x8b7320);
 
-        int iconPadding = (int)(2 * dims.uiScale);
+        int iconPadding = dims.s(3);
         int iconHeight = crownHeight - iconPadding * 2;
         int iconWidth = (int)(iconHeight * 1.75f);
         int iconX = mvpBadgeX + (crownWidth - iconWidth) / 2;

@@ -22,6 +22,11 @@ public class AchievementRenderer {
         int rowSpacing = badgeDims.rowSpacing();
         float textScale = badgeDims.textScale();
 
+        int texW = SummaryConstants.ACHIEVEMENT_BADGE_TEXTURE_WIDTH;
+        int texH = SummaryConstants.ACHIEVEMENT_BADGE_TEXTURE_HEIGHT;
+        float badgeScale = Math.min((float) badgeH / texH, (float) width / texW);
+        int renderW = (int)(texW * badgeScale);
+
         int totalH = count * badgeH + (count - 1) * rowSpacing;
         int startY = y + Math.max(0, (height - totalH) / 2);
 
@@ -29,8 +34,10 @@ public class AchievementRenderer {
             String achievementId = achievements.get(i);
             int rowY = startY + i * (badgeH + rowSpacing);
             if (rowY + badgeH > y + height) break;
+            int renderH = (int)(texH * badgeScale);
+            int actualY = rowY + (badgeH - renderH) / 2;
             renderBadge(context, textRenderer, x, rowY, width, badgeH, achievementId, textScale, fadeAlpha);
-            achievementAreas.add(new AchievementTooltipArea(x, rowY, width, badgeH, achievementId));
+            achievementAreas.add(new AchievementTooltipArea(x, actualY, renderW, renderH, achievementId));
         }
     }
 
@@ -57,7 +64,7 @@ public class AchievementRenderer {
         int padX = Math.max(3, (int)(4 * scale));
         String text = Component.translatable("midnightthoughts.achievement." + achievementId).getString();
         int textColor = ARGB.colorFromFloat(fadeAlpha, 1.0f, 1.0f, 1.0f);
-        int textY = y + (height - (int)(8 * textScale)) / 2;
+        int textY = renderY + (renderH - (int)(8 * textScale)) / 2;
         RenderUtils.renderScaledText(context, textRenderer, text, x + padX, textY, textColor, textScale, false);
     }
 }

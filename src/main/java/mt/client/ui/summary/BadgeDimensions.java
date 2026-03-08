@@ -5,11 +5,11 @@ public record BadgeDimensions(int height, int padding, int spacing, int rowSpaci
     public static final BadgeDimensions DEFAULT = new BadgeDimensions(16, 5, 4, 3, 0.9f);
 
     public static BadgeDimensions calculate(SummaryDimensions dims) {
-        int height = (int)(16 * dims.uiScale);
-        int padding = (int)(5 * dims.uiScale);
-        int spacing = (int)(4 * dims.uiScale);
-        int rowSpacing = (int)(3 * dims.uiScale);
-        float textScale = Math.max(0.7f, dims.uiScale * 0.95f);
+        int height = dims.s(21);
+        int padding = dims.s(7);
+        int spacing = dims.s(5);
+        int rowSpacing = dims.s(4);
+        float textScale = Math.max(0.7f, dims.uiScale * 1.27f);
         return new BadgeDimensions(height, padding, spacing, rowSpacing, textScale);
     }
 }

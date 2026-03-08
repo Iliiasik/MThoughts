@@ -39,7 +39,7 @@ public class StatBadgeRenderer {
         int iconSize = Math.max(6, Math.min(badgeH - 2, (int)(badgeH * 0.7f)));
         float textScale = badgeDims.textScale();
 
-        int colGap = Math.max(3, (int)(4 * dims.uiScale));
+        int colGap = Math.max(3, dims.s(5));
         int colW = (width - colGap) / 2;
         int col2X = x + colW + colGap;
 
