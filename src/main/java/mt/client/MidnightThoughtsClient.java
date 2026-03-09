@@ -8,6 +8,7 @@ import mt.client.repository.SlideRepository;
 import mt.client.service.FactProvider;
 import mt.client.service.PlayerStatsService;
 import mt.client.service.SlideService;
+import mt.client.ui.WellRestedHud;
 import net.minecraft.client.Minecraft;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
@@ -16,6 +17,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
+import net.neoforged.neoforge.client.event.RenderGuiEvent;
 import net.neoforged.neoforge.common.NeoForge;
 
 import javax.annotation.Nonnull;
@@ -93,6 +95,15 @@ public class MidnightThoughtsClient {
                     inst.overlayRenderer.tick();
                 }
             }
+        }
+
+        @SubscribeEvent
+        public void onRenderGuiPre(RenderGuiEvent.Pre event) {
+            Minecraft mc = Minecraft.getInstance();
+            if (mc.player == null) return;
+            WellRestedHud.render(event.getGuiGraphics(),
+                    mc.getWindow().getGuiScaledWidth(),
+                    mc.getWindow().getGuiScaledHeight());
         }
     }
 }

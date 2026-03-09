@@ -1,11 +1,11 @@
 package mt.server;
 
-import mt.network.NetworkHandler;
 import mt.network.packet.SleepingPlayersPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 public class SleepTracker {
     private static final long NIGHT_START = 12542;
@@ -87,9 +87,6 @@ public class SleepTracker {
     }
 
     private void sendSleepingCountToAllPlayers(int sleeping, int total) {
-        SleepingPlayersPacket packet = new SleepingPlayersPacket(sleeping, total);
-        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
-            NetworkHandler.sendSleepingPlayers(player, packet);
-        }
+        PacketDistributor.sendToAllPlayers(new SleepingPlayersPacket(sleeping, total));
     }
 }

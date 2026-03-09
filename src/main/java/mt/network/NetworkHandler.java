@@ -2,10 +2,13 @@ package mt.network;
 
 import mt.client.ui.DailySummaryScreen;
 import mt.client.ui.SleepingPlayersHud;
+import mt.client.manager.WellRestedClientState;
 import mt.network.packet.DailySummaryPacket;
 import mt.network.packet.SleepingPlayersPacket;
 import mt.network.packet.SummaryAcknowledgePacket;
+import mt.network.packet.WellRestedPacket;
 import net.minecraft.client.Minecraft;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.loading.FMLEnvironment;
@@ -43,6 +46,18 @@ public class NetworkHandler {
                 }
             }
         );
+
+        registrar.playToClient(
+            WellRestedPacket.TYPE,
+            WellRestedPacket.CODEC,
+            (packet, ctx) -> {
+                if (FMLEnvironment.dist == Dist.CLIENT) {
+                    ctx.enqueueWork(() ->
+                        WellRestedClientState.update(packet.active(), packet.level(), packet.ticksRemaining(), packet.totalTicks(), packet.phase(), packet.nightmareMode(), packet.mvp())
+                    );
+                }
+            }
+        );
     }
 
     public static void sendDailySummary(ServerPlayer player, DailySummaryPacket packet) {
@@ -51,5 +66,13 @@ public class NetworkHandler {
 
     public static void sendSleepingPlayers(ServerPlayer player, SleepingPlayersPacket packet) {
         PacketDistributor.sendToPlayer(player, packet);
+    }
+
+    public static void sendWellRested(ServerPlayer player, WellRestedPacket packet) {
+        PacketDistributor.sendToPlayer(player, packet);
+    }
+
+    public static void sendToServer(CustomPacketPayload packet) {
+        PacketDistributor.sendToServer(packet);
     }
 }

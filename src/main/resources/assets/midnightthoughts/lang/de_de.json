@@ -1,5 +1,5 @@
 {
-  "effect.midnightthoughts.well_rested": "Ausgeruht",
+  "midnightthoughts.sleep.nightmare_blocked": "Du kannst an einem so furchterregenden Ort nicht schlafen...",
 
   "midnightthoughts.stats.fish_caught": "Gefangene Fische: %d",
   "midnightthoughts.stats.items_crafted": "Hergestellte Gegenstände: %d",
@@ -22,6 +22,7 @@
   "midnightthoughts.summary.mobs": "Mobs",
   "midnightthoughts.summary.deaths": "Tode",
   "midnightthoughts.summary.jumps": "Sprünge",
+  "midnightthoughts.summary.damage": "Schaden",
 
   "midnightthoughts.hud.sleeping": "Schlafen",
 

@@ -40,7 +40,7 @@ public class SlideService {
         return slide;
     }
 
-    private Slide getSlideByCategory(String language, SlideCategory category) {
+    public Slide getSlideByCategory(String language, SlideCategory category) {
         if (category == SlideCategory.FACT) {
             return factProvider.getNextFact(language);
         }
