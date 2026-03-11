@@ -2,10 +2,12 @@ package mt;
 
 import mt.network.NetworkHandler;
 import mt.network.packet.WellRestedPacket;
-import mt.server.DailyStatsManager;
 import mt.server.ComfortCalculator;
+import mt.server.DailyStatsManager;
+import mt.server.SleepTracker;
 import mt.server.WellRestedEffect;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.IEventBus;
@@ -71,14 +73,15 @@ public class MidnightThoughts {
 
     @SubscribeEvent
     public void onPlayerWakeUp(PlayerWakeUpEvent event) {
-        if (event.getEntity() instanceof ServerPlayer serverPlayer) {
-            var server = serverPlayer.level().getServer();
-            if (server != null) {
-                server.execute(() -> {
-                    int comfortLevel = ComfortCalculator.calculateComfortLevel(serverPlayer);
-                    WellRestedEffect.applyToPlayer(serverPlayer, comfortLevel);
-                });
-            }
+        if (!(event.getEntity() instanceof ServerPlayer serverPlayer)) return;
+        MinecraftServer srv = serverPlayer.level().getServer();
+        if (srv != null) {
+            SleepTracker tracker = DailyStatsManager.getSleepTracker(srv);
+            if (tracker != null) tracker.markPlayerSlept(serverPlayer.getUUID());
+            srv.execute(() -> {
+                int comfortLevel = ComfortCalculator.calculateComfortLevel(serverPlayer);
+                WellRestedEffect.applyToPlayer(serverPlayer, comfortLevel);
+            });
         }
     }
 

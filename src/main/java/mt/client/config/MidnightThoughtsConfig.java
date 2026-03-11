@@ -24,6 +24,7 @@ public final class MidnightThoughtsConfig {
     private AchievementsSettings achievements = new AchievementsSettings();
     private MvpSettings mvp = new MvpSettings();
     private ComfortSettings comfort = new ComfortSettings();
+    private ServerSettings server = new ServerSettings();
     private UISettings ui = new UISettings();
 
     private MidnightThoughtsConfig() {
@@ -75,6 +76,7 @@ public final class MidnightThoughtsConfig {
         if (achievements == null) achievements = new AchievementsSettings();
         if (mvp == null) mvp = new MvpSettings();
         if (comfort == null) comfort = new ComfortSettings();
+        if (server == null) server = new ServerSettings();
         if (ui == null) ui = new UISettings();
     }
 
@@ -101,6 +103,10 @@ public final class MidnightThoughtsConfig {
 
     public ComfortSettings getComfort() {
         return comfort;
+    }
+
+    public ServerSettings getServer() {
+        return server;
     }
 
     public UISettings getUi() {
@@ -160,6 +166,7 @@ public final class MidnightThoughtsConfig {
         public Map<String, WellRestedLevel> levels = new HashMap<>();
 
         public WellRestedSettings() {
+            //                                dur  spd1   spd2   spd3   str1   str2   str3   haste1 haste2 haste3 res1   res2   res3   hp
             levels.put("level1", new WellRestedLevel(3,  0.16f, 0.08f, 0.04f,  0.08f, 0.04f, 0.02f,  0.10f, 0.05f, 0.02f,  0.04f, 0.02f, 0.01f,  2.0f, 0.02f));
             levels.put("level2", new WellRestedLevel(5,  0.24f, 0.12f, 0.06f,  0.12f, 0.06f, 0.03f,  0.16f, 0.08f, 0.04f,  0.06f, 0.03f, 0.01f,  4.0f, 0.04f));
             levels.put("level3", new WellRestedLevel(7,  0.32f, 0.18f, 0.08f,  0.16f, 0.08f, 0.04f,  0.22f, 0.12f, 0.06f,  0.08f, 0.04f, 0.02f,  6.0f, 0.06f));
@@ -284,8 +291,11 @@ public final class MidnightThoughtsConfig {
         public int scanRadius = 5;
     }
 
+    public static class ServerSettings {
+        public boolean resetPhantomTimerForNonSleepers = true;
+    }
+
     public static class UISettings {
         public String theme = "magic";
     }
 }
-
