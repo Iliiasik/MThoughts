@@ -20,12 +20,17 @@ public class DailyStatsManager {
         tracker.tick();
     }
 
+    public static SleepTracker getSleepTracker(MinecraftServer server) {
+        return sleepTrackers.get(server);
+    }
+
     public static DailyPlayerStats getOrCreateStats(UUID playerUuid) {
         return dailyStats.computeIfAbsent(playerUuid, DailyPlayerStats::new);
     }
 
-    public static void resetDailyStats(MinecraftServer server) {
+    public static void resetDailyStats(MinecraftServer server, Set<UUID> sleepingPlayers) {
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+            if (!sleepingPlayers.contains(player.getUUID())) continue;
             UUID uuid = player.getUUID();
             DailyPlayerStats stats = getOrCreateStats(uuid);
             stats.captureCurrentStats(player);
@@ -33,11 +38,19 @@ public class DailyStatsManager {
         }
     }
 
-    public static void showDailySummary(MinecraftServer server) {
+    public static void showDailySummary(MinecraftServer server, Set<UUID> sleepingPlayers) {
+        List<ServerPlayer> sleptPlayers = new ArrayList<>();
+        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+            if (sleepingPlayers.contains(player.getUUID())) {
+                sleptPlayers.add(player);
+            }
+        }
+        if (sleptPlayers.isEmpty()) return;
+
         List<AchievementCalculator.PlayerSummaryData> playerDataList = new ArrayList<>();
         Map<String, DailyPlayerStats.DailyDelta> deltaMap = new HashMap<>();
 
-        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+        for (ServerPlayer player : sleptPlayers) {
             UUID uuid = player.getUUID();
             DailyPlayerStats stats = getOrCreateStats(uuid);
             DailyPlayerStats.DailyDelta delta = stats.calculateDelta(player);
@@ -58,7 +71,7 @@ public class DailyStatsManager {
 
         List<DailySummaryPacket.PlayerDailySummary> summaries = new ArrayList<>();
 
-        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+        for (ServerPlayer player : sleptPlayers) {
             String playerName = player.getName().getString();
             DailyPlayerStats.DailyDelta delta = deltaMap.get(playerName);
 
@@ -78,30 +91,27 @@ public class DailyStatsManager {
             ));
         }
 
-        if (!summaries.isEmpty()) {
-            DailySummaryPacket packet = new DailySummaryPacket(summaries);
-            for (ServerPlayer player : server.getPlayerList().getPlayers()) {
-                NetworkHandler.sendDailySummary(player, packet);
-                boolean isMvp = player.getName().getString().equals(mvpName);
-                if (isMvp) {
-                    WellRestedEffect.applyMvpToPlayer(player);
-                } else {
-                    int comfortLevel = ComfortCalculator.calculateComfortLevel(player);
-                    WellRestedEffect.applyToPlayer(player, comfortLevel);
-                }
+        DailySummaryPacket packet = new DailySummaryPacket(summaries);
+        for (ServerPlayer player : sleptPlayers) {
+            NetworkHandler.sendDailySummary(player, packet);
+            boolean isMvp = player.getName().getString().equals(mvpName);
+            if (isMvp) {
+                WellRestedEffect.applyMvpToPlayer(player);
+            } else {
+                int comfortLevel = ComfortCalculator.calculateComfortLevel(player);
+                WellRestedEffect.applyToPlayer(player, comfortLevel);
             }
         }
     }
 
-    public static void showDailySummaryAndReset(MinecraftServer server) {
-        showDailySummary(server);
-        resetDailyStats(server);
+    public static void showDailySummaryAndReset(MinecraftServer server, Set<UUID> sleepingPlayers) {
+        showDailySummary(server, sleepingPlayers);
+        resetDailyStats(server, sleepingPlayers);
     }
 
     public static void onPlayerJoin(ServerPlayer player) {
         MinecraftServer server = player.level().getServer();
         DailyPlayerStats stats = getOrCreateStats(player.getUUID());
-
         if (server != null) {
             stats.loadFromStorage(server);
         }
@@ -110,7 +120,6 @@ public class DailyStatsManager {
     public static void onPlayerLeave(ServerPlayer player) {
         MinecraftServer server = player.level().getServer();
         DailyPlayerStats stats = dailyStats.get(player.getUUID());
-
         if (stats != null && server != null) {
             stats.saveToStorage(server);
         }
@@ -123,7 +132,6 @@ public class DailyStatsManager {
                 stats.saveToStorage(server);
             }
         }
-
         dailyStats.clear();
         sleepTrackers.remove(server);
     }
