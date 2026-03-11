@@ -1,0 +1,16 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:sculk",
+    "minecraft:sculk_sensor",
+    "minecraft:sculk_shrieker",
+    "minecraft:sculk_catalyst",
+    "minecraft:ancient_debris",
+    "minecraft:obsidian",
+    "minecraft:crying_obsidian",
+    "minecraft:reinforced_deepslate",
+    "minecraft:deepslate",
+    "minecraft:cobbled_deepslate",
+    "minecraft:tuff"
+  ]
+}
