@@ -142,6 +142,17 @@ public class PlayerRowRenderer {
         String name = player.playerName();
         int nameAlpha = (int)(fadeAlpha * 255);
         int nameColor = (nameAlpha << 24) | 0xFFFFFF;
+
+        int maxTextW = (int)((renderW - dims.s(6)) / textScale);
+        String ellipsis = "...";
+        int ellipsisW = textRenderer.width(ellipsis);
+        if (textRenderer.width(name) > maxTextW) {
+            while (name.length() > 0 && textRenderer.width(name) + ellipsisW > maxTextW) {
+                name = name.substring(0, name.length() - 1);
+            }
+            name = name + ellipsis;
+        }
+
         int textW = (int)(textRenderer.width(name) * textScale);
         int textX = badgeX + (renderW - textW) / 2;
         int textY = badgeY + (renderH - (int)(8 * textScale)) / 2;
