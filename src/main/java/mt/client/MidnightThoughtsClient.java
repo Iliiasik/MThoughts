@@ -6,8 +6,10 @@ import mt.client.manager.SleepStateManager;
 import mt.client.render.SleepOverlayRenderer;
 import mt.client.repository.SlideRepository;
 import mt.client.service.FactProvider;
+import mt.client.service.PlayerStatsService;
 import mt.client.service.SlideService;
 import mt.client.ui.SleepingPlayersHud;
+import mt.client.ui.WellRestedHud;
 import net.minecraft.client.Minecraft;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
@@ -17,6 +19,7 @@ import net.minecraftforge.client.event.RenderGuiOverlayEvent;
 import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 public class MidnightThoughtsClient {
@@ -28,10 +31,11 @@ public class MidnightThoughtsClient {
     private SleepStateManager sleepStateManager;
     private SleepOverlayRenderer overlayRenderer;
 
-    public static void init() {
+    public static void init(IEventBus modEventBus) {
         if (instance == null) {
             instance = new MidnightThoughtsClient();
             MinecraftForge.EVENT_BUS.register(new ForgeClientEvents());
+            modEventBus.addListener(MidnightThoughtsClient::onRegisterReloadListeners);
         }
     }
 
@@ -48,9 +52,28 @@ public class MidnightThoughtsClient {
 
         UselessFactsApiClient apiClient = new UselessFactsApiClient();
         FactProvider factProvider = new FactProvider(apiClient, slideRepository);
-        SlideService slideService = new SlideService(slideRepository, config, factProvider);
+        PlayerStatsService playerStatsService = new PlayerStatsService();
+        SlideService slideService = new SlideService(slideRepository, playerStatsService, config, factProvider);
         sleepStateManager = new SleepStateManager();
         overlayRenderer = new SleepOverlayRenderer(sleepStateManager, slideService, config);
+    }
+
+    private static void onRegisterReloadListeners(RegisterClientReloadListenersEvent event) {
+        event.registerReloadListener(new SimplePreparableReloadListener<ResourceManager>() {
+            @Override
+            protected ResourceManager prepare(ResourceManager manager, ProfilerFiller profiler) {
+                return manager;
+            }
+
+            @Override
+            protected void apply(ResourceManager manager, ResourceManager unused, ProfilerFiller profiler) {
+                MidnightThoughtsClient inst = MidnightThoughtsClient.getInstance();
+                if (inst != null) {
+                    inst.slideRepository.clearCache();
+                    inst.slideRepository.loadAllSlides(manager);
+                }
+            }
+        });
     }
 
     public static MidnightThoughtsClient getInstance() {
@@ -69,8 +92,10 @@ public class MidnightThoughtsClient {
                 Minecraft client = Minecraft.getInstance();
                 if (client.player != null) {
                     MidnightThoughtsClient inst = MidnightThoughtsClient.getInstance();
-                    inst.sleepStateManager.tick(client.player);
-                    inst.overlayRenderer.tick();
+                    if (inst != null) {
+                        inst.sleepStateManager.tick(client.player);
+                        inst.overlayRenderer.tick();
+                    }
                 }
             }
         }
@@ -104,25 +129,7 @@ public class MidnightThoughtsClient {
 
             inst.overlayRenderer.renderContentOnly(event.getGuiGraphics(), w, h);
             SleepingPlayersHud.render(event.getGuiGraphics(), w, h);
-        }
-
-        @SubscribeEvent
-        public void onRegisterReloadListeners(RegisterClientReloadListenersEvent event) {
-            event.registerReloadListener(new SimplePreparableReloadListener<ResourceManager>() {
-                @Override
-                protected ResourceManager prepare(ResourceManager manager, ProfilerFiller profiler) {
-                    return manager;
-                }
-
-                @Override
-                protected void apply(ResourceManager manager, ResourceManager unused, ProfilerFiller profiler) {
-                    MidnightThoughtsClient inst = MidnightThoughtsClient.getInstance();
-                    if (inst != null) {
-                        inst.slideRepository.clearCache();
-                        inst.slideRepository.loadAllSlides(manager);
-                    }
-                }
-            });
+            WellRestedHud.render(event.getGuiGraphics(), w, h);
         }
     }
 }

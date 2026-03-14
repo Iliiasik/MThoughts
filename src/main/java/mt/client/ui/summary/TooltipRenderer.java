@@ -9,18 +9,20 @@ import java.util.List;
 public class TooltipRenderer {
 
     public static void render(GuiGraphics context, Font textRenderer, int mouseX, int mouseY,
-                             List<AchievementTooltipArea> achievementAreas, int screenWidth, int screenHeight, float fadeAlpha) {
-
+                              List<AchievementTooltipArea> achievementAreas,
+                              int screenWidth, int screenHeight, float fadeAlpha) {
         for (AchievementTooltipArea area : achievementAreas) {
             if (area.contains(mouseX, mouseY)) {
-                renderTooltip(context, textRenderer, mouseX, mouseY, area.achievementId(), screenWidth, screenHeight, fadeAlpha);
+                renderTooltip(context, textRenderer, mouseX, mouseY,
+                        area.achievementId(), screenWidth, screenHeight, fadeAlpha);
                 break;
             }
         }
     }
 
-    private static void renderTooltip(GuiGraphics context, Font textRenderer, int mouseX, int mouseY,
-                                      String achievementId, int screenWidth, int screenHeight, float fadeAlpha) {
+    private static void renderTooltip(GuiGraphics context, Font textRenderer,
+                                      int mouseX, int mouseY, String achievementId,
+                                      int screenWidth, int screenHeight, float fadeAlpha) {
         String tooltipKey = "midnightthoughts.achievement." + achievementId + ".desc";
         Component tooltipText = Component.translatable(tooltipKey);
 
@@ -31,12 +33,8 @@ public class TooltipRenderer {
         int tooltipX = mouseX + 8;
         int tooltipY = mouseY - tooltipHeight - 4;
 
-        if (tooltipX + tooltipWidth > screenWidth) {
-            tooltipX = mouseX - tooltipWidth - 8;
-        }
-        if (tooltipY < 0) {
-            tooltipY = mouseY + 16;
-        }
+        if (tooltipX + tooltipWidth > screenWidth) tooltipX = mouseX - tooltipWidth - 8;
+        if (tooltipY < 0) tooltipY = mouseY + 16;
 
         context.pose().pushPose();
         context.pose().translate(0, 0, 400);
@@ -54,4 +52,3 @@ public class TooltipRenderer {
         context.pose().popPose();
     }
 }
-

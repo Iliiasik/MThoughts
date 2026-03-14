@@ -16,6 +16,7 @@ public class DailyPlayerStats {
     private int baseMobsKilled = 0;
     private int baseDeaths = 0;
     private int baseJumps = 0;
+    private int baseDamageDealt = 0;
     private boolean hasLoadedFromFile = false;
 
     public DailyPlayerStats(UUID playerUuid) {
@@ -32,6 +33,7 @@ public class DailyPlayerStats {
             this.baseMobsKilled = saved.baseMobsKilled;
             this.baseDeaths = saved.baseDeaths;
             this.baseJumps = saved.baseJumps;
+            this.baseDamageDealt = saved.baseDamageDealt;
             hasLoadedFromFile = true;
         }
     }
@@ -40,7 +42,7 @@ public class DailyPlayerStats {
         StatsStorage.SavedPlayerStats existing = StatsStorage.loadPlayerStats(server, playerUuid);
 
         StatsStorage.SavedPlayerStats saved = new StatsStorage.SavedPlayerStats(
-            baseBlocksDestroyed, baseDistanceWalked, baseMobsKilled, baseDeaths, baseJumps
+                baseBlocksDestroyed, baseDistanceWalked, baseMobsKilled, baseDeaths, baseJumps, baseDamageDealt
         );
 
         if (existing != null) {
@@ -66,6 +68,7 @@ public class DailyPlayerStats {
         this.baseMobsKilled = stats.getValue(Stats.CUSTOM.get(Stats.MOB_KILLS));
         this.baseDeaths = stats.getValue(Stats.CUSTOM.get(Stats.DEATHS));
         this.baseJumps = stats.getValue(Stats.CUSTOM.get(Stats.JUMP));
+        this.baseDamageDealt = stats.getValue(Stats.CUSTOM.get(Stats.DAMAGE_DEALT));
     }
 
     private int getTotalDistance(StatsCounter stats) {
@@ -106,14 +109,16 @@ public class DailyPlayerStats {
         int currentMobsKilled = stats.getValue(Stats.CUSTOM.get(Stats.MOB_KILLS));
         int currentDeaths = stats.getValue(Stats.CUSTOM.get(Stats.DEATHS));
         int currentJumps = stats.getValue(Stats.CUSTOM.get(Stats.JUMP));
+        int currentDamageDealt = stats.getValue(Stats.CUSTOM.get(Stats.DAMAGE_DEALT));
 
         int deltaBlocks = clampDelta(currentBlocksDestroyed - baseBlocksDestroyed);
         int deltaDistance = clampDelta(currentDistanceWalked - baseDistanceWalked);
         int deltaMobs = clampDelta(currentMobsKilled - baseMobsKilled);
         int deltaDeaths = clampDelta(currentDeaths - baseDeaths);
         int deltaJumps = clampDelta(currentJumps - baseJumps);
+        int deltaDamageDealt = clampDelta(currentDamageDealt - baseDamageDealt);
 
-        return new DailyDelta(deltaBlocks, deltaDistance, deltaMobs, deltaDeaths, deltaJumps);
+        return new DailyDelta(deltaBlocks, deltaDistance, deltaMobs, deltaDeaths, deltaJumps, deltaDamageDealt);
     }
 
     private int clampDelta(int delta) {
@@ -124,10 +129,11 @@ public class DailyPlayerStats {
     }
 
     public record DailyDelta(
-        int blocksDestroyed,
-        int distanceWalked,
-        int mobsKilled,
-        int deaths,
-        int jumps
+            int blocksDestroyed,
+            int distanceWalked,
+            int mobsKilled,
+            int deaths,
+            int jumps,
+            int damageDealt
     ) {}
 }

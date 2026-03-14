@@ -1,76 +1,190 @@
 package mt.server;
 
 import mt.client.config.MidnightThoughtsConfig;
+import net.minecraft.network.protocol.game.ClientboundUpdateAttributesPacket;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.effect.MobEffect;
-import net.minecraft.world.effect.MobEffectCategory;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 
-public class WellRestedEffect extends MobEffect {
+import java.util.UUID;
+
+public class WellRestedEffect {
     private static final MidnightThoughtsConfig CONFIG = MidnightThoughtsConfig.getInstance();
 
-    public WellRestedEffect() {
-        super(MobEffectCategory.BENEFICIAL, 0xFFD700);
-        MidnightThoughtsConfig.WellRestedLevel level1 = CONFIG.getWellRested().getLevel(1);
-        addAttributeModifier(
-                Attributes.MAX_HEALTH,
-                "00d1c7eb-9161-4f36-bee2-06e39a2d491b",
-                level1.healthBonus,
-                AttributeModifier.Operation.ADDITION
-        );
-        addAttributeModifier(
-                Attributes.LUCK,
-                "5c7e1afb-61f1-4a83-b667-cd92fda75571",
-                level1.luckBonus,
-                AttributeModifier.Operation.ADDITION
-        );
+    private static final UUID SPEED_UUID = UUID.fromString("a1b2c3d4-e5f6-7890-abcd-ef1234567890");
+    private static final UUID STRENGTH_UUID = UUID.fromString("b2c3d4e5-f6a7-8901-bcde-f12345678901");
+    private static final UUID ATTACK_SPEED_UUID = UUID.fromString("c3d4e5f6-a7b8-9012-cdef-123456789012");
+    private static final UUID HEALTH_UUID = UUID.fromString("e5f6a7b8-c9d0-1234-efab-345678901234");
+
+    private static int clampLevel(int level) {
+        if (level < 1) return 1;
+        if (level > 5) return 5;
+        return level;
     }
 
-    @Override
-    public boolean isDurationEffectTick(int duration, int amplifier) {
-        return duration % 20 == 0;
+    private static int getNbtInt(ServerPlayer player, String key, int def) {
+        return player.getPersistentData().contains(key) ? player.getPersistentData().getInt(key) : def;
     }
 
-    @Override
-    public void applyEffectTick(net.minecraft.world.entity.LivingEntity entity, int amplifier) {
-        if (entity instanceof ServerPlayer player) {
-            int level = amplifier + 1;
-            float exhaustionReduction = getExhaustionReduction(level);
-            if (player.getFoodData().getExhaustionLevel() > 0) {
-                float currentExhaustion = player.getFoodData().getExhaustionLevel();
-                float reducedExhaustion = Math.max(0, currentExhaustion - exhaustionReduction);
-                player.getFoodData().setExhaustion(reducedExhaustion);
+    public static int getTotalDurationTicks(int comfortLevel) {
+        return CONFIG.getWellRested().getLevel(clampLevel(comfortLevel)).durationMinutes * 60 * 20;
+    }
+
+    public static void applyToPlayer(ServerPlayer player, int comfortLevel) {
+        if (comfortLevel <= 0) return;
+        int lvlIdx = clampLevel(comfortLevel);
+        MidnightThoughtsConfig.WellRestedLevel lvl = CONFIG.getWellRested().getLevel(lvlIdx);
+
+        removeFromPlayer(player);
+
+        player.getPersistentData().putInt("mt_well_rested_level", lvlIdx);
+        player.getPersistentData().putInt("mt_well_rested_ticks_remaining", getTotalDurationTicks(lvlIdx));
+
+        applyHealthBonus(player, lvl.healthBonus);
+        applyPhaseAttributes(player, lvl.speedPhase1, lvl.strengthPhase1, lvl.attackSpeedPhase1);
+
+        player.setHealth(player.getMaxHealth());
+    }
+
+    public static void removeFromPlayer(ServerPlayer player) {
+        player.getPersistentData().remove("mt_well_rested_level");
+        player.getPersistentData().remove("mt_well_rested_ticks_remaining");
+        player.getPersistentData().remove("mt_well_rested_phase");
+        player.getPersistentData().remove("mt_well_rested_mvp_flag");
+        removeAttributes(player);
+    }
+
+    public static void tick(ServerPlayer player) {
+        if (!player.getPersistentData().contains("mt_well_rested_ticks_remaining")) return;
+
+        int ticksRemaining = getNbtInt(player, "mt_well_rested_ticks_remaining", 0);
+        int level = getNbtInt(player, "mt_well_rested_level", 1);
+
+        if (ticksRemaining <= 0) {
+            removeFromPlayer(player);
+            syncAttributes(player);
+            return;
+        }
+
+        ticksRemaining--;
+        player.getPersistentData().putInt("mt_well_rested_ticks_remaining", ticksRemaining);
+
+        int totalTicks = getTotalDurationTicksForPlayer(player);
+        int phaseTicks = totalTicks / 3;
+        MidnightThoughtsConfig.WellRestedLevel lvl = CONFIG.getWellRested().getLevel(level);
+
+        int currentPhaseIndex = phaseTicks > 0 ? (totalTicks - ticksRemaining) / phaseTicks : 0;
+        if (currentPhaseIndex > 2) currentPhaseIndex = 2;
+
+        float speed, strength, attackSpeed, regen;
+        switch (currentPhaseIndex) {
+            case 0 -> { speed = lvl.speedPhase1; strength = lvl.strengthPhase1; attackSpeed = lvl.attackSpeedPhase1; regen = lvl.regenBonus; }
+            case 1 -> { speed = lvl.speedPhase2; strength = lvl.strengthPhase2; attackSpeed = lvl.attackSpeedPhase2; regen = lvl.regenBonus; }
+            default -> { speed = lvl.speedPhase3; strength = lvl.strengthPhase3; attackSpeed = lvl.attackSpeedPhase3; regen = lvl.regenBonus; }
+        }
+
+        int previousPhase = getNbtInt(player, "mt_well_rested_phase", -1);
+
+        if (previousPhase != currentPhaseIndex) {
+            player.getPersistentData().putInt("mt_well_rested_phase", currentPhaseIndex);
+            removePhaseAttributes(player);
+            applyPhaseAttributes(player, speed, strength, attackSpeed);
+            syncAttributes(player);
+        }
+
+        if (regen > 0 && ticksRemaining % 100 == 0) {
+            float maxHealth = player.getMaxHealth();
+            float current = player.getHealth();
+            if (current < maxHealth) {
+                player.setHealth(Math.min(current + maxHealth * regen * 0.5f, maxHealth));
             }
         }
     }
 
-    private float getExhaustionReduction(int level) {
-        return CONFIG.getWellRested().getLevel(level).exhaustionReduction;
-    }
-
-    public static int getDurationForLevel(int level) {
-        int durationMinutes = CONFIG.getWellRested().getLevel(level).durationMinutes;
-        return durationMinutes * 60 * 20;
-    }
-
-    public static void applyToPlayer(ServerPlayer player, int comfortLevel, MobEffect effect) {
-        if (comfortLevel <= 0) {
-            return;
+    private static void syncAttributes(ServerPlayer player) {
+        var dirty = player.getAttributes().getDirtyAttributes();
+        if (!dirty.isEmpty()) {
+            player.connection.send(new ClientboundUpdateAttributesPacket(player.getId(), dirty));
         }
-        int duration = getDurationForLevel(comfortLevel);
-        int amplifier = comfortLevel - 1;
-        MobEffectInstance instance = new MobEffectInstance(
-                effect,
-                duration,
-                amplifier,
-                true,
-                false,
-                true
-        );
-        player.addEffect(instance);
-        float instantHeal = CONFIG.getWellRested().getLevel(comfortLevel).instantHeal;
-        player.setHealth(player.getHealth() + instantHeal);
+        player.setHealth(Math.min(player.getHealth(), player.getMaxHealth()));
+    }
+
+    private static void applyHealthBonus(ServerPlayer player, float bonus) {
+        var healthAttr = player.getAttribute(Attributes.MAX_HEALTH);
+        if (healthAttr != null && healthAttr.getModifier(HEALTH_UUID) == null) {
+            healthAttr.addPermanentModifier(new AttributeModifier(
+                    HEALTH_UUID, "well_rested_health", (double) bonus, AttributeModifier.Operation.ADDITION));
+        }
+    }
+
+    private static void applyPhaseAttributes(ServerPlayer player, float speed, float strength, float attackSpeed) {
+        var speedAttr = player.getAttribute(Attributes.MOVEMENT_SPEED);
+        var strengthAttr = player.getAttribute(Attributes.ATTACK_DAMAGE);
+        var attackSpeedAttr = player.getAttribute(Attributes.ATTACK_SPEED);
+        if (speedAttr != null && speedAttr.getModifier(SPEED_UUID) == null)
+            speedAttr.addPermanentModifier(new AttributeModifier(SPEED_UUID, "well_rested_speed", (double) speed, AttributeModifier.Operation.MULTIPLY_BASE));
+        if (strengthAttr != null && strengthAttr.getModifier(STRENGTH_UUID) == null)
+            strengthAttr.addPermanentModifier(new AttributeModifier(STRENGTH_UUID, "well_rested_strength", (double) strength, AttributeModifier.Operation.MULTIPLY_BASE));
+        if (attackSpeedAttr != null && attackSpeedAttr.getModifier(ATTACK_SPEED_UUID) == null)
+            attackSpeedAttr.addPermanentModifier(new AttributeModifier(ATTACK_SPEED_UUID, "well_rested_attack_speed", (double) attackSpeed, AttributeModifier.Operation.MULTIPLY_BASE));
+    }
+
+    private static void removePhaseAttributes(ServerPlayer player) {
+        var speedAttr = player.getAttribute(Attributes.MOVEMENT_SPEED);
+        var strengthAttr = player.getAttribute(Attributes.ATTACK_DAMAGE);
+        var attackSpeedAttr = player.getAttribute(Attributes.ATTACK_SPEED);
+        if (speedAttr != null) speedAttr.removeModifier(SPEED_UUID);
+        if (strengthAttr != null) strengthAttr.removeModifier(STRENGTH_UUID);
+        if (attackSpeedAttr != null) attackSpeedAttr.removeModifier(ATTACK_SPEED_UUID);
+    }
+
+    private static void removeAttributes(ServerPlayer player) {
+        removePhaseAttributes(player);
+        var healthAttr = player.getAttribute(Attributes.MAX_HEALTH);
+        if (healthAttr != null) healthAttr.removeModifier(HEALTH_UUID);
+    }
+
+    public static boolean isMvp(ServerPlayer player) {
+        return getNbtInt(player, "mt_well_rested_mvp_flag", 0) == 1;
+    }
+
+    public static void applyMvpToPlayer(ServerPlayer player) {
+        MidnightThoughtsConfig.WellRestedLevel lvl = CONFIG.getWellRested().getLevel(5);
+        int durationTicks = CONFIG.getMvp().mvpWellRestedDurationMinutes * 60 * 20;
+
+        removeFromPlayer(player);
+
+        player.getPersistentData().putInt("mt_well_rested_level", 5);
+        player.getPersistentData().putInt("mt_well_rested_ticks_remaining", durationTicks);
+        player.getPersistentData().putInt("mt_well_rested_mvp_flag", 1);
+
+        applyHealthBonus(player, lvl.healthBonus);
+        applyPhaseAttributes(player, lvl.speedPhase1, lvl.strengthPhase1, lvl.attackSpeedPhase1);
+
+        player.setHealth(player.getMaxHealth());
+    }
+
+    public static int getTotalDurationTicksForPlayer(ServerPlayer player) {
+        if (isMvp(player)) {
+            return CONFIG.getMvp().mvpWellRestedDurationMinutes * 60 * 20;
+        }
+        return getTotalDurationTicks(getLevel(player));
+    }
+
+    public static boolean hasEffect(ServerPlayer player) {
+        return player.getPersistentData().contains("mt_well_rested_ticks_remaining")
+                && getNbtInt(player, "mt_well_rested_ticks_remaining", 0) > 0;
+    }
+
+    public static int getTicksRemaining(ServerPlayer player) {
+        return getNbtInt(player, "mt_well_rested_ticks_remaining", 0);
+    }
+
+    public static int getLevel(ServerPlayer player) {
+        return getNbtInt(player, "mt_well_rested_level", 0);
+    }
+
+    public static int getCurrentPhase(ServerPlayer player) {
+        return getNbtInt(player, "mt_well_rested_phase", 0);
     }
 }

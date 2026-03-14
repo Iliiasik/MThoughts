@@ -21,9 +21,9 @@ public class StatsStorage {
     private static final Logger LOGGER = LoggerFactory.getLogger("MidnightThoughts");
     private static final String STATS_FILE = "midnightthoughts_stats.json";
     private static final Gson GSON = new GsonBuilder()
-        .setPrettyPrinting()
-        .registerTypeAdapter(SavedPlayerStats.class, new SafeStatsDeserializer())
-        .create();
+            .setPrettyPrinting()
+            .registerTypeAdapter(SavedPlayerStats.class, new SafeStatsDeserializer())
+            .create();
 
     public static void savePlayerStats(MinecraftServer server, UUID playerUuid, SavedPlayerStats stats) {
         Path savePath = getStatsFilePath(server);
@@ -86,6 +86,7 @@ public class StatsStorage {
         public int baseMobsKilled;
         public int baseDeaths;
         public int baseJumps;
+        public int baseDamageDealt;
 
         public int recordBlocks;
         public int recordDistance;
@@ -94,12 +95,13 @@ public class StatsStorage {
 
         public SavedPlayerStats() {}
 
-        public SavedPlayerStats(int baseBlocksDestroyed, int baseDistanceWalked, int baseMobsKilled, int baseDeaths, int baseJumps) {
+        public SavedPlayerStats(int baseBlocksDestroyed, int baseDistanceWalked, int baseMobsKilled, int baseDeaths, int baseJumps, int baseDamageDealt) {
             this.baseBlocksDestroyed = baseBlocksDestroyed;
             this.baseDistanceWalked = baseDistanceWalked;
             this.baseMobsKilled = baseMobsKilled;
             this.baseDeaths = baseDeaths;
             this.baseJumps = baseJumps;
+            this.baseDamageDealt = baseDamageDealt;
         }
     }
 
@@ -114,6 +116,7 @@ public class StatsStorage {
             stats.baseMobsKilled = safeGetInt(obj, "baseMobsKilled");
             stats.baseDeaths = safeGetInt(obj, "baseDeaths");
             stats.baseJumps = safeGetInt(obj, "baseJumps");
+            stats.baseDamageDealt = safeGetInt(obj, "baseDamageDealt");
             stats.recordBlocks = safeGetInt(obj, "recordBlocks");
             stats.recordDistance = safeGetInt(obj, "recordDistance");
             stats.recordMobs = safeGetInt(obj, "recordMobs");

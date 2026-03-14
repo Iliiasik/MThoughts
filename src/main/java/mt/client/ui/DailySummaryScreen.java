@@ -40,10 +40,10 @@ public class DailySummaryScreen extends Screen {
 
         int buttonWidth = dimensions.getButtonWidth();
         int buttonHeight = dimensions.getButtonHeight();
-        int buttonSpacing = (int)(6 * dimensions.uiScale);
+        int buttonSpacing = dimensions.s(8);
         int totalPages = dimensions.getTotalPages(allPlayers.size());
 
-        int buttonY = dimensions.panelY + dimensions.panelHeight + (int)(6 * dimensions.uiScale);
+        int buttonY = dimensions.panelY + dimensions.panelHeight + dimensions.s(8);
 
         if (totalPages > 1) {
             buttonY = addNavigationButtons(buttonWidth, buttonHeight, buttonY, buttonSpacing);
@@ -54,9 +54,9 @@ public class DailySummaryScreen extends Screen {
     }
 
     private void addThemeSwitchButton() {
-        int iconSize = (int)(16 * dimensions.uiScale);
-        int iconX = dimensions.panelX + dimensions.panelWidth + (int)(5 * dimensions.uiScale);
-        int iconY = dimensions.panelY + (int)(8 * dimensions.uiScale);
+        int iconSize = dimensions.s(21);
+        int iconX = dimensions.panelX + dimensions.panelWidth + dimensions.s(7);
+        int iconY = dimensions.panelY + dimensions.s(11);
         themeSwitchButton = new ThemeSwitchButton(iconX, iconY, iconSize);
         addRenderableWidget(themeSwitchButton);
     }
@@ -66,15 +66,15 @@ public class DailySummaryScreen extends Screen {
         int navStartX = width / 2 - navButtonsWidth / 2;
 
         addRenderableWidget(new StyledButton(
-            navStartX, buttonY, buttonWidth, buttonHeight,
-            Component.translatable("midnightthoughts.summary.previous"),
-            button -> navigateToPreviousPage()
+                navStartX, buttonY, buttonWidth, buttonHeight,
+                Component.translatable("midnightthoughts.summary.previous"),
+                button -> navigateToPreviousPage()
         ));
 
         addRenderableWidget(new StyledButton(
-            navStartX + buttonWidth + buttonSpacing, buttonY, buttonWidth, buttonHeight,
-            Component.translatable("midnightthoughts.summary.next"),
-            button -> navigateToNextPage()
+                navStartX + buttonWidth + buttonSpacing, buttonY, buttonWidth, buttonHeight,
+                Component.translatable("midnightthoughts.summary.next"),
+                button -> navigateToNextPage()
         ));
 
         return buttonY + buttonHeight + buttonSpacing;
@@ -82,9 +82,9 @@ public class DailySummaryScreen extends Screen {
 
     private void addContinueButton(int buttonWidth, int buttonHeight, int buttonY) {
         addRenderableWidget(new StyledButton(
-            width / 2 - buttonWidth / 2, buttonY, buttonWidth, buttonHeight,
-            Component.translatable("midnightthoughts.summary.continue"),
-            button -> closeScreen()
+                width / 2 - buttonWidth / 2, buttonY, buttonWidth, buttonHeight,
+                Component.translatable("midnightthoughts.summary.continue"),
+                button -> closeScreen()
         ));
     }
 
@@ -116,7 +116,7 @@ public class DailySummaryScreen extends Screen {
 
     @Override
     public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
-        renderBackground(context);
+        context.fill(0, 0, this.width, this.height, 0x88000000);
         updateFadeAnimation();
         achievementAreas.clear();
 
@@ -134,6 +134,9 @@ public class DailySummaryScreen extends Screen {
         }
     }
 
+    @Override
+    public void renderBackground(GuiGraphics context) {
+    }
 
     private void updateFadeAnimation() {
         long elapsedTime = System.currentTimeMillis() - screenOpenTime;
@@ -148,18 +151,19 @@ public class DailySummaryScreen extends Screen {
     }
 
     private void renderPlayerList(GuiGraphics context) {
-        float contentPaddingTop = SummaryConstants.FRAME_CONTENT_PADDING_TOP * (dimensions.panelHeight / 640.0f);
-        float contentPaddingSides = SummaryConstants.FRAME_CONTENT_PADDING_SIDES * (dimensions.panelWidth / 1000.0f);
+        int contentPaddingTop = dimensions.s(53);
+        int contentPaddingSides = dimensions.s(60);
 
-        int startY = dimensions.panelY + (int)contentPaddingTop;
         int startIndex = currentPage * dimensions.playersPerPage;
         int endIndex = Math.min(startIndex + dimensions.playersPerPage, allPlayers.size());
+
+        int startY = dimensions.panelY + contentPaddingTop;
 
         for (int i = startIndex; i < endIndex; i++) {
             DailySummaryPacket.PlayerDailySummary player = allPlayers.get(i);
             int rowY = startY + (i - startIndex) * dimensions.playerRowHeight;
-            PlayerRowRenderer.render(context, font, player, dimensions.panelX + (int)contentPaddingSides,
-                                    rowY, dimensions, fadeAlpha, animationStartTime, achievementAreas);
+            PlayerRowRenderer.render(context, font, player, dimensions.panelX + contentPaddingSides,
+                    rowY, dimensions, fadeAlpha, animationStartTime, achievementAreas);
         }
     }
 

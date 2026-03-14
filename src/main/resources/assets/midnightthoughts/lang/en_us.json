@@ -1,5 +1,5 @@
 {
-  "effect.midnightthoughts.well_rested": "Well Rested",
+  "midnightthoughts.sleep.nightmare_blocked": "You cannot sleep in such a dreadful place...",
 
   "midnightthoughts.stats.fish_caught": "Fish caught: %d",
   "midnightthoughts.stats.items_crafted": "Items crafted: %d",
@@ -22,6 +22,7 @@
   "midnightthoughts.summary.mobs": "Mobs",
   "midnightthoughts.summary.deaths": "Deaths",
   "midnightthoughts.summary.jumps": "Jumps",
+  "midnightthoughts.summary.damage": "Damage",
 
   "midnightthoughts.hud.sleeping": "Sleeping",
 

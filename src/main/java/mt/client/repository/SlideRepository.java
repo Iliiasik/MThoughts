@@ -40,6 +40,7 @@ public class SlideRepository {
         categoryMap.put(SlideCategory.LORE, loadCategory(manager, language, "lore", SlideCategory.LORE));
         categoryMap.put(SlideCategory.SURREAL, loadCategory(manager, language, "surreal", SlideCategory.SURREAL));
         categoryMap.put(SlideCategory.SPECIAL, loadCategory(manager, language, "special", SlideCategory.SPECIAL));
+        categoryMap.put(SlideCategory.NIGHTMARE, loadCategory(manager, language, "nightmares", SlideCategory.NIGHTMARE));
 
         slideCache.put(language, categoryMap);
 

@@ -38,15 +38,12 @@ public class FrameRenderer {
     public static void renderBadge(GuiGraphics context, Font textRenderer, SummaryDimensions dims, float fadeAlpha) {
         Component title = Component.translatable("midnightthoughts.summary.title");
 
-        float badgeScale = dims.panelWidth / 1000.0f;
-        int badgeWidth = (int)(240 * badgeScale);
-        int badgeHeight = (int)(80 * badgeScale);
+        int badgeWidth = dims.s(180);
+        int badgeHeight = dims.s(60);
 
-        int contentPaddingSides = (int)(SummaryConstants.FRAME_CONTENT_PADDING_SIDES * (dims.panelWidth / 1000.0f));
-        int badgeOffsetX = (int)(15 * badgeScale);
-        int badgeOffsetY = (int)(25 * badgeScale);
-        int badgeX = dims.panelX + contentPaddingSides + badgeOffsetX;
-        int badgeY = dims.panelY - badgeHeight / 2 + badgeOffsetY;
+        int contentPaddingSides = dims.s(60);
+        int badgeX = dims.panelX + contentPaddingSides + dims.s(11);
+        int badgeY = dims.panelY - badgeHeight / 2 + dims.s(19);
 
         RenderSystem.setShaderTexture(0, SummaryConstants.getBadgeTexture());
         RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
@@ -73,7 +70,7 @@ public class FrameRenderer {
         int titleAlpha = (int)(fadeAlpha * 255);
         int titleColor = (titleAlpha << 24) | colors.badgeTextColor();
 
-        float textScale = badgeScale * 1.8f;
+        float textScale = dims.uiScale * 1.35f;
         int scaledTextWidth = (int)(textRenderer.width(title) * textScale);
         int titleX = badgeX + (badgeWidth - scaledTextWidth) / 2;
         int titleY = badgeY + (badgeHeight - (int)(textRenderer.lineHeight * textScale)) / 2;
@@ -87,24 +84,17 @@ public class FrameRenderer {
 
     public static void renderPagesHolder(GuiGraphics context, Font textRenderer, SummaryDimensions dims,
                                          int currentPage, int totalPages, float fadeAlpha) {
-        if (totalPages <= 1) {
-            return;
-        }
+        if (totalPages <= 1) return;
 
         Component pageInfo = Component.translatable("midnightthoughts.summary.page", currentPage + 1, totalPages);
 
-        float pagesHolderScale = dims.panelWidth / 1000.0f;
-        int pagesHolderHeight = (int)(60 * pagesHolderScale);
+        int pagesHolderHeight = dims.s(45);
         int pagesHolderWidth = (int)(pagesHolderHeight * (SummaryConstants.PAGES_HOLDER_TEXTURE_WIDTH / (float)SummaryConstants.PAGES_HOLDER_TEXTURE_HEIGHT));
 
-        float contentPaddingTop = SummaryConstants.FRAME_CONTENT_PADDING_TOP * (dims.panelHeight / 640.0f);
-        float contentPaddingBottom = SummaryConstants.FRAME_CONTENT_PADDING_BOTTOM * (dims.panelHeight / 640.0f);
-
-        int listAreaHeight = dims.playersPerPage * dims.playerRowHeight;
-        int availableSpace = dims.panelHeight - (int)contentPaddingTop - (int)contentPaddingBottom - listAreaHeight;
+        int contentPaddingBottom = dims.s(37);
 
         int pagesHolderX = dims.panelX + (dims.panelWidth - pagesHolderWidth) / 2;
-        int pagesHolderY = dims.panelY + (int)contentPaddingTop + listAreaHeight + (availableSpace - pagesHolderHeight) / 2;
+        int pagesHolderY = dims.panelY + dims.panelHeight - contentPaddingBottom - pagesHolderHeight - dims.s(5);
 
         RenderSystem.setShaderTexture(0, SummaryConstants.getPagesHolderTexture());
         RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
@@ -131,7 +121,7 @@ public class FrameRenderer {
         int pageTextAlpha = (int)(fadeAlpha * 255);
         int pageTextColor = (pageTextAlpha << 24) | colors.pagesHolderTextColor();
 
-        float textScale = pagesHolderScale * 1.5f;
+        float textScale = dims.uiScale * 1.12f;
         int scaledTextWidth = (int)(textRenderer.width(pageInfo) * textScale);
         int pageTextX = pagesHolderX + (pagesHolderWidth - scaledTextWidth) / 2;
         int pageTextY = pagesHolderY + (pagesHolderHeight - (int)(textRenderer.lineHeight * textScale)) / 2;
@@ -143,4 +133,3 @@ public class FrameRenderer {
         context.pose().popPose();
     }
 }
-
