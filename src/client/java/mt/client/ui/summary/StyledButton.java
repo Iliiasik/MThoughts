@@ -1,5 +1,6 @@
 package mt.client.ui.summary;
 
+import mt.client.MidnightThoughtsClient;
 import mt.client.config.ClientConfig;
 import mt.client.config.ThemeColors;
 import net.minecraft.client.MinecraftClient;
@@ -8,9 +9,13 @@ import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
+import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 
 public class StyledButton extends ClickableWidget {
+    private static final int TEX_W = 200;
+    private static final int TEX_H = 32;
 
     public interface PressAction {
         void onPress(StyledButton button);
@@ -32,40 +37,46 @@ public class StyledButton extends ClickableWidget {
 
     @Override
     protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
-        MinecraftClient client = MinecraftClient.getInstance();
-        TextRenderer textRenderer = client.textRenderer;
         String theme = ClientConfig.getInstance().getEffectiveTheme();
+        boolean hovered = isHovered();
+
+        Identifier texture = Identifier.of(
+                MidnightThoughtsClient.MOD_ID,
+                "textures/gui/" + theme + (hovered ? "/button_hover.png" : "/button.png")
+        );
+
+        float scale = Math.min((float) getWidth() / TEX_W, (float) getHeight() / TEX_H);
+        int renderW = (int) (TEX_W * scale);
+        int renderH = (int) (TEX_H * scale);
+        int renderX = getX() + (getWidth() - renderW) / 2;
+        int renderY = getY() + (getHeight() - renderH) / 2;
+
+        context.getMatrices().pushMatrix();
+        context.getMatrices().translate(renderX, renderY);
+        context.getMatrices().scale(scale, scale);
+        context.drawTexture(RenderPipelines.GUI_TEXTURED, texture,
+                0, 0, 0.0f, 0.0f,
+                TEX_W, TEX_H,
+                TEX_W, TEX_H, TEX_W, TEX_H, 0xFFFFFFFF);
+        context.getMatrices().popMatrix();
+
+        TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
         ThemeColors.ThemeColor colors = ThemeColors.getThemeColors(theme);
+        int textColor = hovered ? (0xFF000000 | colors.buttonTextHoverColor()) : (0xFF000000 | colors.buttonTextColor());
 
-        boolean hovered = this.isHovered();
+        float textScale = Math.min(scale * 1.5f, (float) getHeight() / textRenderer.fontHeight * 0.6f);
+        int scaledTextW = (int) (textRenderer.getWidth(getMessage()) * textScale);
+        int textX = getX() + (getWidth() - scaledTextW) / 2;
+        int textY = getY() + (getHeight() - (int) (textRenderer.fontHeight * textScale)) / 2;
 
-        int baseColor = colors.buttonColor();
-        int r = (baseColor >> 16) & 0xFF;
-        int g = (baseColor >> 8) & 0xFF;
-        int b = baseColor & 0xFF;
-
-        int bgColor = hovered
-                ? (0xDD << 24) | (Math.min(255, r + 32) << 16) | (Math.min(255, g + 32) << 8) | Math.min(255, b + 32)
-                : (0xCC << 24) | baseColor;
-
-        int borderColor = hovered
-                ? (0xFF << 24) | (Math.min(255, r + 64) << 16) | (Math.min(255, g + 64) << 8) | Math.min(255, b + 64)
-                : (0xFF << 24) | (Math.min(255, r + 32) << 16) | (Math.min(255, g + 32) << 8) | Math.min(255, b + 32);
-
-        context.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), bgColor);
-        context.fill(getX(), getY(), getX() + getWidth(), getY() + 1, borderColor);
-        context.fill(getX(), getY() + getHeight() - 1, getX() + getWidth(), getY() + getHeight(), borderColor);
-        context.fill(getX(), getY(), getX() + 1, getY() + getHeight(), borderColor);
-        context.fill(getX() + getWidth() - 1, getY(), getX() + getWidth(), getY() + getHeight(), borderColor);
-
-        int textColor = hovered ? (0xFF << 24) | colors.buttonTextHoverColor() : (0xFF << 24) | colors.buttonTextColor();
-        int textX = getX() + (getWidth() - textRenderer.getWidth(getMessage())) / 2;
-        int textY = getY() + (getHeight() - 8) / 2;
-        context.drawText(textRenderer, getMessage(), textX, textY, textColor, true);
+        context.getMatrices().pushMatrix();
+        context.getMatrices().translate(textX, textY);
+        context.getMatrices().scale(textScale, textScale);
+        context.drawText(textRenderer, getMessage(), 0, 0, textColor, true);
+        context.getMatrices().popMatrix();
     }
 
     @Override
     protected void appendClickableNarrations(NarrationMessageBuilder builder) {
     }
 }
-

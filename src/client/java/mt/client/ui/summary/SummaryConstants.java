@@ -4,18 +4,33 @@ import mt.client.MidnightThoughtsClient;
 import net.minecraft.util.Identifier;
 
 public class SummaryConstants {
-    public static final Identifier BACKGROUND_TEXTURE = Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/background.png");
-    public static final Identifier CROWN_TEXTURE = Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/crown.png");
-    public static final Identifier FRAME_TEXTURE = Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/frame.png");
-    public static final Identifier BADGE_TEXTURE = Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/badge.png");
-    public static final Identifier PAGES_HOLDER_TEXTURE = Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/pages_holder.png");
+    public static final Identifier CROWN_TEXTURE = Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/crown.png");
+
+    public static final Identifier ICON_BLOCKS = Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/icon_blocks.png");
+    public static final Identifier ICON_DISTANCE = Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/icon_distance.png");
+    public static final Identifier ICON_SWORD = Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/icon_sword.png");
+    public static final Identifier ICON_DEATH = Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/icon_death.png");
+    public static final Identifier ICON_JUMP = Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/icon_jump.png");
+    public static final Identifier ICON_AXE = Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/icon_axe.png");
+
+    public static final int ROW_TEXTURE_WIDTH = 320;
+    public static final int ROW_TEXTURE_HEIGHT = 64;
+
+    public static final int NAME_BADGE_TEXTURE_WIDTH = 80;
+    public static final int NAME_BADGE_TEXTURE_HEIGHT = 14;
+
+    public static final int STAT_BADGE_TEXTURE_WIDTH = 100;
+    public static final int STAT_BADGE_TEXTURE_HEIGHT = 14;
+
+    public static final int ACHIEVEMENT_BADGE_TEXTURE_WIDTH = 100;
+    public static final int ACHIEVEMENT_BADGE_TEXTURE_HEIGHT = 14;
 
     public static final long STAT_ANIMATION_DURATION = 800;
     public static final int MVP_GOLD_COLOR = 0xFFD700;
+    public static final float FRAME_ASPECT_RATIO = 1000.0f / 640.0f;
+
     public static final int FRAME_TEXTURE_WIDTH = 1000;
     public static final int FRAME_TEXTURE_HEIGHT = 640;
-    public static final float FRAME_ASPECT_RATIO = 1000.0f / 640.0f;
-    public static final float BACKGROUND_ASPECT_RATIO = 16.0f / 9.0f;
 
     public static final int BADGE_TEXTURE_WIDTH = 480;
     public static final int BADGE_TEXTURE_HEIGHT = 160;
@@ -23,29 +38,50 @@ public class SummaryConstants {
     public static final int PAGES_HOLDER_TEXTURE_WIDTH = 380;
     public static final int PAGES_HOLDER_TEXTURE_HEIGHT = 170;
 
-    public static final int COMPACT_MODE_HEIGHT_THRESHOLD = 350;
-    public static final int COMPACT_MODE_WIDTH_THRESHOLD = 500;
-    public static final int COMPACT_MODE_PLAYERS_PER_PAGE = 3;
-    public static final int NORMAL_MODE_PLAYERS_PER_PAGE = 4;
-
-    public static final int FRAME_CONTENT_PADDING_TOP = 70;
-    public static final int FRAME_CONTENT_PADDING_BOTTOM = 50;
-    public static final int FRAME_CONTENT_PADDING_SIDES = 80;
-
-    public static Identifier getThemedTexture(String fileName) {
-        String theme = mt.client.config.ClientConfig.getInstance().getEffectiveTheme();
-        return Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/" + theme + "/" + fileName);
-    }
+    public static final int NORMAL_MODE_PLAYERS_PER_PAGE = 2;
 
     public static Identifier getFrameTexture() {
-        return getThemedTexture("frame.png");
+        String theme = mt.client.config.ClientConfig.getInstance().getEffectiveTheme();
+        return Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/" + theme + "/frame.png");
     }
 
     public static Identifier getBadgeTexture() {
-        return getThemedTexture("badge.png");
+        String theme = mt.client.config.ClientConfig.getInstance().getEffectiveTheme();
+        return Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/" + theme + "/badge.png");
     }
 
     public static Identifier getPagesHolderTexture() {
-        return getThemedTexture("pages_holder.png");
+        String theme = mt.client.config.ClientConfig.getInstance().getEffectiveTheme();
+        return Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/" + theme + "/pages_holder.png");
+    }
+
+    public static Identifier getSleepingHudTexture() {
+        String theme = mt.client.config.ClientConfig.getInstance().getEffectiveTheme();
+        return Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/" + theme + "/sleeping_hud.png");
+    }
+
+    public static Identifier getRowTexture() {
+        String theme = mt.client.config.ClientConfig.getInstance().getEffectiveTheme();
+        return Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/" + theme + "/row.png");
+    }
+
+    public static Identifier getMvpRowTexture() {
+        String theme = mt.client.config.ClientConfig.getInstance().getEffectiveTheme();
+        return Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/" + theme + "/mvp_row.png");
+    }
+
+    public static Identifier getNameBadgeTexture() {
+        String theme = mt.client.config.ClientConfig.getInstance().getEffectiveTheme();
+        return Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/" + theme + "/name_badge.png");
+    }
+
+    public static Identifier getStatBadgeTexture() {
+        String theme = mt.client.config.ClientConfig.getInstance().getEffectiveTheme();
+        return Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/" + theme + "/stat_badge.png");
+    }
+
+    public static Identifier getAchievementBadgeTexture() {
+        String theme = mt.client.config.ClientConfig.getInstance().getEffectiveTheme();
+        return Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/" + theme + "/achievement_badge.png");
     }
 }

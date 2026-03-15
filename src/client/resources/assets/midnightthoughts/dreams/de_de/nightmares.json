@@ -1,0 +1,11 @@
+{
+  "entries": [
+    {"text": "Du kannst an einem so furchterregenden Ort nicht schlafen.", "rarity": 1.0},
+    {"text": "Ein Schauer läuft dir über den Rücken.", "rarity": 1.0},
+    {"text": "Alpträume verfolgen dich.", "rarity": 1.0},
+    {"text": "Mache deinen Schlafplatz behaglicher.", "rarity": 1.0},
+    {"text": "Etwas beobachtet dich aus den Schatten.", "rarity": 0.8},
+    {"text": "Die Dunkelheit fühlt sich heute Nacht erdrückend an.", "rarity": 0.9},
+    {"text": "In dieser düsteren Umgebung ist Ruhe unmöglich.", "rarity": 1.0}
+  ]
+}
