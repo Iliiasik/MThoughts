@@ -16,6 +16,7 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.player.CanPlayerSleepEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerWakeUpEvent;
@@ -77,10 +78,6 @@ public class MidnightThoughts {
             SleepTracker tracker = DailyStatsManager.getSleepTracker(srv);
             if (tracker != null) tracker.markPlayerSlept(serverPlayer.getUUID());
         }
-        serverPlayer.level().getServer().execute(() -> {
-            int comfortLevel = ComfortCalculator.calculateComfortLevel(serverPlayer);
-            WellRestedEffect.applyToPlayer(serverPlayer, comfortLevel);
-        });
     }
 
     @SubscribeEvent
@@ -92,6 +89,13 @@ public class MidnightThoughts {
                     Component.translatable("midnightthoughts.sleep.nightmare_blocked"),
                     true
             );
+        }
+    }
+
+    @SubscribeEvent
+    public void onLivingDeath(LivingDeathEvent event) {
+        if (event.getEntity() instanceof ServerPlayer player) {
+            WellRestedEffect.removeFromPlayer(player);
         }
     }
 
