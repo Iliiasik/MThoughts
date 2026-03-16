@@ -12,6 +12,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
 import net.minecraftforge.event.entity.player.PlayerWakeUpEvent;
@@ -74,14 +75,12 @@ public class MidnightThoughts {
     @SubscribeEvent
     public void onPlayerWakeUp(PlayerWakeUpEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer serverPlayer)) return;
-        MinecraftServer srv = serverPlayer.level().getServer();
-        if (srv != null) {
-            SleepTracker tracker = DailyStatsManager.getSleepTracker(srv);
-            if (tracker != null) tracker.markPlayerSlept(serverPlayer.getUUID());
-            srv.execute(() -> {
-                int comfortLevel = ComfortCalculator.calculateComfortLevel(serverPlayer);
-                WellRestedEffect.applyToPlayer(serverPlayer, comfortLevel);
-            });
+        if (!event.wakeImmediately()) {
+            MinecraftServer srv = serverPlayer.level().getServer();
+            if (srv != null) {
+                SleepTracker tracker = DailyStatsManager.getSleepTracker(srv);
+                if (tracker != null) tracker.markPlayerSlept(serverPlayer.getUUID());
+            }
         }
     }
 
@@ -94,6 +93,13 @@ public class MidnightThoughts {
                     Component.translatable("midnightthoughts.sleep.nightmare_blocked"),
                     true
             );
+        }
+    }
+
+    @SubscribeEvent
+    public void onLivingDeath(LivingDeathEvent event) {
+        if (event.getEntity() instanceof ServerPlayer player) {
+            WellRestedEffect.removeFromPlayer(player);
         }
     }
 
