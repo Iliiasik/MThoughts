@@ -7,15 +7,15 @@ import mt.server.DailyStatsManager;
 import mt.server.SleepTracker;
 import mt.server.WellRestedEffect;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.entity.event.v1.EntitySleepEvents;
+import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
-import net.fabricmc.fabric.api.entity.event.v1.EntitySleepEvents;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
-import net.minecraft.util.math.BlockPos;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,10 +50,6 @@ public class MidnightThoughts implements ModInitializer {
             if (srv != null) {
                 SleepTracker tracker = DailyStatsManager.getSleepTracker(srv);
                 if (tracker != null) tracker.markPlayerSlept(serverPlayer.getUuid());
-                srv.execute(() -> {
-                    int comfortLevel = ComfortCalculator.calculateComfortLevel(serverPlayer);
-                    WellRestedEffect.applyToPlayer(serverPlayer, comfortLevel);
-                });
             }
         });
 
@@ -67,6 +63,12 @@ public class MidnightThoughts implements ModInitializer {
                 return PlayerEntity.SleepFailureReason.OTHER;
             }
             return null;
+        });
+
+        ServerLivingEntityEvents.AFTER_DEATH.register((entity, damageSource) -> {
+            if (entity instanceof ServerPlayerEntity player) {
+                WellRestedEffect.removeFromPlayer(player);
+            }
         });
 
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
