@@ -1,5 +1,6 @@
 package mt.client.ui.summary;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.text.Text;
@@ -8,61 +9,65 @@ import java.util.List;
 
 public class AchievementRenderer {
 
-    public static void render(DrawContext context, TextRenderer textRenderer, int x, int y1, int y2,
-                             List<String> achievements, BadgeDimensions dims, int maxWidth,
-                             SummaryDimensions screenDims, float fadeAlpha, List<AchievementTooltipArea> achievementAreas) {
+    public static void render(DrawContext context, TextRenderer textRenderer, List<String> achievements,
+                              int x, int y, int width, int height, SummaryDimensions dims,
+                              float fadeAlpha, List<AchievementTooltipArea> achievementAreas) {
+        int maxAchievements = 3;
+        int count = Math.min(achievements.size(), maxAchievements);
+        if (count == 0) return;
 
-        int padding = (int)(3 * screenDims.uiScale);
-        int spacing = (int)(3 * screenDims.uiScale);
-        int maxAchievements = screenDims.isCompactMode ? 2 : 4;
+        BadgeDimensions badgeDims = BadgeDimensions.calculate(dims);
+        int badgeH = badgeDims.height();
+        int rowSpacing = badgeDims.rowSpacing();
+        float textScale = badgeDims.textScale();
 
-        int currentX = x;
-        int currentY = y1;
-        int count = 0;
+        int texW = SummaryConstants.ACHIEVEMENT_BADGE_TEXTURE_WIDTH;
+        int texH = SummaryConstants.ACHIEVEMENT_BADGE_TEXTURE_HEIGHT;
+        float badgeScale = Math.min((float) badgeH / texH, (float) width / texW);
+        int renderW = (int) (texW * badgeScale);
 
-        for (String achievementId : achievements) {
-            if (count >= maxAchievements) break;
+        int totalH = count * badgeH + (count - 1) * rowSpacing;
+        int startY = y + Math.max(0, (height - totalH) / 2);
 
-            String achievementText = Text.translatable("midnightthoughts.achievement." + achievementId).getString();
-            int textWidth = (int)(textRenderer.getWidth(achievementText) * dims.textScale());
-            int badgeWidth = textWidth + padding * 2;
+        for (int i = 0; i < count; i++) {
+            String achievementId = achievements.get(i);
+            int rowY = startY + i * (badgeH + rowSpacing);
+            if (rowY + badgeH > y + height) break;
 
-            if (shouldMoveToNextRow(currentX, badgeWidth, x, maxWidth, currentY, y1)) {
-                currentX = x;
-                currentY = y2;
-            }
+            int renderH = (int) (texH * badgeScale);
+            int actualY = rowY + (badgeH - renderH) / 2;
 
-            if (shouldStopRendering(currentX, badgeWidth, x, maxWidth, currentY, y2)) {
-                break;
-            }
-
-            renderBadge(context, textRenderer, currentX, currentY, badgeWidth, dims.height(), padding,
-                       achievementText, dims.textScale(), fadeAlpha);
-            achievementAreas.add(new AchievementTooltipArea(currentX, currentY, badgeWidth, dims.height(), achievementId));
-
-            currentX += badgeWidth + spacing;
-            count++;
+            renderBadge(context, textRenderer, x, rowY, width, badgeH, achievementId, textScale, fadeAlpha);
+            achievementAreas.add(new AchievementTooltipArea(x, actualY, renderW, renderH, achievementId));
         }
     }
 
-    private static boolean shouldMoveToNextRow(int currentX, int badgeWidth, int x, int maxWidth, int currentY, int y1) {
-        return currentX + badgeWidth > x + maxWidth && currentY == y1;
-    }
+    private static void renderBadge(DrawContext context, TextRenderer textRenderer,
+                                    int x, int y, int width, int height,
+                                    String achievementId, float textScale, float fadeAlpha) {
+        int texW = SummaryConstants.ACHIEVEMENT_BADGE_TEXTURE_WIDTH;
+        int texH = SummaryConstants.ACHIEVEMENT_BADGE_TEXTURE_HEIGHT;
+        float scaleH = (float) height / texH;
+        float scaleW = (float) width / texW;
+        float scale = Math.min(scaleH, scaleW);
+        int renderW = (int) (texW * scale);
+        int renderH = (int) (texH * scale);
+        int renderY = y + (height - renderH) / 2;
 
-    private static boolean shouldStopRendering(int currentX, int badgeWidth, int x, int maxWidth, int currentY, int y2) {
-        return currentX + badgeWidth > x + maxWidth && currentY == y2;
-    }
+        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, fadeAlpha);
+        RenderSystem.enableBlend();
+        context.getMatrices().push();
+        context.getMatrices().translate(x, renderY, 0);
+        context.getMatrices().scale((float) renderW / texW, (float) renderH / texH, 1.0f);
+        context.drawTexture(SummaryConstants.getAchievementBadgeTexture(), 0, 0, 0.0f, 0.0f, texW, texH, texW, texH);
+        context.getMatrices().pop();
+        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+        RenderSystem.disableBlend();
 
-    private static void renderBadge(DrawContext context, TextRenderer textRenderer, int x, int y, int width,
-                                    int height, int padding, String text, float textScale, float fadeAlpha) {
-        int alpha = (int)(fadeAlpha * 200);
-        int bgColor = (alpha << 24) | 0x8a6a2a;
-        context.fill(x, y, x + width, y + height, bgColor);
-
-        int textColor = ((int)(fadeAlpha * 255) << 24) | 0xffd700;
-        int textY = y + (height - (int)(8 * textScale)) / 2;
-
-        RenderUtils.renderScaledText(context, textRenderer, text, x + padding, textY, textColor, textScale, false);
+        int padX = Math.max(3, (int) (4 * scale));
+        String text = Text.translatable("midnightthoughts.achievement." + achievementId).getString();
+        int textColor = (int) (fadeAlpha * 255) << 24 | 0xFFFFFF;
+        int textY = renderY + (renderH - (int) (8 * textScale)) / 2;
+        RenderUtils.renderScaledText(context, textRenderer, text, x + padX, textY, textColor, textScale, false);
     }
 }
-

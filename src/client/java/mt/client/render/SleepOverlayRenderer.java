@@ -1,43 +1,35 @@
 package mt.client.render;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import mt.client.MidnightThoughtsClient;
 import mt.config.MidnightThoughtsConfig;
 import mt.client.manager.SleepStateManager;
+import mt.client.manager.WellRestedClientState;
 import mt.client.model.Slide;
+import mt.client.model.SlideCategory;
 import mt.client.service.SlideService;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.render.BufferBuilder;
-import net.minecraft.client.render.BufferRenderer;
-import net.minecraft.client.render.GameRenderer;
-import net.minecraft.client.render.Tessellator;
-import net.minecraft.client.render.VertexFormat;
-import net.minecraft.client.render.VertexFormats;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.util.Identifier;
-import org.joml.Matrix4f;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class SleepOverlayRenderer {
-    private static final Identifier IMAGE_TEXTURE = Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/moon.png");
-
+    private static final Identifier IMAGE_TEXTURE = Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/moon.png");
+    private static final Identifier SKULL_TEXTURE = Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/skull.png");
     private static final int IMAGE_ORIGINAL_WIDTH = 421;
     private static final int IMAGE_ORIGINAL_HEIGHT = 407;
-
     private static final float IMAGE_SCALE_PERCENT = 0.35f;
     private static final float GAP_PERCENT = 0.03f;
     private static final float TEXT_AREA_WIDTH_PERCENT = 0.35f;
     private static final float MIN_TEXT_SCALE = 1.5f;
     private static final float MAX_TEXT_SCALE = 3.0f;
     private static final float IMAGE_OPACITY = 0.2f;
-
     private final SleepStateManager sleepStateManager;
     private final SlideService slideService;
     private final MidnightThoughtsConfig config;
-
     private Slide currentSlide;
     private Slide nextSlide;
     private long slideStartTime;
@@ -53,10 +45,7 @@ public class SleepOverlayRenderer {
     private static final long SLEEP_DEBOUNCE_MS = 200;
 
     private enum SlideState {
-        HIDDEN,
-        FADING_IN,
-        VISIBLE,
-        FADING_OUT
+        HIDDEN, FADING_IN, VISIBLE, FADING_OUT
     }
 
     public SleepOverlayRenderer(SleepStateManager sleepStateManager, SlideService slideService, MidnightThoughtsConfig config) {
@@ -97,18 +86,24 @@ public class SleepOverlayRenderer {
     }
 
     private void onSleepStart() {
-        slideService.refreshStats();
-        slideService.resetSlideCounter();
         isOverlayVisible = true;
         overlayAlpha = 1f;
         textAlpha = 1f;
         targetTextAlpha = 1f;
-        currentSlide = slideService.getNextSlide();
-        nextSlide = slideService.getNextSlide();
+        currentSlide = getNightmareAwareSlide();
+        nextSlide = getNightmareAwareSlide();
         currentSlideDuration = config.getRandomSlideDisplayTime();
         slideStartTime = System.currentTimeMillis();
         visibleStartTime = System.currentTimeMillis();
         slideState = SlideState.VISIBLE;
+    }
+
+    private Slide getNightmareAwareSlide() {
+        if (WellRestedClientState.isNightmareMode()) {
+            Slide s = slideService.getSlideByCategory(slideService.getCurrentLanguage(), SlideCategory.NIGHTMARE);
+            if (s != null) return s;
+        }
+        return slideService.getNextSlide();
     }
 
     private void onSleepEnd() {
@@ -134,12 +129,11 @@ public class SleepOverlayRenderer {
             case FADING_IN -> {
                 long elapsedFadeIn = now - slideStartTime;
                 float progressFadeIn = (float) elapsedFadeIn / config.getFadeInDurationMs();
-
                 if (progressFadeIn >= 1f && textAlpha > 0.95f) {
                     targetTextAlpha = 1f;
                     slideState = SlideState.VISIBLE;
                     visibleStartTime = now;
-                    nextSlide = slideService.getNextSlide();
+                    nextSlide = getNightmareAwareSlide();
                 } else {
                     targetTextAlpha = easeInOut(Math.min(progressFadeIn, 1f));
                 }
@@ -147,7 +141,6 @@ public class SleepOverlayRenderer {
             case VISIBLE -> {
                 targetTextAlpha = 1f;
                 long elapsedVisible = now - visibleStartTime;
-
                 if (elapsedVisible >= currentSlideDuration) {
                     slideState = SlideState.FADING_OUT;
                     slideStartTime = now;
@@ -157,13 +150,12 @@ public class SleepOverlayRenderer {
                 long elapsedFadeOut = now - slideStartTime;
                 float progressFadeOut = (float) elapsedFadeOut / config.getFadeOutDurationMs();
                 targetTextAlpha = 1f - easeInOut(Math.min(progressFadeOut, 1f));
-
                 if (progressFadeOut >= 1f && textAlpha < 0.05f) {
                     if (nextSlide != null) {
                         currentSlide = nextSlide;
                         nextSlide = null;
                     } else {
-                        currentSlide = slideService.getNextSlide();
+                        currentSlide = getNightmareAwareSlide();
                     }
                     currentSlideDuration = config.getRandomSlideDisplayTime();
                     slideStartTime = now;
@@ -189,22 +181,34 @@ public class SleepOverlayRenderer {
         return t < 0.5f ? 2 * t * t : 1 - (float) Math.pow(-2 * t + 2, 2) / 2;
     }
 
-    public void render(DrawContext context, int screenWidth, int screenHeight) {
+    public void renderOverlayOnly(DrawContext context, int screenWidth, int screenHeight) {
         if (!sleepStateManager.isSleeping() || !config.isEnableOverlay()) {
             return;
         }
-
         if (overlayAlpha <= 0 && !isOverlayVisible) {
             return;
         }
-
         renderOverlay(context, screenWidth, screenHeight);
+    }
+
+    public void renderContentOnly(DrawContext context, int screenWidth, int screenHeight) {
+        if (!sleepStateManager.isSleeping() || !config.isEnableOverlay()) {
+            return;
+        }
+        if (overlayAlpha <= 0 && !isOverlayVisible) {
+            return;
+        }
         renderContent(context, screenWidth, screenHeight);
     }
 
     private void renderOverlay(DrawContext context, int screenWidth, int screenHeight) {
         int alpha = (int) (config.getOverlayOpacity() * overlayAlpha * 255);
-        int overlayColor = (alpha << 24);
+        int overlayColor;
+        if (WellRestedClientState.isNightmareMode()) {
+            overlayColor = (alpha << 24) | 0x1A0000;
+        } else {
+            overlayColor = (alpha << 24);
+        }
         context.fill(0, 0, screenWidth, screenHeight, overlayColor);
     }
 
@@ -247,24 +251,18 @@ public class SleepOverlayRenderer {
     }
 
     private void renderImage(DrawContext context, int x, int y, int width, int height) {
-        int alpha = (int) (overlayAlpha * IMAGE_OPACITY * 255);
+        Identifier texture = WellRestedClientState.isNightmareMode() ? SKULL_TEXTURE : IMAGE_TEXTURE;
+        float alpha = overlayAlpha * IMAGE_OPACITY;
 
-        RenderSystem.setShaderTexture(0, IMAGE_TEXTURE);
-        RenderSystem.setShader(GameRenderer::getPositionTexColorProgram);
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-
-        Matrix4f matrix = context.getMatrices().peek().getPositionMatrix();
-        BufferBuilder buffer = Tessellator.getInstance().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
-
-        buffer.vertex(matrix, x, y + height, 0).texture(0, 1).color(255, 255, 255, alpha);
-        buffer.vertex(matrix, x + width, y + height, 0).texture(1, 1).color(255, 255, 255, alpha);
-        buffer.vertex(matrix, x + width, y, 0).texture(1, 0).color(255, 255, 255, alpha);
-        buffer.vertex(matrix, x, y, 0).texture(0, 0).color(255, 255, 255, alpha);
-
-        BufferRenderer.drawWithGlobalProgram(buffer.end());
-
-        RenderSystem.disableBlend();
+        com.mojang.blaze3d.systems.RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, alpha);
+        com.mojang.blaze3d.systems.RenderSystem.enableBlend();
+        context.getMatrices().push();
+        context.getMatrices().translate(x, y, 0);
+        context.getMatrices().scale(width / (float) IMAGE_ORIGINAL_WIDTH, height / (float) IMAGE_ORIGINAL_HEIGHT, 1.0f);
+        context.drawTexture(texture, 0, 0, 0.0f, 0.0f, IMAGE_ORIGINAL_WIDTH, IMAGE_ORIGINAL_HEIGHT, IMAGE_ORIGINAL_WIDTH, IMAGE_ORIGINAL_HEIGHT);
+        context.getMatrices().pop();
+        com.mojang.blaze3d.systems.RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+        com.mojang.blaze3d.systems.RenderSystem.disableBlend();
     }
 
     private void renderSlideText(DrawContext context, TextRenderer textRenderer, List<String> lines, int areaX, int centerY, float scale) {
@@ -291,17 +289,13 @@ public class SleepOverlayRenderer {
 
     private List<String> wrapText(String text, TextRenderer textRenderer, int maxWidth) {
         List<String> lines = new ArrayList<>();
-
         if (text == null || text.isEmpty()) {
             return lines;
         }
-
         String[] words = text.split(" ");
         StringBuilder currentLine = new StringBuilder();
-
         for (String word : words) {
             String testLine = currentLine.isEmpty() ? word : currentLine + " " + word;
-
             if (textRenderer.getWidth(testLine) <= maxWidth) {
                 if (!currentLine.isEmpty()) {
                     currentLine.append(" ");
@@ -316,11 +310,9 @@ public class SleepOverlayRenderer {
                 }
             }
         }
-
         if (!currentLine.isEmpty()) {
             lines.add(currentLine.toString());
         }
-
         return lines;
     }
 

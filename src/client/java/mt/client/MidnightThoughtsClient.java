@@ -10,6 +10,7 @@ import mt.client.service.FactProvider;
 import mt.client.service.PlayerStatsService;
 import mt.client.service.SlideService;
 import mt.client.ui.SleepingPlayersHud;
+import mt.client.ui.WellRestedHud;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
@@ -65,25 +66,27 @@ public class MidnightThoughtsClient implements ClientModInitializer {
         HudRenderCallback.EVENT.register((context, tickCounter) -> {
             int width = context.getScaledWindowWidth();
             int height = context.getScaledWindowHeight();
-            overlayRenderer.render(context, width, height);
+            overlayRenderer.renderOverlayOnly(context, width, height);
+            overlayRenderer.renderContentOnly(context, width, height);
             SleepingPlayersHud.render(context, width, height);
+            WellRestedHud.render(context, width, height);
         });
     }
 
     private void registerResourceReloadListener() {
         ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(
-            new SimpleSynchronousResourceReloadListener() {
-                @Override
-                public Identifier getFabricId() {
-                    return Identifier.of(MOD_ID, "slide_reloader");
-                }
+                new SimpleSynchronousResourceReloadListener() {
+                    @Override
+                    public Identifier getFabricId() {
+                        return Identifier.of(MOD_ID, "slide_reloader");
+                    }
 
-                @Override
-                public void reload(ResourceManager manager) {
-                    slideRepository.clearCache();
-                    slideRepository.loadAllSlides(manager);
+                    @Override
+                    public void reload(ResourceManager manager) {
+                        slideRepository.clearCache();
+                        slideRepository.loadAllSlides(manager);
+                    }
                 }
-            }
         );
     }
 
@@ -95,4 +98,3 @@ public class MidnightThoughtsClient implements ClientModInitializer {
         return overlayRenderer;
     }
 }
-
