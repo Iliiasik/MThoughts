@@ -18,6 +18,7 @@ public class DailyPlayerStats {
     private int baseMobsKilled = 0;
     private int baseDeaths = 0;
     private int baseJumps = 0;
+    private int baseDamageDealt = 0;
     private boolean hasLoadedFromFile = false;
 
     public DailyPlayerStats(UUID playerUuid) {
@@ -34,6 +35,7 @@ public class DailyPlayerStats {
             this.baseMobsKilled = saved.baseMobsKilled;
             this.baseDeaths = saved.baseDeaths;
             this.baseJumps = saved.baseJumps;
+            this.baseDamageDealt = saved.baseDamageDealt;
             hasLoadedFromFile = true;
         }
     }
@@ -42,7 +44,7 @@ public class DailyPlayerStats {
         StatsStorage.SavedPlayerStats existing = StatsStorage.loadPlayerStats(server, playerUuid);
 
         StatsStorage.SavedPlayerStats saved = new StatsStorage.SavedPlayerStats(
-            baseBlocksDestroyed, baseDistanceWalked, baseMobsKilled, baseDeaths, baseJumps
+                baseBlocksDestroyed, baseDistanceWalked, baseMobsKilled, baseDeaths, baseJumps, baseDamageDealt
         );
 
         if (existing != null) {
@@ -72,6 +74,7 @@ public class DailyPlayerStats {
         this.baseMobsKilled = clampStat(stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.MOB_KILLS)));
         this.baseDeaths = clampStat(stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.DEATHS)));
         this.baseJumps = clampStat(stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.JUMP)));
+        this.baseDamageDealt = clampStat(stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.DAMAGE_DEALT)));
     }
 
     private int getTotalDistance(StatHandler stats) {
@@ -92,29 +95,19 @@ public class DailyPlayerStats {
         total += stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.AVIATE_ONE_CM));
         total += stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.STRIDER_ONE_CM));
 
-        if (total > MAX_SAFE_VALUE) {
-            return MAX_SAFE_VALUE;
-        }
+        if (total > MAX_SAFE_VALUE) return MAX_SAFE_VALUE;
         return (int) total;
     }
 
     private int clampStat(int value) {
-        if (value < 0) {
-            return 0;
-        }
-        if (value > MAX_SAFE_VALUE) {
-            return MAX_SAFE_VALUE;
-        }
+        if (value < 0) return 0;
+        if (value > MAX_SAFE_VALUE) return MAX_SAFE_VALUE;
         return value;
     }
 
     private int clampDelta(long value) {
-        if (value < 0) {
-            return 0;
-        }
-        if (value > MAX_SAFE_VALUE) {
-            return MAX_SAFE_VALUE;
-        }
+        if (value < 0) return 0;
+        if (value > MAX_SAFE_VALUE) return MAX_SAFE_VALUE;
         return (int) value;
     }
 
@@ -134,23 +127,24 @@ public class DailyPlayerStats {
         int currentMobsKilled = clampStat(stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.MOB_KILLS)));
         int currentDeaths = clampStat(stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.DEATHS)));
         int currentJumps = clampStat(stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.JUMP)));
+        int currentDamageDealt = clampStat(stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.DAMAGE_DEALT)));
 
         int deltaBlocks = clampDelta((long) blocksDestroyed - baseBlocksDestroyed);
         int deltaDistance = clampDelta((long) currentDistanceWalked - baseDistanceWalked);
         int deltaMobs = clampDelta((long) currentMobsKilled - baseMobsKilled);
         int deltaDeaths = clampDelta((long) currentDeaths - baseDeaths);
         int deltaJumps = clampDelta((long) currentJumps - baseJumps);
+        int deltaDamageDealt = clampDelta((long) currentDamageDealt - baseDamageDealt);
 
-        return new DailyDelta(deltaBlocks, deltaDistance, deltaMobs, deltaDeaths, deltaJumps);
+        return new DailyDelta(deltaBlocks, deltaDistance, deltaMobs, deltaDeaths, deltaJumps, deltaDamageDealt);
     }
 
     public record DailyDelta(
-        int blocksDestroyed,
-        int distanceWalked,
-        int mobsKilled,
-        int deaths,
-        int jumps
+            int blocksDestroyed,
+            int distanceWalked,
+            int mobsKilled,
+            int deaths,
+            int jumps,
+            int damageDealt
     ) {}
 }
-
-

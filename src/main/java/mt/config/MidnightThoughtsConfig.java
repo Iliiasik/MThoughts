@@ -24,21 +24,18 @@ public final class MidnightThoughtsConfig {
     private AchievementsSettings achievements = new AchievementsSettings();
     private MvpSettings mvp = new MvpSettings();
     private ComfortSettings comfort = new ComfortSettings();
+    private ServerSettings server = new ServerSettings();
     private UISettings ui = new UISettings();
 
-    private MidnightThoughtsConfig() {
-    }
+    private MidnightThoughtsConfig() {}
 
     public static MidnightThoughtsConfig getInstance() {
-        if (instance == null) {
-            instance = load();
-        }
+        if (instance == null) instance = load();
         return instance;
     }
 
     public static MidnightThoughtsConfig load() {
         Path configPath = getConfigPath();
-
         if (Files.exists(configPath)) {
             try {
                 String json = Files.readString(configPath);
@@ -52,7 +49,6 @@ public final class MidnightThoughtsConfig {
                 LOGGER.error("Failed to load configuration: {}", e.getMessage());
             }
         }
-
         MidnightThoughtsConfig config = new MidnightThoughtsConfig();
         config.save();
         return config;
@@ -60,11 +56,9 @@ public final class MidnightThoughtsConfig {
 
     public void save() {
         Path configPath = getConfigPath();
-
         try {
             Files.createDirectories(configPath.getParent());
-            String json = GSON.toJson(this);
-            Files.writeString(configPath, json);
+            Files.writeString(configPath, GSON.toJson(this));
             LOGGER.info("Configuration saved to {}", configPath);
         } catch (IOException e) {
             LOGGER.error("Failed to save configuration: {}", e.getMessage());
@@ -77,6 +71,7 @@ public final class MidnightThoughtsConfig {
         if (achievements == null) achievements = new AchievementsSettings();
         if (mvp == null) mvp = new MvpSettings();
         if (comfort == null) comfort = new ComfortSettings();
+        if (server == null) server = new ServerSettings();
         if (ui == null) ui = new UISettings();
     }
 
@@ -84,60 +79,24 @@ public final class MidnightThoughtsConfig {
         return FabricLoader.getInstance().getConfigDir().resolve(CONFIG_FILE_NAME);
     }
 
-    public SleepOverlaySettings getSleepOverlay() {
-        return sleepOverlay;
-    }
+    public SleepOverlaySettings getSleepOverlay() { return sleepOverlay; }
+    public WellRestedSettings getWellRested() { return wellRested; }
+    public AchievementsSettings getAchievements() { return achievements; }
+    public MvpSettings getMvp() { return mvp; }
+    public ComfortSettings getComfort() { return comfort; }
+    public ServerSettings getServer() { return server; }
+    public UISettings getUi() { return ui; }
 
-    public WellRestedSettings getWellRested() {
-        return wellRested;
-    }
-
-    public AchievementsSettings getAchievements() {
-        return achievements;
-    }
-
-    public MvpSettings getMvp() {
-        return mvp;
-    }
-
-    public ComfortSettings getComfort() {
-        return comfort;
-    }
-
-    public UISettings getUi() {
-        return ui;
-    }
-
-    public int getFadeInDurationMs() {
-        return sleepOverlay.fadeInDurationMs;
-    }
-
-    public int getFadeOutDurationMs() {
-        return sleepOverlay.fadeOutDurationMs;
-    }
-
-    public float getOverlayOpacity() {
-        return sleepOverlay.overlayOpacity;
-    }
-
-    public float getTextOpacity() {
-        return sleepOverlay.textOpacity;
-    }
-
-    public float getSpecialSlideChance() {
-        return sleepOverlay.specialSlideChance;
-    }
-
-    public boolean isEnableOverlay() {
-        return sleepOverlay.enableOverlay;
-    }
-
-    public boolean isEnableImage() {
-        return sleepOverlay.enableImage;
-    }
+    public int getFadeInDurationMs() { return sleepOverlay.fadeInDurationMs; }
+    public int getFadeOutDurationMs() { return sleepOverlay.fadeOutDurationMs; }
+    public float getOverlayOpacity() { return sleepOverlay.overlayOpacity; }
+    public float getTextOpacity() { return sleepOverlay.textOpacity; }
+    public float getSpecialSlideChance() { return sleepOverlay.specialSlideChance; }
+    public boolean isEnableOverlay() { return sleepOverlay.enableOverlay; }
+    public boolean isEnableImage() { return sleepOverlay.enableImage; }
 
     public int getRandomSlideDisplayTime() {
-        return sleepOverlay.minSlideDisplayTimeMs + (int) (Math.random() * (sleepOverlay.maxSlideDisplayTimeMs - sleepOverlay.minSlideDisplayTimeMs));
+        return sleepOverlay.minSlideDisplayTimeMs + (int)(Math.random() * (sleepOverlay.maxSlideDisplayTimeMs - sleepOverlay.minSlideDisplayTimeMs));
     }
 
     public static class SleepOverlaySettings {
@@ -157,11 +116,11 @@ public final class MidnightThoughtsConfig {
         public Map<String, WellRestedLevel> levels = new HashMap<>();
 
         public WellRestedSettings() {
-            levels.put("level1", new WellRestedLevel(3, 2.0, 0.25, 0.005f, 2.0f));
-            levels.put("level2", new WellRestedLevel(5, 2.0, 0.25, 0.01f, 2.0f));
-            levels.put("level3", new WellRestedLevel(7, 2.0, 0.25, 0.015f, 4.0f));
-            levels.put("level4", new WellRestedLevel(10, 2.0, 0.25, 0.02f, 4.0f));
-            levels.put("level5", new WellRestedLevel(15, 2.0, 0.25, 0.025f, 4.0f));
+            levels.put("level1", new WellRestedLevel(3,  0.16f, 0.08f, 0.04f,  0.08f, 0.04f, 0.02f,  0.04f, 0.02f, 0.01f,  2.0f, 0.02f));
+            levels.put("level2", new WellRestedLevel(5,  0.24f, 0.12f, 0.06f,  0.12f, 0.06f, 0.03f,  0.06f, 0.03f, 0.01f,  4.0f, 0.04f));
+            levels.put("level3", new WellRestedLevel(7,  0.32f, 0.18f, 0.08f,  0.16f, 0.08f, 0.04f,  0.08f, 0.04f, 0.02f,  6.0f, 0.06f));
+            levels.put("level4", new WellRestedLevel(10, 0.40f, 0.24f, 0.12f,  0.20f, 0.12f, 0.06f,  0.10f, 0.05f, 0.02f,  8.0f, 0.08f));
+            levels.put("level5", new WellRestedLevel(15, 0.50f, 0.30f, 0.16f,  0.24f, 0.16f, 0.08f,  0.12f, 0.06f, 0.03f, 10.0f, 0.10f));
         }
 
         public WellRestedLevel getLevel(int level) {
@@ -171,20 +130,25 @@ public final class MidnightThoughtsConfig {
 
     public static class WellRestedLevel {
         public int durationMinutes;
-        public double healthBonus;
-        public double luckBonus;
-        public float exhaustionReduction;
-        public float instantHeal;
+        public float speedPhase1, speedPhase2, speedPhase3;
+        public float strengthPhase1, strengthPhase2, strengthPhase3;
+        public float attackSpeedPhase1, attackSpeedPhase2, attackSpeedPhase3;
+        public float healthBonus;
+        public float regenBonus;
 
-        public WellRestedLevel() {
-        }
+        public WellRestedLevel() {}
 
-        public WellRestedLevel(int durationMinutes, double healthBonus, double luckBonus, float exhaustionReduction, float instantHeal) {
+        public WellRestedLevel(int durationMinutes,
+                               float speedPhase1, float speedPhase2, float speedPhase3,
+                               float strengthPhase1, float strengthPhase2, float strengthPhase3,
+                               float attackSpeedPhase1, float attackSpeedPhase2, float attackSpeedPhase3,
+                               float healthBonus, float regenBonus) {
             this.durationMinutes = durationMinutes;
+            this.speedPhase1 = speedPhase1; this.speedPhase2 = speedPhase2; this.speedPhase3 = speedPhase3;
+            this.strengthPhase1 = strengthPhase1; this.strengthPhase2 = strengthPhase2; this.strengthPhase3 = strengthPhase3;
+            this.attackSpeedPhase1 = attackSpeedPhase1; this.attackSpeedPhase2 = attackSpeedPhase2; this.attackSpeedPhase3 = attackSpeedPhase3;
             this.healthBonus = healthBonus;
-            this.luckBonus = luckBonus;
-            this.exhaustionReduction = exhaustionReduction;
-            this.instantHeal = instantHeal;
+            this.regenBonus = regenBonus;
         }
     }
 
@@ -210,23 +174,13 @@ public final class MidnightThoughtsConfig {
     }
 
     public static class AchievementRequirement {
-        public Integer deaths;
-        public Integer mobsMin;
-        public Integer mobsMax;
-        public Integer blocksMin;
-        public Integer distanceMin;
-        public Integer deathsMax;
-        public Integer jumpsMin;
+        public Integer deaths, mobsMin, mobsMax, blocksMin, distanceMin, deathsMax, jumpsMin;
 
-        public AchievementRequirement() {
-        }
+        public AchievementRequirement() {}
 
         public AchievementRequirement(Integer deaths, Integer mobsMin, Integer mobsMax, Integer blocksMin, Integer distanceMin) {
-            this.deaths = deaths;
-            this.mobsMin = mobsMin;
-            this.mobsMax = mobsMax;
-            this.blocksMin = blocksMin;
-            this.distanceMin = distanceMin;
+            this.deaths = deaths; this.mobsMin = mobsMin; this.mobsMax = mobsMax;
+            this.blocksMin = blocksMin; this.distanceMin = distanceMin;
         }
 
         public AchievementRequirement(Integer deaths, Integer mobsMin, Integer mobsMax, Integer blocksMin, Integer distanceMin, Integer deathsMax) {
@@ -248,6 +202,7 @@ public final class MidnightThoughtsConfig {
         public int pointsPerMob = 15;
         public int pointsPerJump10 = 1;
         public int penaltyPerDeath = 30;
+        public int mvpWellRestedDurationMinutes = 21;
     }
 
     public static class ComfortSettings {
@@ -255,8 +210,11 @@ public final class MidnightThoughtsConfig {
         public int scanRadius = 5;
     }
 
+    public static class ServerSettings {
+        public boolean resetPhantomTimerForNonSleepers = true;
+    }
+
     public static class UISettings {
         public String theme = "magic";
     }
 }
-

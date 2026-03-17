@@ -7,15 +7,20 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.World;
 
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
+
 public class SleepTracker {
     private static final long NIGHT_START = 12542;
     private static final long MORNING_TIME = 1000;
 
     private final MinecraftServer server;
     private int lastSleepingCount = 0;
-    private boolean allPlayersSleeping = false;
-    private boolean wasNightBeforeSleep = false;
+    private boolean wasNight = false;
+    private boolean nightSkipTriggered = false;
     private long lastTimeOfDay = -1;
+    private final Set<UUID> playersWhoSlept = new HashSet<>();
 
     public SleepTracker(MinecraftServer server) {
         this.server = server;
@@ -23,9 +28,7 @@ public class SleepTracker {
 
     public void tick() {
         ServerWorld overworld = server.getWorld(World.OVERWORLD);
-        if (overworld == null) {
-            return;
-        }
+        if (overworld == null) return;
 
         long timeOfDay = overworld.getTimeOfDay() % 24000;
         int sleepingCount = countSleepingPlayers();
@@ -36,26 +39,35 @@ public class SleepTracker {
             lastSleepingCount = sleepingCount;
         }
 
-        boolean allSleepingNow = totalPlayers > 0 && sleepingCount == totalPlayers;
+        boolean currentlyNight = isNightTime(timeOfDay);
 
-        if (allSleepingNow && !allPlayersSleeping) {
-            wasNightBeforeSleep = isNightTime(timeOfDay);
-        }
-
-        if (allPlayersSleeping && sleepingCount == 0) {
-            boolean isMorningNow = isMorningTime(timeOfDay);
-            boolean wasNightLastTick = isNightTime(lastTimeOfDay);
-            boolean timeJumped = lastTimeOfDay >= 0 && (lastTimeOfDay > timeOfDay || (wasNightLastTick && isMorningNow));
-
-            if (wasNightBeforeSleep && (timeJumped || isMorningNow)) {
-                DailyStatsManager.showDailySummaryAndReset(server);
+        if (currentlyNight) {
+            wasNight = true;
+            nightSkipTriggered = false;
+            for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
+                if (player.isSleeping()) {
+                    playersWhoSlept.add(player.getUuid());
+                }
             }
-
-            wasNightBeforeSleep = false;
         }
 
-        allPlayersSleeping = allSleepingNow;
+        if (wasNight && !currentlyNight && !nightSkipTriggered) {
+            boolean timeJumped = lastTimeOfDay >= 0 && lastTimeOfDay > timeOfDay;
+            boolean morningTransition = lastTimeOfDay >= 0 && isNightTime(lastTimeOfDay) && isMorningTime(timeOfDay);
+            if (timeJumped || morningTransition) {
+                nightSkipTriggered = true;
+                wasNight = false;
+                Set<UUID> slept = new HashSet<>(playersWhoSlept);
+                playersWhoSlept.clear();
+                DailyStatsManager.showDailySummaryAndReset(server, slept);
+            }
+        }
+
         lastTimeOfDay = timeOfDay;
+    }
+
+    public void markPlayerSlept(UUID uuid) {
+        playersWhoSlept.add(uuid);
     }
 
     private boolean isNightTime(long time) {
@@ -69,9 +81,7 @@ public class SleepTracker {
     private int countSleepingPlayers() {
         int count = 0;
         for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
-            if (player.isSleeping()) {
-                count++;
-            }
+            if (player.isSleeping()) count++;
         }
         return count;
     }
@@ -79,9 +89,7 @@ public class SleepTracker {
     private int countNonSpectatorPlayers() {
         int count = 0;
         for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
-            if (!player.isSpectator()) {
-                count++;
-            }
+            if (!player.isSpectator()) count++;
         }
         return count;
     }

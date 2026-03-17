@@ -1,6 +1,9 @@
 package mt.client.ui.summary;
 
 public class SummaryDimensions {
+    public static final float BASE_W = 1000.0f;
+    public static final float BASE_H = 640.0f;
+
     public int panelWidth;
     public int panelHeight;
     public int panelX;
@@ -8,64 +11,33 @@ public class SummaryDimensions {
     public int playerRowHeight;
     public int headSize;
     public float uiScale;
-    public boolean isCompactMode;
     public int playersPerPage;
 
     public void calculate(int screenWidth, int screenHeight) {
-        isCompactMode = screenHeight < SummaryConstants.COMPACT_MODE_HEIGHT_THRESHOLD ||
-                        screenWidth < SummaryConstants.COMPACT_MODE_WIDTH_THRESHOLD;
+        float scaleX = screenWidth / BASE_W;
+        float scaleY = screenHeight / BASE_H;
+        uiScale = Math.min(scaleX, scaleY);
 
-        if (isCompactMode) {
-            applyCompactMode(screenWidth, screenHeight);
-        } else {
-            applyNormalMode(screenWidth, screenHeight);
-        }
-
-        calculatePanelPosition(screenWidth, screenHeight);
-    }
-
-    private void applyCompactMode(int screenWidth, int screenHeight) {
-        uiScale = calculateUIScale(screenWidth, screenHeight, 420.0f, 300.0f, 0.35f, 0.8f);
-        playersPerPage = SummaryConstants.COMPACT_MODE_PLAYERS_PER_PAGE;
-
-        int maxPanelHeight = Math.min(screenHeight - 100, (int)(240 * uiScale));
-        panelWidth = (int)(maxPanelHeight * SummaryConstants.FRAME_ASPECT_RATIO);
-        panelHeight = maxPanelHeight;
-
-        if (panelWidth > screenWidth - 40) {
-            panelWidth = screenWidth - 40;
-            panelHeight = (int)(panelWidth / SummaryConstants.FRAME_ASPECT_RATIO);
-        }
-
-        playerRowHeight = (int)(42 * uiScale);
-        headSize = (int)(16 * uiScale);
-    }
-
-    private void applyNormalMode(int screenWidth, int screenHeight) {
-        uiScale = calculateUIScale(screenWidth, screenHeight, 854.0f, 480.0f, 0.6f, 1.5f);
         playersPerPage = SummaryConstants.NORMAL_MODE_PLAYERS_PER_PAGE;
 
-        int maxPanelHeight = Math.min(screenHeight - 120, (int)(400 * uiScale));
-        panelWidth = (int)(maxPanelHeight * SummaryConstants.FRAME_ASPECT_RATIO);
+        int maxPanelHeight = Math.min(screenHeight - s(160), s(533));
+        panelWidth = (int) (maxPanelHeight * SummaryConstants.FRAME_ASPECT_RATIO);
         panelHeight = maxPanelHeight;
 
-        if (panelWidth > screenWidth - 60) {
-            panelWidth = screenWidth - 60;
-            panelHeight = (int)(panelWidth / SummaryConstants.FRAME_ASPECT_RATIO);
+        if (panelWidth > screenWidth - s(80)) {
+            panelWidth = screenWidth - s(80);
+            panelHeight = (int) (panelWidth / SummaryConstants.FRAME_ASPECT_RATIO);
         }
 
-        playerRowHeight = (int)(65 * uiScale);
-        headSize = (int)(32 * uiScale);
-    }
+        playerRowHeight = s(173);
+        headSize = s(85);
 
-    private float calculateUIScale(int screenWidth, int screenHeight, float baseWidth, float baseHeight, float minScale, float maxScale) {
-        float scale = Math.min((float)screenWidth / baseWidth, (float)screenHeight / baseHeight);
-        return Math.max(minScale, Math.min(maxScale, scale));
-    }
-
-    private void calculatePanelPosition(int screenWidth, int screenHeight) {
         panelX = (screenWidth - panelWidth) / 2;
-        panelY = (screenHeight - panelHeight) / 2 - (int)(30 * uiScale);
+        panelY = (screenHeight - panelHeight) / 2 - s(40);
+    }
+
+    public int s(int virtualValue) {
+        return Math.round(virtualValue * uiScale);
     }
 
     public int getTotalPages(int totalPlayers) {
@@ -73,11 +45,10 @@ public class SummaryDimensions {
     }
 
     public int getButtonWidth() {
-        return isCompactMode ? Math.max(60, (int)(70 * uiScale)) : (int)(90 * uiScale);
+        return s(167);
     }
 
     public int getButtonHeight() {
-        return isCompactMode ? Math.max(16, (int)(16 * uiScale)) : (int)(20 * uiScale);
+        return s(37);
     }
 }
-

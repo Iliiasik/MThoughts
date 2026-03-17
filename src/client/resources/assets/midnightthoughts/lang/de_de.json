@@ -1,5 +1,5 @@
 {
-  "effect.midnightthoughts.well_rested": "Ausgeruht",
+  "midnightthoughts.sleep.nightmare_blocked": "Du kannst an einem so furchterregenden Ort nicht schlafen...",
 
   "midnightthoughts.stats.fish_caught": "Gefangene Fische: %d",
   "midnightthoughts.stats.items_crafted": "Hergestellte Gegenstände: %d",
@@ -12,7 +12,7 @@
   "midnightthoughts.stats.walk_distance": "Zurückgelegte Strecke: %s km",
   "midnightthoughts.stats.playtime": "Du spielst seit: %dh %dm",
 
-  "midnightthoughts.summary.title": "Seit dem letzten Schlaf",
+  "midnightthoughts.summary.title": "Seit Schlafen",
   "midnightthoughts.summary.page": "Seite %d von %d",
   "midnightthoughts.summary.previous": "Zurück",
   "midnightthoughts.summary.next": "Weiter",
@@ -22,6 +22,7 @@
   "midnightthoughts.summary.mobs": "Mobs",
   "midnightthoughts.summary.deaths": "Tode",
   "midnightthoughts.summary.jumps": "Sprünge",
+  "midnightthoughts.summary.damage": "Schaden",
 
   "midnightthoughts.hud.sleeping": "Schlafen",
 

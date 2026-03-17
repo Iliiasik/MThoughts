@@ -1,64 +1,100 @@
 package mt.client.ui.summary;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import mt.client.util.NumberFormatter;
 import mt.network.packet.DailySummaryPacket;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 
 public class StatBadgeRenderer {
 
-    public static int render(DrawContext context, TextRenderer textRenderer, DailySummaryPacket.PlayerDailySummary player,
-                             int startX, int badgeY1, int badgeY2, BadgeDimensions dims,
-                             float animProgress, float fadeAlpha) {
+    private record StatEntry(Identifier icon, String labelKey, int value) {}
 
-        int animBlocks = NumberFormatter.safeAnimatedValue(player.blocksDestroyed(), animProgress);
-        int animDistance = NumberFormatter.safeAnimatedValue(NumberFormatter.safeDivide(player.distanceWalked(), 100), animProgress);
-        int animMobs = NumberFormatter.safeAnimatedValue(player.mobsKilled(), animProgress);
-        int animDeaths = NumberFormatter.safeAnimatedValue(player.deaths(), animProgress);
-        int animJumps = NumberFormatter.safeAnimatedValue(player.jumps(), animProgress);
+    public static void render(DrawContext context, TextRenderer textRenderer, DailySummaryPacket.PlayerDailySummary player,
+                              int x, int y, int width, int height, SummaryDimensions dims,
+                              float fadeAlpha, long animationStartTime) {
+        float animProgress = AnimationHelper.getProgress(animationStartTime);
 
-        String blocksText = Text.translatable("midnightthoughts.summary.blocks").getString() + " " + NumberFormatter.formatLargeNumber(animBlocks);
-        String distanceText = Text.translatable("midnightthoughts.summary.distance").getString() + " " + NumberFormatter.formatLargeNumber(animDistance);
-        String mobsText = Text.translatable("midnightthoughts.summary.mobs").getString() + " " + NumberFormatter.formatLargeNumber(animMobs);
-        String deathsText = Text.translatable("midnightthoughts.summary.deaths").getString() + " " + NumberFormatter.formatLargeNumber(animDeaths);
-        String jumpsText = Text.translatable("midnightthoughts.summary.jumps").getString() + " " + NumberFormatter.formatLargeNumber(animJumps);
+        StatEntry[] stats = {
+                new StatEntry(SummaryConstants.ICON_BLOCKS, "midnightthoughts.summary.blocks",
+                        NumberFormatter.safeAnimatedValue(player.blocksDestroyed(), animProgress)),
+                new StatEntry(SummaryConstants.ICON_DISTANCE, "midnightthoughts.summary.distance",
+                        NumberFormatter.safeAnimatedValue(NumberFormatter.safeDivide(player.distanceWalked(), 100), animProgress)),
+                new StatEntry(SummaryConstants.ICON_SWORD, "midnightthoughts.summary.mobs",
+                        NumberFormatter.safeAnimatedValue(player.mobsKilled(), animProgress)),
+                new StatEntry(SummaryConstants.ICON_DEATH, "midnightthoughts.summary.deaths",
+                        NumberFormatter.safeAnimatedValue(player.deaths(), animProgress)),
+                new StatEntry(SummaryConstants.ICON_JUMP, "midnightthoughts.summary.jumps",
+                        NumberFormatter.safeAnimatedValue(player.jumps(), animProgress)),
+                new StatEntry(SummaryConstants.ICON_AXE, "midnightthoughts.summary.damage",
+                        NumberFormatter.safeAnimatedValue(NumberFormatter.safeDivide(player.damageDealt(), 10), animProgress)),
+        };
 
-        int currentX = startX;
-        currentX = renderBadge(context, textRenderer, currentX, badgeY1, dims.height(), dims.padding(),
-                              blocksText, 0x3d5a80, dims.textScale(), fadeAlpha);
-        currentX += dims.spacing();
-        currentX = renderBadge(context, textRenderer, currentX, badgeY1, dims.height(), dims.padding(),
-                              distanceText, 0x2a6041, dims.textScale(), fadeAlpha);
-        currentX += dims.spacing();
-        int statsEndX = renderBadge(context, textRenderer, currentX, badgeY1, dims.height(), dims.padding(),
-                                   mobsText, 0x7a3d3d, dims.textScale(), fadeAlpha);
+        BadgeDimensions badgeDims = BadgeDimensions.calculate(dims);
+        int badgeH = badgeDims.height();
+        int rowSpacing = badgeDims.rowSpacing();
+        int iconSize = Math.max(6, Math.min(badgeH - 2, (int) (badgeH * 0.7f)));
+        float textScale = badgeDims.textScale();
 
-        currentX = startX;
-        currentX = renderBadge(context, textRenderer, currentX, badgeY2, dims.height(), dims.padding(),
-                              deathsText, 0x4a3d5a, dims.textScale(), fadeAlpha);
-        currentX += dims.spacing();
-        renderBadge(context, textRenderer, currentX, badgeY2, dims.height(), dims.padding(),
-                   jumpsText, 0x5a4a3d, dims.textScale(), fadeAlpha);
+        int colGap = Math.max(3, dims.s(5));
+        int colW = (width - colGap) / 2;
+        int col2X = x + colW + colGap;
 
-        return statsEndX;
+        int totalH = 3 * badgeH + 2 * rowSpacing;
+        int startY = y + Math.max(0, (height - totalH) / 2);
+
+        for (int i = 0; i < 3; i++) {
+            int rowY = startY + i * (badgeH + rowSpacing);
+            if (rowY + badgeH > y + height) break;
+            renderBadge(context, textRenderer, x, rowY, colW, badgeH,
+                    stats[i].icon(), stats[i].labelKey(), stats[i].value(), iconSize, textScale, fadeAlpha);
+        }
+        for (int i = 0; i < 3; i++) {
+            int rowY = startY + i * (badgeH + rowSpacing);
+            if (rowY + badgeH > y + height) break;
+            renderBadge(context, textRenderer, col2X, rowY, colW, badgeH,
+                    stats[i + 3].icon(), stats[i + 3].labelKey(), stats[i + 3].value(), iconSize, textScale, fadeAlpha);
+        }
     }
 
-    private static int renderBadge(DrawContext context, TextRenderer textRenderer, int x, int y, int height,
-                                   int padding, String text, int bgColor, float textScale, float fadeAlpha) {
-        int textWidth = (int)(textRenderer.getWidth(text) * textScale);
-        int badgeWidth = textWidth + padding * 2;
+    private static void renderBadge(DrawContext context, TextRenderer textRenderer,
+                                    int x, int y, int width, int height,
+                                    Identifier icon, String labelKey, int value,
+                                    int iconSize, float textScale, float fadeAlpha) {
+        int texW = SummaryConstants.STAT_BADGE_TEXTURE_WIDTH;
+        int texH = SummaryConstants.STAT_BADGE_TEXTURE_HEIGHT;
+        float scaleH = (float) height / texH;
+        float scaleW = (float) width / texW;
+        float scale = Math.min(scaleH, scaleW);
+        int renderW = (int) (texW * scale);
+        int renderH = (int) (texH * scale);
+        int renderY = y + (height - renderH) / 2;
 
-        int alpha = (int)(fadeAlpha * 180);
-        int bg = (alpha << 24) | bgColor;
-        context.fill(x, y, x + badgeWidth, y + height, bg);
+        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, fadeAlpha);
+        RenderSystem.enableBlend();
+        context.getMatrices().push();
+        context.getMatrices().translate(x, renderY, 0);
+        context.getMatrices().scale((float) renderW / texW, (float) renderH / texH, 1.0f);
+        context.drawTexture(SummaryConstants.getStatBadgeTexture(), 0, 0, 0.0f, 0.0f, texW, texH, texW, texH);
+        context.getMatrices().pop();
 
-        int textColor = ((int)(fadeAlpha * 255) << 24) | 0xeeeeee;
-        int textY = y + (height - (int)(8 * textScale)) / 2;
+        int padX = Math.max(3, (int) (4 * scale));
+        int iconY = y + (height - iconSize) / 2;
+        context.drawTexture(icon, x + padX, iconY, iconSize, iconSize, 0.0f, 0.0f, iconSize, iconSize, iconSize, iconSize);
+        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+        RenderSystem.disableBlend();
 
-        RenderUtils.renderScaledText(context, textRenderer, text, x + padding, textY, textColor, textScale, false);
+        int textY = y + (height - (int) (8 * textScale)) / 2;
+        int textColor = (int) (fadeAlpha * 255) << 24 | 0xFFFFFF;
 
-        return x + badgeWidth;
+        String label = Text.translatable(labelKey).getString();
+        RenderUtils.renderScaledText(context, textRenderer, label, x + padX + iconSize + padX, textY, textColor, textScale, false);
+
+        String valueStr = NumberFormatter.formatLargeNumber(value);
+        int valueW = (int) (textRenderer.getWidth(valueStr) * textScale);
+        int valueX = x + renderW - padX - valueW;
+        RenderUtils.renderScaledText(context, textRenderer, valueStr, valueX, textY, textColor, textScale, false);
     }
 }
-

@@ -42,51 +42,33 @@ public class DailySummaryPacket {
         private final int mobsKilled;
         private final int deaths;
         private final int jumps;
+        private final int damageDealt;
         private final boolean isMvp;
         private final List<String> achievements;
 
-        public PlayerDailySummary(String playerName, int blocksDestroyed, int distanceWalked, int mobsKilled, int deaths, int jumps, boolean isMvp, List<String> achievements) {
+        public PlayerDailySummary(String playerName, int blocksDestroyed, int distanceWalked,
+                                  int mobsKilled, int deaths, int jumps, int damageDealt,
+                                  boolean isMvp, List<String> achievements) {
             this.playerName = playerName;
             this.blocksDestroyed = blocksDestroyed;
             this.distanceWalked = distanceWalked;
             this.mobsKilled = mobsKilled;
             this.deaths = deaths;
             this.jumps = jumps;
+            this.damageDealt = damageDealt;
             this.isMvp = isMvp;
             this.achievements = achievements;
         }
 
-        public String playerName() {
-            return playerName;
-        }
-
-        public int blocksDestroyed() {
-            return blocksDestroyed;
-        }
-
-        public int distanceWalked() {
-            return distanceWalked;
-        }
-
-        public int mobsKilled() {
-            return mobsKilled;
-        }
-
-        public int deaths() {
-            return deaths;
-        }
-
-        public int jumps() {
-            return jumps;
-        }
-
-        public boolean isMvp() {
-            return isMvp;
-        }
-
-        public List<String> achievements() {
-            return achievements;
-        }
+        public String playerName() { return playerName; }
+        public int blocksDestroyed() { return blocksDestroyed; }
+        public int distanceWalked() { return distanceWalked; }
+        public int mobsKilled() { return mobsKilled; }
+        public int deaths() { return deaths; }
+        public int jumps() { return jumps; }
+        public int damageDealt() { return damageDealt; }
+        public boolean isMvp() { return isMvp; }
+        public List<String> achievements() { return achievements; }
 
         public static PlayerDailySummary decode(PacketByteBuf buf) {
             String playerName = buf.readString();
@@ -95,13 +77,15 @@ public class DailySummaryPacket {
             int mobsKilled = clampValue(buf.readVarInt());
             int deaths = clampValue(buf.readVarInt());
             int jumps = clampValue(buf.readVarInt());
+            int damageDealt = clampValue(buf.readVarInt());
             boolean isMvp = buf.readBoolean();
             int achievementCount = buf.readVarInt();
             List<String> achievements = new ArrayList<>(achievementCount);
             for (int i = 0; i < achievementCount; i++) {
                 achievements.add(buf.readString());
             }
-            return new PlayerDailySummary(playerName, blocksDestroyed, distanceWalked, mobsKilled, deaths, jumps, isMvp, achievements);
+            return new PlayerDailySummary(playerName, blocksDestroyed, distanceWalked,
+                    mobsKilled, deaths, jumps, damageDealt, isMvp, achievements);
         }
 
         public static void encode(PacketByteBuf buf, PlayerDailySummary summary) {
@@ -111,6 +95,7 @@ public class DailySummaryPacket {
             buf.writeVarInt(clampValue(summary.mobsKilled));
             buf.writeVarInt(clampValue(summary.deaths));
             buf.writeVarInt(clampValue(summary.jumps));
+            buf.writeVarInt(clampValue(summary.damageDealt));
             buf.writeBoolean(summary.isMvp);
             buf.writeVarInt(summary.achievements.size());
             for (String achievement : summary.achievements) {
@@ -119,10 +104,7 @@ public class DailySummaryPacket {
         }
 
         private static int clampValue(int value) {
-            if (value < 0) {
-                return 0;
-            }
-            return Math.min(value, Integer.MAX_VALUE / 2);
+            return value < 0 ? 0 : Math.min(value, Integer.MAX_VALUE / 2);
         }
     }
 }

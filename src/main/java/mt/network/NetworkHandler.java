@@ -3,10 +3,11 @@ package mt.network;
 import mt.network.packet.DailySummaryPacket;
 import mt.network.packet.SleepingPlayersPacket;
 import mt.network.packet.SummaryAcknowledgePacket;
+import mt.network.packet.WellRestedPacket;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 
 public class NetworkHandler {
 
@@ -23,6 +24,12 @@ public class NetworkHandler {
         PacketByteBuf buf = PacketByteBufs.create();
         DailySummaryPacket.encode(packet, buf);
         ServerPlayNetworking.send(player, DailySummaryPacket.ID, buf);
+    }
+
+    public static void sendWellRested(ServerPlayerEntity player, WellRestedPacket packet) {
+        PacketByteBuf buf = PacketByteBufs.create();
+        WellRestedPacket.encode(packet, buf);
+        ServerPlayNetworking.send(player, WellRestedPacket.ID, buf);
     }
 
     public static void sendSleepingPlayers(ServerPlayerEntity player, SleepingPlayersPacket packet) {
