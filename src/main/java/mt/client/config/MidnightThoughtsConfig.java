@@ -145,6 +145,10 @@ public final class MidnightThoughtsConfig {
         return sleepOverlay.enableImage;
     }
 
+    public boolean isEnableDailySummaryScreen() {
+        return sleepOverlay.enableDailySummaryScreen;
+    }
+
     public int getRandomSlideDisplayTime() {
         return sleepOverlay.minSlideDisplayTimeMs + (int) (Math.random() * (sleepOverlay.maxSlideDisplayTimeMs - sleepOverlay.minSlideDisplayTimeMs));
     }
@@ -160,13 +164,13 @@ public final class MidnightThoughtsConfig {
         public float specialSlideChance = 0.05f;
         public boolean enableOverlay = true;
         public boolean enableImage = true;
+        public boolean enableDailySummaryScreen = true;
     }
 
     public static class WellRestedSettings {
         public Map<String, WellRestedLevel> levels = new HashMap<>();
 
         public WellRestedSettings() {
-            //                                dur  spd1   spd2   spd3   str1   str2   str3   haste1 haste2 haste3 res1   res2   res3   hp
             levels.put("level1", new WellRestedLevel(3,  0.16f, 0.08f, 0.04f,  0.08f, 0.04f, 0.02f,  0.10f, 0.05f, 0.02f,  0.04f, 0.02f, 0.01f,  2.0f, 0.02f));
             levels.put("level2", new WellRestedLevel(5,  0.24f, 0.12f, 0.06f,  0.12f, 0.06f, 0.03f,  0.16f, 0.08f, 0.04f,  0.06f, 0.03f, 0.01f,  4.0f, 0.04f));
             levels.put("level3", new WellRestedLevel(7,  0.32f, 0.18f, 0.08f,  0.16f, 0.08f, 0.04f,  0.22f, 0.12f, 0.06f,  0.08f, 0.04f, 0.02f,  6.0f, 0.06f));

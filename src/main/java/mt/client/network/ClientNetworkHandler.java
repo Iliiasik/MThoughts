@@ -1,5 +1,6 @@
 package mt.client.network;
 
+import mt.client.config.MidnightThoughtsConfig;
 import mt.client.ui.DailySummaryScreen;
 import mt.client.ui.SleepingPlayersHud;
 import mt.network.NetworkHandler;
@@ -55,7 +56,11 @@ public class ClientNetworkHandler {
 
     private static void handleDailySummaryPacket(DailySummaryPacket packet, Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
-            Minecraft.getInstance().setScreen(new DailySummaryScreen(packet.summaries()));
+            if (MidnightThoughtsConfig.getInstance().isEnableDailySummaryScreen()) {
+                Minecraft.getInstance().setScreen(new DailySummaryScreen(packet.summaries()));
+            } else {
+                sendSummaryAcknowledge();
+            }
         });
         ctx.get().setPacketHandled(true);
     }
