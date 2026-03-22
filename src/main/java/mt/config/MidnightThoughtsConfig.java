@@ -87,7 +87,6 @@ public final class MidnightThoughtsConfig {
     public ServerSettings getServer() { return server; }
     public UISettings getUi() { return ui; }
 
-
     public int getFadeInDurationMs() { return sleepOverlay.fadeInDurationMs; }
     public int getFadeOutDurationMs() { return sleepOverlay.fadeOutDurationMs; }
     public float getOverlayOpacity() { return sleepOverlay.overlayOpacity; }
@@ -95,6 +94,7 @@ public final class MidnightThoughtsConfig {
     public float getSpecialSlideChance() { return sleepOverlay.specialSlideChance; }
     public boolean isEnableOverlay() { return sleepOverlay.enableOverlay; }
     public boolean isEnableImage() { return sleepOverlay.enableImage; }
+    public boolean isEnableDailySummaryScreen() { return sleepOverlay.enableDailySummaryScreen; }
 
     public int getRandomSlideDisplayTime() {
         return sleepOverlay.minSlideDisplayTimeMs + (int)(Math.random() * (sleepOverlay.maxSlideDisplayTimeMs - sleepOverlay.minSlideDisplayTimeMs));
@@ -111,6 +111,7 @@ public final class MidnightThoughtsConfig {
         public float specialSlideChance = 0.05f;
         public boolean enableOverlay = true;
         public boolean enableImage = true;
+        public boolean enableDailySummaryScreen = true;
     }
 
     public static class WellRestedSettings {
