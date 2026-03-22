@@ -6,3 +6,5 @@
   <img src="https://cf.way2muchnoise.eu/full_1401318_downloads.svg" alt="CurseForge Downloads" />
 </a>
 </p>
+
+<img width="2044" height="147" alt="logo" src="https://github.com/user-attachments/assets/4331736b-2341-4068-9fe3-0df60a3399ce" />
