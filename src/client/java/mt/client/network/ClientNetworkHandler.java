@@ -3,6 +3,7 @@ package mt.client.network;
 import mt.client.manager.WellRestedClientState;
 import mt.client.ui.DailySummaryScreen;
 import mt.client.ui.SleepingPlayersHud;
+import mt.config.MidnightThoughtsConfig;
 import mt.network.packet.DailySummaryPacket;
 import mt.network.packet.SleepingPlayersPacket;
 import mt.network.packet.SummaryAcknowledgePacket;
@@ -31,9 +32,13 @@ public class ClientNetworkHandler {
                 DailySummaryPacket.ID,
                 (client, handler, buf, responseSender) -> {
                     DailySummaryPacket packet = DailySummaryPacket.decode(buf);
-                    client.execute(() ->
-                            MinecraftClient.getInstance().setScreen(new DailySummaryScreen(packet.summaries()))
-                    );
+                    client.execute(() -> {
+                        if (MidnightThoughtsConfig.getInstance().isEnableDailySummaryScreen()) {
+                            MinecraftClient.getInstance().setScreen(new DailySummaryScreen(packet.summaries()));
+                        } else {
+                            sendSummaryAcknowledge();
+                        }
+                    });
                 }
         );
 
