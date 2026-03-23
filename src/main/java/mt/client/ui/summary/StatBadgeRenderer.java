@@ -1,5 +1,6 @@
 package mt.client.ui.summary;
 
+import mt.client.config.MidnightThoughtsConfig;
 import mt.client.util.NumberFormatter;
 import mt.network.packet.DailySummaryPacket;
 import net.minecraft.client.gui.Font;
@@ -39,6 +40,9 @@ public class StatBadgeRenderer {
         int iconSize = Math.max(6, Math.min(badgeH - 2, (int)(badgeH * 0.7f)));
         float textScale = badgeDims.textScale();
 
+        String theme = MidnightThoughtsConfig.getInstance().getUiTheme();
+        ThemeColors.ThemeColor colors = ThemeColors.getThemeColors(theme);
+
         int colGap = Math.max(3, dims.s(5));
         int colW = (width - colGap) / 2;
         int col2X = x + colW + colGap;
@@ -50,20 +54,21 @@ public class StatBadgeRenderer {
             int rowY = startY + i * (badgeH + rowSpacing);
             if (rowY + badgeH > y + height) break;
             renderBadge(context, textRenderer, x, rowY, colW, badgeH,
-                    stats[i].icon(), stats[i].labelKey(), stats[i].value(), iconSize, textScale, fadeAlpha);
+                    stats[i].icon(), stats[i].labelKey(), stats[i].value(), iconSize, textScale, fadeAlpha, colors);
         }
         for (int i = 0; i < 3; i++) {
             int rowY = startY + i * (badgeH + rowSpacing);
             if (rowY + badgeH > y + height) break;
             renderBadge(context, textRenderer, col2X, rowY, colW, badgeH,
-                    stats[i + 3].icon(), stats[i + 3].labelKey(), stats[i + 3].value(), iconSize, textScale, fadeAlpha);
+                    stats[i + 3].icon(), stats[i + 3].labelKey(), stats[i + 3].value(), iconSize, textScale, fadeAlpha, colors);
         }
     }
 
     private static void renderBadge(GuiGraphics context, Font textRenderer,
                                     int x, int y, int width, int height,
                                     Identifier icon, String labelKey, int value,
-                                    int iconSize, float textScale, float fadeAlpha) {
+                                    int iconSize, float textScale, float fadeAlpha,
+                                    ThemeColors.ThemeColor colors) {
         int texW = SummaryConstants.STAT_BADGE_TEXTURE_WIDTH;
         int texH = SummaryConstants.STAT_BADGE_TEXTURE_HEIGHT;
         float scaleH = (float) height / texH;
@@ -73,21 +78,22 @@ public class StatBadgeRenderer {
         int renderH = (int)(texH * scale);
         int renderY = y + (height - renderH) / 2;
 
-        int color = ARGB.colorFromFloat(fadeAlpha, 1.0f, 1.0f, 1.0f);
+        int texColor = ARGB.colorFromFloat(fadeAlpha, 1.0f, 1.0f, 1.0f);
         context.pose().pushMatrix();
         context.pose().translate(x, renderY);
         context.pose().scale((float) renderW / texW, (float) renderH / texH);
         context.blit(RenderPipelines.GUI_TEXTURED, SummaryConstants.getStatBadgeTexture(),
-                0, 0, 0.0f, 0.0f, texW, texH, texW, texH, color);
+                0, 0, 0.0f, 0.0f, texW, texH, texW, texH, texColor);
         context.pose().popMatrix();
 
         int padX = Math.max(3, (int)(4 * scale));
         int iconY = y + (height - iconSize) / 2;
         context.blit(RenderPipelines.GUI_TEXTURED, icon,
-                x + padX, iconY, 0.0f, 0.0f, iconSize, iconSize, iconSize, iconSize, color);
+                x + padX, iconY, 0.0f, 0.0f, iconSize, iconSize, iconSize, iconSize, texColor);
 
         int textY = y + (height - (int)(8 * textScale)) / 2;
-        int textColor = ARGB.colorFromFloat(fadeAlpha, 1.0f, 1.0f, 1.0f);
+        int alpha = (int)(fadeAlpha * 255);
+        int textColor = (alpha << 24) | colors.statTextColor();
 
         String label = Component.translatable(labelKey).getString();
         RenderUtils.renderScaledText(context, textRenderer, label, x + padX + iconSize + padX, textY, textColor, textScale, false);

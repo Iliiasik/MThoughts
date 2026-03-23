@@ -1,5 +1,6 @@
 package mt.network;
 
+import mt.client.config.MidnightThoughtsConfig;
 import mt.client.manager.WellRestedClientState;
 import mt.client.ui.DailySummaryScreen;
 import mt.client.ui.SleepingPlayersHud;
@@ -21,29 +22,35 @@ public class NetworkHandler {
         PayloadRegistrar registrar = event.registrar("1");
 
         registrar.playToServer(
-            SummaryAcknowledgePacket.TYPE,
-            SummaryAcknowledgePacket.CODEC,
-            (packet, ctx) -> {}
+                SummaryAcknowledgePacket.TYPE,
+                SummaryAcknowledgePacket.CODEC,
+                (packet, ctx) -> {}
         );
 
         registrar.playToClient(
-            DailySummaryPacket.TYPE,
-            DailySummaryPacket.CODEC,
-            (packet, ctx) -> ctx.enqueueWork(() -> Minecraft.getInstance().setScreen(new DailySummaryScreen(packet.summaries())))
+                DailySummaryPacket.TYPE,
+                DailySummaryPacket.CODEC,
+                (packet, ctx) -> ctx.enqueueWork(() -> {
+                    if (MidnightThoughtsConfig.getInstance().isEnableDailySummaryScreen()) {
+                        Minecraft.getInstance().setScreen(new DailySummaryScreen(packet.summaries()));
+                    } else {
+                        ClientPacketDistributor.sendToServer(new SummaryAcknowledgePacket());
+                    }
+                })
         );
 
         registrar.playToClient(
-            SleepingPlayersPacket.TYPE,
-            SleepingPlayersPacket.CODEC,
-            (packet, ctx) -> ctx.enqueueWork(() -> SleepingPlayersHud.updateSleepingCount(packet.sleepingCount(), packet.totalPlayers()))
+                SleepingPlayersPacket.TYPE,
+                SleepingPlayersPacket.CODEC,
+                (packet, ctx) -> ctx.enqueueWork(() -> SleepingPlayersHud.updateSleepingCount(packet.sleepingCount(), packet.totalPlayers()))
         );
 
         registrar.playToClient(
-            WellRestedPacket.TYPE,
-            WellRestedPacket.CODEC,
-            (packet, ctx) -> ctx.enqueueWork(() ->
-                WellRestedClientState.update(packet.active(), packet.level(), packet.ticksRemaining(), packet.totalTicks(), packet.phase(), packet.nightmareMode(), packet.mvp())
-            )
+                WellRestedPacket.TYPE,
+                WellRestedPacket.CODEC,
+                (packet, ctx) -> ctx.enqueueWork(() ->
+                        WellRestedClientState.update(packet.active(), packet.level(), packet.ticksRemaining(), packet.totalTicks(), packet.phase(), packet.nightmareMode(), packet.mvp())
+                )
         );
     }
 

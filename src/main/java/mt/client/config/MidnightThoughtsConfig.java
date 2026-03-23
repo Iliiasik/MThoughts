@@ -145,6 +145,10 @@ public final class MidnightThoughtsConfig {
         return sleepOverlay.enableImage;
     }
 
+    public boolean isEnableDailySummaryScreen() {
+        return sleepOverlay.enableDailySummaryScreen;
+    }
+
     public int getRandomSlideDisplayTime() {
         return sleepOverlay.minSlideDisplayTimeMs + (int) (Math.random() * (sleepOverlay.maxSlideDisplayTimeMs - sleepOverlay.minSlideDisplayTimeMs));
     }
@@ -160,6 +164,7 @@ public final class MidnightThoughtsConfig {
         public float specialSlideChance = 0.05f;
         public boolean enableOverlay = true;
         public boolean enableImage = true;
+        public boolean enableDailySummaryScreen = true;
     }
 
     public static class WellRestedSettings {
@@ -295,6 +300,6 @@ public final class MidnightThoughtsConfig {
     }
 
     public static class UISettings {
-        public String theme = "magic";
+        public String theme = "vanilla";
     }
 }
