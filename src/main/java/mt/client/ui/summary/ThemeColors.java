@@ -6,7 +6,7 @@ public class ThemeColors {
         return switch (theme) {
             case "vanilla" -> new ThemeColor(
                     0xf7d5a3,
-                    0xFFFFFF,
+                    0x3f3f3f,
                     0x1a1a1a,
                     0x8a5a2a,
                     0xFFFFFF,
