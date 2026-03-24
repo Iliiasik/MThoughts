@@ -83,10 +83,11 @@ public final class ClientConfig {
     public void cycleTheme() {
         String currentTheme = getEffectiveTheme();
         String nextTheme = switch (currentTheme) {
+            case "vanilla" -> "magic";
             case "magic" -> "classic";
             case "classic" -> "tech";
-            case "tech" -> "magic";
-            default -> "magic";
+            case "tech" -> "vanilla";
+            default -> "vanilla";
         };
         setTheme(nextTheme);
     }

@@ -5,7 +5,6 @@ import mt.client.config.MidnightThoughtsConfig;
 import net.minecraft.resources.ResourceLocation;
 
 public class SummaryConstants {
-    public static final ResourceLocation CROWN_TEXTURE = ResourceLocation.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/crown.png");
 
     public static final ResourceLocation ICON_BLOCKS = ResourceLocation.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/icon_blocks.png");
     public static final ResourceLocation ICON_DISTANCE = ResourceLocation.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/icon_distance.png");
@@ -86,4 +85,3 @@ public class SummaryConstants {
 
     public static final int NORMAL_MODE_PLAYERS_PER_PAGE = 2;
 }
-

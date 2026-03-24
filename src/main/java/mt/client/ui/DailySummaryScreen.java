@@ -46,10 +46,9 @@ public class DailySummaryScreen extends Screen {
         int buttonY = dimensions.panelY + dimensions.panelHeight + dimensions.s(8);
 
         if (totalPages > 1) {
-            buttonY = addNavigationButtons(buttonWidth, buttonHeight, buttonY, buttonSpacing);
+            addNavigationButtons(buttonWidth, buttonHeight, buttonY, buttonSpacing);
         }
 
-        addContinueButton(buttonWidth, buttonHeight, buttonY);
         addThemeSwitchButton();
     }
 
@@ -61,7 +60,7 @@ public class DailySummaryScreen extends Screen {
         addRenderableWidget(themeSwitchButton);
     }
 
-    private int addNavigationButtons(int buttonWidth, int buttonHeight, int buttonY, int buttonSpacing) {
+    private void addNavigationButtons(int buttonWidth, int buttonHeight, int buttonY, int buttonSpacing) {
         int navButtonsWidth = buttonWidth * 2 + buttonSpacing;
         int navStartX = width / 2 - navButtonsWidth / 2;
 
@@ -75,16 +74,6 @@ public class DailySummaryScreen extends Screen {
                 navStartX + buttonWidth + buttonSpacing, buttonY, buttonWidth, buttonHeight,
                 Component.translatable("midnightthoughts.summary.next"),
                 button -> navigateToNextPage()
-        ));
-
-        return buttonY + buttonHeight + buttonSpacing;
-    }
-
-    private void addContinueButton(int buttonWidth, int buttonHeight, int buttonY) {
-        addRenderableWidget(new StyledButton(
-                width / 2 - buttonWidth / 2, buttonY, buttonWidth, buttonHeight,
-                Component.translatable("midnightthoughts.summary.continue"),
-                button -> closeScreen()
         ));
     }
 
@@ -109,9 +98,10 @@ public class DailySummaryScreen extends Screen {
         this.init();
     }
 
-    private void closeScreen() {
+    @Override
+    public void onClose() {
         ClientNetworkHandler.sendSummaryAcknowledge();
-        onClose();
+        super.onClose();
     }
 
     @Override
@@ -135,7 +125,6 @@ public class DailySummaryScreen extends Screen {
     }
 
     @Override
-    @SuppressWarnings("NullableProblems")
     public void renderBackground(GuiGraphics context, int mouseX, int mouseY, float delta) {
     }
 
