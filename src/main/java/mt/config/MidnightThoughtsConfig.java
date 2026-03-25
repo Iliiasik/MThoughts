@@ -220,6 +220,6 @@ public final class MidnightThoughtsConfig {
     }
 
     public static class UISettings {
-        public String theme = "magic";
+        public String theme = "vanilla";
     }
 }

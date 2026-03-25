@@ -5,7 +5,6 @@ import mt.client.config.ClientConfig;
 import net.minecraft.util.Identifier;
 
 public class SummaryConstants {
-    public static final Identifier CROWN_TEXTURE = Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/crown.png");
 
     public static final Identifier ICON_BLOCKS = Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/icon_blocks.png");
     public static final Identifier ICON_DISTANCE = Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/icon_distance.png");

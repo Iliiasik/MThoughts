@@ -45,10 +45,9 @@ public class DailySummaryScreen extends Screen {
         int buttonY = dimensions.panelY + dimensions.panelHeight + dimensions.s(8);
 
         if (totalPages > 1) {
-            buttonY = addNavigationButtons(buttonWidth, buttonHeight, buttonY, buttonSpacing);
+            addNavigationButtons(buttonWidth, buttonHeight, buttonY, buttonSpacing);
         }
 
-        addContinueButton(buttonWidth, buttonHeight, buttonY);
         addThemeSwitchButton();
     }
 
@@ -60,7 +59,7 @@ public class DailySummaryScreen extends Screen {
         addDrawableChild(themeSwitchButton);
     }
 
-    private int addNavigationButtons(int buttonWidth, int buttonHeight, int buttonY, int buttonSpacing) {
+    private void addNavigationButtons(int buttonWidth, int buttonHeight, int buttonY, int buttonSpacing) {
         int navButtonsWidth = buttonWidth * 2 + buttonSpacing;
         int navStartX = width / 2 - navButtonsWidth / 2;
 
@@ -74,16 +73,6 @@ public class DailySummaryScreen extends Screen {
                 navStartX + buttonWidth + buttonSpacing, buttonY, buttonWidth, buttonHeight,
                 Text.translatable("midnightthoughts.summary.next"),
                 button -> navigateToNextPage()
-        ));
-
-        return buttonY + buttonHeight + buttonSpacing;
-    }
-
-    private void addContinueButton(int buttonWidth, int buttonHeight, int buttonY) {
-        addDrawableChild(new StyledButton(
-                width / 2 - buttonWidth / 2, buttonY, buttonWidth, buttonHeight,
-                Text.translatable("midnightthoughts.summary.continue"),
-                button -> closeScreen()
         ));
     }
 
@@ -108,9 +97,10 @@ public class DailySummaryScreen extends Screen {
         this.init();
     }
 
-    private void closeScreen() {
+    @Override
+    public void close() {
         ClientNetworkHandler.sendSummaryAcknowledge();
-        close();
+        super.close();
     }
 
     @Override
@@ -129,7 +119,7 @@ public class DailySummaryScreen extends Screen {
         TooltipRenderer.render(context, textRenderer, mouseX, mouseY, achievementAreas, width, height, fadeAlpha);
 
         if (themeSwitchButton != null && themeSwitchButton.isMouseOver(mouseX, mouseY)) {
-            context.drawTooltip(textRenderer, themeSwitchButton.getTooltipText(), mouseX, mouseY);
+            context.drawOrderedTooltip(textRenderer, List.of(themeSwitchButton.getTooltipText().asOrderedText()), mouseX, mouseY);
         }
     }
 
