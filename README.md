@@ -12,3 +12,4 @@
 <img width="2244" height="2127" alt="Header" src="https://github.com/user-attachments/assets/a8f61b16-9fa8-4ed8-bd30-61719ddcf728" />
 <img width="1830" height="1502" alt="Summary" src="https://github.com/user-attachments/assets/cda70a95-4fdc-4590-af48-0bd180be9821" />
 <img width="1077" height="1202" alt="Well Rested" src="https://github.com/user-attachments/assets/4333c0f7-b769-4576-9b30-b994145bc18f" />
+<img width="1503" height="1047" alt="Footer" src="https://github.com/user-attachments/assets/8bb8b517-7224-4525-a471-12651b268a25" />
