@@ -1,5 +1,7 @@
 package mt.client.ui.summary;
 
+import mt.client.config.ClientConfig;
+import mt.client.config.ThemeColors;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
@@ -22,6 +24,9 @@ public class AchievementRenderer {
         int rowSpacing = badgeDims.rowSpacing();
         float textScale = badgeDims.textScale();
 
+        String theme = ClientConfig.getInstance().getEffectiveTheme();
+        ThemeColors.ThemeColor colors = ThemeColors.getThemeColors(theme);
+
         int texW = SummaryConstants.ACHIEVEMENT_BADGE_TEXTURE_WIDTH;
         int texH = SummaryConstants.ACHIEVEMENT_BADGE_TEXTURE_HEIGHT;
         float badgeScale = Math.min((float) badgeH / texH, (float) width / texW);
@@ -37,14 +42,15 @@ public class AchievementRenderer {
 
             int renderH = (int) (texH * badgeScale);
             int actualY = rowY + (badgeH - renderH) / 2;
-            renderBadge(context, textRenderer, x, rowY, width, badgeH, achievementId, textScale, fadeAlpha);
+            renderBadge(context, textRenderer, x, rowY, width, badgeH, achievementId, textScale, fadeAlpha, colors);
             achievementAreas.add(new AchievementTooltipArea(x, actualY, renderW, renderH, achievementId));
         }
     }
 
     private static void renderBadge(DrawContext context, TextRenderer textRenderer,
                                     int x, int y, int width, int height,
-                                    String achievementId, float textScale, float fadeAlpha) {
+                                    String achievementId, float textScale, float fadeAlpha,
+                                    ThemeColors.ThemeColor colors) {
         int texW = SummaryConstants.ACHIEVEMENT_BADGE_TEXTURE_WIDTH;
         int texH = SummaryConstants.ACHIEVEMENT_BADGE_TEXTURE_HEIGHT;
         float scaleH = (float) height / texH;
@@ -67,7 +73,8 @@ public class AchievementRenderer {
 
         int padX = Math.max(3, (int) (4 * scale));
         String text = Text.translatable("midnightthoughts.achievement." + achievementId).getString();
-        int textColor = (int) (fadeAlpha * 255) << 24 | 0xFFFFFF;
+        int alpha = (int) (fadeAlpha * 255);
+        int textColor = (alpha << 24) | colors.achievementTextColor();
         int textY = renderY + (renderH - (int) (8 * textScale)) / 2;
         RenderUtils.renderScaledText(context, textRenderer, text, x + padX, textY, textColor, textScale, false);
     }

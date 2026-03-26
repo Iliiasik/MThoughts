@@ -3,36 +3,33 @@ package mt.client.config;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.fabricmc.loader.api.FabricLoader;
+import mt.config.MidnightThoughtsConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import mt.config.MidnightThoughtsConfig;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class ClientConfig {
+public final class ClientConfig {
     private static final Logger LOGGER = LoggerFactory.getLogger("MidnightThoughts");
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-    private static final String CLIENT_CONFIG_FILE_NAME = "midnightthoughts-client.json";
+    private static final String CONFIG_FILE_NAME = "midnightthoughts-client.json";
 
     private static ClientConfig instance;
+    private String theme = null;
 
-    private String playerThemeOverride = null;
-
-    private ClientConfig() {
-    }
+    private ClientConfig() {}
 
     public static ClientConfig getInstance() {
         if (instance == null) {
-            instance = loadClientConfig();
+            instance = load();
         }
         return instance;
     }
 
-    private static ClientConfig loadClientConfig() {
-        Path configPath = getClientConfigPath();
-
+    public static ClientConfig load() {
+        Path configPath = getConfigPath();
         if (Files.exists(configPath)) {
             try {
                 String json = Files.readString(configPath);
@@ -45,15 +42,13 @@ public class ClientConfig {
                 LOGGER.error("Failed to load client configuration: {}", e.getMessage());
             }
         }
-
         ClientConfig config = new ClientConfig();
-        config.saveClientConfig();
+        config.save();
         return config;
     }
 
-    public void saveClientConfig() {
-        Path configPath = getClientConfigPath();
-
+    public void save() {
+        Path configPath = getConfigPath();
         try {
             Files.createDirectories(configPath.getParent());
             String json = GSON.toJson(this);
@@ -64,36 +59,35 @@ public class ClientConfig {
         }
     }
 
-    private static Path getClientConfigPath() {
-        return FabricLoader.getInstance().getConfigDir().resolve(CLIENT_CONFIG_FILE_NAME);
+    private static Path getConfigPath() {
+        return FabricLoader.getInstance().getConfigDir().resolve(CONFIG_FILE_NAME);
+    }
+
+    public String getTheme() {
+        return theme;
+    }
+
+    public void setTheme(String theme) {
+        this.theme = theme;
+        save();
     }
 
     public String getEffectiveTheme() {
-        if (playerThemeOverride != null && !playerThemeOverride.isEmpty()) {
-            return playerThemeOverride;
+        if (theme != null && !theme.isEmpty()) {
+            return theme;
         }
-
-        String serverTheme = MidnightThoughtsConfig.getInstance().getUi().theme;
-        if (serverTheme != null && !serverTheme.isEmpty()) {
-            return serverTheme;
-        }
-
-        return "magic";
-    }
-
-    public void setPlayerThemeOverride(String theme) {
-        this.playerThemeOverride = theme;
-        saveClientConfig();
+        return MidnightThoughtsConfig.getInstance().getUi().theme;
     }
 
     public void cycleTheme() {
         String currentTheme = getEffectiveTheme();
         String nextTheme = switch (currentTheme) {
+            case "vanilla" -> "magic";
             case "magic" -> "classic";
             case "classic" -> "tech";
-            case "tech" -> "magic";
-            default -> "magic";
+            case "tech" -> "vanilla";
+            default -> "vanilla";
         };
-        setPlayerThemeOverride(nextTheme);
+        setTheme(nextTheme);
     }
 }
