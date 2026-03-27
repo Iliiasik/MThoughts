@@ -23,10 +23,6 @@ public class PlayerRowRenderer {
 
         renderRowBackground(context, player, x, y, rowWidth, rowHeight, fadeAlpha);
 
-        if (player.isMvp()) {
-            renderMvpBadge(context, x, y, rowWidth, dims, fadeAlpha);
-        }
-
         int headSize = (int)(dims.headSize * 0.75f);
         int leftPad = dims.s(24);
         int headColumnWidth = leftPad + headSize + dims.s(19);
@@ -66,33 +62,6 @@ public class PlayerRowRenderer {
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, fadeAlpha);
         RenderSystem.enableBlend();
         context.blit(rowTex, renderX, renderY, renderW, renderH, 0, 0, texW, texH, texW, texH);
-        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
-        RenderSystem.disableBlend();
-    }
-
-    private static void renderMvpBadge(GuiGraphics context, int x, int y, int rowWidth, SummaryDimensions dims, float fadeAlpha) {
-        int crownHeight = dims.s(24);
-        int crownWidth = (int)(crownHeight * 1.75f);
-        int mvpBadgeX = x + rowWidth - crownWidth;
-        int mvpBadgeY = y - crownHeight / 2;
-
-        int badgeAlpha = (int)(fadeAlpha * 240);
-        context.fill(mvpBadgeX - 1, mvpBadgeY - 1, mvpBadgeX + crownWidth + 1, mvpBadgeY + crownHeight + 1,
-                (badgeAlpha << 24) | SummaryConstants.MVP_GOLD_COLOR);
-        context.fill(mvpBadgeX, mvpBadgeY, mvpBadgeX + crownWidth, mvpBadgeY + crownHeight,
-                (badgeAlpha << 24) | 0x8b7320);
-
-        int iconPadding = dims.s(3);
-        int iconHeight = crownHeight - iconPadding * 2;
-        int iconWidth = (int)(iconHeight * 1.75f);
-        int iconX = mvpBadgeX + (crownWidth - iconWidth) / 2;
-        int iconY = mvpBadgeY + iconPadding;
-
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        RenderSystem.setShaderTexture(0, SummaryConstants.CROWN_TEXTURE);
-        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, fadeAlpha);
-        RenderSystem.enableBlend();
-        context.blit(SummaryConstants.CROWN_TEXTURE, iconX, iconY, 0, 0, iconWidth, iconHeight, iconWidth, iconHeight);
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
         RenderSystem.disableBlend();
     }

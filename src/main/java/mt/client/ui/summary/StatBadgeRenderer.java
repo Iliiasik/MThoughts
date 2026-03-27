@@ -1,6 +1,6 @@
 package mt.client.ui.summary;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import mt.client.config.MidnightThoughtsConfig;
 import mt.client.util.NumberFormatter;
 import mt.network.packet.DailySummaryPacket;
 import net.minecraft.client.gui.Font;
@@ -8,6 +8,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import com.mojang.blaze3d.systems.RenderSystem;
 
 public class StatBadgeRenderer {
 
@@ -39,6 +40,9 @@ public class StatBadgeRenderer {
         int iconSize = Math.max(6, Math.min(badgeH - 2, (int)(badgeH * 0.7f)));
         float textScale = badgeDims.textScale();
 
+        String theme = MidnightThoughtsConfig.getInstance().getUiTheme();
+        int textColorFromTheme = ThemeColors.getThemeColors(theme).statTextColor();
+
         int colGap = Math.max(3, dims.s(5));
         int colW = (width - colGap) / 2;
         int col2X = x + colW + colGap;
@@ -50,20 +54,20 @@ public class StatBadgeRenderer {
             int rowY = startY + i * (badgeH + rowSpacing);
             if (rowY + badgeH > y + height) break;
             renderBadge(context, textRenderer, x, rowY, colW, badgeH,
-                    stats[i].icon(), stats[i].labelKey(), stats[i].value(), iconSize, textScale, fadeAlpha);
+                    stats[i].icon(), stats[i].labelKey(), stats[i].value(), iconSize, textScale, fadeAlpha, textColorFromTheme);
         }
         for (int i = 0; i < 3; i++) {
             int rowY = startY + i * (badgeH + rowSpacing);
             if (rowY + badgeH > y + height) break;
             renderBadge(context, textRenderer, col2X, rowY, colW, badgeH,
-                    stats[i + 3].icon(), stats[i + 3].labelKey(), stats[i + 3].value(), iconSize, textScale, fadeAlpha);
+                    stats[i + 3].icon(), stats[i + 3].labelKey(), stats[i + 3].value(), iconSize, textScale, fadeAlpha, textColorFromTheme);
         }
     }
 
     private static void renderBadge(GuiGraphics context, Font textRenderer,
                                     int x, int y, int width, int height,
                                     ResourceLocation icon, String labelKey, int value,
-                                    int iconSize, float textScale, float fadeAlpha) {
+                                    int iconSize, float textScale, float fadeAlpha, int themeTextColor) {
         int texW = SummaryConstants.STAT_BADGE_TEXTURE_WIDTH;
         int texH = SummaryConstants.STAT_BADGE_TEXTURE_HEIGHT;
         float scaleH = (float) height / texH;
@@ -94,7 +98,8 @@ public class StatBadgeRenderer {
         RenderSystem.disableBlend();
 
         int textY = y + (height - (int)(8 * textScale)) / 2;
-        int textColor = ((int)(fadeAlpha * 255) << 24) | 0xFFFFFF;
+        int alpha = (int)(fadeAlpha * 255);
+        int textColor = (alpha << 24) | themeTextColor;
 
         String label = Component.translatable(labelKey).getString();
         RenderUtils.renderScaledText(context, textRenderer, label, x + padX + iconSize + padX, textY, textColor, textScale, false);

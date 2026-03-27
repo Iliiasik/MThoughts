@@ -1,6 +1,7 @@
 package mt.client.ui.summary;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import mt.client.config.MidnightThoughtsConfig;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.GameRenderer;
@@ -23,6 +24,9 @@ public class AchievementRenderer {
         int rowSpacing = badgeDims.rowSpacing();
         float textScale = badgeDims.textScale();
 
+        String theme = MidnightThoughtsConfig.getInstance().getUiTheme();
+        int textColorFromTheme = ThemeColors.getThemeColors(theme).achievementTextColor();
+
         int texW = SummaryConstants.ACHIEVEMENT_BADGE_TEXTURE_WIDTH;
         int texH = SummaryConstants.ACHIEVEMENT_BADGE_TEXTURE_HEIGHT;
         float badgeScale = Math.min((float) badgeH / texH, (float) width / texW);
@@ -38,14 +42,14 @@ public class AchievementRenderer {
 
             int renderH = (int)(texH * badgeScale);
             int actualY = rowY + (badgeH - renderH) / 2;
-            renderBadge(context, textRenderer, x, rowY, width, badgeH, achievementId, textScale, fadeAlpha);
+            renderBadge(context, textRenderer, x, rowY, width, badgeH, achievementId, textScale, fadeAlpha, textColorFromTheme);
             achievementAreas.add(new AchievementTooltipArea(x, actualY, renderW, renderH, achievementId));
         }
     }
 
     private static void renderBadge(GuiGraphics context, Font textRenderer,
                                     int x, int y, int width, int height,
-                                    String achievementId, float textScale, float fadeAlpha) {
+                                    String achievementId, float textScale, float fadeAlpha, int themeTextColor) {
         int texW = SummaryConstants.ACHIEVEMENT_BADGE_TEXTURE_WIDTH;
         int texH = SummaryConstants.ACHIEVEMENT_BADGE_TEXTURE_HEIGHT;
         float scaleH = (float) height / texH;
@@ -66,7 +70,8 @@ public class AchievementRenderer {
 
         int padX = Math.max(3, (int)(4 * scale));
         String text = Component.translatable("midnightthoughts.achievement." + achievementId).getString();
-        int textColor = ((int)(fadeAlpha * 255) << 24) | 0xFFFFFF;
+        int alpha = (int)(fadeAlpha * 255);
+        int textColor = (alpha << 24) | themeTextColor;
         int textY = renderY + (renderH - (int)(8 * textScale)) / 2;
         RenderUtils.renderScaledText(context, textRenderer, text, x + padX, textY, textColor, textScale, false);
     }
