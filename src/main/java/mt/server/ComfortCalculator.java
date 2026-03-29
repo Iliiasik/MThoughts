@@ -1,6 +1,6 @@
 package mt.server;
 
-import mt.client.config.MidnightThoughtsConfig;
+import mt.server.config.MidnightThoughtsConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;

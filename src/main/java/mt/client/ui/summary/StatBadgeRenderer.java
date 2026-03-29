@@ -1,6 +1,6 @@
 package mt.client.ui.summary;
 
-import mt.client.config.MidnightThoughtsConfig;
+import mt.server.config.MidnightThoughtsConfig;
 import mt.client.util.NumberFormatter;
 import mt.network.packet.DailySummaryPacket;
 import net.minecraft.client.gui.Font;

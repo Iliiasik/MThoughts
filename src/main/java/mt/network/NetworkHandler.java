@@ -1,15 +1,13 @@
 package mt.network;
 
-import mt.client.manager.WellRestedClientState;
-import mt.client.ui.DailySummaryScreen;
-import mt.client.ui.SleepingPlayersHud;
 import mt.network.packet.DailySummaryPacket;
 import mt.network.packet.SleepingPlayersPacket;
 import mt.network.packet.SummaryAcknowledgePacket;
 import mt.network.packet.WellRestedPacket;
-import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.simple.SimpleChannel;
@@ -34,39 +32,48 @@ public class NetworkHandler {
                     ctx.get().setPacketHandled(true);
                 }
         );
+
         CHANNEL.registerMessage(
                 packetId++,
                 DailySummaryPacket.class,
                 DailySummaryPacket::encode,
                 DailySummaryPacket::decode,
                 (packet, ctx) -> {
-                    ctx.get().enqueueWork(() ->
-                            Minecraft.getInstance().setScreen(new DailySummaryScreen(packet.summaries()))
-                    );
+                    if (FMLEnvironment.dist == Dist.CLIENT) {
+                        ctx.get().enqueueWork(() ->
+                                mt.client.network.ClientPacketHandlers.handleDailySummary(packet)
+                        );
+                    }
                     ctx.get().setPacketHandled(true);
                 }
         );
+
         CHANNEL.registerMessage(
                 packetId++,
                 SleepingPlayersPacket.class,
                 SleepingPlayersPacket::encode,
                 SleepingPlayersPacket::decode,
                 (packet, ctx) -> {
-                    ctx.get().enqueueWork(() ->
-                            SleepingPlayersHud.updateSleepingCount(packet.sleepingCount(), packet.totalPlayers())
-                    );
+                    if (FMLEnvironment.dist == Dist.CLIENT) {
+                        ctx.get().enqueueWork(() ->
+                                mt.client.network.ClientPacketHandlers.handleSleepingPlayers(packet)
+                        );
+                    }
                     ctx.get().setPacketHandled(true);
                 }
         );
+
         CHANNEL.registerMessage(
                 packetId++,
                 WellRestedPacket.class,
                 WellRestedPacket::encode,
                 WellRestedPacket::decode,
                 (packet, ctx) -> {
-                    ctx.get().enqueueWork(() ->
-                            WellRestedClientState.update(packet.active(), packet.level(), packet.ticksRemaining(), packet.totalTicks(), packet.phase(), packet.nightmareMode(), packet.mvp())
-                    );
+                    if (FMLEnvironment.dist == Dist.CLIENT) {
+                        ctx.get().enqueueWork(() ->
+                                mt.client.network.ClientPacketHandlers.handleWellRested(packet)
+                        );
+                    }
                     ctx.get().setPacketHandled(true);
                 }
         );
@@ -84,7 +91,7 @@ public class NetworkHandler {
         CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), packet);
     }
 
-    public static void sendToServer(Object packet) {
-        CHANNEL.sendToServer(packet);
+    public static void sendSleepingPlayersToAll(SleepingPlayersPacket packet) {
+        CHANNEL.send(PacketDistributor.ALL.noArg(), packet);
     }
 }
