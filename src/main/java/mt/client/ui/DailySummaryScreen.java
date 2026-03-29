@@ -1,6 +1,6 @@
 package mt.client.ui;
 
-import mt.client.network.ClientNetworkHandler;
+import mt.client.network.ClientPacketHandlers;
 import mt.client.ui.summary.*;
 import mt.network.packet.DailySummaryPacket;
 import net.minecraft.client.gui.GuiGraphics;
@@ -100,7 +100,7 @@ public class DailySummaryScreen extends Screen {
 
     @Override
     public void onClose() {
-        ClientNetworkHandler.sendSummaryAcknowledge();
+        ClientPacketHandlers.sendSummaryAcknowledge();
         super.onClose();
     }
 

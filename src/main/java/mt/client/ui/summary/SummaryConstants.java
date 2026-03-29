@@ -1,7 +1,7 @@
 package mt.client.ui.summary;
 
 import mt.client.MidnightThoughtsClient;
-import mt.client.config.MidnightThoughtsConfig;
+import mt.server.config.MidnightThoughtsConfig;
 import net.minecraft.resources.ResourceLocation;
 
 public class SummaryConstants {

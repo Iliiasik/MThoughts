@@ -1,16 +1,12 @@
 package mt.network;
 
-import mt.client.config.MidnightThoughtsConfig;
-import mt.client.manager.WellRestedClientState;
-import mt.client.ui.DailySummaryScreen;
-import mt.client.ui.SleepingPlayersHud;
 import mt.network.packet.DailySummaryPacket;
 import mt.network.packet.SleepingPlayersPacket;
 import mt.network.packet.SummaryAcknowledgePacket;
 import mt.network.packet.WellRestedPacket;
-import net.minecraft.client.Minecraft;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
@@ -26,33 +22,49 @@ public class NetworkHandler {
                 (packet, ctx) -> {}
         );
 
-        registrar.playToClient(
-                DailySummaryPacket.TYPE,
-                DailySummaryPacket.CODEC,
-                (packet, ctx) -> ctx.enqueueWork(() -> {
-                    if (MidnightThoughtsConfig.getInstance().isEnableDailySummaryScreen()) {
-                        Minecraft.getInstance().setScreen(new DailySummaryScreen(packet.summaries()));
-                    } else {
-                        PacketDistributor.sendToServer(new SummaryAcknowledgePacket());
-                    }
-                })
-        );
+        if (FMLEnvironment.dist == Dist.CLIENT) {
+            registrar.playToClient(
+                    DailySummaryPacket.TYPE,
+                    DailySummaryPacket.CODEC,
+                    (packet, ctx) -> ctx.enqueueWork(() ->
+                            mt.client.network.ClientPacketHandlers.handleDailySummary(packet)
+                    )
+            );
 
-        registrar.playToClient(
-                SleepingPlayersPacket.TYPE,
-                SleepingPlayersPacket.CODEC,
-                (packet, ctx) -> ctx.enqueueWork(() ->
-                        SleepingPlayersHud.updateSleepingCount(packet.sleepingCount(), packet.totalPlayers())
-                )
-        );
+            registrar.playToClient(
+                    SleepingPlayersPacket.TYPE,
+                    SleepingPlayersPacket.CODEC,
+                    (packet, ctx) -> ctx.enqueueWork(() ->
+                            mt.client.network.ClientPacketHandlers.handleSleepingPlayers(packet)
+                    )
+            );
 
-        registrar.playToClient(
-                WellRestedPacket.TYPE,
-                WellRestedPacket.CODEC,
-                (packet, ctx) -> ctx.enqueueWork(() ->
-                        WellRestedClientState.update(packet.active(), packet.level(), packet.ticksRemaining(), packet.totalTicks(), packet.phase(), packet.nightmareMode(), packet.mvp())
-                )
-        );
+            registrar.playToClient(
+                    WellRestedPacket.TYPE,
+                    WellRestedPacket.CODEC,
+                    (packet, ctx) -> ctx.enqueueWork(() ->
+                            mt.client.network.ClientPacketHandlers.handleWellRested(packet)
+                    )
+            );
+        } else {
+            registrar.playToClient(
+                    DailySummaryPacket.TYPE,
+                    DailySummaryPacket.CODEC,
+                    (packet, ctx) -> {}
+            );
+
+            registrar.playToClient(
+                    SleepingPlayersPacket.TYPE,
+                    SleepingPlayersPacket.CODEC,
+                    (packet, ctx) -> {}
+            );
+
+            registrar.playToClient(
+                    WellRestedPacket.TYPE,
+                    WellRestedPacket.CODEC,
+                    (packet, ctx) -> {}
+            );
+        }
     }
 
     public static void sendDailySummary(ServerPlayer player, DailySummaryPacket packet) {
@@ -67,7 +79,4 @@ public class NetworkHandler {
         PacketDistributor.sendToPlayer(player, packet);
     }
 
-    public static void sendToServer(CustomPacketPayload packet) {
-        PacketDistributor.sendToServer(packet);
-    }
 }

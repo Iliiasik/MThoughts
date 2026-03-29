@@ -2,7 +2,7 @@ package mt.client.render;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import mt.client.MidnightThoughtsClient;
-import mt.client.config.MidnightThoughtsConfig;
+import mt.server.config.MidnightThoughtsConfig;
 import mt.client.manager.SleepStateManager;
 import mt.client.manager.WellRestedClientState;
 import mt.client.model.Slide;
