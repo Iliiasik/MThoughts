@@ -1,7 +1,8 @@
-package mt.client.config;
+package mt.server.config;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import mt.client.config.ClientConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

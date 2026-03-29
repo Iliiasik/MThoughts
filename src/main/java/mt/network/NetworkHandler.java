@@ -1,17 +1,10 @@
 package mt.network;
 
-import mt.client.config.MidnightThoughtsConfig;
-import mt.client.manager.WellRestedClientState;
-import mt.client.ui.DailySummaryScreen;
-import mt.client.ui.SleepingPlayersHud;
 import mt.network.packet.DailySummaryPacket;
 import mt.network.packet.SleepingPlayersPacket;
 import mt.network.packet.SummaryAcknowledgePacket;
 import mt.network.packet.WellRestedPacket;
-import net.minecraft.client.Minecraft;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
@@ -30,26 +23,24 @@ public class NetworkHandler {
         registrar.playToClient(
                 DailySummaryPacket.TYPE,
                 DailySummaryPacket.CODEC,
-                (packet, ctx) -> ctx.enqueueWork(() -> {
-                    if (MidnightThoughtsConfig.getInstance().isEnableDailySummaryScreen()) {
-                        Minecraft.getInstance().setScreen(new DailySummaryScreen(packet.summaries()));
-                    } else {
-                        ClientPacketDistributor.sendToServer(new SummaryAcknowledgePacket());
-                    }
-                })
+                (packet, ctx) -> ctx.enqueueWork(() ->
+                        mt.client.network.ClientPacketHandlers.handleDailySummary(packet)
+                )
         );
 
         registrar.playToClient(
                 SleepingPlayersPacket.TYPE,
                 SleepingPlayersPacket.CODEC,
-                (packet, ctx) -> ctx.enqueueWork(() -> SleepingPlayersHud.updateSleepingCount(packet.sleepingCount(), packet.totalPlayers()))
+                (packet, ctx) -> ctx.enqueueWork(() ->
+                        mt.client.network.ClientPacketHandlers.handleSleepingPlayers(packet)
+                )
         );
 
         registrar.playToClient(
                 WellRestedPacket.TYPE,
                 WellRestedPacket.CODEC,
                 (packet, ctx) -> ctx.enqueueWork(() ->
-                        WellRestedClientState.update(packet.active(), packet.level(), packet.ticksRemaining(), packet.totalTicks(), packet.phase(), packet.nightmareMode(), packet.mvp())
+                        mt.client.network.ClientPacketHandlers.handleWellRested(packet)
                 )
         );
     }
@@ -58,11 +49,11 @@ public class NetworkHandler {
         PacketDistributor.sendToPlayer(player, packet);
     }
 
-    public static void sendWellRested(ServerPlayer player, WellRestedPacket packet) {
+    public static void sendSleepingPlayers(ServerPlayer player, SleepingPlayersPacket packet) {
         PacketDistributor.sendToPlayer(player, packet);
     }
 
-    public static void sendToServer(CustomPacketPayload packet) {
-        ClientPacketDistributor.sendToServer(packet);
+    public static void sendWellRested(ServerPlayer player, WellRestedPacket packet) {
+        PacketDistributor.sendToPlayer(player, packet);
     }
 }
