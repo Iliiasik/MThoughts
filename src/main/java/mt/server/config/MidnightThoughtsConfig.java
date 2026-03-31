@@ -118,6 +118,10 @@ public final class MidnightThoughtsConfig {
         return ClientConfig.getInstance().getEffectiveTheme();
     }
 
+    public String getWellRestedHudPosition() {
+        return ui.wellRestedHudPosition;
+    }
+
     public int getFadeInDurationMs() {
         return sleepOverlay.fadeInDurationMs;
     }
@@ -302,5 +306,6 @@ public final class MidnightThoughtsConfig {
 
     public static class UISettings {
         public String theme = "vanilla";
+        public String wellRestedHudPosition = "primary";
     }
 }

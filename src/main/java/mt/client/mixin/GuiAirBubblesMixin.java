@@ -13,7 +13,7 @@ public abstract class GuiAirBubblesMixin {
 
     @Inject(method = "renderAirLevel", at = @At("HEAD"))
     private void onRenderAirLevelHead(GuiGraphics guiGraphics, CallbackInfo ci) {
-        if (WellRestedHud.isActive()) {
+        if (WellRestedHud.isActive() && WellRestedHud.isPrimaryPosition()) {
             guiGraphics.pose().pushPose();
             guiGraphics.pose().translate(0, -(WellRestedHud.BAR_GUI_H + 3), 0);
         }
@@ -21,7 +21,7 @@ public abstract class GuiAirBubblesMixin {
 
     @Inject(method = "renderAirLevel", at = @At("TAIL"))
     private void onRenderAirLevelTail(GuiGraphics guiGraphics, CallbackInfo ci) {
-        if (WellRestedHud.isActive()) {
+        if (WellRestedHud.isActive() && WellRestedHud.isPrimaryPosition()) {
             guiGraphics.pose().popPose();
         }
     }
