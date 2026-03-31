@@ -2,6 +2,7 @@ package mt.client.ui;
 
 import mt.client.MidnightThoughtsClient;
 import mt.client.manager.WellRestedClientState;
+import mt.server.config.MidnightThoughtsConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -26,11 +27,18 @@ public class WellRestedHud {
     private static final int GAP = 1;
     private static final int FILL_INSET = 2;
 
+    private static final int MARGIN_LEFT = 4;
+    private static final int MARGIN_BOTTOM = 4;
+
     private static final String[] ROMAN = {"", "I", "II", "III", "IV", "V"};
     private static final int BLINK_THRESHOLD_TICKS = 200;
 
     public static boolean isActive() {
         return WellRestedClientState.isActive();
+    }
+
+    public static boolean isPrimaryPosition() {
+        return "primary".equals(MidnightThoughtsConfig.getInstance().getWellRestedHudPosition());
     }
 
     public static void render(GuiGraphics graphics, int screenWidth, int screenHeight) {
@@ -46,9 +54,11 @@ public class WellRestedHud {
 
         float progress = totalTicks > 0 ? (float) ticksRemaining / totalTicks : 0f;
 
-        int totalRight = screenWidth / 2 + 91;
-        int totalLeft = totalRight - TOTAL_GUI_W;
-        int barY = screenHeight - 32 - BAR_GUI_H - 10;
+        boolean isMvp = WellRestedClientState.isMvp();
+        Identifier activeIcon = isMvp ? MVP_ICON_TEXTURE : ICON_TEXTURE;
+
+        String roman = (!isMvp && level >= 1 && level <= 5) ? ROMAN[level] : "";
+        int romanWidth = roman.isEmpty() ? 0 : font.width(roman);
 
         float scaleAlpha = 1.0f;
         if (ticksRemaining <= BLINK_THRESHOLD_TICKS && ticksRemaining > 0) {
@@ -59,16 +69,29 @@ public class WellRestedHud {
         int white = ARGB.colorFromFloat(1.0f, 1.0f, 1.0f, 1.0f);
         int scaleColor = ARGB.colorFromFloat(scaleAlpha, 1.0f, 1.0f, 1.0f);
 
-        boolean isMvp = WellRestedClientState.isMvp();
-        Identifier activeIcon = isMvp ? MVP_ICON_TEXTURE : ICON_TEXTURE;
+        int iconX;
+        int barY;
 
-        String roman = (!isMvp && level >= 1 && level <= 5) ? ROMAN[level] : "";
-        int romanWidth = roman.isEmpty() ? 0 : font.width(roman);
+        if (isPrimaryPosition()) {
+            int totalRight = screenWidth / 2 + 91;
+            int totalLeft = totalRight - TOTAL_GUI_W;
+            barY = screenHeight - 32 - BAR_GUI_H - 10;
+            iconX = totalLeft;
+        } else {
+            barY = screenHeight - MARGIN_BOTTOM - BAR_GUI_H;
+            iconX = MARGIN_LEFT;
+        }
 
-        int iconX = totalLeft;
         int romanX = iconX + ICON_GUI_SIZE + GAP;
         int barX = romanX + (roman.isEmpty() ? 0 : romanWidth + GAP);
-        int barGuiW = totalRight - barX;
+
+        int barGuiW;
+        if (isPrimaryPosition()) {
+            int totalRight = screenWidth / 2 + 91;
+            barGuiW = totalRight - barX;
+        } else {
+            barGuiW = TEX_SCALE_W;
+        }
 
         graphics.pose().pushMatrix();
         graphics.pose().translate(iconX, barY);
