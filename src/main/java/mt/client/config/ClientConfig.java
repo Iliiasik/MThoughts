@@ -9,12 +9,10 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 public final class ClientConfig {
     private static final Logger LOGGER = LoggerFactory.getLogger("MidnightThoughts");
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-    private static final String CONFIG_FILE_NAME = "midnightthoughts-client.json";
 
     private static ClientConfig instance;
 
@@ -61,8 +59,7 @@ public final class ClientConfig {
     }
 
     private static Path getConfigPath() {
-        String configDir = System.getProperty("user.dir") + "/config";
-        return Paths.get(configDir, CONFIG_FILE_NAME);
+        return MidnightThoughtsConfig.getConfigDir().resolve("midnightthoughts-client.json");
     }
 
     public String getTheme() {
