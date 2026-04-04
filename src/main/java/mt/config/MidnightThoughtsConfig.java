@@ -15,7 +15,6 @@ import java.util.Map;
 public final class MidnightThoughtsConfig {
     private static final Logger LOGGER = LoggerFactory.getLogger("MidnightThoughts");
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-    private static final String CONFIG_FILE_NAME = "midnightthoughts.json";
 
     private static MidnightThoughtsConfig instance;
 
@@ -75,8 +74,12 @@ public final class MidnightThoughtsConfig {
         if (ui == null) ui = new UISettings();
     }
 
+    public static Path getConfigDir() {
+        return FabricLoader.getInstance().getConfigDir().resolve("midnightthoughts");
+    }
+
     private static Path getConfigPath() {
-        return FabricLoader.getInstance().getConfigDir().resolve(CONFIG_FILE_NAME);
+        return getConfigDir().resolve("midnightthoughts.json");
     }
 
     public SleepOverlaySettings getSleepOverlay() { return sleepOverlay; }
@@ -95,6 +98,8 @@ public final class MidnightThoughtsConfig {
     public boolean isEnableOverlay() { return sleepOverlay.enableOverlay; }
     public boolean isEnableImage() { return sleepOverlay.enableImage; }
     public boolean isEnableDailySummaryScreen() { return sleepOverlay.enableDailySummaryScreen; }
+    public boolean isUseFactsApi() { return sleepOverlay.useFactsApi; }
+    public boolean isUserContentReplaces() { return sleepOverlay.userContentReplaces; }
 
     public int getRandomSlideDisplayTime() {
         return sleepOverlay.minSlideDisplayTimeMs + (int)(Math.random() * (sleepOverlay.maxSlideDisplayTimeMs - sleepOverlay.minSlideDisplayTimeMs));
@@ -112,6 +117,8 @@ public final class MidnightThoughtsConfig {
         public boolean enableOverlay = true;
         public boolean enableImage = true;
         public boolean enableDailySummaryScreen = true;
+        public boolean useFactsApi = true;
+        public boolean userContentReplaces = false;
     }
 
     public static class WellRestedSettings {
