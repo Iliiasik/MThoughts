@@ -16,7 +16,6 @@ import java.util.Map;
 public final class MidnightThoughtsConfig {
     private static final Logger LOGGER = LoggerFactory.getLogger("MidnightThoughts");
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-    private static final String CONFIG_FILE_NAME = "midnightthoughts.json";
 
     private static MidnightThoughtsConfig instance;
 
@@ -81,9 +80,12 @@ public final class MidnightThoughtsConfig {
         if (ui == null) ui = new UISettings();
     }
 
+    public static Path getConfigDir() {
+        return Paths.get(System.getProperty("user.dir"), "config", "midnightthoughts");
+    }
+
     private static Path getConfigPath() {
-        String configDir = System.getProperty("user.dir") + "/config";
-        return Paths.get(configDir, CONFIG_FILE_NAME);
+        return getConfigDir().resolve("midnightthoughts.json");
     }
 
     public SleepOverlaySettings getSleepOverlay() {
@@ -122,6 +124,7 @@ public final class MidnightThoughtsConfig {
         return ui.wellRestedHudPosition;
     }
 
+
     public int getFadeInDurationMs() {
         return sleepOverlay.fadeInDurationMs;
     }
@@ -154,6 +157,14 @@ public final class MidnightThoughtsConfig {
         return sleepOverlay.enableDailySummaryScreen;
     }
 
+    public boolean isUseFactsApi() {
+        return sleepOverlay.useFactsApi;
+    }
+
+    public boolean isUserContentReplaces() {
+        return sleepOverlay.userContentReplaces;
+    }
+
     public int getRandomSlideDisplayTime() {
         return sleepOverlay.minSlideDisplayTimeMs + (int) (Math.random() * (sleepOverlay.maxSlideDisplayTimeMs - sleepOverlay.minSlideDisplayTimeMs));
     }
@@ -170,6 +181,8 @@ public final class MidnightThoughtsConfig {
         public boolean enableOverlay = true;
         public boolean enableImage = true;
         public boolean enableDailySummaryScreen = true;
+        public boolean useFactsApi = true;
+        public boolean userContentReplaces = false;
     }
 
     public static class WellRestedSettings {
