@@ -2,7 +2,6 @@ package mt.client.config;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import net.fabricmc.loader.api.FabricLoader;
 import mt.config.MidnightThoughtsConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +13,6 @@ import java.nio.file.Path;
 public final class ClientConfig {
     private static final Logger LOGGER = LoggerFactory.getLogger("MidnightThoughts");
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-    private static final String CONFIG_FILE_NAME = "midnightthoughts-client.json";
 
     private static ClientConfig instance;
     private String theme = null;
@@ -60,7 +58,7 @@ public final class ClientConfig {
     }
 
     private static Path getConfigPath() {
-        return FabricLoader.getInstance().getConfigDir().resolve(CONFIG_FILE_NAME);
+        return MidnightThoughtsConfig.getConfigDir().resolve("midnightthoughts-client.json");
     }
 
     public String getTheme() {
