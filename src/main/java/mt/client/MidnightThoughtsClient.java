@@ -8,6 +8,7 @@ import mt.client.repository.SlideRepository;
 import mt.client.service.FactProvider;
 import mt.client.service.PlayerStatsService;
 import mt.client.service.SlideService;
+import mt.client.service.UserContentLoader;
 import mt.client.ui.WellRestedHud;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.Identifier;
@@ -49,8 +50,11 @@ public class MidnightThoughtsClient {
         Minecraft mc = Minecraft.getInstance();
         slideRepository.loadAllSlides(mc.getResourceManager());
 
+        UserContentLoader userContentLoader = new UserContentLoader();
+        userContentLoader.writeDefaultFiles();
+
         UselessFactsApiClient apiClient = new UselessFactsApiClient();
-        FactProvider factProvider = new FactProvider(apiClient, slideRepository);
+        FactProvider factProvider = new FactProvider(apiClient, slideRepository, userContentLoader);
         PlayerStatsService playerStatsService = new PlayerStatsService();
         SlideService slideService = new SlideService(slideRepository, playerStatsService, config, factProvider);
         sleepStateManager = new SleepStateManager();

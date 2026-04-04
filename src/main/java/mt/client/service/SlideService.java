@@ -5,6 +5,7 @@ import mt.client.model.Slide;
 import mt.client.model.SlideCategory;
 import mt.client.repository.SlideRepository;
 import net.minecraft.client.Minecraft;
+
 import java.util.concurrent.ThreadLocalRandom;
 
 public class SlideService {
@@ -24,6 +25,12 @@ public class SlideService {
         if (category == SlideCategory.FACT) {
             return factProvider.getNextFact(language);
         }
+
+        Slide userSlide = factProvider.getNextForCategory(language, category);
+        if (userSlide != null) {
+            return userSlide;
+        }
+
         return slideRepository.getRandomSlide(language, category);
     }
 
@@ -31,6 +38,10 @@ public class SlideService {
         String language = getCurrentLanguage();
 
         if (shouldShowSpecialSlide()) {
+            Slide userSpecial = factProvider.getNextForCategory(language, SlideCategory.SPECIAL);
+            if (userSpecial != null) {
+                return userSpecial;
+            }
             Slide special = slideRepository.getRandomSlideByRarity(language, SlideCategory.SPECIAL);
             if (special != null) {
                 return special;
@@ -46,7 +57,6 @@ public class SlideService {
 
         return slide;
     }
-
 
     private boolean shouldShowSpecialSlide() {
         return ThreadLocalRandom.current().nextFloat() < config.getSpecialSlideChance();
