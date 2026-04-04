@@ -27,6 +27,12 @@ public class SlideService {
         if (category == SlideCategory.FACT) {
             return factProvider.getNextFact(language);
         }
+
+        Slide userSlide = factProvider.getNextForCategory(language, category);
+        if (userSlide != null) {
+            return userSlide;
+        }
+
         return slideRepository.getRandomSlide(language, category);
     }
 
@@ -34,6 +40,10 @@ public class SlideService {
         String language = getCurrentLanguage();
 
         if (shouldShowSpecialSlide()) {
+            Slide userSpecial = factProvider.getNextForCategory(language, SlideCategory.SPECIAL);
+            if (userSpecial != null) {
+                return userSpecial;
+            }
             Slide special = slideRepository.getRandomSlideByRarity(language, SlideCategory.SPECIAL);
             if (special != null) {
                 return special;
