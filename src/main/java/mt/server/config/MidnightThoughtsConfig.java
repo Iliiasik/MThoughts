@@ -21,7 +21,6 @@ public final class MidnightThoughtsConfig {
 
     private SleepOverlaySettings sleepOverlay = new SleepOverlaySettings();
     private WellRestedSettings wellRested = new WellRestedSettings();
-    private AchievementsSettings achievements = new AchievementsSettings();
     private MvpSettings mvp = new MvpSettings();
     private ComfortSettings comfort = new ComfortSettings();
     private ServerSettings server = new ServerSettings();
@@ -73,7 +72,6 @@ public final class MidnightThoughtsConfig {
     private void validate() {
         if (sleepOverlay == null) sleepOverlay = new SleepOverlaySettings();
         if (wellRested == null) wellRested = new WellRestedSettings();
-        if (achievements == null) achievements = new AchievementsSettings();
         if (mvp == null) mvp = new MvpSettings();
         if (comfort == null) comfort = new ComfortSettings();
         if (server == null) server = new ServerSettings();
@@ -88,77 +86,27 @@ public final class MidnightThoughtsConfig {
         return getConfigDir().resolve("midnightthoughts.json");
     }
 
-    public SleepOverlaySettings getSleepOverlay() {
-        return sleepOverlay;
-    }
-
-    public WellRestedSettings getWellRested() {
-        return wellRested;
-    }
-
-    public AchievementsSettings getAchievements() {
-        return achievements;
-    }
-
-    public MvpSettings getMvp() {
-        return mvp;
-    }
-
-    public ComfortSettings getComfort() {
-        return comfort;
-    }
-
-    public ServerSettings getServer() {
-        return server;
-    }
-
-    public UISettings getUi() {
-        return ui;
-    }
+    public SleepOverlaySettings getSleepOverlay() { return sleepOverlay; }
+    public WellRestedSettings getWellRested() { return wellRested; }
+    public MvpSettings getMvp() { return mvp; }
+    public ComfortSettings getComfort() { return comfort; }
+    public ServerSettings getServer() { return server; }
+    public UISettings getUi() { return ui; }
 
     public String getUiTheme() {
         return ClientConfig.getInstance().getEffectiveTheme();
     }
 
-    public int getFadeInDurationMs() {
-        return sleepOverlay.fadeInDurationMs;
-    }
-
-    public int getFadeOutDurationMs() {
-        return sleepOverlay.fadeOutDurationMs;
-    }
-
-    public float getOverlayOpacity() {
-        return sleepOverlay.overlayOpacity;
-    }
-
-    public float getTextOpacity() {
-        return sleepOverlay.textOpacity;
-    }
-
-    public float getSpecialSlideChance() {
-        return sleepOverlay.specialSlideChance;
-    }
-
-    public boolean isEnableOverlay() {
-        return sleepOverlay.enableOverlay;
-    }
-
-    public boolean isEnableImage() {
-        return sleepOverlay.enableImage;
-    }
-
-    public boolean isEnableDailySummaryScreen() {
-        return sleepOverlay.enableDailySummaryScreen;
-    }
-
-    public boolean isUseFactsApi() {
-        return sleepOverlay.useFactsApi;
-    }
-
-    public boolean isUserContentReplaces() {
-        return sleepOverlay.userContentReplaces;
-    }
+    public int getFadeInDurationMs() { return sleepOverlay.fadeInDurationMs; }
+    public int getFadeOutDurationMs() { return sleepOverlay.fadeOutDurationMs; }
+    public float getOverlayOpacity() { return sleepOverlay.overlayOpacity; }
+    public float getTextOpacity() { return sleepOverlay.textOpacity; }
+    public float getSpecialSlideChance() { return sleepOverlay.specialSlideChance; }
+    public boolean isEnableOverlay() { return sleepOverlay.enableOverlay; }
+    public boolean isEnableImage() { return sleepOverlay.enableImage; }
+    public boolean isEnableDailySummaryScreen() { return sleepOverlay.enableDailySummaryScreen; }
+    public boolean isUseFactsApi() { return sleepOverlay.useFactsApi; }
+    public boolean isUserContentReplaces() { return sleepOverlay.userContentReplaces; }
 
     public int getRandomSlideDisplayTime() {
         return sleepOverlay.minSlideDisplayTimeMs + (int) (Math.random() * (sleepOverlay.maxSlideDisplayTimeMs - sleepOverlay.minSlideDisplayTimeMs));
@@ -198,23 +146,14 @@ public final class MidnightThoughtsConfig {
 
     public static class WellRestedLevel {
         public int durationMinutes;
-        public float speedPhase1;
-        public float speedPhase2;
-        public float speedPhase3;
-        public float strengthPhase1;
-        public float strengthPhase2;
-        public float strengthPhase3;
-        public float hastePhase1;
-        public float hastePhase2;
-        public float hastePhase3;
-        public float attackSpeedPhase1;
-        public float attackSpeedPhase2;
-        public float attackSpeedPhase3;
+        public float speedPhase1, speedPhase2, speedPhase3;
+        public float strengthPhase1, strengthPhase2, strengthPhase3;
+        public float hastePhase1, hastePhase2, hastePhase3;
+        public float attackSpeedPhase1, attackSpeedPhase2, attackSpeedPhase3;
         public float healthBonus;
         public float regenBonus;
 
-        public WellRestedLevel() {
-        }
+        public WellRestedLevel() {}
 
         public WellRestedLevel(int durationMinutes,
                                float speedPhase1, float speedPhase2, float speedPhase3,
@@ -223,72 +162,12 @@ public final class MidnightThoughtsConfig {
                                float attackSpeedPhase1, float attackSpeedPhase2, float attackSpeedPhase3,
                                float healthBonus, float regenBonus) {
             this.durationMinutes = durationMinutes;
-            this.speedPhase1 = speedPhase1;
-            this.speedPhase2 = speedPhase2;
-            this.speedPhase3 = speedPhase3;
-            this.strengthPhase1 = strengthPhase1;
-            this.strengthPhase2 = strengthPhase2;
-            this.strengthPhase3 = strengthPhase3;
-            this.hastePhase1 = hastePhase1;
-            this.hastePhase2 = hastePhase2;
-            this.hastePhase3 = hastePhase3;
-            this.attackSpeedPhase1 = attackSpeedPhase1;
-            this.attackSpeedPhase2 = attackSpeedPhase2;
-            this.attackSpeedPhase3 = attackSpeedPhase3;
+            this.speedPhase1 = speedPhase1; this.speedPhase2 = speedPhase2; this.speedPhase3 = speedPhase3;
+            this.strengthPhase1 = strengthPhase1; this.strengthPhase2 = strengthPhase2; this.strengthPhase3 = strengthPhase3;
+            this.hastePhase1 = hastePhase1; this.hastePhase2 = hastePhase2; this.hastePhase3 = hastePhase3;
+            this.attackSpeedPhase1 = attackSpeedPhase1; this.attackSpeedPhase2 = attackSpeedPhase2; this.attackSpeedPhase3 = attackSpeedPhase3;
             this.healthBonus = healthBonus;
             this.regenBonus = regenBonus;
-        }
-    }
-
-    public static class AchievementsSettings {
-        public Map<String, AchievementRequirement> requirements = new HashMap<>();
-
-        public AchievementsSettings() {
-            requirements.put("flawless", new AchievementRequirement(0, 10, null, 50, null));
-            requirements.put("pacifist", new AchievementRequirement(null, null, 0, null, 500000));
-            requirements.put("juggernaut", new AchievementRequirement(null, 50, null, null, null, 1));
-            requirements.put("marathoner", new AchievementRequirement(null, null, null, null, 3000000));
-            requirements.put("hyperactive", new AchievementRequirement(null, null, null, null, null, null, 500));
-            requirements.put("demolition_maniac", new AchievementRequirement(null, null, null, 1000, null, null, 200));
-            requirements.put("explorer", new AchievementRequirement(null, null, null, 100, 1500000));
-            requirements.put("survivor", new AchievementRequirement(null, 10, null, null, null, 1));
-            requirements.put("combo_master", new AchievementRequirement(null, 20, null, 200, 1000000));
-            requirements.put("iron_will", new AchievementRequirement(0, null, null, 200, 2000000));
-        }
-
-        public AchievementRequirement getRequirement(String achievementId) {
-            return requirements.getOrDefault(achievementId, new AchievementRequirement());
-        }
-    }
-
-    public static class AchievementRequirement {
-        public Integer deaths;
-        public Integer mobsMin;
-        public Integer mobsMax;
-        public Integer blocksMin;
-        public Integer distanceMin;
-        public Integer deathsMax;
-        public Integer jumpsMin;
-
-        public AchievementRequirement() {
-        }
-
-        public AchievementRequirement(Integer deaths, Integer mobsMin, Integer mobsMax, Integer blocksMin, Integer distanceMin) {
-            this.deaths = deaths;
-            this.mobsMin = mobsMin;
-            this.mobsMax = mobsMax;
-            this.blocksMin = blocksMin;
-            this.distanceMin = distanceMin;
-        }
-
-        public AchievementRequirement(Integer deaths, Integer mobsMin, Integer mobsMax, Integer blocksMin, Integer distanceMin, Integer deathsMax) {
-            this(deaths, mobsMin, mobsMax, blocksMin, distanceMin);
-            this.deathsMax = deathsMax;
-        }
-
-        public AchievementRequirement(Integer deaths, Integer mobsMin, Integer mobsMax, Integer blocksMin, Integer distanceMin, Integer deathsMax, Integer jumpsMin) {
-            this(deaths, mobsMin, mobsMax, blocksMin, distanceMin, deathsMax);
-            this.jumpsMin = jumpsMin;
         }
     }
 

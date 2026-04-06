@@ -2,6 +2,7 @@ package mt;
 
 import mt.network.NetworkHandler;
 import mt.network.packet.WellRestedPacket;
+import mt.server.AchievementLoader;
 import mt.server.ComfortCalculator;
 import mt.server.DailyStatsManager;
 import mt.server.SleepTracker;
@@ -34,13 +35,8 @@ public class MidnightThoughts {
 
     private final IEventBus modEventBus;
 
-    @SuppressWarnings("unused")
     public MidnightThoughts() {
-        this(FMLJavaModLoadingContext.get().getModEventBus());
-    }
-
-    public MidnightThoughts(IEventBus modEventBus) {
-        this.modEventBus = modEventBus;
+        this.modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         modEventBus.addListener(this::setup);
         modEventBus.addListener(this::onClientSetup);
         MinecraftForge.EVENT_BUS.register(this);
@@ -49,10 +45,13 @@ public class MidnightThoughts {
 
     private void setup(final FMLCommonSetupEvent event) {
         NetworkHandler.registerPackets();
+        AchievementLoader.load();
+        LOGGER.info("Midnight Thoughts common setup complete");
     }
 
     private void onClientSetup(final FMLClientSetupEvent event) {
         mt.client.MidnightThoughtsClient.init(modEventBus);
+        LOGGER.info("Midnight Thoughts client setup complete");
     }
 
     @SubscribeEvent
@@ -75,12 +74,12 @@ public class MidnightThoughts {
     @SubscribeEvent
     public void onPlayerWakeUp(PlayerWakeUpEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer serverPlayer)) return;
-        if (!event.wakeImmediately()) {
-            MinecraftServer srv = serverPlayer.level().getServer();
-            if (srv != null) {
-                SleepTracker tracker = DailyStatsManager.getSleepTracker(srv);
-                if (tracker != null) tracker.markPlayerSlept(serverPlayer.getUUID());
-            }
+        if (event.wakeImmediately()) return;
+
+        MinecraftServer srv = serverPlayer.server;
+        if (srv != null) {
+            SleepTracker tracker = DailyStatsManager.getSleepTracker(srv);
+            if (tracker != null) tracker.markPlayerSlept(serverPlayer.getUUID());
         }
     }
 
@@ -106,6 +105,7 @@ public class MidnightThoughts {
     @SubscribeEvent
     public void onServerStarted(ServerStartedEvent event) {
         DailyStatsManager.initialize();
+        LOGGER.info("Midnight Thoughts server started");
     }
 
     @SubscribeEvent
@@ -125,5 +125,6 @@ public class MidnightThoughts {
     @SubscribeEvent
     public void onServerStopping(ServerStoppingEvent event) {
         DailyStatsManager.onServerStop(event.getServer());
+        LOGGER.info("Midnight Thoughts server stopping");
     }
 }
