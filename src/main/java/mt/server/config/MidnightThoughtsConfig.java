@@ -97,16 +97,13 @@ public final class MidnightThoughtsConfig {
         return ClientConfig.getInstance().getEffectiveTheme();
     }
 
-    public int getFadeInDurationMs() { return sleepOverlay.fadeInDurationMs; }
-    public int getFadeOutDurationMs() { return sleepOverlay.fadeOutDurationMs; }
-    public float getOverlayOpacity() { return sleepOverlay.overlayOpacity; }
-    public float getTextOpacity() { return sleepOverlay.textOpacity; }
     public float getSpecialSlideChance() { return sleepOverlay.specialSlideChance; }
     public boolean isEnableOverlay() { return sleepOverlay.enableOverlay; }
     public boolean isEnableImage() { return sleepOverlay.enableImage; }
     public boolean isEnableDailySummaryScreen() { return sleepOverlay.enableDailySummaryScreen; }
     public boolean isUseFactsApi() { return sleepOverlay.useFactsApi; }
     public boolean isUserContentReplaces() { return sleepOverlay.userContentReplaces; }
+    public boolean isHideChatWhenSleeping() { return sleepOverlay.hideChatWhenSleeping; }
 
     public int getRandomSlideDisplayTime() {
         if (sleepOverlay.minSlideDisplayTimeMs >= sleepOverlay.maxSlideDisplayTimeMs) {
@@ -116,19 +113,15 @@ public final class MidnightThoughtsConfig {
     }
 
     public static class SleepOverlaySettings {
-        public int minSlideDisplayTimeMs = 2500;
-        public int maxSlideDisplayTimeMs = 4000;
-        public int fadeInDurationMs = 300;
-        public int fadeOutDurationMs = 300;
-        public float overlayOpacity = 0.4f;
-        public float textOpacity = 1.0f;
-        public float imageOpacity = 0.6f;
+        public int minSlideDisplayTimeMs = 6000;
+        public int maxSlideDisplayTimeMs = 8000;
         public float specialSlideChance = 0.05f;
         public boolean enableOverlay = true;
         public boolean enableImage = true;
         public boolean enableDailySummaryScreen = true;
         public boolean useFactsApi = true;
         public boolean userContentReplaces = false;
+        public boolean hideChatWhenSleeping = true;
     }
 
     public static class WellRestedSettings {
