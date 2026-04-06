@@ -109,6 +109,9 @@ public final class MidnightThoughtsConfig {
     public boolean isUserContentReplaces() { return sleepOverlay.userContentReplaces; }
 
     public int getRandomSlideDisplayTime() {
+        if (sleepOverlay.minSlideDisplayTimeMs >= sleepOverlay.maxSlideDisplayTimeMs) {
+            return sleepOverlay.minSlideDisplayTimeMs;
+        }
         return sleepOverlay.minSlideDisplayTimeMs + (int) (Math.random() * (sleepOverlay.maxSlideDisplayTimeMs - sleepOverlay.minSlideDisplayTimeMs));
     }
 

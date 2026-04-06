@@ -26,7 +26,6 @@ public class SleepOverlayRenderer {
     private static final float TEXT_AREA_WIDTH_PERCENT = 0.35f;
     private static final float MIN_TEXT_SCALE = 1.5f;
     private static final float MAX_TEXT_SCALE = 3.0f;
-    private static final float IMAGE_OPACITY = 0.2f;
 
     private final SleepStateManager sleepStateManager;
     private final SlideService slideService;
@@ -123,7 +122,7 @@ public class SleepOverlayRenderer {
     private void updateSlideState() {
         long now = System.currentTimeMillis();
         switch (slideState) {
-            case FADING_IN -> {
+            case FADING_IN:
                 long elapsedFadeIn = now - slideStartTime;
                 float progressFadeIn = (float) elapsedFadeIn / config.getFadeInDurationMs();
                 if (progressFadeIn >= 1f && textAlpha > 0.95f) {
@@ -134,16 +133,16 @@ public class SleepOverlayRenderer {
                 } else {
                     targetTextAlpha = easeInOut(Math.min(progressFadeIn, 1f));
                 }
-            }
-            case VISIBLE -> {
+                break;
+            case VISIBLE:
                 targetTextAlpha = 1f;
                 long elapsedVisible = now - visibleStartTime;
                 if (elapsedVisible >= currentSlideDuration) {
                     slideState = SlideState.FADING_OUT;
                     slideStartTime = now;
                 }
-            }
-            case FADING_OUT -> {
+                break;
+            case FADING_OUT:
                 long elapsedFadeOut = now - slideStartTime;
                 float progressFadeOut = (float) elapsedFadeOut / config.getFadeOutDurationMs();
                 targetTextAlpha = 1f - easeInOut(Math.min(progressFadeOut, 1f));
@@ -159,8 +158,10 @@ public class SleepOverlayRenderer {
                     targetTextAlpha = 0f;
                     slideState = SlideState.FADING_IN;
                 }
-            }
-            case HIDDEN -> targetTextAlpha = 0f;
+                break;
+            case HIDDEN:
+                targetTextAlpha = 0f;
+                break;
         }
         textAlpha = lerp(textAlpha, targetTextAlpha);
         if (Math.abs(textAlpha - targetTextAlpha) < 0.01f) {
@@ -199,7 +200,12 @@ public class SleepOverlayRenderer {
 
     private void renderOverlay(GuiGraphics context, int screenWidth, int screenHeight) {
         int alpha = (int) (config.getOverlayOpacity() * overlayAlpha * 255);
-        int overlayColor = (alpha << 24);
+        int overlayColor;
+        if (WellRestedClientState.isNightmareMode()) {
+            overlayColor = (alpha << 24) | 0x1A0000;
+        } else {
+            overlayColor = (alpha << 24);
+        }
         context.fill(0, 0, screenWidth, screenHeight, overlayColor);
     }
 
@@ -235,7 +241,7 @@ public class SleepOverlayRenderer {
 
     private void renderImage(GuiGraphics context, int x, int y, int width, int height) {
         ResourceLocation texture = WellRestedClientState.isNightmareMode() ? SKULL_TEXTURE : IMAGE_TEXTURE;
-        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, overlayAlpha * IMAGE_OPACITY);
+        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, overlayAlpha * config.getSleepOverlay().imageOpacity);
         RenderSystem.enableBlend();
         context.pose().pushPose();
         context.pose().translate(x, y, 0);
