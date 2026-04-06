@@ -1,5 +1,7 @@
 package mt.client.ui.summary;
 
+import mt.server.AchievementLoader;
+import mt.server.AchievementDefinition;
 import mt.server.config.MidnightThoughtsConfig;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.Font;
@@ -67,10 +69,41 @@ public class AchievementRenderer {
         context.pose().popPose();
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
 
+        String name = resolveAchievementName(achievementId);
         int padX = Math.max(3, (int)(4 * scale));
-        String text = Component.translatable("midnightthoughts.achievement." + achievementId).getString();
+        int maxTextW = width - padX * 2;
+
+        String ellipsis = "...";
+        int ellipsisW = textRenderer.width(ellipsis);
+        if (textRenderer.width(name) > maxTextW) {
+            while (!name.isEmpty() && textRenderer.width(name) + ellipsisW > maxTextW) {
+                name = name.substring(0, name.length() - 1);
+            }
+            name = name + ellipsis;
+        }
+
         int textColor = (alpha << 24) | colors.achievementTextColor();
         int textY = renderY + (renderH - (int)(8 * textScale)) / 2;
-        RenderUtils.renderScaledText(context, textRenderer, text, x + padX, textY, textColor, textScale, false);
+        RenderUtils.renderScaledText(context, textRenderer, name, x + padX, textY, textColor, textScale, false);
+    }
+
+    private static String resolveAchievementName(String achievementId) {
+        List<AchievementDefinition> customAchievements = AchievementLoader.load();
+        for (AchievementDefinition def : customAchievements) {
+            if (def.id.equals(achievementId)) {
+                return def.name;
+            }
+        }
+        return Component.translatable("midnightthoughts.achievement." + achievementId).getString();
+    }
+
+    public static String resolveAchievementTooltip(String achievementId) {
+        List<AchievementDefinition> customAchievements = AchievementLoader.load();
+        for (AchievementDefinition def : customAchievements) {
+            if (def.id.equals(achievementId)) {
+                return def.tooltip != null ? def.tooltip : def.name;
+            }
+        }
+        return Component.translatable("midnightthoughts.achievement." + achievementId + ".desc").getString();
     }
 }

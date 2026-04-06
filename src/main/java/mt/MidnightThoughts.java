@@ -2,6 +2,7 @@ package mt;
 
 import mt.network.NetworkHandler;
 import mt.network.packet.WellRestedPacket;
+import mt.server.AchievementLoader;
 import mt.server.ComfortCalculator;
 import mt.server.DailyStatsManager;
 import mt.server.SleepTracker;
@@ -44,6 +45,7 @@ public class MidnightThoughts {
     }
 
     private void setup(final FMLCommonSetupEvent event) {
+        AchievementLoader.load();
         LOGGER.info("Midnight Thoughts common setup complete");
     }
 
