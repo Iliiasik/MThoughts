@@ -104,6 +104,8 @@ public final class MidnightThoughtsConfig {
     public boolean isUseFactsApi() { return sleepOverlay.useFactsApi; }
     public boolean isUserContentReplaces() { return sleepOverlay.userContentReplaces; }
     public boolean isHideChatWhenSleeping() { return sleepOverlay.hideChatWhenSleeping; }
+    public boolean isHideWellRestedHud() { return ui.hideWellRestedHud; }
+    public boolean isHideThemeSwitchButton() { return ui.hideThemeSwitchButton; }
 
     public int getRandomSlideDisplayTime() {
         if (sleepOverlay.minSlideDisplayTimeMs >= sleepOverlay.maxSlideDisplayTimeMs) {
@@ -189,5 +191,7 @@ public final class MidnightThoughtsConfig {
 
     public static class UISettings {
         public String theme = "vanilla";
+        public boolean hideWellRestedHud = false;
+        public boolean hideThemeSwitchButton = false;
     }
 }
