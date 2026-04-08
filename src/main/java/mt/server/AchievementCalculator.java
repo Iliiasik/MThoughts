@@ -1,162 +1,126 @@
 package mt.server;
 
 import mt.config.MidnightThoughtsConfig;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 public class AchievementCalculator {
     private static final MidnightThoughtsConfig CONFIG = MidnightThoughtsConfig.getInstance();
-    private static final int MAX_SAFE_VALUE = Integer.MAX_VALUE / 2;
 
     public static List<String> calculateAchievements(
             ServerPlayerEntity player,
             DailyPlayerStats.DailyDelta delta,
-            MinecraftServer server
+            StatsStorage.SavedPlayerStats savedStats
     ) {
-        List<String> achievements = new ArrayList<>();
-        UUID uuid = player.getUuid();
-
-        StatsStorage.SavedPlayerStats saved = StatsStorage.loadPlayerStats(server, uuid);
-        if (saved == null) {
-            saved = new StatsStorage.SavedPlayerStats();
-        }
+        List<String> achievementsToAnnounce = new ArrayList<>();
 
         int distance = delta.distanceWalked();
         int blocks = delta.blocksDestroyed();
         int mobs = delta.mobsKilled();
         int deaths = delta.deaths();
         int jumps = delta.jumps();
+        int damage = delta.damageDealt();
 
-        if (distance > saved.recordDistance && saved.totalSleeps > 0) {
-            achievements.add("distance_record");
+        if (savedStats.totalSleeps > 0) {
+            if (distance > savedStats.recordDistance) {
+                achievementsToAnnounce.add("distance_record");
+                savedStats.recordDistance = distance;
+            }
+            if (blocks > savedStats.recordBlocks) {
+                achievementsToAnnounce.add("blocks_record");
+                savedStats.recordBlocks = blocks;
+            }
+            if (mobs > savedStats.recordMobs) {
+                achievementsToAnnounce.add("mobs_record");
+                savedStats.recordMobs = mobs;
+            }
         }
-        if (blocks > saved.recordBlocks && saved.totalSleeps > 0) {
-            achievements.add("blocks_record");
+
+        List<AchievementDefinition> customAchievements = AchievementLoader.load();
+        for (AchievementDefinition def : customAchievements) {
+            if (savedStats.unlockedAchievements.contains(def.id)) {
+                continue;
+            }
+            if (checkCustomAchievement(def, deaths, mobs, blocks, distance, jumps, damage)) {
+                achievementsToAnnounce.add(def.id);
+                savedStats.unlockedAchievements.add(def.id);
+            }
         }
-        if (mobs > saved.recordMobs && saved.totalSleeps > 0) {
-            achievements.add("mobs_record");
-        }
 
-        int blocksWalked = safeDivide(distance, 100);
+        savedStats.totalSleeps++;
 
-        checkAchievement(achievements, "flawless", deaths, mobs, blocks, blocksWalked, jumps);
-        checkAchievement(achievements, "pacifist", deaths, mobs, blocks, blocksWalked, jumps);
-        checkAchievement(achievements, "juggernaut", deaths, mobs, blocks, blocksWalked, jumps);
-        checkAchievement(achievements, "marathoner", deaths, mobs, blocks, blocksWalked, jumps);
-        checkAchievement(achievements, "hyperactive", deaths, mobs, blocks, blocksWalked, jumps);
-        checkAchievement(achievements, "demolition_maniac", deaths, mobs, blocks, blocksWalked, jumps);
-        checkAchievement(achievements, "explorer", deaths, mobs, blocks, blocksWalked, jumps);
-        checkAchievement(achievements, "survivor", deaths, mobs, blocks, blocksWalked, jumps);
-        checkAchievement(achievements, "combo_master", deaths, mobs, blocks, blocksWalked, jumps);
-        checkAchievement(achievements, "iron_will", deaths, mobs, blocks, blocksWalked, jumps);
-
-        updateRecords(server, uuid, delta, saved);
-
-        return achievements;
+        return achievementsToAnnounce;
     }
 
-    private static void checkAchievement(List<String> achievements, String achievementId, int deaths, int mobs, int blocks, int blocksWalked, int jumps) {
-        MidnightThoughtsConfig.AchievementRequirement req = CONFIG.getAchievements().getRequirement(achievementId);
+    private static boolean checkCustomAchievement(AchievementDefinition def, int deaths, int mobs, int blocks, int distance, int jumps, int damage) {
+        if (def.conditions == null) return false;
+        AchievementDefinition.Conditions c = def.conditions;
 
-        if (req.deaths != null && deaths != req.deaths) return;
-        if (req.deathsMax != null && deaths > req.deathsMax) return;
-        if (req.mobsMin != null && mobs < req.mobsMin) return;
-        if (req.mobsMax != null && mobs > req.mobsMax) return;
-        if (req.blocksMin != null && blocks < req.blocksMin) return;
-        if (req.distanceMin != null && blocksWalked < req.distanceMin) return;
-        if (req.jumpsMin != null && jumps < req.jumpsMin) return;
+        if (c.deathsEq != null && deaths != c.deathsEq) return false;
+        if (c.deathsMin != null && deaths < c.deathsMin) return false;
+        if (c.deathsMax != null && deaths > c.deathsMax) return false;
 
-        achievements.add(achievementId);
-    }
+        if (c.mobsKilledEq != null && mobs != c.mobsKilledEq) return false;
+        if (c.mobsKilledMin != null && mobs < c.mobsKilledMin) return false;
+        if (c.mobsKilledMax != null && mobs > c.mobsKilledMax) return false;
 
-    private static void updateRecords(MinecraftServer server, UUID uuid, DailyPlayerStats.DailyDelta delta, StatsStorage.SavedPlayerStats saved) {
-        if (delta.distanceWalked() > saved.recordDistance) {
-            saved.recordDistance = delta.distanceWalked();
-        }
+        if (c.blocksDestroyedEq != null && blocks != c.blocksDestroyedEq) return false;
+        if (c.blocksDestroyedMin != null && blocks < c.blocksDestroyedMin) return false;
+        if (c.blocksDestroyedMax != null && blocks > c.blocksDestroyedMax) return false;
 
-        if (delta.blocksDestroyed() > saved.recordBlocks) {
-            saved.recordBlocks = delta.blocksDestroyed();
-        }
+        if (c.distanceWalkedEq != null && distance != c.distanceWalkedEq) return false;
+        if (c.distanceWalkedMin != null && distance < c.distanceWalkedMin) return false;
+        if (c.distanceWalkedMax != null && distance > c.distanceWalkedMax) return false;
 
-        if (delta.mobsKilled() > saved.recordMobs) {
-            saved.recordMobs = delta.mobsKilled();
-        }
+        if (c.jumpsEq != null && jumps != c.jumpsEq) return false;
+        if (c.jumpsMin != null && jumps < c.jumpsMin) return false;
+        if (c.jumpsMax != null && jumps > c.jumpsMax) return false;
 
-        saved.totalSleeps++;
-        StatsStorage.savePlayerStats(server, uuid, saved);
+        if (c.damageDealtEq != null && damage != c.damageDealtEq) return false;
+        if (c.damageDealtMin != null && damage < c.damageDealtMin) return false;
+        if (c.damageDealtMax != null && damage > c.damageDealtMax) return false;
+
+        return true;
     }
 
     public static String determineMvp(List<PlayerSummaryData> players) {
         MidnightThoughtsConfig.MvpSettings mvpSettings = CONFIG.getMvp();
-
-        if (!mvpSettings.enabled || players.size() <= 1) {
-            return null;
-        }
+        if (!mvpSettings.enabled || players.size() <= 1) return null;
 
         String mvpName = null;
         int highestScore = 0;
+        int mvpCount = 0;
 
         for (PlayerSummaryData player : players) {
             int score = calculateMvpScore(player);
             if (score > highestScore) {
                 highestScore = score;
                 mvpName = player.playerName();
-            }
-        }
-
-        int mvpCount = 0;
-        for (PlayerSummaryData player : players) {
-            if (calculateMvpScore(player) == highestScore) {
+                mvpCount = 1;
+            } else if (score == highestScore) {
                 mvpCount++;
             }
         }
 
-        if (mvpCount > 1) {
-            return null;
-        }
-
-        if (highestScore < mvpSettings.minScoreRequired) {
-            return null;
-        }
-
+        if (mvpCount > 1 || highestScore < mvpSettings.minScoreRequired) return null;
         return mvpName;
     }
 
     private static int calculateMvpScore(PlayerSummaryData player) {
         MidnightThoughtsConfig.MvpSettings mvp = CONFIG.getMvp();
-        long score = 0;
-
-        score += (long) safeDivide(player.distanceWalked(), 100) / 100 * mvp.pointsPerDistance100;
-        score += (long) player.blocksDestroyed() * mvp.pointsPerBlock;
-        score += (long) player.mobsKilled() * mvp.pointsPerMob;
-        score += (long) safeDivide(player.jumps(), 10) * mvp.pointsPerJump10;
-        score -= (long) player.deaths() * mvp.penaltyPerDeath;
-
-        return clampValue((int) Math.max(0, score));
-    }
-
-    private static int safeDivide(int value, int divisor) {
-        if (divisor == 0) return 0;
-        if (value > MAX_SAFE_VALUE) return MAX_SAFE_VALUE / divisor;
-        return value / divisor;
-    }
-
-    private static int clampValue(int value) {
-        if (value < 0) return 0;
-        if (value > MAX_SAFE_VALUE) return MAX_SAFE_VALUE;
-        return value;
+        int score = 0;
+        score += (player.distanceWalked() / 100) / 100 * mvp.pointsPerDistance100;
+        score += player.blocksDestroyed() * mvp.pointsPerBlock;
+        score += player.mobsKilled() * mvp.pointsPerMob;
+        score += player.jumps() / 10 * mvp.pointsPerJump10;
+        score -= player.deaths() * mvp.penaltyPerDeath;
+        return Math.max(0, score);
     }
 
     public record PlayerSummaryData(
-        String playerName,
-        int blocksDestroyed,
-        int distanceWalked,
-        int mobsKilled,
-        int deaths,
-        int jumps
+            String playerName, int blocksDestroyed, int distanceWalked,
+            int mobsKilled, int deaths, int jumps
     ) {}
 }

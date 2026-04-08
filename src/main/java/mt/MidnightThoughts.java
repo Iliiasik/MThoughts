@@ -2,6 +2,7 @@ package mt;
 
 import mt.network.NetworkHandler;
 import mt.network.packet.WellRestedPacket;
+import mt.server.AchievementLoader;
 import mt.server.ComfortCalculator;
 import mt.server.DailyStatsManager;
 import mt.server.SleepTracker;
@@ -25,6 +26,7 @@ public class MidnightThoughts implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        AchievementLoader.load();
         WellRestedEffect.register();
         NetworkHandler.registerPackets();
         DailyStatsManager.initialize();

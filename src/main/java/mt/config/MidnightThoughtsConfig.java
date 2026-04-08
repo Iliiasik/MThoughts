@@ -20,7 +20,6 @@ public final class MidnightThoughtsConfig {
 
     private SleepOverlaySettings sleepOverlay = new SleepOverlaySettings();
     private WellRestedSettings wellRested = new WellRestedSettings();
-    private AchievementsSettings achievements = new AchievementsSettings();
     private MvpSettings mvp = new MvpSettings();
     private ComfortSettings comfort = new ComfortSettings();
     private ServerSettings server = new ServerSettings();
@@ -67,7 +66,6 @@ public final class MidnightThoughtsConfig {
     private void validate() {
         if (sleepOverlay == null) sleepOverlay = new SleepOverlaySettings();
         if (wellRested == null) wellRested = new WellRestedSettings();
-        if (achievements == null) achievements = new AchievementsSettings();
         if (mvp == null) mvp = new MvpSettings();
         if (comfort == null) comfort = new ComfortSettings();
         if (server == null) server = new ServerSettings();
@@ -84,7 +82,6 @@ public final class MidnightThoughtsConfig {
 
     public SleepOverlaySettings getSleepOverlay() { return sleepOverlay; }
     public WellRestedSettings getWellRested() { return wellRested; }
-    public AchievementsSettings getAchievements() { return achievements; }
     public MvpSettings getMvp() { return mvp; }
     public ComfortSettings getComfort() { return comfort; }
     public ServerSettings getServer() { return server; }
@@ -161,48 +158,6 @@ public final class MidnightThoughtsConfig {
             this.attackSpeedPhase1 = attackSpeedPhase1; this.attackSpeedPhase2 = attackSpeedPhase2; this.attackSpeedPhase3 = attackSpeedPhase3;
             this.healthBonus = healthBonus;
             this.regenBonus = regenBonus;
-        }
-    }
-
-    public static class AchievementsSettings {
-        public Map<String, AchievementRequirement> requirements = new HashMap<>();
-
-        public AchievementsSettings() {
-            requirements.put("flawless", new AchievementRequirement(0, 10, null, 50, null));
-            requirements.put("pacifist", new AchievementRequirement(null, null, 0, null, 500000));
-            requirements.put("juggernaut", new AchievementRequirement(null, 50, null, null, null, 1));
-            requirements.put("marathoner", new AchievementRequirement(null, null, null, null, 3000000));
-            requirements.put("hyperactive", new AchievementRequirement(null, null, null, null, null, null, 500));
-            requirements.put("demolition_maniac", new AchievementRequirement(null, null, null, 1000, null, null, 200));
-            requirements.put("explorer", new AchievementRequirement(null, null, null, 100, 1500000));
-            requirements.put("survivor", new AchievementRequirement(null, 10, null, null, null, 1));
-            requirements.put("combo_master", new AchievementRequirement(null, 20, null, 200, 1000000));
-            requirements.put("iron_will", new AchievementRequirement(0, null, null, 200, 2000000));
-        }
-
-        public AchievementRequirement getRequirement(String achievementId) {
-            return requirements.getOrDefault(achievementId, new AchievementRequirement());
-        }
-    }
-
-    public static class AchievementRequirement {
-        public Integer deaths, mobsMin, mobsMax, blocksMin, distanceMin, deathsMax, jumpsMin;
-
-        public AchievementRequirement() {}
-
-        public AchievementRequirement(Integer deaths, Integer mobsMin, Integer mobsMax, Integer blocksMin, Integer distanceMin) {
-            this.deaths = deaths; this.mobsMin = mobsMin; this.mobsMax = mobsMax;
-            this.blocksMin = blocksMin; this.distanceMin = distanceMin;
-        }
-
-        public AchievementRequirement(Integer deaths, Integer mobsMin, Integer mobsMax, Integer blocksMin, Integer distanceMin, Integer deathsMax) {
-            this(deaths, mobsMin, mobsMax, blocksMin, distanceMin);
-            this.deathsMax = deathsMax;
-        }
-
-        public AchievementRequirement(Integer deaths, Integer mobsMin, Integer mobsMax, Integer blocksMin, Integer distanceMin, Integer deathsMax, Integer jumpsMin) {
-            this(deaths, mobsMin, mobsMax, blocksMin, distanceMin, deathsMax);
-            this.jumpsMin = jumpsMin;
         }
     }
 
