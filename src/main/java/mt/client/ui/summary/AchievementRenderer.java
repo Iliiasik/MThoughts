@@ -72,7 +72,8 @@ public class AchievementRenderer {
 
         String name = resolveAchievementName(achievementId);
         int padX = Math.max(3, (int)(4 * scale));
-        int maxTextW = width - padX * 2;
+
+        int maxTextW = (int) ((renderW - padX * 2) / textScale);
 
         String ellipsis = "...";
         int ellipsisW = textRenderer.width(ellipsis);
