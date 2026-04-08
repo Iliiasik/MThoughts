@@ -2,6 +2,7 @@ package mt.client.ui;
 
 import mt.client.MidnightThoughtsClient;
 import mt.client.manager.WellRestedClientState;
+import mt.config.MidnightThoughtsConfig;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gl.RenderPipelines;
@@ -35,7 +36,7 @@ public class WellRestedHud {
     }
 
     public static void render(DrawContext context, int screenWidth, int screenHeight) {
-        if (!WellRestedClientState.isActive()) return;
+        if (!WellRestedClientState.isActive() || MidnightThoughtsConfig.getInstance().isHideWellRestedHud()) return;
         MinecraftClient mc = MinecraftClient.getInstance();
         if (mc.player == null) return;
 

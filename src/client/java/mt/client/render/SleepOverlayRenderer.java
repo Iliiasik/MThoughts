@@ -252,7 +252,7 @@ public class SleepOverlayRenderer {
 
     private void renderImage(DrawContext context, int x, int y, int width, int height) {
         Identifier texture = WellRestedClientState.isNightmareMode() ? SKULL_TEXTURE : IMAGE_TEXTURE;
-        int alpha = (int) (overlayAlpha * IMAGE_OPACITY * 255);
+        int alpha = (int) (overlayAlpha * config.getImageOpacity() * 255);
         int color = (alpha << 24) | 0xFFFFFF;
 
         context.getMatrices().pushMatrix();
@@ -324,5 +324,9 @@ public class SleepOverlayRenderer {
 
     public boolean shouldHideCrosshair() {
         return sleepStateManager.isSleeping() && isOverlayVisible;
+    }
+
+    public boolean shouldHideChat() {
+        return config.isHideChatWhenSleeping() && sleepStateManager.isSleeping() && isOverlayVisible;
     }
 }

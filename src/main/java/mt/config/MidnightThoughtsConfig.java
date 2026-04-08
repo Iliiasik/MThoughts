@@ -91,14 +91,21 @@ public final class MidnightThoughtsConfig {
     public int getFadeOutDurationMs() { return sleepOverlay.fadeOutDurationMs; }
     public float getOverlayOpacity() { return sleepOverlay.overlayOpacity; }
     public float getTextOpacity() { return sleepOverlay.textOpacity; }
+    public float getImageOpacity() { return sleepOverlay.imageOpacity; }
     public float getSpecialSlideChance() { return sleepOverlay.specialSlideChance; }
     public boolean isEnableOverlay() { return sleepOverlay.enableOverlay; }
     public boolean isEnableImage() { return sleepOverlay.enableImage; }
     public boolean isEnableDailySummaryScreen() { return sleepOverlay.enableDailySummaryScreen; }
     public boolean isUseFactsApi() { return sleepOverlay.useFactsApi; }
     public boolean isUserContentReplaces() { return sleepOverlay.userContentReplaces; }
+    public boolean isHideChatWhenSleeping() { return sleepOverlay.hideChatWhenSleeping; }
+    public boolean isHideWellRestedHud() { return ui.hideWellRestedHud; }
+    public boolean isHideThemeSwitchButton() { return ui.hideThemeSwitchButton; }
 
     public int getRandomSlideDisplayTime() {
+        if (sleepOverlay.minSlideDisplayTimeMs >= sleepOverlay.maxSlideDisplayTimeMs) {
+            return sleepOverlay.minSlideDisplayTimeMs;
+        }
         return sleepOverlay.minSlideDisplayTimeMs + (int)(Math.random() * (sleepOverlay.maxSlideDisplayTimeMs - sleepOverlay.minSlideDisplayTimeMs));
     }
 
@@ -116,6 +123,7 @@ public final class MidnightThoughtsConfig {
         public boolean enableDailySummaryScreen = true;
         public boolean useFactsApi = true;
         public boolean userContentReplaces = false;
+        public boolean hideChatWhenSleeping = true;
     }
 
     public static class WellRestedSettings {
@@ -183,5 +191,7 @@ public final class MidnightThoughtsConfig {
 
     public static class UISettings {
         public String theme = "vanilla";
+        public boolean hideWellRestedHud = false;
+        public boolean hideThemeSwitchButton = false;
     }
 }
