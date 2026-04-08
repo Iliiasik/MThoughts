@@ -49,6 +49,7 @@ public class DailyStatsManager {
 
         List<AchievementCalculator.PlayerSummaryData> playerDataList = new ArrayList<>();
         Map<String, DailyPlayerStats.DailyDelta> deltaMap = new HashMap<>();
+        Map<String, StatsStorage.SavedPlayerStats> savedStatsMap = new HashMap<>();
 
         for (ServerPlayer player : sleptPlayers) {
             UUID uuid = player.getUUID();
@@ -56,7 +57,14 @@ public class DailyStatsManager {
             DailyPlayerStats.DailyDelta delta = stats.calculateDelta(player);
             String playerName = player.getName().getString();
 
+            StatsStorage.SavedPlayerStats savedStats = StatsStorage.loadPlayerStats(server, uuid);
+            if (savedStats == null) {
+                savedStats = new StatsStorage.SavedPlayerStats();
+            }
+
             deltaMap.put(playerName, delta);
+            savedStatsMap.put(playerName, savedStats);
+
             playerDataList.add(new AchievementCalculator.PlayerSummaryData(
                     playerName,
                     delta.blocksDestroyed(),
@@ -68,16 +76,16 @@ public class DailyStatsManager {
         }
 
         String mvpName = AchievementCalculator.determineMvp(playerDataList);
-
         List<DailySummaryPacket.PlayerDailySummary> summaries = new ArrayList<>();
 
         for (ServerPlayer player : sleptPlayers) {
             String playerName = player.getName().getString();
             DailyPlayerStats.DailyDelta delta = deltaMap.get(playerName);
+            StatsStorage.SavedPlayerStats savedStats = savedStatsMap.get(playerName);
 
-            List<String> achievements = AchievementCalculator.calculateAchievements(player, delta, server);
+            List<String> achievements = AchievementCalculator.calculateAchievements(player, delta, savedStats);
+
             boolean isMvp = playerName.equals(mvpName);
-
             summaries.add(new DailySummaryPacket.PlayerDailySummary(
                     playerName,
                     delta.blocksDestroyed(),
@@ -89,6 +97,8 @@ public class DailyStatsManager {
                     isMvp,
                     achievements
             ));
+
+            StatsStorage.savePlayerStats(server, player.getUUID(), savedStats);
         }
 
         DailySummaryPacket packet = new DailySummaryPacket(summaries);

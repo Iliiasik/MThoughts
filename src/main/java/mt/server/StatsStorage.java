@@ -14,16 +14,18 @@ import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 public class StatsStorage {
     private static final Logger LOGGER = LoggerFactory.getLogger("MidnightThoughts");
     private static final String STATS_FILE = "midnightthoughts_stats.json";
     private static final Gson GSON = new GsonBuilder()
-        .setPrettyPrinting()
-        .registerTypeAdapter(SavedPlayerStats.class, new SafeStatsDeserializer())
-        .create();
+            .setPrettyPrinting()
+            .registerTypeAdapter(SavedPlayerStats.class, new StatsAdapter())
+            .create();
 
     public static void savePlayerStats(MinecraftServer server, UUID playerUuid, SavedPlayerStats stats) {
         Path savePath = getStatsFilePath(server);
@@ -93,6 +95,8 @@ public class StatsStorage {
         public int recordMobs;
         public int totalSleeps;
 
+        public Set<String> unlockedAchievements = new HashSet<>();
+
         public SavedPlayerStats() {}
 
         public SavedPlayerStats(int baseBlocksDestroyed, int baseDistanceWalked, int baseMobsKilled, int baseDeaths, int baseJumps, int baseDamageDealt) {
@@ -105,7 +109,24 @@ public class StatsStorage {
         }
     }
 
-    private static class SafeStatsDeserializer implements JsonDeserializer<SavedPlayerStats> {
+    private static class StatsAdapter implements JsonSerializer<SavedPlayerStats>, JsonDeserializer<SavedPlayerStats> {
+        @Override
+        public JsonElement serialize(SavedPlayerStats src, Type typeOfSrc, JsonSerializationContext context) {
+            JsonObject obj = new JsonObject();
+            obj.addProperty("baseBlocksDestroyed", src.baseBlocksDestroyed);
+            obj.addProperty("baseDistanceWalked", src.baseDistanceWalked);
+            obj.addProperty("baseMobsKilled", src.baseMobsKilled);
+            obj.addProperty("baseDeaths", src.baseDeaths);
+            obj.addProperty("baseJumps", src.baseJumps);
+            obj.addProperty("baseDamageDealt", src.baseDamageDealt);
+            obj.addProperty("recordBlocks", src.recordBlocks);
+            obj.addProperty("recordDistance", src.recordDistance);
+            obj.addProperty("recordMobs", src.recordMobs);
+            obj.addProperty("totalSleeps", src.totalSleeps);
+            obj.add("unlockedAchievements", context.serialize(src.unlockedAchievements));
+            return obj;
+        }
+
         @Override
         public SavedPlayerStats deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
             JsonObject obj = json.getAsJsonObject();
@@ -121,6 +142,7 @@ public class StatsStorage {
             stats.recordDistance = safeGetInt(obj, "recordDistance");
             stats.recordMobs = safeGetInt(obj, "recordMobs");
             stats.totalSleeps = safeGetInt(obj, "totalSleeps");
+            stats.unlockedAchievements = safeGetStringSet(obj, "unlockedAchievements");
 
             return stats;
         }
@@ -154,6 +176,16 @@ public class StatsStorage {
                 return Integer.MAX_VALUE / 2;
             }
             return (int) value;
+        }
+
+        private Set<String> safeGetStringSet(JsonObject obj, String field) {
+            Set<String> result = new HashSet<>();
+            if (obj.has(field) && obj.get(field).isJsonArray()) {
+                for (JsonElement item : obj.getAsJsonArray(field)) {
+                    if (item.isJsonPrimitive()) result.add(item.getAsString());
+                }
+            }
+            return result;
         }
     }
 }

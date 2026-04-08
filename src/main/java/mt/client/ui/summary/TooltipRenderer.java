@@ -23,8 +23,8 @@ public class TooltipRenderer {
     private static void renderTooltip(GuiGraphics context, Font textRenderer,
                                       int mouseX, int mouseY, String achievementId,
                                       int screenWidth, int screenHeight, float fadeAlpha) {
-        String tooltipKey = "midnightthoughts.achievement." + achievementId + ".desc";
-        Component tooltipText = Component.translatable(tooltipKey);
+        String tooltipTextStr = AchievementRenderer.resolveAchievementTooltip(achievementId);
+        Component tooltipText = Component.literal(tooltipTextStr);
 
         int tooltipPadding = 4;
         int tooltipWidth = textRenderer.width(tooltipText) + tooltipPadding * 2;

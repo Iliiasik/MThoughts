@@ -2,6 +2,7 @@ package mt;
 
 import mt.network.NetworkHandler;
 import mt.network.packet.WellRestedPacket;
+import mt.server.AchievementLoader;
 import mt.server.ComfortCalculator;
 import mt.server.DailyStatsManager;
 import mt.server.SleepTracker;
@@ -44,6 +45,8 @@ public class MidnightThoughts {
     }
 
     private void setup(final FMLCommonSetupEvent event) {
+        AchievementLoader.load();
+        LOGGER.info("Midnight Thoughts common setup complete");
     }
 
     private void onRegisterPayloads(final RegisterPayloadHandlersEvent event) {
@@ -52,6 +55,7 @@ public class MidnightThoughts {
 
     private void onClientSetup(final FMLClientSetupEvent event) {
         mt.client.MidnightThoughtsClient.init(modEventBus);
+        LOGGER.info("Midnight Thoughts client setup complete");
     }
 
     @SubscribeEvent
@@ -102,6 +106,7 @@ public class MidnightThoughts {
     @SubscribeEvent
     public void onServerStarted(ServerStartedEvent event) {
         DailyStatsManager.initialize();
+        LOGGER.info("Midnight Thoughts server started");
     }
 
     @SubscribeEvent
@@ -121,5 +126,6 @@ public class MidnightThoughts {
     @SubscribeEvent
     public void onServerStopping(ServerStoppingEvent event) {
         DailyStatsManager.onServerStop(event.getServer());
+        LOGGER.info("Midnight Thoughts server stopping");
     }
 }

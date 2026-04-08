@@ -41,15 +41,21 @@ public class DailyPlayerStats {
     public void saveToStorage(MinecraftServer server) {
         StatsStorage.SavedPlayerStats existing = StatsStorage.loadPlayerStats(server, playerUuid);
 
-        StatsStorage.SavedPlayerStats saved = new StatsStorage.SavedPlayerStats(
-            baseBlocksDestroyed, baseDistanceWalked, baseMobsKilled, baseDeaths, baseJumps, baseDamageDealt
-        );
+        StatsStorage.SavedPlayerStats saved = new StatsStorage.SavedPlayerStats();
+
+        saved.baseBlocksDestroyed = this.baseBlocksDestroyed;
+        saved.baseDistanceWalked = this.baseDistanceWalked;
+        saved.baseMobsKilled = this.baseMobsKilled;
+        saved.baseDeaths = this.baseDeaths;
+        saved.baseJumps = this.baseJumps;
+        saved.baseDamageDealt = this.baseDamageDealt;
 
         if (existing != null) {
             saved.recordDistance = existing.recordDistance;
             saved.recordBlocks = existing.recordBlocks;
             saved.recordMobs = existing.recordMobs;
             saved.totalSleeps = existing.totalSleeps;
+            saved.unlockedAchievements = existing.unlockedAchievements;
         }
 
         StatsStorage.savePlayerStats(server, playerUuid, saved);
@@ -129,11 +135,11 @@ public class DailyPlayerStats {
     }
 
     public record DailyDelta(
-        int blocksDestroyed,
-        int distanceWalked,
-        int mobsKilled,
-        int deaths,
-        int jumps,
-        int damageDealt
+            int blocksDestroyed,
+            int distanceWalked,
+            int mobsKilled,
+            int deaths,
+            int jumps,
+            int damageDealt
     ) {}
 }
