@@ -9,7 +9,8 @@
   "client": [
     "GuiHudMixin",
     "GuiAirBubblesMixin",
-    "InGameHudMixin"
+    "InGameHudMixin",
+    "ChatComponentMixin"
   ],
   "injectors": {
     "defaultRequire": 1

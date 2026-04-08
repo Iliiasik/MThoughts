@@ -2,6 +2,7 @@ package mt.client.ui.summary;
 
 import mt.client.MidnightThoughtsClient;
 import mt.client.config.ClientConfig;
+import mt.server.config.MidnightThoughtsConfig;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -18,6 +19,8 @@ public class ThemeSwitchButton extends AbstractWidget {
 
     @Override
     public void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
+        if (MidnightThoughtsConfig.getInstance().isHideThemeSwitchButton()) return;
+
         boolean isHovered = mouseX >= this.getX() && mouseY >= this.getY() &&
                 mouseX < this.getX() + this.width && mouseY < this.getY() + this.height;
 
@@ -30,6 +33,7 @@ public class ThemeSwitchButton extends AbstractWidget {
     @Override
     @SuppressWarnings("deprecation")
     public void onClick(double mouseX, double mouseY) {
+        if (MidnightThoughtsConfig.getInstance().isHideThemeSwitchButton()) return;
         ClientConfig.getInstance().cycleTheme();
     }
 
@@ -41,6 +45,7 @@ public class ThemeSwitchButton extends AbstractWidget {
 
     @Override
     public boolean isMouseOver(double mouseX, double mouseY) {
+        if (MidnightThoughtsConfig.getInstance().isHideThemeSwitchButton()) return false;
         return mouseX >= this.getX() && mouseY >= this.getY() &&
                 mouseX < this.getX() + this.width && mouseY < this.getY() + this.height;
     }
