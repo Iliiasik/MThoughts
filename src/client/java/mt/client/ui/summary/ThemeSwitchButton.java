@@ -33,8 +33,15 @@ public class ThemeSwitchButton extends ClickableWidget {
     }
 
     @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (MidnightThoughtsConfig.getInstance().isHideThemeSwitchButton()) {
+            return false;
+        }
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
     public void onClick(double mouseX, double mouseY) {
-        if (MidnightThoughtsConfig.getInstance().isHideThemeSwitchButton()) return;
         ClientConfig.getInstance().cycleTheme();
     }
 
