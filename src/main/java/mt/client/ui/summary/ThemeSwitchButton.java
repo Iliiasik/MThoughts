@@ -35,8 +35,15 @@ public class ThemeSwitchButton extends AbstractWidget {
     }
 
     @Override
+    public boolean mouseClicked(MouseButtonEvent event, boolean consumed) {
+        if (MidnightThoughtsConfig.getInstance().isHideThemeSwitchButton()) {
+            return false;
+        }
+        return super.mouseClicked(event, consumed);
+    }
+
+    @Override
     public void onClick(MouseButtonEvent event, boolean consumed) {
-        if (MidnightThoughtsConfig.getInstance().isHideThemeSwitchButton()) return;
         ClientConfig.getInstance().cycleTheme();
     }
 
