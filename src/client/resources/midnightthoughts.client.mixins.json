@@ -4,7 +4,8 @@
   "package": "mt.client.mixin",
   "compatibilityLevel": "JAVA_17",
   "client": [
-    "InGameHudMixin"
+    "InGameHudMixin",
+    "ChatHudMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -52,6 +52,7 @@ public class DailyPlayerStats {
             saved.recordBlocks = existing.recordBlocks;
             saved.recordMobs = existing.recordMobs;
             saved.totalSleeps = existing.totalSleeps;
+            saved.unlockedAchievements = existing.unlockedAchievements;
         }
 
         StatsStorage.savePlayerStats(server, playerUuid, saved);

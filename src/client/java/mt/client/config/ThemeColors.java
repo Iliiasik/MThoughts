@@ -18,10 +18,10 @@ public class ThemeColors {
                     0x3b1a17,
                     0x5a3a1a,
                     0x8a5a2a,
-                    0xe8d8c8,
-                    0xf5ebe0,
                     0xFFFFFF,
-                    0xFFFFFF
+                    0xFFFFFF,
+                    0xFFFFFF,
+                    0xf7d5a3
             );
             case "tech" -> new ThemeColor(
                     0x4a5a5e,

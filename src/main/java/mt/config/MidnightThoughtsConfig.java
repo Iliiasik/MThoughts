@@ -20,7 +20,6 @@ public final class MidnightThoughtsConfig {
 
     private SleepOverlaySettings sleepOverlay = new SleepOverlaySettings();
     private WellRestedSettings wellRested = new WellRestedSettings();
-    private AchievementsSettings achievements = new AchievementsSettings();
     private MvpSettings mvp = new MvpSettings();
     private ComfortSettings comfort = new ComfortSettings();
     private ServerSettings server = new ServerSettings();
@@ -67,7 +66,6 @@ public final class MidnightThoughtsConfig {
     private void validate() {
         if (sleepOverlay == null) sleepOverlay = new SleepOverlaySettings();
         if (wellRested == null) wellRested = new WellRestedSettings();
-        if (achievements == null) achievements = new AchievementsSettings();
         if (mvp == null) mvp = new MvpSettings();
         if (comfort == null) comfort = new ComfortSettings();
         if (server == null) server = new ServerSettings();
@@ -84,7 +82,6 @@ public final class MidnightThoughtsConfig {
 
     public SleepOverlaySettings getSleepOverlay() { return sleepOverlay; }
     public WellRestedSettings getWellRested() { return wellRested; }
-    public AchievementsSettings getAchievements() { return achievements; }
     public MvpSettings getMvp() { return mvp; }
     public ComfortSettings getComfort() { return comfort; }
     public ServerSettings getServer() { return server; }
@@ -94,14 +91,21 @@ public final class MidnightThoughtsConfig {
     public int getFadeOutDurationMs() { return sleepOverlay.fadeOutDurationMs; }
     public float getOverlayOpacity() { return sleepOverlay.overlayOpacity; }
     public float getTextOpacity() { return sleepOverlay.textOpacity; }
+    public float getImageOpacity() { return sleepOverlay.imageOpacity; }
     public float getSpecialSlideChance() { return sleepOverlay.specialSlideChance; }
     public boolean isEnableOverlay() { return sleepOverlay.enableOverlay; }
     public boolean isEnableImage() { return sleepOverlay.enableImage; }
     public boolean isEnableDailySummaryScreen() { return sleepOverlay.enableDailySummaryScreen; }
     public boolean isUseFactsApi() { return sleepOverlay.useFactsApi; }
     public boolean isUserContentReplaces() { return sleepOverlay.userContentReplaces; }
+    public boolean isHideChatWhenSleeping() { return sleepOverlay.hideChatWhenSleeping; }
+    public boolean isHideWellRestedHud() { return ui.hideWellRestedHud; }
+    public boolean isHideThemeSwitchButton() { return ui.hideThemeSwitchButton; }
 
     public int getRandomSlideDisplayTime() {
+        if (sleepOverlay.minSlideDisplayTimeMs >= sleepOverlay.maxSlideDisplayTimeMs) {
+            return sleepOverlay.minSlideDisplayTimeMs;
+        }
         return sleepOverlay.minSlideDisplayTimeMs + (int)(Math.random() * (sleepOverlay.maxSlideDisplayTimeMs - sleepOverlay.minSlideDisplayTimeMs));
     }
 
@@ -119,6 +123,7 @@ public final class MidnightThoughtsConfig {
         public boolean enableDailySummaryScreen = true;
         public boolean useFactsApi = true;
         public boolean userContentReplaces = false;
+        public boolean hideChatWhenSleeping = true;
     }
 
     public static class WellRestedSettings {
@@ -164,48 +169,6 @@ public final class MidnightThoughtsConfig {
         }
     }
 
-    public static class AchievementsSettings {
-        public Map<String, AchievementRequirement> requirements = new HashMap<>();
-
-        public AchievementsSettings() {
-            requirements.put("flawless", new AchievementRequirement(0, 10, null, 50, null));
-            requirements.put("pacifist", new AchievementRequirement(null, null, 0, null, 500000));
-            requirements.put("juggernaut", new AchievementRequirement(null, 50, null, null, null, 1));
-            requirements.put("marathoner", new AchievementRequirement(null, null, null, null, 3000000));
-            requirements.put("hyperactive", new AchievementRequirement(null, null, null, null, null, null, 500));
-            requirements.put("demolition_maniac", new AchievementRequirement(null, null, null, 1000, null, null, 200));
-            requirements.put("explorer", new AchievementRequirement(null, null, null, 100, 1500000));
-            requirements.put("survivor", new AchievementRequirement(null, 10, null, null, null, 1));
-            requirements.put("combo_master", new AchievementRequirement(null, 20, null, 200, 1000000));
-            requirements.put("iron_will", new AchievementRequirement(0, null, null, 200, 2000000));
-        }
-
-        public AchievementRequirement getRequirement(String achievementId) {
-            return requirements.getOrDefault(achievementId, new AchievementRequirement());
-        }
-    }
-
-    public static class AchievementRequirement {
-        public Integer deaths, mobsMin, mobsMax, blocksMin, distanceMin, deathsMax, jumpsMin;
-
-        public AchievementRequirement() {}
-
-        public AchievementRequirement(Integer deaths, Integer mobsMin, Integer mobsMax, Integer blocksMin, Integer distanceMin) {
-            this.deaths = deaths; this.mobsMin = mobsMin; this.mobsMax = mobsMax;
-            this.blocksMin = blocksMin; this.distanceMin = distanceMin;
-        }
-
-        public AchievementRequirement(Integer deaths, Integer mobsMin, Integer mobsMax, Integer blocksMin, Integer distanceMin, Integer deathsMax) {
-            this(deaths, mobsMin, mobsMax, blocksMin, distanceMin);
-            this.deathsMax = deathsMax;
-        }
-
-        public AchievementRequirement(Integer deaths, Integer mobsMin, Integer mobsMax, Integer blocksMin, Integer distanceMin, Integer deathsMax, Integer jumpsMin) {
-            this(deaths, mobsMin, mobsMax, blocksMin, distanceMin, deathsMax);
-            this.jumpsMin = jumpsMin;
-        }
-    }
-
     public static class MvpSettings {
         public boolean enabled = true;
         public int minScoreRequired = 10;
@@ -227,6 +190,8 @@ public final class MidnightThoughtsConfig {
     }
 
     public static class UISettings {
-        public String theme = "vanilla";
+        public String theme = "classic";
+        public boolean hideWellRestedHud = false;
+        public boolean hideThemeSwitchButton = false;
     }
 }
