@@ -10,7 +10,6 @@ import mt.client.service.SlideService;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.render.RenderLayer;
 import net.minecraft.util.Identifier;
 
 import java.util.ArrayList;
@@ -26,7 +25,7 @@ public class SleepOverlayRenderer {
     private static final float TEXT_AREA_WIDTH_PERCENT = 0.35f;
     private static final float MIN_TEXT_SCALE = 1.5f;
     private static final float MAX_TEXT_SCALE = 3.0f;
-    private static final float IMAGE_OPACITY = 0.2f;
+
     private final SleepStateManager sleepStateManager;
     private final SlideService slideService;
     private final MidnightThoughtsConfig config;
@@ -252,7 +251,7 @@ public class SleepOverlayRenderer {
 
     private void renderImage(DrawContext context, int x, int y, int width, int height) {
         Identifier texture = WellRestedClientState.isNightmareMode() ? SKULL_TEXTURE : IMAGE_TEXTURE;
-        float alpha = overlayAlpha * IMAGE_OPACITY;
+        float alpha = overlayAlpha * config.getImageOpacity();
 
         com.mojang.blaze3d.systems.RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, alpha);
         com.mojang.blaze3d.systems.RenderSystem.enableBlend();
@@ -318,5 +317,9 @@ public class SleepOverlayRenderer {
 
     public boolean shouldHideCrosshair() {
         return sleepStateManager.isSleeping() && isOverlayVisible;
+    }
+
+    public boolean shouldHideChat() {
+        return config.isHideChatWhenSleeping() && sleepStateManager.isSleeping() && isOverlayVisible;
     }
 }

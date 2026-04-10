@@ -49,18 +49,23 @@ public class UselessFactsApiClient {
                 .GET()
                 .build();
 
-        return httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())
-                .thenApply(response -> {
-                    if (response.statusCode() == 200) {
-                        return parseResponse(response.body());
-                    }
-                    LOGGER.warn("API returned status code: {}", response.statusCode());
-                    return Optional.<String>empty();
-                })
-                .exceptionally(e -> {
-                    LOGGER.debug("Failed to fetch fact from API: {}", e.getMessage());
-                    return Optional.empty();
-                });
+        try {
+            return httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                    .thenApply(response -> {
+                        if (response.statusCode() == 200) {
+                            return parseResponse(response.body());
+                        }
+                        LOGGER.warn("API returned status code: {}", response.statusCode());
+                        return Optional.<String>empty();
+                    })
+                    .exceptionally(e -> {
+                        LOGGER.debug("Failed to fetch fact from API (Async): {}", e.getMessage());
+                        return Optional.empty();
+                    });
+        } catch (Exception e) {
+            LOGGER.debug("Failed to initiate API request (Sync): {}", e.getMessage());
+            return CompletableFuture.completedFuture(Optional.empty());
+        }
     }
 
     private String mapLanguageCode(String languageCode) {
@@ -91,4 +96,3 @@ public class UselessFactsApiClient {
         String text;
     }
 }
-

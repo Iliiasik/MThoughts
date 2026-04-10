@@ -2,7 +2,6 @@ package mt.client.ui.summary;
 
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.text.Text;
 
 import java.util.List;
 
@@ -20,8 +19,7 @@ public class TooltipRenderer {
 
     private static void renderTooltip(DrawContext context, TextRenderer textRenderer, int mouseX, int mouseY,
                                       String achievementId, int screenWidth, int screenHeight, float fadeAlpha) {
-        String tooltipKey = "midnightthoughts.achievement." + achievementId + ".desc";
-        Text tooltipText = Text.translatable(tooltipKey);
+        String tooltipText = AchievementRenderer.resolveAchievementTooltip(achievementId);
 
         int tooltipPadding = 4;
         int tooltipWidth = textRenderer.getWidth(tooltipText) + tooltipPadding * 2;

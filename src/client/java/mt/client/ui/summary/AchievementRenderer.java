@@ -2,6 +2,8 @@ package mt.client.ui.summary;
 
 import mt.client.config.ClientConfig;
 import mt.client.config.ThemeColors;
+import mt.server.AchievementLoader;
+import mt.server.AchievementDefinition;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
@@ -70,11 +72,43 @@ public class AchievementRenderer {
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
         RenderSystem.disableBlend();
 
+        String name = resolveAchievementName(achievementId);
         int padX = Math.max(3, (int) (4 * scale));
-        String text = Text.translatable("midnightthoughts.achievement." + achievementId).getString();
+
+        int maxTextW = (int) ((renderW - padX * 2) / textScale);
+
+        String ellipsis = "...";
+        int ellipsisW = textRenderer.getWidth(ellipsis);
+        if (textRenderer.getWidth(name) > maxTextW) {
+            while (!name.isEmpty() && textRenderer.getWidth(name) + ellipsisW > maxTextW) {
+                name = name.substring(0, name.length() - 1);
+            }
+            name = name + ellipsis;
+        }
+
         int alpha = (int) (fadeAlpha * 255);
         int textColor = (alpha << 24) | colors.achievementTextColor();
         int textY = renderY + (renderH - (int) (8 * textScale)) / 2;
-        RenderUtils.renderScaledText(context, textRenderer, text, x + padX, textY, textColor, textScale, false);
+        RenderUtils.renderScaledText(context, textRenderer, name, x + padX, textY, textColor, textScale, false);
+    }
+
+    private static String resolveAchievementName(String achievementId) {
+        List<AchievementDefinition> customAchievements = AchievementLoader.load();
+        for (AchievementDefinition def : customAchievements) {
+            if (def.id.equals(achievementId)) {
+                return def.name;
+            }
+        }
+        return Text.translatable("midnightthoughts.achievement." + achievementId).getString();
+    }
+
+    public static String resolveAchievementTooltip(String achievementId) {
+        List<AchievementDefinition> customAchievements = AchievementLoader.load();
+        for (AchievementDefinition def : customAchievements) {
+            if (def.id.equals(achievementId)) {
+                return def.tooltip != null ? def.tooltip : def.name;
+            }
+        }
+        return Text.translatable("midnightthoughts.achievement." + achievementId + ".desc").getString();
     }
 }

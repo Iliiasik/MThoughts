@@ -49,6 +49,7 @@ public class DailyStatsManager {
 
         List<AchievementCalculator.PlayerSummaryData> playerDataList = new ArrayList<>();
         Map<String, DailyPlayerStats.DailyDelta> deltaMap = new HashMap<>();
+        Map<String, StatsStorage.SavedPlayerStats> savedStatsMap = new HashMap<>();
 
         for (ServerPlayerEntity player : sleptPlayers) {
             UUID uuid = player.getUuid();
@@ -56,7 +57,14 @@ public class DailyStatsManager {
             DailyPlayerStats.DailyDelta delta = stats.calculateDelta(player);
             String playerName = player.getGameProfile().getName();
 
+            StatsStorage.SavedPlayerStats savedStats = StatsStorage.loadPlayerStats(server, uuid);
+            if (savedStats == null) {
+                savedStats = new StatsStorage.SavedPlayerStats();
+            }
+
             deltaMap.put(playerName, delta);
+            savedStatsMap.put(playerName, savedStats);
+
             playerDataList.add(new AchievementCalculator.PlayerSummaryData(
                     playerName,
                     delta.blocksDestroyed(),
@@ -74,8 +82,9 @@ public class DailyStatsManager {
         for (ServerPlayerEntity player : sleptPlayers) {
             String playerName = player.getGameProfile().getName();
             DailyPlayerStats.DailyDelta delta = deltaMap.get(playerName);
+            StatsStorage.SavedPlayerStats savedStats = savedStatsMap.get(playerName);
 
-            List<String> achievements = AchievementCalculator.calculateAchievements(player, delta, server);
+            List<String> achievements = AchievementCalculator.calculateAchievements(player, delta, savedStats);
             boolean isMvp = playerName.equals(mvpName);
 
             summaries.add(new DailySummaryPacket.PlayerDailySummary(
@@ -89,6 +98,8 @@ public class DailyStatsManager {
                     isMvp,
                     achievements
             ));
+
+            StatsStorage.savePlayerStats(server, player.getUuid(), savedStats);
         }
 
         DailySummaryPacket packet = new DailySummaryPacket(summaries);
