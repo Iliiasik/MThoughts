@@ -129,7 +129,7 @@ public class FrameRenderer {
         context.pose().pushPose();
         context.pose().translate(pageTextX, pageTextY, 0);
         context.pose().scale(textScale, textScale, 1.0f);
-        context.drawString(textRenderer, pageInfo, 0, 0, pageTextColor, false);
+        context.drawString(textRenderer, pageInfo, 0, 0, pageTextColor, true);
         context.pose().popPose();
     }
 }
