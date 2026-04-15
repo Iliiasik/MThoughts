@@ -93,7 +93,7 @@ public class SleepingPlayersHud {
         context.getMatrices().push();
         context.getMatrices().translate(sleepX, sleepY, 0);
         context.getMatrices().scale(sleepTextScale, sleepTextScale, 1.0f);
-        context.drawText(textRenderer, sleepText, 0, 0, sleepColor, true);
+        context.drawText(textRenderer, sleepText, 0, 0, sleepColor, false);
         context.getMatrices().pop();
     }
 
