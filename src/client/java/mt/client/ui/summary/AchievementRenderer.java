@@ -89,7 +89,7 @@ public class AchievementRenderer {
         int alpha = (int) (fadeAlpha * 255);
         int textColor = (alpha << 24) | colors.achievementTextColor();
         int textY = renderY + (renderH - (int) (8 * textScale)) / 2;
-        RenderUtils.renderScaledText(context, textRenderer, name, x + padX, textY, textColor, textScale, false);
+        RenderUtils.renderScaledText(context, textRenderer, name, x + padX, textY, textColor, textScale, true);
     }
 
     private static String resolveAchievementName(String achievementId) {

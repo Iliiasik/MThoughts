@@ -109,7 +109,7 @@ public class FrameRenderer {
         context.getMatrices().push();
         context.getMatrices().translate(pageTextX, pageTextY, 0);
         context.getMatrices().scale(textScale, textScale, 1.0f);
-        context.drawText(textRenderer, pageInfo, 0, 0, pageTextColor, false);
+        context.drawText(textRenderer, pageInfo, 0, 0, pageTextColor, true);
         context.getMatrices().pop();
     }
 }
