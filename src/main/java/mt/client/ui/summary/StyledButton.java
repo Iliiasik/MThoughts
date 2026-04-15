@@ -56,7 +56,7 @@ public class StyledButton extends Button {
         context.pose().pushMatrix();
         context.pose().translate(textX, textY);
         context.pose().scale(textScale, textScale);
-        context.drawString(font, getMessage(), 0, 0, textColor, true);
+        context.drawString(font, getMessage(), 0, 0, textColor, false);
         context.pose().popMatrix();
     }
 }
