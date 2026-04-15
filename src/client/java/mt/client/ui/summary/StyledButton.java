@@ -72,7 +72,7 @@ public class StyledButton extends ClickableWidget {
         context.getMatrices().pushMatrix();
         context.getMatrices().translate(textX, textY);
         context.getMatrices().scale(textScale, textScale);
-        context.drawText(textRenderer, getMessage(), 0, 0, textColor, true);
+        context.drawText(textRenderer, getMessage(), 0, 0, textColor, false);
         context.getMatrices().popMatrix();
     }
 

@@ -88,7 +88,7 @@ public class SleepingPlayersHud {
         matrices.pushMatrix();
         matrices.translate(sleepX, sleepY);
         matrices.scale(sleepTextScale, sleepTextScale);
-        context.drawText(textRenderer, sleepText, 0, 0, sleepColor, true);
+        context.drawText(textRenderer, sleepText, 0, 0, sleepColor, false);
         matrices.popMatrix();
     }
 

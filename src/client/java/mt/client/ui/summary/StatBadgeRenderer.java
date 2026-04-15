@@ -96,11 +96,11 @@ public class StatBadgeRenderer {
         int textColor = (alpha << 24) | colors.statTextColor();
 
         String label = Text.translatable(labelKey).getString();
-        RenderUtils.renderScaledText(context, textRenderer, label, x + padX + iconSize + padX, textY, textColor, textScale, false);
+        RenderUtils.renderScaledText(context, textRenderer, label, x + padX + iconSize + padX, textY, textColor, textScale, true);
 
         String valueStr = NumberFormatter.formatLargeNumber(value);
         int valueW = (int) (textRenderer.getWidth(valueStr) * textScale);
         int valueX = x + renderW - padX - valueW;
-        RenderUtils.renderScaledText(context, textRenderer, valueStr, valueX, textY, textColor, textScale, false);
+        RenderUtils.renderScaledText(context, textRenderer, valueStr, valueX, textY, textColor, textScale, true);
     }
 }
