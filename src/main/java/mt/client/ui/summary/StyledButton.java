@@ -52,7 +52,7 @@ public class StyledButton extends Button {
         context.pose().pushPose();
         context.pose().translate(textX, textY, 0);
         context.pose().scale(textScale, textScale, 1.0f);
-        context.drawString(font, getMessage(), 0, 0, textColor, true);
+        context.drawString(font, getMessage(), 0, 0, textColor, false);
         context.pose().popPose();
     }
 }

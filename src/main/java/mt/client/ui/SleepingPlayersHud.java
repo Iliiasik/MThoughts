@@ -95,7 +95,7 @@ public class SleepingPlayersHud {
         context.pose().pushPose();
         context.pose().translate(sleepX, sleepY, 0);
         context.pose().scale(sleepTextScale, sleepTextScale, 1.0f);
-        context.drawString(textRenderer, sleepText, 0, 0, sleepColor, true);
+        context.drawString(textRenderer, sleepText, 0, 0, sleepColor, false);
         context.pose().popPose();
     }
 }
