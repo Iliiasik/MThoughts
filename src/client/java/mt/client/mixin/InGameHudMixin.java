@@ -13,14 +13,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class InGameHudMixin {
 
     @Inject(
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/client/gui/Gui;extractCrosshair(Lnet/minecraft/client/gui/GuiGraphicsExtractor;Lnet/minecraft/client/DeltaTracker;)V"
-            ),
-            method = "extractRenderState",
+            method = "extractCrosshair",
+            at = @At("HEAD"),
             cancellable = true
     )
-    private void onBeforeExtractCrosshair(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker, CallbackInfo ci) {
+    private void onExtractCrosshair(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker, CallbackInfo ci) {
         MidnightThoughtsClient instance = MidnightThoughtsClient.getInstance();
         if (instance != null && instance.getOverlayRenderer() != null) {
             if (instance.getOverlayRenderer().shouldHideCrosshair()) {
