@@ -3,7 +3,7 @@ package mt.server;
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.WorldSavePath;
+import net.minecraft.world.level.storage.LevelResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,7 +56,7 @@ public class StatsStorage {
     private static Path getStatsFilePath(MinecraftServer server) {
         if (server == null) return null;
         try {
-            Path worldDir = server.getSavePath(WorldSavePath.ROOT);
+            Path worldDir = server.getWorldPath(LevelResource.ROOT);
             return worldDir.resolve(STATS_FILE);
         } catch (Exception e) {
             LOGGER.error("[StatsStorage] Failed to get save path", e);
@@ -123,7 +123,7 @@ public class StatsStorage {
             stats.recordDistance = safeGetInt(obj, "recordDistance");
             stats.recordMobs = safeGetInt(obj, "recordMobs");
             stats.totalSleeps = safeGetInt(obj, "totalSleeps");
-            stats.unlockedAchievements = safeGetStringSet(obj, "unlockedAchievements");
+            stats.unlockedAchievements = safeGetStringSet(obj);
             return stats;
         }
 
@@ -138,10 +138,10 @@ public class StatsStorage {
             return 0;
         }
 
-        private Set<String> safeGetStringSet(JsonObject obj, String field) {
+        private Set<String> safeGetStringSet(JsonObject obj) {
             Set<String> result = new HashSet<>();
-            if (obj.has(field) && obj.get(field).isJsonArray()) {
-                for (JsonElement item : obj.getAsJsonArray(field)) {
+            if (obj.has("unlockedAchievements") && obj.get("unlockedAchievements").isJsonArray()) {
+                for (JsonElement item : obj.getAsJsonArray("unlockedAchievements")) {
                     if (item.isJsonPrimitive()) result.add(item.getAsString());
                 }
             }

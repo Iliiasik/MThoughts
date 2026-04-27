@@ -3,7 +3,7 @@ package mt.server;
 import mt.network.NetworkHandler;
 import mt.network.packet.DailySummaryPacket;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -29,9 +29,9 @@ public class DailyStatsManager {
     }
 
     public static void resetDailyStats(MinecraftServer server, Set<UUID> sleepingPlayers) {
-        for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
-            if (!sleepingPlayers.contains(player.getUuid())) continue;
-            UUID uuid = player.getUuid();
+        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+            if (!sleepingPlayers.contains(player.getUUID())) continue;
+            UUID uuid = player.getUUID();
             DailyPlayerStats stats = getOrCreateStats(uuid);
             stats.captureCurrentStats(player);
             stats.saveToStorage(server);
@@ -39,9 +39,9 @@ public class DailyStatsManager {
     }
 
     public static void showDailySummary(MinecraftServer server, Set<UUID> sleepingPlayers) {
-        List<ServerPlayerEntity> sleptPlayers = new ArrayList<>();
-        for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
-            if (sleepingPlayers.contains(player.getUuid())) {
+        List<ServerPlayer> sleptPlayers = new ArrayList<>();
+        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+            if (sleepingPlayers.contains(player.getUUID())) {
                 sleptPlayers.add(player);
             }
         }
@@ -51,8 +51,8 @@ public class DailyStatsManager {
         Map<String, DailyPlayerStats.DailyDelta> deltaMap = new HashMap<>();
         Map<String, StatsStorage.SavedPlayerStats> savedStatsMap = new HashMap<>();
 
-        for (ServerPlayerEntity player : sleptPlayers) {
-            UUID uuid = player.getUuid();
+        for (ServerPlayer player : sleptPlayers) {
+            UUID uuid = player.getUUID();
             DailyPlayerStats stats = getOrCreateStats(uuid);
             DailyPlayerStats.DailyDelta delta = stats.calculateDelta(player);
             String playerName = player.getGameProfile().name();
@@ -79,12 +79,12 @@ public class DailyStatsManager {
 
         List<DailySummaryPacket.PlayerDailySummary> summaries = new ArrayList<>();
 
-        for (ServerPlayerEntity player : sleptPlayers) {
+        for (ServerPlayer player : sleptPlayers) {
             String playerName = player.getGameProfile().name();
             DailyPlayerStats.DailyDelta delta = deltaMap.get(playerName);
             StatsStorage.SavedPlayerStats savedStats = savedStatsMap.get(playerName);
 
-            List<String> achievements = AchievementCalculator.calculateAchievements(player, delta, savedStats);
+            List<String> achievements = AchievementCalculator.calculateAchievements(delta, savedStats);
             boolean isMvp = playerName.equals(mvpName);
 
             summaries.add(new DailySummaryPacket.PlayerDailySummary(
@@ -99,11 +99,11 @@ public class DailyStatsManager {
                     achievements
             ));
 
-            StatsStorage.savePlayerStats(server, player.getUuid(), savedStats);
+            StatsStorage.savePlayerStats(server, player.getUUID(), savedStats);
         }
 
         DailySummaryPacket packet = new DailySummaryPacket(summaries);
-        for (ServerPlayerEntity player : sleptPlayers) {
+        for (ServerPlayer player : sleptPlayers) {
             NetworkHandler.sendDailySummary(player, packet);
             boolean isMvp = player.getGameProfile().name().equals(mvpName);
             if (isMvp) {
@@ -120,37 +120,32 @@ public class DailyStatsManager {
         resetDailyStats(server, sleepingPlayers);
     }
 
-    public static void onPlayerJoin(ServerPlayerEntity player) {
-        MinecraftServer server = player.getEntityWorld().getServer();
-        DailyPlayerStats stats = getOrCreateStats(player.getUuid());
+    public static void onPlayerJoin(ServerPlayer player) {
+        MinecraftServer server = player.level().getServer();
+        DailyPlayerStats stats = getOrCreateStats(player.getUUID());
 
-        if (server != null) {
-            stats.loadFromStorage(server);
-        }
+        stats.loadFromStorage(server);
 
-        StatsStorage.SavedPlayerStats saved = server != null ?
-                StatsStorage.loadPlayerStats(server, player.getUuid()) : null;
+        StatsStorage.SavedPlayerStats saved = StatsStorage.loadPlayerStats(server, player.getUUID());
 
         if (saved == null) {
             stats.captureCurrentStats(player);
-            if (server != null) {
-                stats.saveToStorage(server);
-            }
+            stats.saveToStorage(server);
         }
     }
 
-    public static void onPlayerLeave(ServerPlayerEntity player) {
-        MinecraftServer server = player.getEntityWorld().getServer();
-        DailyPlayerStats stats = dailyStats.get(player.getUuid());
+    public static void onPlayerLeave(ServerPlayer player) {
+        MinecraftServer server = player.level().getServer();
+        DailyPlayerStats stats = dailyStats.get(player.getUUID());
 
-        if (stats != null && server != null) {
+        if (stats != null) {
             stats.saveToStorage(server);
         }
     }
 
     public static void onServerStop(MinecraftServer server) {
-        for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
-            DailyPlayerStats stats = dailyStats.get(player.getUuid());
+        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+            DailyPlayerStats stats = dailyStats.get(player.getUUID());
             if (stats != null) {
                 stats.saveToStorage(server);
             }

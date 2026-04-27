@@ -4,21 +4,19 @@ import mt.config.MidnightThoughtsConfig;
 import mt.client.model.Slide;
 import mt.client.model.SlideCategory;
 import mt.client.repository.SlideRepository;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.resource.language.LanguageManager;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.language.LanguageManager;
 
 import java.util.concurrent.ThreadLocalRandom;
 
 public class SlideService {
     private final SlideRepository slideRepository;
-    private final PlayerStatsService playerStatsService;
     private final MidnightThoughtsConfig config;
     private final FactProvider factProvider;
 
-    public SlideService(SlideRepository slideRepository, PlayerStatsService playerStatsService,
+    public SlideService(SlideRepository slideRepository,
                         MidnightThoughtsConfig config, FactProvider factProvider) {
         this.slideRepository = slideRepository;
-        this.playerStatsService = playerStatsService;
         this.config = config;
         this.factProvider = factProvider;
     }
@@ -76,17 +74,10 @@ public class SlideService {
         }
     }
 
-    public void refreshStats() {
-        playerStatsService.collectStats();
-    }
-
-    public void resetSlideCounter() {
-    }
-
     public String getCurrentLanguage() {
-        MinecraftClient client = MinecraftClient.getInstance();
+        Minecraft client = Minecraft.getInstance();
         LanguageManager langManager = client.getLanguageManager();
-        String lang = langManager.getLanguage();
+        String lang = langManager.getSelected();
 
         if (lang.startsWith("de")) {
             return "de_de";

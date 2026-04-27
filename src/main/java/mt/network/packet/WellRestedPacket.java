@@ -1,37 +1,29 @@
 package mt.network.packet;
 
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.util.Identifier;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.Identifier;
+import org.jetbrains.annotations.NotNull;
 
-public record WellRestedPacket(boolean active, int level, int ticksRemaining, int totalTicks, int phase, boolean nightmareMode, boolean mvp) implements CustomPayload {
+public record WellRestedPacket(boolean active, int level, int ticksRemaining, int totalTicks, int phase, boolean nightmareMode, boolean mvp) implements CustomPacketPayload {
 
-    public static final Identifier ID_LOC = Identifier.of("midnightthoughts", "well_rested");
-    public static final CustomPayload.Id<WellRestedPacket> ID = new CustomPayload.Id<>(ID_LOC);
-    public static final PacketCodec<PacketByteBuf, WellRestedPacket> CODEC = PacketCodec.of(
-            (packet, buf) -> {
-                buf.writeBoolean(packet.active());
-                buf.writeInt(packet.level());
-                buf.writeInt(packet.ticksRemaining());
-                buf.writeInt(packet.totalTicks());
-                buf.writeInt(packet.phase());
-                buf.writeBoolean(packet.nightmareMode());
-                buf.writeBoolean(packet.mvp());
-            },
-            buf -> new WellRestedPacket(
-                    buf.readBoolean(),
-                    buf.readInt(),
-                    buf.readInt(),
-                    buf.readInt(),
-                    buf.readInt(),
-                    buf.readBoolean(),
-                    buf.readBoolean()
-            )
+    public static final Identifier ID_LOC = Identifier.fromNamespaceAndPath("midnightthoughts", "well_rested");
+    public static final CustomPacketPayload.Type<@org.jetbrains.annotations.NotNull WellRestedPacket> TYPE = new CustomPacketPayload.Type<>(ID_LOC);
+    public static final StreamCodec<RegistryFriendlyByteBuf, WellRestedPacket> CODEC = StreamCodec.composite(
+            ByteBufCodecs.BOOL, WellRestedPacket::active,
+            ByteBufCodecs.INT, WellRestedPacket::level,
+            ByteBufCodecs.INT, WellRestedPacket::ticksRemaining,
+            ByteBufCodecs.INT, WellRestedPacket::totalTicks,
+            ByteBufCodecs.INT, WellRestedPacket::phase,
+            ByteBufCodecs.BOOL, WellRestedPacket::nightmareMode,
+            ByteBufCodecs.BOOL, WellRestedPacket::mvp,
+            WellRestedPacket::new
     );
 
     @Override
-    public CustomPayload.Id<? extends CustomPayload> getId() {
-        return ID;
+    public CustomPacketPayload.@NotNull Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 }

@@ -80,7 +80,6 @@ public final class MidnightThoughtsConfig {
         return getConfigDir().resolve("midnightthoughts.json");
     }
 
-    public SleepOverlaySettings getSleepOverlay() { return sleepOverlay; }
     public WellRestedSettings getWellRested() { return wellRested; }
     public MvpSettings getMvp() { return mvp; }
     public ComfortSettings getComfort() { return comfort; }
@@ -93,7 +92,7 @@ public final class MidnightThoughtsConfig {
     public float getTextOpacity() { return sleepOverlay.textOpacity; }
     public float getImageOpacity() { return sleepOverlay.imageOpacity; }
     public float getSpecialSlideChance() { return sleepOverlay.specialSlideChance; }
-    public boolean isEnableOverlay() { return sleepOverlay.enableOverlay; }
+    public boolean isEnableOverlay() { return !sleepOverlay.enableOverlay; }
     public boolean isEnableImage() { return sleepOverlay.enableImage; }
     public boolean isEnableDailySummaryScreen() { return sleepOverlay.enableDailySummaryScreen; }
     public boolean isUseFactsApi() { return sleepOverlay.useFactsApi; }
@@ -150,8 +149,6 @@ public final class MidnightThoughtsConfig {
         public float attackSpeedPhase1, attackSpeedPhase2, attackSpeedPhase3;
         public float healthBonus;
         public float regenBonus;
-
-        public WellRestedLevel() {}
 
         public WellRestedLevel(int durationMinutes,
                                float speedPhase1, float speedPhase2, float speedPhase3,

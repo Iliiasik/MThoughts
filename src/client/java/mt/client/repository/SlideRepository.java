@@ -6,9 +6,9 @@ import mt.client.MidnightThoughtsClient;
 import mt.client.model.Slide;
 import mt.client.model.SlideCategory;
 import mt.client.model.SlideCollection;
-import net.minecraft.resource.Resource;
-import net.minecraft.resource.ResourceManager;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.server.packs.resources.ResourceManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +50,7 @@ public class SlideRepository {
 
     private List<Slide> loadCategory(ResourceManager manager, String language, String fileName, SlideCategory category) {
         List<Slide> slides = new ArrayList<>();
-        Identifier resourceId = Identifier.of(MidnightThoughtsClient.MOD_ID, "dreams/" + language + "/" + fileName + ".json");
+        Identifier resourceId = Identifier.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "dreams/" + language + "/" + fileName + ".json");
 
         Optional<Resource> resourceOpt = manager.getResource(resourceId);
         if (resourceOpt.isEmpty()) {
@@ -58,7 +58,7 @@ public class SlideRepository {
             return slides;
         }
 
-        try (InputStreamReader reader = new InputStreamReader(resourceOpt.get().getInputStream(), StandardCharsets.UTF_8)) {
+        try (InputStreamReader reader = new InputStreamReader(resourceOpt.get().open(), StandardCharsets.UTF_8)) {
             SlideCollection collection = GSON.fromJson(reader, SlideCollection.class);
 
             if (collection != null && collection.entries() != null) {

@@ -4,16 +4,16 @@ import mt.client.config.ClientConfig;
 import mt.client.config.ThemeColors;
 import mt.server.AchievementLoader;
 import mt.server.AchievementDefinition;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gl.RenderPipelines;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.network.chat.Component;
 
 import java.util.List;
 
 public class AchievementRenderer {
 
-    public static void render(DrawContext context, TextRenderer textRenderer, List<String> achievements,
+    public static void render(GuiGraphicsExtractor graphics, Font font, List<String> achievements,
                               int x, int y, int width, int height, SummaryDimensions dims,
                               float fadeAlpha, List<AchievementTooltipArea> achievementAreas) {
         int maxAchievements = 3;
@@ -44,12 +44,12 @@ public class AchievementRenderer {
             int renderH = (int) (texH * badgeScale);
             int actualY = rowY + (badgeH - renderH) / 2;
 
-            renderBadge(context, textRenderer, x, rowY, width, badgeH, achievementId, textScale, fadeAlpha, colors);
+            renderBadge(graphics, font, x, rowY, width, badgeH, achievementId, textScale, fadeAlpha, colors);
             achievementAreas.add(new AchievementTooltipArea(x, actualY, renderW, renderH, achievementId));
         }
     }
 
-    private static void renderBadge(DrawContext context, TextRenderer textRenderer,
+    private static void renderBadge(GuiGraphicsExtractor graphics, Font font,
                                     int x, int y, int width, int height,
                                     String achievementId, float textScale, float fadeAlpha,
                                     ThemeColors.ThemeColor colors) {
@@ -63,12 +63,12 @@ public class AchievementRenderer {
         int renderY = y + (height - renderH) / 2;
 
         int color = (int) (fadeAlpha * 255) << 24 | 0xFFFFFF;
-        context.getMatrices().pushMatrix();
-        context.getMatrices().translate(x, renderY);
-        context.getMatrices().scale((float) renderW / texW, (float) renderH / texH);
-        context.drawTexture(RenderPipelines.GUI_TEXTURED, SummaryConstants.getAchievementBadgeTexture(),
+        graphics.pose().pushMatrix();
+        graphics.pose().translate(x, renderY);
+        graphics.pose().scale((float) renderW / texW, (float) renderH / texH);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, SummaryConstants.getAchievementBadgeTexture(),
                 0, 0, 0.0f, 0.0f, texW, texH, texW, texH, texW, texH, color);
-        context.getMatrices().popMatrix();
+        graphics.pose().popMatrix();
 
         String name = resolveAchievementName(achievementId);
         int padX = Math.max(3, (int) (4 * scale));
@@ -76,9 +76,9 @@ public class AchievementRenderer {
         int maxTextW = (int) ((renderW - padX * 2) / textScale);
 
         String ellipsis = "...";
-        int ellipsisW = textRenderer.getWidth(ellipsis);
-        if (textRenderer.getWidth(name) > maxTextW) {
-            while (!name.isEmpty() && textRenderer.getWidth(name) + ellipsisW > maxTextW) {
+        int ellipsisW = font.width(ellipsis);
+        if (font.width(name) > maxTextW) {
+            while (!name.isEmpty() && font.width(name) + ellipsisW > maxTextW) {
                 name = name.substring(0, name.length() - 1);
             }
             name = name + ellipsis;
@@ -87,7 +87,7 @@ public class AchievementRenderer {
         int alpha = (int) (fadeAlpha * 255);
         int textColor = (alpha << 24) | colors.achievementTextColor();
         int textY = renderY + (renderH - (int) (8 * textScale)) / 2;
-        RenderUtils.renderScaledText(context, textRenderer, name, x + padX, textY, textColor, textScale, true);
+        RenderUtils.renderScaledText(graphics, font, name, x + padX, textY, textColor, textScale, true);
     }
 
     private static String resolveAchievementName(String achievementId) {
@@ -97,7 +97,7 @@ public class AchievementRenderer {
                 return def.name;
             }
         }
-        return Text.translatable("midnightthoughts.achievement." + achievementId).getString();
+        return Component.translatable("midnightthoughts.achievement." + achievementId).getString();
     }
 
     public static String resolveAchievementTooltip(String achievementId) {
@@ -107,6 +107,6 @@ public class AchievementRenderer {
                 return def.tooltip != null ? def.tooltip : def.name;
             }
         }
-        return Text.translatable("midnightthoughts.achievement." + achievementId + ".desc").getString();
+        return Component.translatable("midnightthoughts.achievement." + achievementId + ".desc").getString();
     }
 }

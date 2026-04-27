@@ -4,17 +4,17 @@ import mt.client.config.ClientConfig;
 import mt.client.config.ThemeColors;
 import mt.client.util.NumberFormatter;
 import mt.network.packet.DailySummaryPacket;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gl.RenderPipelines;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 
 public class StatBadgeRenderer {
 
     private record StatEntry(Identifier icon, String labelKey, int value) {}
 
-    public static void render(DrawContext context, TextRenderer textRenderer, DailySummaryPacket.PlayerDailySummary player,
+    public static void render(GuiGraphicsExtractor graphics, Font font, DailySummaryPacket.PlayerDailySummary player,
                               int x, int y, int width, int height, SummaryDimensions dims,
                               float fadeAlpha, long animationStartTime) {
         float animProgress = AnimationHelper.getProgress(animationStartTime);
@@ -53,18 +53,18 @@ public class StatBadgeRenderer {
         for (int i = 0; i < 3; i++) {
             int rowY = startY + i * (badgeH + rowSpacing);
             if (rowY + badgeH > y + height) break;
-            renderBadge(context, textRenderer, x, rowY, colW, badgeH,
+            renderBadge(graphics, font, x, rowY, colW, badgeH,
                     stats[i].icon(), stats[i].labelKey(), stats[i].value(), iconSize, textScale, fadeAlpha, colors);
         }
         for (int i = 0; i < 3; i++) {
             int rowY = startY + i * (badgeH + rowSpacing);
             if (rowY + badgeH > y + height) break;
-            renderBadge(context, textRenderer, col2X, rowY, colW, badgeH,
+            renderBadge(graphics, font, col2X, rowY, colW, badgeH,
                     stats[i + 3].icon(), stats[i + 3].labelKey(), stats[i + 3].value(), iconSize, textScale, fadeAlpha, colors);
         }
     }
 
-    private static void renderBadge(DrawContext context, TextRenderer textRenderer,
+    private static void renderBadge(GuiGraphicsExtractor graphics, Font font,
                                     int x, int y, int width, int height,
                                     Identifier icon, String labelKey, int value,
                                     int iconSize, float textScale, float fadeAlpha,
@@ -79,28 +79,28 @@ public class StatBadgeRenderer {
         int renderY = y + (height - renderH) / 2;
 
         int color = (int) (fadeAlpha * 255) << 24 | 0xFFFFFF;
-        context.getMatrices().pushMatrix();
-        context.getMatrices().translate(x, renderY);
-        context.getMatrices().scale((float) renderW / texW, (float) renderH / texH);
-        context.drawTexture(RenderPipelines.GUI_TEXTURED, SummaryConstants.getStatBadgeTexture(),
+        graphics.pose().pushMatrix();
+        graphics.pose().translate(x, renderY);
+        graphics.pose().scale((float) renderW / texW, (float) renderH / texH);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, SummaryConstants.getStatBadgeTexture(),
                 0, 0, 0.0f, 0.0f, texW, texH, texW, texH, texW, texH, color);
-        context.getMatrices().popMatrix();
+        graphics.pose().popMatrix();
 
         int padX = Math.max(3, (int) (4 * scale));
         int iconY = y + (height - iconSize) / 2;
-        context.drawTexture(RenderPipelines.GUI_TEXTURED, icon,
+        graphics.blit(RenderPipelines.GUI_TEXTURED, icon,
                 x + padX, iconY, 0.0f, 0.0f, iconSize, iconSize, iconSize, iconSize, iconSize, iconSize, color);
 
         int textY = y + (height - (int) (8 * textScale)) / 2;
         int alpha = (int) (fadeAlpha * 255);
         int textColor = (alpha << 24) | colors.statTextColor();
 
-        String label = Text.translatable(labelKey).getString();
-        RenderUtils.renderScaledText(context, textRenderer, label, x + padX + iconSize + padX, textY, textColor, textScale, true);
+        String label = Component.translatable(labelKey).getString();
+        RenderUtils.renderScaledText(graphics, font, label, x + padX + iconSize + padX, textY, textColor, textScale, true);
 
         String valueStr = NumberFormatter.formatLargeNumber(value);
-        int valueW = (int) (textRenderer.getWidth(valueStr) * textScale);
+        int valueW = (int) (font.width(valueStr) * textScale);
         int valueX = x + renderW - padX - valueW;
-        RenderUtils.renderScaledText(context, textRenderer, valueStr, valueX, textY, textColor, textScale, true);
+        RenderUtils.renderScaledText(graphics, font, valueStr, valueX, textY, textColor, textScale, true);
     }
 }

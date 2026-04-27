@@ -103,7 +103,7 @@ public class FactProvider {
 
     private List<String> getCachedUserContent(String language, String category) {
         String key = language + ":" + category;
-        return userContentCache.computeIfAbsent(key, k -> {
+        return userContentCache.computeIfAbsent(key, _ -> {
             List<String> entries = userContentLoader.loadEntries(language, category);
             if (!entries.isEmpty()) {
                 LOGGER.info("Loaded {} user entries for {}/{}", entries.size(), language, category);
@@ -141,7 +141,7 @@ public class FactProvider {
         }
 
         CompletableFuture.allOf(futures)
-                .whenComplete((result, error) -> {
+                .whenComplete((_, _) -> {
                     fetchInProgress.set(false);
                     if (factQueue.isEmpty()) {
                         if (apiAvailable.get()) {

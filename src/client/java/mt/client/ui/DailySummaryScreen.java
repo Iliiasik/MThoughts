@@ -3,9 +3,9 @@ package mt.client.ui;
 import mt.client.network.ClientNetworkHandler;
 import mt.client.ui.summary.*;
 import mt.network.packet.DailySummaryPacket;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +21,7 @@ public class DailySummaryScreen extends Screen {
     private ThemeSwitchButton themeSwitchButton;
 
     public DailySummaryScreen(List<DailySummaryPacket.PlayerDailySummary> players) {
-        super(Text.literal("Summary"));
+        super(Component.literal("Summary"));
         this.allPlayers = new ArrayList<>(players);
         this.allPlayers.sort((p1, p2) -> {
             if (p1.isMvp() && !p2.isMvp()) return -1;
@@ -56,30 +56,30 @@ public class DailySummaryScreen extends Screen {
         int iconX = dimensions.panelX + dimensions.panelWidth + dimensions.s(7);
         int iconY = dimensions.panelY + dimensions.s(11);
         themeSwitchButton = new ThemeSwitchButton(iconX, iconY, iconSize);
-        addDrawableChild(themeSwitchButton);
+        addRenderableWidget(themeSwitchButton);
     }
 
     private void addNavigationButtons(int buttonWidth, int buttonHeight, int buttonY, int buttonSpacing) {
         int navButtonsWidth = buttonWidth * 2 + buttonSpacing;
         int navStartX = width / 2 - navButtonsWidth / 2;
 
-        addDrawableChild(new StyledButton(
+        addRenderableWidget(new StyledButton(
                 navStartX, buttonY, buttonWidth, buttonHeight,
-                Text.translatable("midnightthoughts.summary.previous"),
-                button -> navigateToPreviousPage()
+                Component.translatable("midnightthoughts.summary.previous"),
+                _ -> navigateToPreviousPage()
         ));
 
-        addDrawableChild(new StyledButton(
+        addRenderableWidget(new StyledButton(
                 navStartX + buttonWidth + buttonSpacing, buttonY, buttonWidth, buttonHeight,
-                Text.translatable("midnightthoughts.summary.next"),
-                button -> navigateToNextPage()
+                Component.translatable("midnightthoughts.summary.next"),
+                _ -> navigateToNextPage()
         ));
     }
 
     private void navigateToPreviousPage() {
         if (currentPage > 0) {
             currentPage--;
-            clearAndInit();
+            rebuildWidgets();
         }
     }
 
@@ -87,44 +87,34 @@ public class DailySummaryScreen extends Screen {
         int totalPages = dimensions.getTotalPages(allPlayers.size());
         if (currentPage < totalPages - 1) {
             currentPage++;
-            clearAndInit();
+            rebuildWidgets();
         }
     }
 
     @Override
-    protected void clearAndInit() {
-        this.clearChildren();
-        this.init();
-    }
-
-    @Override
-    public void close() {
+    public void onClose() {
         ClientNetworkHandler.sendSummaryAcknowledge();
-        super.close();
+        super.onClose();
     }
 
     @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        context.fill(0, 0, this.width, this.height, 0x88000000);
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
+        graphics.fill(0, 0, this.width, this.height, 0x88000000);
         updateFadeAnimation();
         achievementAreas.clear();
 
         dimensions.calculate(width, height);
 
-        renderPanel(context);
-        renderPlayerList(context);
+        renderPanel(graphics);
+        renderPlayerList(graphics);
 
-        super.render(context, mouseX, mouseY, delta);
+        super.extractRenderState(graphics, mouseX, mouseY, delta);
 
-        TooltipRenderer.render(context, textRenderer, mouseX, mouseY, achievementAreas, width, height, fadeAlpha);
+        TooltipRenderer.render(graphics, font, mouseX, mouseY, achievementAreas, width, fadeAlpha);
 
         if (themeSwitchButton != null && themeSwitchButton.isMouseOver(mouseX, mouseY)) {
-            context.drawOrderedTooltip(textRenderer, List.of(themeSwitchButton.getTooltipText().asOrderedText()), mouseX, mouseY);
+            graphics.setTooltipForNextFrame(font, List.of(themeSwitchButton.getTooltipText().getVisualOrderText()), mouseX, mouseY);
         }
-    }
-
-    @Override
-    public void renderBackground(DrawContext context, int mouseX, int mouseY, float delta) {
     }
 
     private void updateFadeAnimation() {
@@ -132,14 +122,14 @@ public class DailySummaryScreen extends Screen {
         fadeAlpha = Math.min(1.0f, elapsedTime / 300.0f);
     }
 
-    private void renderPanel(DrawContext context) {
-        FrameRenderer.render(context, dimensions, fadeAlpha);
-        FrameRenderer.renderBadge(context, textRenderer, dimensions, fadeAlpha);
+    private void renderPanel(GuiGraphicsExtractor graphics) {
+        FrameRenderer.render(graphics, dimensions, fadeAlpha);
+        FrameRenderer.renderBadge(graphics, font, dimensions, fadeAlpha);
         int totalPages = dimensions.getTotalPages(allPlayers.size());
-        FrameRenderer.renderPagesHolder(context, textRenderer, dimensions, currentPage, totalPages, fadeAlpha);
+        FrameRenderer.renderPagesHolder(graphics, font, dimensions, currentPage, totalPages, fadeAlpha);
     }
 
-    private void renderPlayerList(DrawContext context) {
+    private void renderPlayerList(GuiGraphicsExtractor graphics) {
         int contentPaddingTop = dimensions.s(53);
         int contentPaddingSides = dimensions.s(60);
 
@@ -151,13 +141,13 @@ public class DailySummaryScreen extends Screen {
         for (int i = startIndex; i < endIndex; i++) {
             DailySummaryPacket.PlayerDailySummary player = allPlayers.get(i);
             int rowY = startY + (i - startIndex) * dimensions.playerRowHeight;
-            PlayerRowRenderer.render(context, textRenderer, player, dimensions.panelX + contentPaddingSides,
+            PlayerRowRenderer.render(graphics, font, player, dimensions.panelX + contentPaddingSides,
                     rowY, dimensions, fadeAlpha, animationStartTime, achievementAreas);
         }
     }
 
     @Override
-    public boolean shouldPause() {
+    public boolean isPauseScreen() {
         return false;
     }
 }

@@ -1,23 +1,20 @@
 package mt.network.packet;
 
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.util.Identifier;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.Identifier;
+import org.jetbrains.annotations.NotNull;
 
-public record SummaryAcknowledgePacket() implements CustomPayload {
-    public static final CustomPayload.Id<SummaryAcknowledgePacket> ID =
-        new CustomPayload.Id<>(Identifier.of("midnightthoughts", "summary_acknowledge"));
+public record SummaryAcknowledgePacket() implements CustomPacketPayload {
+    public static final CustomPacketPayload.Type<@NotNull SummaryAcknowledgePacket> TYPE =
+            new CustomPacketPayload.Type<>(Identifier.fromNamespaceAndPath("midnightthoughts", "summary_acknowledge"));
 
-    public static final PacketCodec<RegistryByteBuf, SummaryAcknowledgePacket> CODEC =
-        PacketCodec.of(
-            (value, buf) -> {},
-            buf -> new SummaryAcknowledgePacket()
-        );
+    public static final StreamCodec<RegistryFriendlyByteBuf, SummaryAcknowledgePacket> CODEC =
+            StreamCodec.unit(new SummaryAcknowledgePacket());
 
     @Override
-    public Id<? extends CustomPayload> getId() {
-        return ID;
+    public CustomPacketPayload.@NotNull Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 }
-

@@ -1,10 +1,10 @@
 package mt.server;
 
 import mt.config.MidnightThoughtsConfig;
-import net.minecraft.entity.attribute.EntityAttributeModifier;
-import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,11 +13,11 @@ import java.util.UUID;
 public class WellRestedEffect {
     private static final MidnightThoughtsConfig CONFIG = MidnightThoughtsConfig.getInstance();
 
-    private static final Identifier SPEED_ID = Identifier.of("midnightthoughts", "well_rested_speed");
-    private static final Identifier STRENGTH_ID = Identifier.of("midnightthoughts", "well_rested_strength");
-    private static final Identifier ATTACK_SPEED_ID = Identifier.of("midnightthoughts", "well_rested_attack_speed");
-    private static final Identifier HASTE_ID = Identifier.of("midnightthoughts", "well_rested_haste");
-    private static final Identifier HEALTH_ID = Identifier.of("midnightthoughts", "well_rested_health");
+    private static final Identifier SPEED_ID = Identifier.fromNamespaceAndPath("midnightthoughts", "well_rested_speed");
+    private static final Identifier STRENGTH_ID = Identifier.fromNamespaceAndPath("midnightthoughts", "well_rested_strength");
+    private static final Identifier ATTACK_SPEED_ID = Identifier.fromNamespaceAndPath("midnightthoughts", "well_rested_attack_speed");
+    private static final Identifier HASTE_ID = Identifier.fromNamespaceAndPath("midnightthoughts", "well_rested_haste");
+    private static final Identifier HEALTH_ID = Identifier.fromNamespaceAndPath("midnightthoughts", "well_rested_health");
 
     private static final Map<UUID, Integer> ticksRemainingMap = new HashMap<>();
     private static final Map<UUID, Integer> levelMap = new HashMap<>();
@@ -29,22 +29,21 @@ public class WellRestedEffect {
 
     private static int clampLevel(int level) {
         if (level < 1) return 1;
-        if (level > 5) return 5;
-        return level;
+        return Math.min(level, 5);
     }
 
     public static int getTotalDurationTicks(int comfortLevel) {
         return CONFIG.getWellRested().getLevel(clampLevel(comfortLevel)).durationMinutes * 60 * 20;
     }
 
-    public static void applyToPlayer(ServerPlayerEntity player, int comfortLevel) {
+    public static void applyToPlayer(ServerPlayer player, int comfortLevel) {
         if (comfortLevel <= 0) return;
         int lvlIdx = clampLevel(comfortLevel);
         MidnightThoughtsConfig.WellRestedLevel lvl = CONFIG.getWellRested().getLevel(lvlIdx);
 
         removeFromPlayer(player);
 
-        UUID uuid = player.getUuid();
+        UUID uuid = player.getUUID();
         levelMap.put(uuid, lvlIdx);
         ticksRemainingMap.put(uuid, getTotalDurationTicks(lvlIdx));
 
@@ -54,8 +53,8 @@ public class WellRestedEffect {
         player.setHealth(player.getMaxHealth());
     }
 
-    public static void removeFromPlayer(ServerPlayerEntity player) {
-        UUID uuid = player.getUuid();
+    public static void removeFromPlayer(ServerPlayer player) {
+        UUID uuid = player.getUUID();
         levelMap.remove(uuid);
         ticksRemainingMap.remove(uuid);
         phaseMap.remove(uuid);
@@ -64,8 +63,8 @@ public class WellRestedEffect {
         player.setHealth(Math.min(player.getHealth(), player.getMaxHealth()));
     }
 
-    public static void tick(ServerPlayerEntity player) {
-        UUID uuid = player.getUuid();
+    public static void tick(ServerPlayer player) {
+        UUID uuid = player.getUUID();
         if (!ticksRemainingMap.containsKey(uuid)) return;
 
         int ticksRemaining = ticksRemainingMap.getOrDefault(uuid, 0);
@@ -110,57 +109,57 @@ public class WellRestedEffect {
         }
     }
 
-    private static void applyHealthBonus(ServerPlayerEntity player, float bonus) {
-        var healthAttr = player.getAttributeInstance(EntityAttributes.MAX_HEALTH);
+    private static void applyHealthBonus(ServerPlayer player, float bonus) {
+        var healthAttr = player.getAttribute(Attributes.MAX_HEALTH);
         if (healthAttr != null && healthAttr.getModifier(HEALTH_ID) == null) {
-            healthAttr.addPersistentModifier(new EntityAttributeModifier(
-                    HEALTH_ID, bonus, EntityAttributeModifier.Operation.ADD_VALUE));
+            healthAttr.addPermanentModifier(new AttributeModifier(
+                    HEALTH_ID, bonus, AttributeModifier.Operation.ADD_VALUE));
         }
     }
 
-    private static void applyPhaseAttributes(ServerPlayerEntity player, float speed, float strength, float haste, float attackSpeed) {
-        var speedAttr = player.getAttributeInstance(EntityAttributes.MOVEMENT_SPEED);
-        var strengthAttr = player.getAttributeInstance(EntityAttributes.ATTACK_DAMAGE);
-        var hasteAttr = player.getAttributeInstance(EntityAttributes.BLOCK_BREAK_SPEED);
-        var attackSpeedAttr = player.getAttributeInstance(EntityAttributes.ATTACK_SPEED);
+    private static void applyPhaseAttributes(ServerPlayer player, float speed, float strength, float haste, float attackSpeed) {
+        var speedAttr = player.getAttribute(Attributes.MOVEMENT_SPEED);
+        var strengthAttr = player.getAttribute(Attributes.ATTACK_DAMAGE);
+        var hasteAttr = player.getAttribute(Attributes.BLOCK_BREAK_SPEED);
+        var attackSpeedAttr = player.getAttribute(Attributes.ATTACK_SPEED);
         if (speedAttr != null && speedAttr.getModifier(SPEED_ID) == null)
-            speedAttr.addPersistentModifier(new EntityAttributeModifier(SPEED_ID, speed, EntityAttributeModifier.Operation.ADD_MULTIPLIED_BASE));
+            speedAttr.addPermanentModifier(new AttributeModifier(SPEED_ID, speed, AttributeModifier.Operation.ADD_MULTIPLIED_BASE));
         if (strengthAttr != null && strengthAttr.getModifier(STRENGTH_ID) == null)
-            strengthAttr.addPersistentModifier(new EntityAttributeModifier(STRENGTH_ID, strength, EntityAttributeModifier.Operation.ADD_MULTIPLIED_BASE));
+            strengthAttr.addPermanentModifier(new AttributeModifier(STRENGTH_ID, strength, AttributeModifier.Operation.ADD_MULTIPLIED_BASE));
         if (hasteAttr != null && hasteAttr.getModifier(HASTE_ID) == null)
-            hasteAttr.addPersistentModifier(new EntityAttributeModifier(HASTE_ID, haste, EntityAttributeModifier.Operation.ADD_MULTIPLIED_BASE));
+            hasteAttr.addPermanentModifier(new AttributeModifier(HASTE_ID, haste, AttributeModifier.Operation.ADD_MULTIPLIED_BASE));
         if (attackSpeedAttr != null && attackSpeedAttr.getModifier(ATTACK_SPEED_ID) == null)
-            attackSpeedAttr.addPersistentModifier(new EntityAttributeModifier(ATTACK_SPEED_ID, attackSpeed, EntityAttributeModifier.Operation.ADD_MULTIPLIED_BASE));
+            attackSpeedAttr.addPermanentModifier(new AttributeModifier(ATTACK_SPEED_ID, attackSpeed, AttributeModifier.Operation.ADD_MULTIPLIED_BASE));
     }
 
-    private static void removePhaseAttributes(ServerPlayerEntity player) {
-        var speedAttr = player.getAttributeInstance(EntityAttributes.MOVEMENT_SPEED);
-        var strengthAttr = player.getAttributeInstance(EntityAttributes.ATTACK_DAMAGE);
-        var hasteAttr = player.getAttributeInstance(EntityAttributes.BLOCK_BREAK_SPEED);
-        var attackSpeedAttr = player.getAttributeInstance(EntityAttributes.ATTACK_SPEED);
+    private static void removePhaseAttributes(ServerPlayer player) {
+        var speedAttr = player.getAttribute(Attributes.MOVEMENT_SPEED);
+        var strengthAttr = player.getAttribute(Attributes.ATTACK_DAMAGE);
+        var hasteAttr = player.getAttribute(Attributes.BLOCK_BREAK_SPEED);
+        var attackSpeedAttr = player.getAttribute(Attributes.ATTACK_SPEED);
         if (speedAttr != null) speedAttr.removeModifier(SPEED_ID);
         if (strengthAttr != null) strengthAttr.removeModifier(STRENGTH_ID);
         if (hasteAttr != null) hasteAttr.removeModifier(HASTE_ID);
         if (attackSpeedAttr != null) attackSpeedAttr.removeModifier(ATTACK_SPEED_ID);
     }
 
-    private static void removeAttributes(ServerPlayerEntity player) {
+    private static void removeAttributes(ServerPlayer player) {
         removePhaseAttributes(player);
-        var healthAttr = player.getAttributeInstance(EntityAttributes.MAX_HEALTH);
+        var healthAttr = player.getAttribute(Attributes.MAX_HEALTH);
         if (healthAttr != null) healthAttr.removeModifier(HEALTH_ID);
     }
 
-    public static boolean isMvp(ServerPlayerEntity player) {
-        return mvpMap.getOrDefault(player.getUuid(), false);
+    public static boolean isMvp(ServerPlayer player) {
+        return mvpMap.getOrDefault(player.getUUID(), false);
     }
 
-    public static void applyMvpToPlayer(ServerPlayerEntity player) {
+    public static void applyMvpToPlayer(ServerPlayer player) {
         MidnightThoughtsConfig.WellRestedLevel lvl = CONFIG.getWellRested().getLevel(5);
         int durationTicks = CONFIG.getMvp().mvpWellRestedDurationMinutes * 60 * 20;
 
         removeFromPlayer(player);
 
-        UUID uuid = player.getUuid();
+        UUID uuid = player.getUUID();
         levelMap.put(uuid, 5);
         ticksRemainingMap.put(uuid, durationTicks);
         mvpMap.put(uuid, true);
@@ -171,26 +170,26 @@ public class WellRestedEffect {
         player.setHealth(player.getMaxHealth());
     }
 
-    public static int getTotalDurationTicksForPlayer(ServerPlayerEntity player) {
+    public static int getTotalDurationTicksForPlayer(ServerPlayer player) {
         if (isMvp(player)) {
             return CONFIG.getMvp().mvpWellRestedDurationMinutes * 60 * 20;
         }
         return getTotalDurationTicks(getLevel(player));
     }
 
-    public static boolean hasEffect(ServerPlayerEntity player) {
-        return ticksRemainingMap.getOrDefault(player.getUuid(), 0) > 0;
+    public static boolean hasEffect(ServerPlayer player) {
+        return ticksRemainingMap.getOrDefault(player.getUUID(), 0) > 0;
     }
 
-    public static int getTicksRemaining(ServerPlayerEntity player) {
-        return ticksRemainingMap.getOrDefault(player.getUuid(), 0);
+    public static int getTicksRemaining(ServerPlayer player) {
+        return ticksRemainingMap.getOrDefault(player.getUUID(), 0);
     }
 
-    public static int getLevel(ServerPlayerEntity player) {
-        return levelMap.getOrDefault(player.getUuid(), 0);
+    public static int getLevel(ServerPlayer player) {
+        return levelMap.getOrDefault(player.getUUID(), 0);
     }
 
-    public static int getCurrentPhase(ServerPlayerEntity player) {
-        return phaseMap.getOrDefault(player.getUuid(), 0);
+    public static int getCurrentPhase(ServerPlayer player) {
+        return phaseMap.getOrDefault(player.getUUID(), 0);
     }
 }

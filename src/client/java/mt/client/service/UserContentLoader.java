@@ -45,10 +45,6 @@ public class UserContentLoader {
         return Collections.emptyList();
     }
 
-    public boolean hasEntries(String language, String category) {
-        return Files.exists(getFilePath(language, category));
-    }
-
     public void writeDefaultFiles() {
         for (String language : ALL_LANGUAGES) {
             Path dir = getDreamsDir().resolve(language);
@@ -88,7 +84,5 @@ public class UserContentLoader {
     private static class Entry {
         @SerializedName("text")
         String text;
-        @SerializedName("rarity")
-        float rarity = 1.0f;
     }
 }

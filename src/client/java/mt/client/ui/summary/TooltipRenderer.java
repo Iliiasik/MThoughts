@@ -1,28 +1,28 @@
 package mt.client.ui.summary;
 
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 import java.util.List;
 
 public class TooltipRenderer {
 
-    public static void render(DrawContext context, TextRenderer textRenderer, int mouseX, int mouseY,
-                              List<AchievementTooltipArea> achievementAreas, int screenWidth, int screenHeight, float fadeAlpha) {
+    public static void render(GuiGraphicsExtractor graphics, Font font, int mouseX, int mouseY,
+                              List<AchievementTooltipArea> achievementAreas, int screenWidth, float fadeAlpha) {
         for (AchievementTooltipArea area : achievementAreas) {
             if (area.contains(mouseX, mouseY)) {
-                renderTooltip(context, textRenderer, mouseX, mouseY, area.achievementId(), screenWidth, screenHeight, fadeAlpha);
+                renderTooltip(graphics, font, mouseX, mouseY, area.achievementId(), screenWidth, fadeAlpha);
                 break;
             }
         }
     }
 
-    private static void renderTooltip(DrawContext context, TextRenderer textRenderer, int mouseX, int mouseY,
-                                      String achievementId, int screenWidth, int screenHeight, float fadeAlpha) {
+    private static void renderTooltip(GuiGraphicsExtractor graphics, Font font, int mouseX, int mouseY,
+                                      String achievementId, int screenWidth, float fadeAlpha) {
         String tooltipText = AchievementRenderer.resolveAchievementTooltip(achievementId);
 
         int tooltipPadding = 4;
-        int tooltipWidth = textRenderer.getWidth(tooltipText) + tooltipPadding * 2;
+        int tooltipWidth = font.width(tooltipText) + tooltipPadding * 2;
         int tooltipHeight = 12;
 
         int tooltipX = mouseX + 8;
@@ -35,10 +35,10 @@ public class TooltipRenderer {
         int bgColor = (bgAlpha << 24) | 0x1a1a2e;
         int borderColor = (bgAlpha << 24) | 0x8a6a2a;
 
-        context.fill(tooltipX - 1, tooltipY - 1, tooltipX + tooltipWidth + 1, tooltipY + tooltipHeight + 1, borderColor);
-        context.fill(tooltipX, tooltipY, tooltipX + tooltipWidth, tooltipY + tooltipHeight, bgColor);
+        graphics.fill(tooltipX - 1, tooltipY - 1, tooltipX + tooltipWidth + 1, tooltipY + tooltipHeight + 1, borderColor);
+        graphics.fill(tooltipX, tooltipY, tooltipX + tooltipWidth, tooltipY + tooltipHeight, bgColor);
 
         int textColor = ((int) (fadeAlpha * 255) << 24) | 0xffd700;
-        context.drawText(textRenderer, tooltipText, tooltipX + tooltipPadding, tooltipY + 2, textColor, false);
+        graphics.text(font, tooltipText, tooltipX + tooltipPadding, tooltipY + 2, textColor, false);
     }
 }

@@ -3,18 +3,18 @@ package mt.client.ui;
 import mt.client.MidnightThoughtsClient;
 import mt.client.manager.WellRestedClientState;
 import mt.config.MidnightThoughtsConfig;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gl.RenderPipelines;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.resources.Identifier;
 import org.joml.Matrix3x2fStack;
 
 public class WellRestedHud {
-    private static final Identifier SCALE_TEXTURE = Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/scale.png");
-    private static final Identifier FILL_TEXTURE = Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/fill.png");
-    private static final Identifier ICON_TEXTURE = Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/well_rested.png");
-    private static final Identifier MVP_ICON_TEXTURE = Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/mvp.png");
+    private static final Identifier SCALE_TEXTURE = Identifier.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/scale.png");
+    private static final Identifier FILL_TEXTURE = Identifier.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/fill.png");
+    private static final Identifier ICON_TEXTURE = Identifier.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/well_rested.png");
+    private static final Identifier MVP_ICON_TEXTURE = Identifier.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/mvp.png");
 
     private static final int TEX_SCALE_W = 54;
     private static final int TEX_SCALE_H = 9;
@@ -31,17 +31,13 @@ public class WellRestedHud {
     private static final int MARGIN_LEFT = 4;
     private static final int MARGIN_BOTTOM = 4;
 
-    public static boolean isActive() {
-        return WellRestedClientState.isActive();
-    }
-
-    public static void render(DrawContext context, int screenWidth, int screenHeight) {
+    public static void render(GuiGraphicsExtractor context, int screenHeight) {
         if (!WellRestedClientState.isActive() || MidnightThoughtsConfig.getInstance().isHideWellRestedHud()) return;
-        MinecraftClient mc = MinecraftClient.getInstance();
+        Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
 
-        TextRenderer font = mc.textRenderer;
-        Matrix3x2fStack matrices = context.getMatrices();
+        Font font = mc.font;
+        Matrix3x2fStack matrices = context.pose();
 
         int level = WellRestedClientState.getLevel();
         int ticksRemaining = WellRestedClientState.getTicksRemaining();
@@ -50,15 +46,14 @@ public class WellRestedHud {
         float progress = totalTicks > 0 ? (float) ticksRemaining / totalTicks : 0f;
 
         int barY = screenHeight - MARGIN_BOTTOM - BAR_GUI_H;
-        int startX = MARGIN_LEFT;
 
         boolean isMvp = WellRestedClientState.isMvp();
         Identifier activeIcon = isMvp ? MVP_ICON_TEXTURE : ICON_TEXTURE;
 
         String roman = (!isMvp && level >= 1 && level <= 5) ? ROMAN[level] : "";
-        int romanWidth = roman.isEmpty() ? 0 : font.getWidth(roman);
+        int romanWidth = roman.isEmpty() ? 0 : font.width(roman);
 
-        int iconX = startX;
+        int iconX = MARGIN_LEFT;
         int romanX = iconX + ICON_GUI_SIZE + GAP;
         int barX = romanX + (roman.isEmpty() ? 0 : romanWidth + GAP);
         int barEndX = barX + TEX_SCALE_W;
@@ -67,19 +62,19 @@ public class WellRestedHud {
         matrices.pushMatrix();
         matrices.translate(iconX, barY);
         matrices.scale((float) ICON_GUI_SIZE / TEX_ICON_SIZE, (float) ICON_GUI_SIZE / TEX_ICON_SIZE);
-        context.drawTexture(RenderPipelines.GUI_TEXTURED, activeIcon, 0, 0, 0.0f, 0.0f, TEX_ICON_SIZE, TEX_ICON_SIZE, TEX_ICON_SIZE, TEX_ICON_SIZE);
+        context.blit(RenderPipelines.GUI_TEXTURED, activeIcon, 0, 0, 0.0f, 0.0f, TEX_ICON_SIZE, TEX_ICON_SIZE, TEX_ICON_SIZE, TEX_ICON_SIZE);
         matrices.popMatrix();
 
         if (!roman.isEmpty()) {
-            int romanY = barY + (BAR_GUI_H - font.fontHeight) / 2;
-            context.drawText(font, roman, romanX, romanY, 0xFFFFD966, true);
+            int romanY = barY + (BAR_GUI_H - font.lineHeight) / 2;
+            context.text(font, roman, romanX, romanY, 0xFFFFD966, true);
         }
 
         if (barGuiW > 0) {
             matrices.pushMatrix();
             matrices.translate(barX, barY);
             matrices.scale((float) barGuiW / TEX_SCALE_W, (float) BAR_GUI_H / TEX_SCALE_H);
-            context.drawTexture(RenderPipelines.GUI_TEXTURED, SCALE_TEXTURE, 0, 0, 0.0f, 0.0f, TEX_SCALE_W, TEX_SCALE_H, TEX_SCALE_W, TEX_SCALE_H);
+            context.blit(RenderPipelines.GUI_TEXTURED, SCALE_TEXTURE, 0, 0, 0.0f, 0.0f, TEX_SCALE_W, TEX_SCALE_H, TEX_SCALE_W, TEX_SCALE_H);
             matrices.popMatrix();
 
             if (progress > 0f) {
@@ -92,7 +87,7 @@ public class WellRestedHud {
                     matrices.pushMatrix();
                     matrices.translate(fillGuiX, fillGuiY);
                     matrices.scale((float) fillGuiW / TEX_FILL_W, 1f);
-                    context.drawTexture(RenderPipelines.GUI_TEXTURED, FILL_TEXTURE, 0, 0, 0.0f, 0.0f, Math.round(texFillW), TEX_FILL_H, TEX_FILL_W, TEX_FILL_H);
+                    context.blit(RenderPipelines.GUI_TEXTURED, FILL_TEXTURE, 0, 0, 0.0f, 0.0f, Math.round(texFillW), TEX_FILL_H, TEX_FILL_W, TEX_FILL_H);
                     matrices.popMatrix();
                 }
             }

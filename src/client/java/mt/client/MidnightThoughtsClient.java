@@ -7,19 +7,20 @@ import mt.client.network.ClientNetworkHandler;
 import mt.client.render.SleepOverlayRenderer;
 import mt.client.repository.SlideRepository;
 import mt.client.service.FactProvider;
-import mt.client.service.PlayerStatsService;
 import mt.client.service.SlideService;
 import mt.client.service.UserContentLoader;
 import mt.client.ui.SleepingPlayersHud;
 import mt.client.ui.WellRestedHud;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
-import net.minecraft.resource.ResourceManager;
-import net.minecraft.resource.ResourceType;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.resources.ResourceManager;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,14 +49,13 @@ public class MidnightThoughtsClient implements ClientModInitializer {
     private void initializeComponents() {
         MidnightThoughtsConfig config = MidnightThoughtsConfig.getInstance();
         slideRepository = new SlideRepository();
-        PlayerStatsService playerStatsService = new PlayerStatsService();
 
         UserContentLoader userContentLoader = new UserContentLoader();
         userContentLoader.writeDefaultFiles();
 
         UselessFactsApiClient apiClient = new UselessFactsApiClient();
         FactProvider factProvider = new FactProvider(apiClient, slideRepository, userContentLoader);
-        SlideService slideService = new SlideService(slideRepository, playerStatsService, config, factProvider);
+        SlideService slideService = new SlideService(slideRepository, config, factProvider);
         sleepStateManager = new SleepStateManager();
         overlayRenderer = new SleepOverlayRenderer(sleepStateManager, slideService, config);
     }
@@ -68,26 +68,28 @@ public class MidnightThoughtsClient implements ClientModInitializer {
             }
         });
 
-        HudRenderCallback.EVENT.register((context, tickCounter) -> {
-            int width = context.getScaledWindowWidth();
-            int height = context.getScaledWindowHeight();
+        HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "sleep_overlay"), (context, _) -> {
+            Minecraft mc = Minecraft.getInstance();
+            int width = mc.getWindow().getGuiScaledWidth();
+            int height = mc.getWindow().getGuiScaledHeight();
             overlayRenderer.renderOverlayOnly(context, width, height);
             overlayRenderer.renderContentOnly(context, width, height);
             SleepingPlayersHud.render(context, width, height);
-            WellRestedHud.render(context, width, height);
+            WellRestedHud.render(context, height);
         });
     }
 
+    @SuppressWarnings("deprecation")
     private void registerResourceReloadListener() {
-        ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(
+        ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(
                 new SimpleSynchronousResourceReloadListener() {
                     @Override
-                    public Identifier getFabricId() {
-                        return Identifier.of(MOD_ID, "slide_reloader");
+                    public @NotNull Identifier getFabricId() {
+                        return Identifier.fromNamespaceAndPath(MOD_ID, "slide_reloader");
                     }
 
                     @Override
-                    public void reload(ResourceManager manager) {
+                    public void onResourceManagerReload(@NotNull ResourceManager manager) {
                         slideRepository.clearCache();
                         slideRepository.loadAllSlides(manager);
                     }

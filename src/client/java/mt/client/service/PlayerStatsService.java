@@ -1,46 +1,46 @@
 package mt.client.service;
 
 import mt.client.model.PlayerSleepStats;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.stat.StatHandler;
-import net.minecraft.stat.Stats;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.stats.Stats;
+import net.minecraft.stats.StatsCounter;
 
 public class PlayerStatsService {
 
-    public PlayerSleepStats collectStats() {
-        MinecraftClient client = MinecraftClient.getInstance();
-        ClientPlayerEntity player = client.player;
+    public void collectStats() {
+        Minecraft client = Minecraft.getInstance();
+        LocalPlayer player = client.player;
 
         if (player == null) {
-            return new PlayerSleepStats();
+            PlayerSleepStats.empty();
+            return;
         }
 
-        StatHandler stats = player.getStatHandler();
-        PlayerSleepStats sleepStats = new PlayerSleepStats();
-
-        sleepStats.setPlayTimeTicks(stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.PLAY_TIME)));
-        sleepStats.setWalkDistanceCm(stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.WALK_ONE_CM)));
-        sleepStats.setSprintDistanceCm(stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.SPRINT_ONE_CM)));
-        sleepStats.setJumps(stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.JUMP)));
-        sleepStats.setMobsKilled(stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.MOB_KILLS)));
-        sleepStats.setDeaths(stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.DEATHS)));
-        sleepStats.setSleepInBed(stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.SLEEP_IN_BED)));
-        sleepStats.setDamageDealt(stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.DAMAGE_DEALT)));
-        sleepStats.setFishCaught(stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.FISH_CAUGHT)));
+        StatsCounter stats = player.getStats();
 
         int blocksDestroyed = 0;
-        for (var blockStat : Stats.MINED) {
-            blocksDestroyed += stats.getStat(blockStat);
+        for (var blockStat : Stats.BLOCK_MINED) {
+            blocksDestroyed += stats.getValue(blockStat);
         }
-        sleepStats.setBlocksDestroyed(blocksDestroyed);
 
         int itemsCrafted = 0;
-        for (var craftStat : Stats.CRAFTED) {
-            itemsCrafted += stats.getStat(craftStat);
+        for (var craftStat : Stats.ITEM_CRAFTED) {
+            itemsCrafted += stats.getValue(craftStat);
         }
-        sleepStats.setItemsCrafted(itemsCrafted);
 
-        return sleepStats;
+        new PlayerSleepStats(
+                stats.getValue(Stats.CUSTOM.get(Stats.PLAY_TIME)),
+                stats.getValue(Stats.CUSTOM.get(Stats.WALK_ONE_CM)),
+                stats.getValue(Stats.CUSTOM.get(Stats.SPRINT_ONE_CM)),
+                stats.getValue(Stats.CUSTOM.get(Stats.JUMP)),
+                stats.getValue(Stats.CUSTOM.get(Stats.MOB_KILLS)),
+                stats.getValue(Stats.CUSTOM.get(Stats.DEATHS)),
+                stats.getValue(Stats.CUSTOM.get(Stats.SLEEP_IN_BED)),
+                stats.getValue(Stats.CUSTOM.get(Stats.DAMAGE_DEALT)),
+                stats.getValue(Stats.CUSTOM.get(Stats.FISH_CAUGHT)),
+                blocksDestroyed,
+                itemsCrafted
+        );
     }
 }

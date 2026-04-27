@@ -6,46 +6,46 @@ import mt.network.packet.SummaryAcknowledgePacket;
 import mt.network.packet.WellRestedPacket;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
 
 public class NetworkHandler {
 
     public static void registerPackets() {
-        PayloadTypeRegistry.playS2C().register(
-                DailySummaryPacket.ID,
+        PayloadTypeRegistry.clientboundPlay().register(
+                DailySummaryPacket.TYPE,
                 DailySummaryPacket.CODEC
         );
 
-        PayloadTypeRegistry.playS2C().register(
-                SleepingPlayersPacket.ID,
+        PayloadTypeRegistry.clientboundPlay().register(
+                SleepingPlayersPacket.TYPE,
                 SleepingPlayersPacket.CODEC
         );
 
-        PayloadTypeRegistry.playS2C().register(
-                WellRestedPacket.ID,
+        PayloadTypeRegistry.clientboundPlay().register(
+                WellRestedPacket.TYPE,
                 WellRestedPacket.CODEC
         );
 
-        PayloadTypeRegistry.playC2S().register(
-                SummaryAcknowledgePacket.ID,
+        PayloadTypeRegistry.serverboundPlay().register(
+                SummaryAcknowledgePacket.TYPE,
                 SummaryAcknowledgePacket.CODEC
         );
 
         ServerPlayNetworking.registerGlobalReceiver(
-                SummaryAcknowledgePacket.ID,
-                (packet, context) -> {}
+                SummaryAcknowledgePacket.TYPE,
+                (_, _) -> {}
         );
     }
 
-    public static void sendDailySummary(ServerPlayerEntity player, DailySummaryPacket packet) {
+    public static void sendDailySummary(ServerPlayer player, DailySummaryPacket packet) {
         ServerPlayNetworking.send(player, packet);
     }
 
-    public static void sendWellRested(ServerPlayerEntity player, WellRestedPacket packet) {
+    public static void sendWellRested(ServerPlayer player, WellRestedPacket packet) {
         ServerPlayNetworking.send(player, packet);
     }
 
-    public static void sendSleepingPlayers(ServerPlayerEntity player, SleepingPlayersPacket packet) {
+    public static void sendSleepingPlayers(ServerPlayer player, SleepingPlayersPacket packet) {
         ServerPlayNetworking.send(player, packet);
     }
 }

@@ -1,11 +1,11 @@
 package mt.server;
 
-import net.minecraft.block.Block;
-import net.minecraft.registry.Registries;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.stat.StatHandler;
-import net.minecraft.stat.Stats;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.stats.ServerStatsCounter;
+import net.minecraft.stats.Stats;
+import net.minecraft.world.level.block.Block;
 
 import java.util.UUID;
 
@@ -54,56 +54,56 @@ public class DailyPlayerStats {
         StatsStorage.savePlayerStats(server, playerUuid, saved);
     }
 
-    public void captureCurrentStats(ServerPlayerEntity player) {
-        StatHandler stats = player.getStatHandler();
+    public void captureCurrentStats(ServerPlayer player) {
+        ServerStatsCounter stats = player.getStats();
 
         long blocksDestroyed = 0;
-        for (Block block : Registries.BLOCK) {
-            blocksDestroyed += stats.getStat(Stats.MINED.getOrCreateStat(block));
+        for (Block block : BuiltInRegistries.BLOCK) {
+            blocksDestroyed += stats.getValue(Stats.BLOCK_MINED.get(block));
         }
         this.baseBlocksDestroyed = (int) Math.min(blocksDestroyed, Integer.MAX_VALUE);
         this.baseDistanceWalked = getTotalDistance(stats);
-        this.baseMobsKilled = stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.MOB_KILLS));
-        this.baseDeaths = stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.DEATHS));
-        this.baseJumps = stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.JUMP));
-        this.baseDamageDealt = stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.DAMAGE_DEALT));
+        this.baseMobsKilled = stats.getValue(Stats.CUSTOM.get(Stats.MOB_KILLS));
+        this.baseDeaths = stats.getValue(Stats.CUSTOM.get(Stats.DEATHS));
+        this.baseJumps = stats.getValue(Stats.CUSTOM.get(Stats.JUMP));
+        this.baseDamageDealt = stats.getValue(Stats.CUSTOM.get(Stats.DAMAGE_DEALT));
     }
 
-    private int getTotalDistance(StatHandler stats) {
+    private int getTotalDistance(ServerStatsCounter stats) {
         long total = 0;
-        total += stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.WALK_ONE_CM));
-        total += stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.SPRINT_ONE_CM));
-        total += stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.CROUCH_ONE_CM));
-        total += stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.SWIM_ONE_CM));
-        total += stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.FALL_ONE_CM));
-        total += stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.CLIMB_ONE_CM));
-        total += stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.FLY_ONE_CM));
-        total += stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.WALK_UNDER_WATER_ONE_CM));
-        total += stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.WALK_ON_WATER_ONE_CM));
-        total += stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.BOAT_ONE_CM));
-        total += stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.PIG_ONE_CM));
-        total += stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.HORSE_ONE_CM));
-        total += stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.MINECART_ONE_CM));
-        total += stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.AVIATE_ONE_CM));
-        total += stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.STRIDER_ONE_CM));
+        total += stats.getValue(Stats.CUSTOM.get(Stats.WALK_ONE_CM));
+        total += stats.getValue(Stats.CUSTOM.get(Stats.SPRINT_ONE_CM));
+        total += stats.getValue(Stats.CUSTOM.get(Stats.CROUCH_ONE_CM));
+        total += stats.getValue(Stats.CUSTOM.get(Stats.SWIM_ONE_CM));
+        total += stats.getValue(Stats.CUSTOM.get(Stats.FALL_ONE_CM));
+        total += stats.getValue(Stats.CUSTOM.get(Stats.CLIMB_ONE_CM));
+        total += stats.getValue(Stats.CUSTOM.get(Stats.FLY_ONE_CM));
+        total += stats.getValue(Stats.CUSTOM.get(Stats.WALK_UNDER_WATER_ONE_CM));
+        total += stats.getValue(Stats.CUSTOM.get(Stats.WALK_ON_WATER_ONE_CM));
+        total += stats.getValue(Stats.CUSTOM.get(Stats.BOAT_ONE_CM));
+        total += stats.getValue(Stats.CUSTOM.get(Stats.PIG_ONE_CM));
+        total += stats.getValue(Stats.CUSTOM.get(Stats.HORSE_ONE_CM));
+        total += stats.getValue(Stats.CUSTOM.get(Stats.MINECART_ONE_CM));
+        total += stats.getValue(Stats.CUSTOM.get(Stats.AVIATE_ONE_CM));
+        total += stats.getValue(Stats.CUSTOM.get(Stats.STRIDER_ONE_CM));
         return (int) Math.min(total, Integer.MAX_VALUE);
     }
 
-    public DailyDelta calculateDelta(ServerPlayerEntity player) {
-        StatHandler stats = player.getStatHandler();
+    public DailyDelta calculateDelta(ServerPlayer player) {
+        ServerStatsCounter stats = player.getStats();
 
         long blocksDestroyed = 0;
-        for (Block block : Registries.BLOCK) {
-            blocksDestroyed += stats.getStat(Stats.MINED.getOrCreateStat(block));
+        for (Block block : BuiltInRegistries.BLOCK) {
+            blocksDestroyed += stats.getValue(Stats.BLOCK_MINED.get(block));
         }
         int currentBlocksDestroyed = (int) Math.min(blocksDestroyed, Integer.MAX_VALUE);
 
         int deltaBlocks = Math.max(0, currentBlocksDestroyed - baseBlocksDestroyed);
         int deltaDistance = Math.max(0, getTotalDistance(stats) - baseDistanceWalked);
-        int deltaMobs = Math.max(0, stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.MOB_KILLS)) - baseMobsKilled);
-        int deltaDeaths = Math.max(0, stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.DEATHS)) - baseDeaths);
-        int deltaJumps = Math.max(0, stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.JUMP)) - baseJumps);
-        int deltaDamageDealt = Math.max(0, stats.getStat(Stats.CUSTOM.getOrCreateStat(Stats.DAMAGE_DEALT)) - baseDamageDealt);
+        int deltaMobs = Math.max(0, stats.getValue(Stats.CUSTOM.get(Stats.MOB_KILLS)) - baseMobsKilled);
+        int deltaDeaths = Math.max(0, stats.getValue(Stats.CUSTOM.get(Stats.DEATHS)) - baseDeaths);
+        int deltaJumps = Math.max(0, stats.getValue(Stats.CUSTOM.get(Stats.JUMP)) - baseJumps);
+        int deltaDamageDealt = Math.max(0, stats.getValue(Stats.CUSTOM.get(Stats.DAMAGE_DEALT)) - baseDamageDealt);
 
         return new DailyDelta(deltaBlocks, deltaDistance, deltaMobs, deltaDeaths, deltaJumps, deltaDamageDealt);
     }
