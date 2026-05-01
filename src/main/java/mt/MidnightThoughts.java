@@ -1,12 +1,16 @@
 package mt;
 
 import mt.network.NetworkHandler;
+import mt.network.packet.SyncAchievementsPacket;
+import mt.network.packet.SyncConfigPacket;
 import mt.network.packet.WellRestedPacket;
 import mt.server.AchievementLoader;
 import mt.server.ComfortCalculator;
 import mt.server.DailyStatsManager;
 import mt.server.SleepTracker;
+import mt.server.UserContentInitializer;
 import mt.server.WellRestedEffect;
+import mt.config.MidnightThoughtsConfig;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.entity.event.v1.EntitySleepEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
@@ -29,6 +33,7 @@ public class MidnightThoughts implements ModInitializer {
         WellRestedEffect.register();
         NetworkHandler.registerPackets();
         DailyStatsManager.initialize();
+        UserContentInitializer.writeDefaultFiles();
 
         ServerTickEvents.END_SERVER_TICK.register(server -> {
             DailyStatsManager.tick(server);
@@ -45,18 +50,30 @@ public class MidnightThoughts implements ModInitializer {
             }
         });
 
+        EntitySleepEvents.START_SLEEPING.register((entity, _) -> {
+            if (!(entity instanceof ServerPlayer serverPlayer)) return;
+            MinecraftServer srv = serverPlayer.level().getServer();
+            SleepTracker tracker = DailyStatsManager.getSleepTracker(srv);
+            if (tracker != null) {
+                tracker.markPlayerSleeping(serverPlayer.getUUID());
+            }
+        });
+
         EntitySleepEvents.STOP_SLEEPING.register((entity, _) -> {
             if (!(entity instanceof ServerPlayer serverPlayer)) return;
             MinecraftServer srv = serverPlayer.level().getServer();
             SleepTracker tracker = DailyStatsManager.getSleepTracker(srv);
-            if (tracker != null) tracker.markPlayerSlept(serverPlayer.getUUID());
+            if (tracker != null) {
+                tracker.markPlayerWoke(serverPlayer.getUUID());
+            }
         });
 
         EntitySleepEvents.ALLOW_SLEEPING.register((player, _) -> {
             if (!(player instanceof ServerPlayer serverPlayer)) return null;
             if (ComfortCalculator.isSleepBlocked(serverPlayer)) {
                 serverPlayer.sendSystemMessage(
-                        Component.translatable("midnightthoughts.sleep.nightmare_blocked")
+                        Component.translatable("midnightthoughts.sleep.nightmare_blocked"),
+                        true
                 );
                 return Player.BedSleepingProblem.OTHER_PROBLEM;
             }
@@ -69,9 +86,38 @@ public class MidnightThoughts implements ModInitializer {
             }
         });
 
-        ServerPlayConnectionEvents.JOIN.register((handler, _, _) -> DailyStatsManager.onPlayerJoin(handler.player));
+        ServerPlayConnectionEvents.JOIN.register((handler, _, _) -> {
+            DailyStatsManager.onPlayerJoin(handler.player);
 
-        ServerPlayConnectionEvents.DISCONNECT.register((handler, _) -> DailyStatsManager.onPlayerLeave(handler.player));
+            NetworkHandler.sendUserContent(handler.player, UserContentInitializer.buildPacket());
+
+            NetworkHandler.sendAchievements(handler.player,
+                    new SyncAchievementsPacket(AchievementLoader.load()));
+
+            MidnightThoughtsConfig cfg = MidnightThoughtsConfig.getInstance();
+            NetworkHandler.sendConfig(handler.player, new SyncConfigPacket(
+                    cfg.getSleepOverlay().minSlideDisplayTimeMs,
+                    cfg.getSleepOverlay().maxSlideDisplayTimeMs,
+                    cfg.getSleepOverlay().fadeInDurationMs,
+                    cfg.getSleepOverlay().fadeOutDurationMs,
+                    cfg.getSleepOverlay().overlayOpacity,
+                    cfg.getSleepOverlay().textOpacity,
+                    cfg.getSleepOverlay().imageOpacity,
+                    cfg.getSleepOverlay().specialSlideChance,
+                    cfg.getSleepOverlay().enableOverlay,
+                    cfg.getSleepOverlay().enableImage,
+                    cfg.getSleepOverlay().enableDailySummaryScreen,
+                    cfg.getSleepOverlay().useFactsApi,
+                    cfg.getSleepOverlay().userContentReplaces,
+                    cfg.getSleepOverlay().hideChatWhenSleeping,
+                    cfg.getUi().theme,
+                    cfg.getUi().hideWellRestedHud,
+                    cfg.getUi().hideThemeSwitchButton
+            ));
+        });
+
+        ServerPlayConnectionEvents.DISCONNECT.register((handler, _) ->
+                DailyStatsManager.onPlayerLeave(handler.player));
 
         ServerLifecycleEvents.SERVER_STOPPING.register(DailyStatsManager::onServerStop);
 

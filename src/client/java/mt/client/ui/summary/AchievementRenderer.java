@@ -1,8 +1,8 @@
 package mt.client.ui.summary;
 
+import mt.cache.ClientAchievementCache;
 import mt.client.config.ClientConfig;
 import mt.client.config.ThemeColors;
-import mt.server.AchievementLoader;
 import mt.server.AchievementDefinition;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -72,7 +72,6 @@ public class AchievementRenderer {
 
         String name = resolveAchievementName(achievementId);
         int padX = Math.max(3, (int) (4 * scale));
-
         int maxTextW = (int) ((renderW - padX * 2) / textScale);
 
         String ellipsis = "...";
@@ -91,8 +90,7 @@ public class AchievementRenderer {
     }
 
     private static String resolveAchievementName(String achievementId) {
-        List<AchievementDefinition> customAchievements = AchievementLoader.load();
-        for (AchievementDefinition def : customAchievements) {
+        for (AchievementDefinition def : ClientAchievementCache.get()) {
             if (def.id.equals(achievementId)) {
                 return def.name;
             }
@@ -101,8 +99,7 @@ public class AchievementRenderer {
     }
 
     public static String resolveAchievementTooltip(String achievementId) {
-        List<AchievementDefinition> customAchievements = AchievementLoader.load();
-        for (AchievementDefinition def : customAchievements) {
+        for (AchievementDefinition def : ClientAchievementCache.get()) {
             if (def.id.equals(achievementId)) {
                 return def.tooltip != null ? def.tooltip : def.name;
             }

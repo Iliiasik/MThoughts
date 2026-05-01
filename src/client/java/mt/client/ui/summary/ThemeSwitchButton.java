@@ -13,7 +13,7 @@ import net.minecraft.client.input.MouseButtonEvent;
 import org.jetbrains.annotations.NotNull;
 
 public class ThemeSwitchButton extends AbstractWidget {
-    private static final Identifier GEAR_ICON = Identifier.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/gear.png");
+    private static final Identifier GEAR_ICON = Identifier.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/summary/gear.png");
 
     public ThemeSwitchButton(int x, int y, int size) {
         super(x, y, size, size, Component.empty());

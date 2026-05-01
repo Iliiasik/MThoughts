@@ -1,5 +1,7 @@
 package mt.client;
 
+import mt.cache.ClientAchievementCache;
+import mt.cache.ServerConfigCache;
 import mt.client.api.UselessFactsApiClient;
 import mt.config.MidnightThoughtsConfig;
 import mt.client.manager.SleepStateManager;
@@ -13,6 +15,7 @@ import mt.client.ui.SleepingPlayersHud;
 import mt.client.ui.WellRestedHud;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
@@ -33,6 +36,7 @@ public class MidnightThoughtsClient implements ClientModInitializer {
     private SlideRepository slideRepository;
     private SleepStateManager sleepStateManager;
     private SleepOverlayRenderer overlayRenderer;
+    private UserContentLoader userContentLoader;
 
     @Override
     public void onInitializeClient() {
@@ -49,9 +53,7 @@ public class MidnightThoughtsClient implements ClientModInitializer {
     private void initializeComponents() {
         MidnightThoughtsConfig config = MidnightThoughtsConfig.getInstance();
         slideRepository = new SlideRepository();
-
-        UserContentLoader userContentLoader = new UserContentLoader();
-        userContentLoader.writeDefaultFiles();
+        userContentLoader = new UserContentLoader();
 
         UselessFactsApiClient apiClient = new UselessFactsApiClient();
         FactProvider factProvider = new FactProvider(apiClient, slideRepository, userContentLoader);
@@ -76,6 +78,14 @@ public class MidnightThoughtsClient implements ClientModInitializer {
             overlayRenderer.renderContentOnly(context, width, height);
             SleepingPlayersHud.render(context, width, height);
             WellRestedHud.render(context, height);
+        });
+
+        ClientPlayConnectionEvents.DISCONNECT.register((_, _) -> {
+            ServerConfigCache.clear();
+            ClientAchievementCache.clear();
+            if (userContentLoader != null) {
+                userContentLoader.clearServerContent();
+            }
         });
     }
 
@@ -103,5 +113,9 @@ public class MidnightThoughtsClient implements ClientModInitializer {
 
     public SleepOverlayRenderer getOverlayRenderer() {
         return overlayRenderer;
+    }
+
+    public UserContentLoader getUserContentLoader() {
+        return userContentLoader;
     }
 }

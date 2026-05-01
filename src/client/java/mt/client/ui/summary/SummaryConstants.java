@@ -5,12 +5,12 @@ import net.minecraft.resources.Identifier;
 
 public class SummaryConstants {
 
-    public static final Identifier ICON_BLOCKS = Identifier.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/icon_blocks.png");
-    public static final Identifier ICON_DISTANCE = Identifier.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/icon_distance.png");
-    public static final Identifier ICON_SWORD = Identifier.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/icon_sword.png");
-    public static final Identifier ICON_DEATH = Identifier.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/icon_death.png");
-    public static final Identifier ICON_JUMP = Identifier.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/icon_jump.png");
-    public static final Identifier ICON_AXE = Identifier.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/icon_axe.png");
+    public static final Identifier ICON_BLOCKS = Identifier.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/icons/icon_blocks.png");
+    public static final Identifier ICON_DISTANCE = Identifier.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/icons/icon_distance.png");
+    public static final Identifier ICON_SWORD = Identifier.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/icons/icon_sword.png");
+    public static final Identifier ICON_DEATH = Identifier.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/icons/icon_death.png");
+    public static final Identifier ICON_JUMP = Identifier.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/icons/icon_jump.png");
+    public static final Identifier ICON_AXE = Identifier.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/icons/icon_axe.png");
 
     public static final int ROW_TEXTURE_WIDTH = 320;
     public static final int ROW_TEXTURE_HEIGHT = 64;
