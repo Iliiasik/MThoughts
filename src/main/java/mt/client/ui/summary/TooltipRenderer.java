@@ -9,11 +9,11 @@ public class TooltipRenderer {
 
     public static void render(GuiGraphics context, Font textRenderer, int mouseX, int mouseY,
                               List<AchievementTooltipArea> achievementAreas,
-                              int screenWidth, int screenHeight, float fadeAlpha) {
+                              int screenWidth, float fadeAlpha) {
         for (AchievementTooltipArea area : achievementAreas) {
             if (area.contains(mouseX, mouseY)) {
                 renderTooltip(context, textRenderer, mouseX, mouseY,
-                        area.achievementId(), screenWidth, screenHeight, fadeAlpha);
+                        area.achievementId(), screenWidth, fadeAlpha);
                 break;
             }
         }
@@ -21,7 +21,7 @@ public class TooltipRenderer {
 
     private static void renderTooltip(GuiGraphics context, Font textRenderer,
                                       int mouseX, int mouseY, String achievementId,
-                                      int screenWidth, int screenHeight, float fadeAlpha) {
+                                      int screenWidth, float fadeAlpha) {
         String tooltipText = AchievementRenderer.resolveAchievementTooltip(achievementId);
 
         int tooltipPadding = 4;

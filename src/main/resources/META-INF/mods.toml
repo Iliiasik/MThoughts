@@ -17,7 +17,7 @@ license = "MIT"
 # The modid of the mod
 modId = "midnightthoughts" #mandatory
 # The version number of the mod
-version = "1.3.9" #mandatory
+version = "1.4" #mandatory
 # A display name for the mod
 displayName = "Midnight Thoughts" #mandatory
 # A URL to query for updates for this mod. See the JSON update specification https://docs.minecraftforge.net/en/latest/misc/updatechecker/
@@ -39,7 +39,7 @@ authors = "iliiasik" #optional
 #displayTest="MATCH_VERSION" # MATCH_VERSION is the default if nothing is specified (#optional)
 
 # The description text for the mod (multi line!) (#mandatory)
-description = '''An atmospheric sleep enhancement mod. Features random facts and Minecraft lore during sleep, daily player statistics summary (Stardew Valley style), MVP system for multiplayer, personal achievements, Well Rested effect with comfort levels, and a stylish sleeping players HUD.'''
+description = '''A unique reworking of the sleep mechanics, with player stats since the last sleep, a comfort and rest system, the addition of sleep-related facts, achievements, or both, and customization. Full server support and server-side customization are also included'''
 # A dependency - use the . to indicate dependency for a specific modid. Dependencies are optional.
 [[dependencies.midnightthoughts]] #optional
 # the modid of the dependency

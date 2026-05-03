@@ -1,4 +1,4 @@
-package mt.server.config;
+package mt.config;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -26,19 +26,15 @@ public final class MidnightThoughtsConfig {
     private ServerSettings server = new ServerSettings();
     private UISettings ui = new UISettings();
 
-    private MidnightThoughtsConfig() {
-    }
+    private MidnightThoughtsConfig() {}
 
     public static MidnightThoughtsConfig getInstance() {
-        if (instance == null) {
-            instance = load();
-        }
+        if (instance == null) instance = load();
         return instance;
     }
 
     public static MidnightThoughtsConfig load() {
         Path configPath = getConfigPath();
-
         if (Files.exists(configPath)) {
             try {
                 String json = Files.readString(configPath);
@@ -51,7 +47,6 @@ public final class MidnightThoughtsConfig {
                 LOGGER.error("Failed to load configuration: {}", e.getMessage());
             }
         }
-
         MidnightThoughtsConfig config = new MidnightThoughtsConfig();
         config.save();
         return config;
@@ -59,11 +54,9 @@ public final class MidnightThoughtsConfig {
 
     public void save() {
         Path configPath = getConfigPath();
-
         try {
             Files.createDirectories(configPath.getParent());
-            String json = GSON.toJson(this);
-            Files.writeString(configPath, json);
+            Files.writeString(configPath, GSON.toJson(this));
         } catch (IOException e) {
             LOGGER.error("Failed to save configuration: {}", e.getMessage());
         }
@@ -97,26 +90,71 @@ public final class MidnightThoughtsConfig {
         return ClientConfig.getInstance().getEffectiveTheme();
     }
 
-    public float getSpecialSlideChance() { return sleepOverlay.specialSlideChance; }
-    public boolean isEnableOverlay() { return sleepOverlay.enableOverlay; }
-    public boolean isEnableImage() { return sleepOverlay.enableImage; }
-    public boolean isEnableDailySummaryScreen() { return sleepOverlay.enableDailySummaryScreen; }
-    public boolean isUseFactsApi() { return sleepOverlay.useFactsApi; }
-    public boolean isUserContentReplaces() { return sleepOverlay.userContentReplaces; }
-    public boolean isHideChatWhenSleeping() { return sleepOverlay.hideChatWhenSleeping; }
-    public boolean isHideWellRestedHud() { return ui.hideWellRestedHud; }
-    public boolean isHideThemeSwitchButton() { return ui.hideThemeSwitchButton; }
+    public float getOverlayOpacity() {
+        if (mt.cache.ServerConfigCache.has()) return mt.cache.ServerConfigCache.get().overlayOpacity();
+        return sleepOverlay.overlayOpacity;
+    }
+
+    public float getSpecialSlideChance() {
+        if (mt.cache.ServerConfigCache.has()) return mt.cache.ServerConfigCache.get().specialSlideChance();
+        return sleepOverlay.specialSlideChance;
+    }
+
+    public boolean isEnableOverlay() {
+        if (mt.cache.ServerConfigCache.has()) return !mt.cache.ServerConfigCache.get().enableOverlay();
+        return !sleepOverlay.enableOverlay;
+    }
+
+    public boolean isEnableImage() {
+        if (mt.cache.ServerConfigCache.has()) return mt.cache.ServerConfigCache.get().enableImage();
+        return sleepOverlay.enableImage;
+    }
+
+    public boolean isEnableDailySummaryScreen() {
+        if (mt.cache.ServerConfigCache.has()) return mt.cache.ServerConfigCache.get().enableDailySummaryScreen();
+        return sleepOverlay.enableDailySummaryScreen;
+    }
+
+    public boolean isUseFactsApi() {
+        if (mt.cache.ServerConfigCache.has()) return mt.cache.ServerConfigCache.get().useFactsApi();
+        return sleepOverlay.useFactsApi;
+    }
+
+    public boolean isUserContentReplaces() {
+        if (mt.cache.ServerConfigCache.has()) return mt.cache.ServerConfigCache.get().userContentReplaces();
+        return sleepOverlay.userContentReplaces;
+    }
+
+    public boolean isHideChatWhenSleeping() {
+        if (mt.cache.ServerConfigCache.has()) return mt.cache.ServerConfigCache.get().hideChatWhenSleeping();
+        return sleepOverlay.hideChatWhenSleeping;
+    }
+
+    public boolean isHideWellRestedHud() {
+        if (mt.cache.ServerConfigCache.has()) return mt.cache.ServerConfigCache.get().hideWellRestedHud();
+        return ui.hideWellRestedHud;
+    }
+
+    public boolean isHideThemeSwitchButton() {
+        if (mt.cache.ServerConfigCache.has()) return mt.cache.ServerConfigCache.get().hideThemeSwitchButton();
+        return ui.hideThemeSwitchButton;
+    }
 
     public int getRandomSlideDisplayTime() {
-        if (sleepOverlay.minSlideDisplayTimeMs >= sleepOverlay.maxSlideDisplayTimeMs) {
-            return sleepOverlay.minSlideDisplayTimeMs;
-        }
-        return sleepOverlay.minSlideDisplayTimeMs + (int) (Math.random() * (sleepOverlay.maxSlideDisplayTimeMs - sleepOverlay.minSlideDisplayTimeMs));
+        int min = mt.cache.ServerConfigCache.has()
+                ? mt.cache.ServerConfigCache.get().minSlideDisplayTimeMs()
+                : sleepOverlay.minSlideDisplayTimeMs;
+        int max = mt.cache.ServerConfigCache.has()
+                ? mt.cache.ServerConfigCache.get().maxSlideDisplayTimeMs()
+                : sleepOverlay.maxSlideDisplayTimeMs;
+        if (min >= max) return min;
+        return min + (int) (Math.random() * (max - min));
     }
 
     public static class SleepOverlaySettings {
         public int minSlideDisplayTimeMs = 6000;
         public int maxSlideDisplayTimeMs = 8000;
+        public float overlayOpacity = 0.4f;
         public float specialSlideChance = 0.05f;
         public boolean enableOverlay = true;
         public boolean enableImage = true;
@@ -150,8 +188,6 @@ public final class MidnightThoughtsConfig {
         public float attackSpeedPhase1, attackSpeedPhase2, attackSpeedPhase3;
         public float healthBonus;
         public float regenBonus;
-
-        public WellRestedLevel() {}
 
         public WellRestedLevel(int durationMinutes,
                                float speedPhase1, float speedPhase2, float speedPhase3,

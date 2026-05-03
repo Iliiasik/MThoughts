@@ -2,7 +2,7 @@ package mt.client.config;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import mt.server.config.MidnightThoughtsConfig;
+import mt.config.MidnightThoughtsConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,11 +15,9 @@ public final class ClientConfig {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     private static ClientConfig instance;
-
     private String theme = null;
 
-    private ClientConfig() {
-    }
+    private ClientConfig() {}
 
     public static ClientConfig getInstance() {
         if (instance == null) {
@@ -30,29 +28,30 @@ public final class ClientConfig {
 
     public static ClientConfig load() {
         Path configPath = getConfigPath();
-
         if (Files.exists(configPath)) {
             try {
                 String json = Files.readString(configPath);
                 ClientConfig config = GSON.fromJson(json, ClientConfig.class);
                 if (config != null) {
+                    LOGGER.info("Client configuration loaded from {}", configPath);
                     return config;
                 }
             } catch (IOException e) {
                 LOGGER.error("Failed to load client configuration: {}", e.getMessage());
             }
         }
-
-        return new ClientConfig();
+        ClientConfig config = new ClientConfig();
+        config.save();
+        return config;
     }
 
     public void save() {
         Path configPath = getConfigPath();
-
         try {
             Files.createDirectories(configPath.getParent());
             String json = GSON.toJson(this);
             Files.writeString(configPath, json);
+            LOGGER.info("Client configuration saved to {}", configPath);
         } catch (IOException e) {
             LOGGER.error("Failed to save client configuration: {}", e.getMessage());
         }
@@ -74,6 +73,9 @@ public final class ClientConfig {
     public String getEffectiveTheme() {
         if (theme != null && !theme.isEmpty()) {
             return theme;
+        }
+        if (mt.cache.ServerConfigCache.has()) {
+            return mt.cache.ServerConfigCache.get().theme();
         }
         return MidnightThoughtsConfig.getInstance().getUi().theme;
     }

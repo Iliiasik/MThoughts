@@ -2,7 +2,7 @@ package mt.client.ui.summary;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import mt.client.MidnightThoughtsClient;
-import mt.server.config.MidnightThoughtsConfig;
+import mt.config.MidnightThoughtsConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;

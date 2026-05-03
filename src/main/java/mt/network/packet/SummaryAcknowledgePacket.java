@@ -1,15 +1,11 @@
 package mt.network.packet;
 
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-
 public class SummaryAcknowledgePacket {
-    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath("midnightthoughts", "summary_acknowledge");
 
-    public static void encode(SummaryAcknowledgePacket packet, FriendlyByteBuf buf) {
+    public static void encode() {
     }
 
-    public static SummaryAcknowledgePacket decode(FriendlyByteBuf buf) {
+    public static SummaryAcknowledgePacket decode() {
         return new SummaryAcknowledgePacket();
     }
 }

@@ -1,7 +1,7 @@
 package mt.client.ui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import mt.server.config.MidnightThoughtsConfig;
+import mt.config.MidnightThoughtsConfig;
 import mt.client.ui.summary.SummaryConstants;
 import mt.client.ui.summary.ThemeColors;
 import net.minecraft.client.Minecraft;
@@ -62,10 +62,10 @@ public class SleepingPlayersHud {
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
         RenderSystem.disableBlend();
 
-        renderText(context, textRenderer, hudX, hudY, hudWidth, hudHeight, scale);
+        renderText(context, textRenderer, hudX, hudY, hudWidth, scale);
     }
 
-    private static void renderText(GuiGraphics context, Font textRenderer, int hudX, int hudY, int hudWidth, int hudHeight, float scale) {
+    private static void renderText(GuiGraphics context, Font textRenderer, int hudX, int hudY, int hudWidth, float scale) {
         String sleepText = sleepingCount + " / " + totalPlayers;
         Component titleText = Component.translatable("midnightthoughts.hud.sleeping");
 

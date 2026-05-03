@@ -2,17 +2,17 @@ package mt.client.ui;
 
 import mt.client.MidnightThoughtsClient;
 import mt.client.manager.WellRestedClientState;
-import mt.server.config.MidnightThoughtsConfig;
+import mt.config.MidnightThoughtsConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 
 public class WellRestedHud {
-    private static final ResourceLocation SCALE_TEXTURE = ResourceLocation.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/scale.png");
-    private static final ResourceLocation FILL_TEXTURE = ResourceLocation.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/fill.png");
-    private static final ResourceLocation ICON_TEXTURE = ResourceLocation.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/well_rested.png");
-    private static final ResourceLocation MVP_ICON_TEXTURE = ResourceLocation.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/mvp.png");
+    private static final ResourceLocation SCALE_TEXTURE = ResourceLocation.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/hud/scale.png");
+    private static final ResourceLocation FILL_TEXTURE = ResourceLocation.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/hud/fill.png");
+    private static final ResourceLocation ICON_TEXTURE = ResourceLocation.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/hud/well_rested.png");
+    private static final ResourceLocation MVP_ICON_TEXTURE = ResourceLocation.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/hud/mvp.png");
 
     private static final int TEX_SCALE_W = 54;
     private static final int TEX_SCALE_H = 9;
@@ -29,11 +29,7 @@ public class WellRestedHud {
     private static final int MARGIN_LEFT = 4;
     private static final int MARGIN_BOTTOM = 4;
 
-    public static boolean isActive() {
-        return WellRestedClientState.isActive();
-    }
-
-    public static void render(GuiGraphics graphics, int screenWidth, int screenHeight) {
+    public static void render(GuiGraphics graphics, int screenHeight) {
         if (!WellRestedClientState.isActive() || MidnightThoughtsConfig.getInstance().isHideWellRestedHud()) return;
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
@@ -47,7 +43,6 @@ public class WellRestedHud {
         float progress = totalTicks > 0 ? (float) ticksRemaining / totalTicks : 0f;
 
         int barY = screenHeight - MARGIN_BOTTOM - BAR_GUI_H;
-        int startX = MARGIN_LEFT;
 
         boolean isMvp = WellRestedClientState.isMvp();
         ResourceLocation activeIcon = isMvp ? MVP_ICON_TEXTURE : ICON_TEXTURE;
@@ -55,18 +50,14 @@ public class WellRestedHud {
         String roman = (!isMvp && level >= 1 && level <= 5) ? ROMAN[level] : "";
         int romanWidth = roman.isEmpty() ? 0 : font.width(roman);
 
-        int iconX = startX;
+        int iconX = MARGIN_LEFT;
         int romanX = iconX + ICON_GUI_SIZE + GAP;
         int barX = romanX + (roman.isEmpty() ? 0 : romanWidth + GAP);
         int barEndX = barX + TEX_SCALE_W;
         int barGuiW = barEndX - barX;
 
         graphics.setColor(1f, 1f, 1f, 1f);
-        graphics.pose().pushPose();
-        graphics.pose().translate((float) iconX, (float) barY, 0f);
-        graphics.pose().scale((float) ICON_GUI_SIZE / TEX_ICON_SIZE, (float) ICON_GUI_SIZE / TEX_ICON_SIZE, 1f);
-        graphics.blit(activeIcon, 0, 0, 0.0f, 0.0f, TEX_ICON_SIZE, TEX_ICON_SIZE, TEX_ICON_SIZE, TEX_ICON_SIZE);
-        graphics.pose().popPose();
+        blitScaled(graphics, activeIcon, iconX, barY, ICON_GUI_SIZE, ICON_GUI_SIZE, TEX_ICON_SIZE, TEX_ICON_SIZE);
         graphics.setColor(1f, 1f, 1f, 1f);
 
         if (!roman.isEmpty()) {
@@ -75,11 +66,7 @@ public class WellRestedHud {
         }
 
         if (barGuiW > 0) {
-            graphics.pose().pushPose();
-            graphics.pose().translate((float) barX, (float) barY, 0f);
-            graphics.pose().scale((float) barGuiW / TEX_SCALE_W, (float) BAR_GUI_H / TEX_SCALE_H, 1f);
-            graphics.blit(SCALE_TEXTURE, 0, 0, 0.0f, 0.0f, TEX_SCALE_W, TEX_SCALE_H, TEX_SCALE_W, TEX_SCALE_H);
-            graphics.pose().popPose();
+            blitScaled(graphics, SCALE_TEXTURE, barX, barY, barGuiW, BAR_GUI_H, TEX_SCALE_W, TEX_SCALE_H);
 
             if (progress > 0f) {
                 int fillGuiW = barGuiW - FILL_INSET * 2;
@@ -98,5 +85,13 @@ public class WellRestedHud {
         }
 
         graphics.setColor(1f, 1f, 1f, 1f);
+    }
+
+    private static void blitScaled(GuiGraphics graphics, ResourceLocation texture, int x, int y, int guiW, int guiH, int texW, int texH) {
+        graphics.pose().pushPose();
+        graphics.pose().translate((float) x, (float) y, 0f);
+        graphics.pose().scale((float) guiW / texW, (float) guiH / texH, 1f);
+        graphics.blit(texture, 0, 0, 0.0f, 0.0f, texW, texH, texW, texH);
+        graphics.pose().popPose();
     }
 }

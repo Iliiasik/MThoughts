@@ -1,14 +1,12 @@
 package mt.client.ui.summary;
 
-import mt.server.config.MidnightThoughtsConfig;
+import mt.config.MidnightThoughtsConfig;
 import mt.client.util.NumberFormatter;
 import mt.network.packet.DailySummaryPacket;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import com.mojang.blaze3d.systems.RenderSystem;
 
 public class StatBadgeRenderer {
 
@@ -37,7 +35,7 @@ public class StatBadgeRenderer {
         BadgeDimensions badgeDims = BadgeDimensions.calculate(dims);
         int badgeH = badgeDims.height();
         int rowSpacing = badgeDims.rowSpacing();
-        int iconSize = Math.max(6, Math.min(badgeH - 2, (int)(badgeH * 0.7f)));
+        int iconSize = Math.max(6, Math.min(badgeH - 2, (int) (badgeH * 0.7f)));
         float textScale = badgeDims.textScale();
 
         String theme = MidnightThoughtsConfig.getInstance().getUiTheme();
@@ -70,42 +68,25 @@ public class StatBadgeRenderer {
                                     int iconSize, float textScale, float fadeAlpha, int themeTextColor) {
         int texW = SummaryConstants.STAT_BADGE_TEXTURE_WIDTH;
         int texH = SummaryConstants.STAT_BADGE_TEXTURE_HEIGHT;
-        float scaleH = (float) height / texH;
-        float scaleW = (float) width / texW;
-        float scale = Math.min(scaleH, scaleW);
-        int renderW = (int)(texW * scale);
-        int renderH = (int)(texH * scale);
-        int renderY = y + (height - renderH) / 2;
+        RenderHelper.ScaledBlit sb = RenderHelper.computeScaledBlit(y, width, height, texW, texH);
 
-        ResourceLocation badgeTex = SummaryConstants.getStatBadgeTexture();
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        RenderSystem.setShaderTexture(0, badgeTex);
-        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, fadeAlpha);
-        RenderSystem.enableBlend();
-        context.blit(badgeTex, x, renderY, renderW, renderH, 0, 0, texW, texH, texW, texH);
-        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
-        RenderSystem.disableBlend();
+        RenderHelper.blitTexture(context, SummaryConstants.getStatBadgeTexture(),
+                x, sb.renderY(), sb.renderW(), sb.renderH(), fadeAlpha);
 
-        int padX = Math.max(3, (int)(4 * scale));
+        int padX = Math.max(3, (int) (4 * ((float) sb.renderH() / texH)));
         int iconY = y + (height - iconSize) / 2;
 
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        RenderSystem.setShaderTexture(0, icon);
-        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, fadeAlpha);
-        RenderSystem.enableBlend();
-        context.blit(icon, x + padX, iconY, iconSize, iconSize, 0, 0, iconSize, iconSize, iconSize, iconSize);
-        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
-        RenderSystem.disableBlend();
+        RenderHelper.blitTextureSimple(context, icon, x + padX, iconY, iconSize, iconSize, iconSize, iconSize, fadeAlpha);
 
-        int textY = y + (height - (int)(8 * textScale)) / 2;
-        int alpha = (int)(fadeAlpha * 255);
+        int textY = y + (height - (int) (8 * textScale)) / 2;
+        int alpha = (int) (fadeAlpha * 255);
         int textColor = (alpha << 24) | themeTextColor;
 
         String label = Component.translatable(labelKey).getString();
         RenderUtils.renderScaledText(context, textRenderer, label, x + padX + iconSize + padX, textY, textColor, textScale, true);
         String valueStr = NumberFormatter.formatLargeNumber(value);
-        int valueW = (int)(textRenderer.width(valueStr) * textScale);
-        int valueX = x + renderW - padX - valueW;
+        int valueW = (int) (textRenderer.width(valueStr) * textScale);
+        int valueX = x + sb.renderW() - padX - valueW;
         RenderUtils.renderScaledText(context, textRenderer, valueStr, valueX, textY, textColor, textScale, true);
     }
 }

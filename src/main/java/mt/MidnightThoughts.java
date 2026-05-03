@@ -1,12 +1,16 @@
 package mt;
 
 import mt.network.NetworkHandler;
+import mt.network.packet.SyncAchievementsPacket;
+import mt.network.packet.SyncConfigPacket;
 import mt.network.packet.WellRestedPacket;
 import mt.server.AchievementLoader;
 import mt.server.ComfortCalculator;
 import mt.server.DailyStatsManager;
 import mt.server.SleepTracker;
+import mt.server.UserContentInitializer;
 import mt.server.WellRestedEffect;
+import mt.config.MidnightThoughtsConfig;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -44,8 +48,10 @@ public class MidnightThoughts {
     }
 
     private void setup(final FMLCommonSetupEvent event) {
+        MidnightThoughtsConfig.getInstance();
         NetworkHandler.registerPackets();
         AchievementLoader.load();
+        UserContentInitializer.writeDefaultFiles();
         LOGGER.info("Midnight Thoughts common setup complete");
     }
 
@@ -72,27 +78,29 @@ public class MidnightThoughts {
     }
 
     @SubscribeEvent
-    public void onPlayerWakeUp(PlayerWakeUpEvent event) {
-        if (!(event.getEntity() instanceof ServerPlayer serverPlayer)) return;
-        if (event.wakeImmediately()) return;
-
-        MinecraftServer srv = serverPlayer.server;
-        if (srv != null) {
-            SleepTracker tracker = DailyStatsManager.getSleepTracker(srv);
-            if (tracker != null) tracker.markPlayerSlept(serverPlayer.getUUID());
-        }
-    }
-
-    @SubscribeEvent
     public void onPlayerSleepInBed(PlayerSleepInBedEvent event) {
-        if (!(event.getEntity() instanceof ServerPlayer player)) return;
-        if (ComfortCalculator.isSleepBlocked(player)) {
+        if (!(event.getEntity() instanceof ServerPlayer serverPlayer)) return;
+        MinecraftServer srv = serverPlayer.server;
+        SleepTracker tracker = DailyStatsManager.getSleepTracker(srv);
+        if (tracker != null) {
+            tracker.markPlayerSleeping(serverPlayer.getUUID());
+        }
+        if (ComfortCalculator.isSleepBlocked(serverPlayer)) {
             event.setResult(Player.BedSleepingProblem.OTHER_PROBLEM);
-            player.displayClientMessage(
+            serverPlayer.displayClientMessage(
                     Component.translatable("midnightthoughts.sleep.nightmare_blocked"),
                     true
             );
         }
+    }
+
+    @SubscribeEvent
+    public void onPlayerWakeUp(PlayerWakeUpEvent event) {
+        if (!(event.getEntity() instanceof ServerPlayer serverPlayer)) return;
+        if (event.wakeImmediately()) return;
+        MinecraftServer srv = serverPlayer.server;
+        SleepTracker tracker = DailyStatsManager.getSleepTracker(srv);
+        if (tracker != null) tracker.markPlayerWoke(serverPlayer.getUUID());
     }
 
     @SubscribeEvent
@@ -110,9 +118,26 @@ public class MidnightThoughts {
 
     @SubscribeEvent
     public void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
-        if (event.getEntity() instanceof ServerPlayer serverPlayer) {
-            DailyStatsManager.onPlayerJoin(serverPlayer);
-        }
+        if (!(event.getEntity() instanceof ServerPlayer serverPlayer)) return;
+        DailyStatsManager.onPlayerJoin(serverPlayer);
+        NetworkHandler.sendUserContent(serverPlayer, UserContentInitializer.buildPacket());
+        NetworkHandler.sendAchievements(serverPlayer, new SyncAchievementsPacket(AchievementLoader.load()));
+        MidnightThoughtsConfig cfg = MidnightThoughtsConfig.getInstance();
+        NetworkHandler.sendConfig(serverPlayer, new SyncConfigPacket(
+                cfg.getSleepOverlay().minSlideDisplayTimeMs,
+                cfg.getSleepOverlay().maxSlideDisplayTimeMs,
+                cfg.getSleepOverlay().overlayOpacity,
+                cfg.getSleepOverlay().specialSlideChance,
+                cfg.getSleepOverlay().enableOverlay,
+                cfg.getSleepOverlay().enableImage,
+                cfg.getSleepOverlay().enableDailySummaryScreen,
+                cfg.getSleepOverlay().useFactsApi,
+                cfg.getSleepOverlay().userContentReplaces,
+                cfg.getSleepOverlay().hideChatWhenSleeping,
+                cfg.getUi().theme,
+                cfg.getUi().hideWellRestedHud,
+                cfg.getUi().hideThemeSwitchButton
+        ));
     }
 
     @SubscribeEvent

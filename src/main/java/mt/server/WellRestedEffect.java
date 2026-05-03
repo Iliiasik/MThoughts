@@ -1,6 +1,6 @@
 package mt.server;
 
-import mt.server.config.MidnightThoughtsConfig;
+import mt.config.MidnightThoughtsConfig;
 import net.minecraft.network.protocol.game.ClientboundUpdateAttributesPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -18,8 +18,7 @@ public class WellRestedEffect {
 
     private static int clampLevel(int level) {
         if (level < 1) return 1;
-        if (level > 5) return 5;
-        return level;
+        return Math.min(level, 5);
     }
 
     private static int getNbtInt(ServerPlayer player, String key, int def) {
@@ -113,7 +112,7 @@ public class WellRestedEffect {
         var healthAttr = player.getAttribute(Attributes.MAX_HEALTH);
         if (healthAttr != null && healthAttr.getModifier(HEALTH_UUID) == null) {
             healthAttr.addPermanentModifier(new AttributeModifier(
-                    HEALTH_UUID, "well_rested_health", (double) bonus, AttributeModifier.Operation.ADDITION));
+                    HEALTH_UUID, "well_rested_health", bonus, AttributeModifier.Operation.ADDITION));
         }
     }
 
@@ -122,11 +121,11 @@ public class WellRestedEffect {
         var strengthAttr = player.getAttribute(Attributes.ATTACK_DAMAGE);
         var attackSpeedAttr = player.getAttribute(Attributes.ATTACK_SPEED);
         if (speedAttr != null && speedAttr.getModifier(SPEED_UUID) == null)
-            speedAttr.addPermanentModifier(new AttributeModifier(SPEED_UUID, "well_rested_speed", (double) speed, AttributeModifier.Operation.MULTIPLY_BASE));
+            speedAttr.addPermanentModifier(new AttributeModifier(SPEED_UUID, "well_rested_speed", speed, AttributeModifier.Operation.MULTIPLY_BASE));
         if (strengthAttr != null && strengthAttr.getModifier(STRENGTH_UUID) == null)
-            strengthAttr.addPermanentModifier(new AttributeModifier(STRENGTH_UUID, "well_rested_strength", (double) strength, AttributeModifier.Operation.MULTIPLY_BASE));
+            strengthAttr.addPermanentModifier(new AttributeModifier(STRENGTH_UUID, "well_rested_strength", strength, AttributeModifier.Operation.MULTIPLY_BASE));
         if (attackSpeedAttr != null && attackSpeedAttr.getModifier(ATTACK_SPEED_UUID) == null)
-            attackSpeedAttr.addPermanentModifier(new AttributeModifier(ATTACK_SPEED_UUID, "well_rested_attack_speed", (double) attackSpeed, AttributeModifier.Operation.MULTIPLY_BASE));
+            attackSpeedAttr.addPermanentModifier(new AttributeModifier(ATTACK_SPEED_UUID, "well_rested_attack_speed", attackSpeed, AttributeModifier.Operation.MULTIPLY_BASE));
     }
 
     private static void removePhaseAttributes(ServerPlayer player) {

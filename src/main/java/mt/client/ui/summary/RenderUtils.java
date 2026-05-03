@@ -13,4 +13,14 @@ public class RenderUtils {
         context.drawString(textRenderer, text, 0, 0, color, shadow);
         context.pose().popPose();
     }
+
+    public static String truncateWithEllipsis(Font font, String text, int maxWidth) {
+        String ellipsis = "...";
+        int ellipsisW = font.width(ellipsis);
+        if (font.width(text) <= maxWidth) return text;
+        while (!text.isEmpty() && font.width(text) + ellipsisW > maxWidth) {
+            text = text.substring(0, text.length() - 1);
+        }
+        return text + ellipsis;
+    }
 }

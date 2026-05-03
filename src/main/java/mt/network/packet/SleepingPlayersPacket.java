@@ -1,26 +1,8 @@
 package mt.network.packet;
 
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
 
-public class SleepingPlayersPacket {
-    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath("midnightthoughts", "sleeping_players");
-
-    private final int sleepingCount;
-    private final int totalPlayers;
-
-    public SleepingPlayersPacket(int sleepingCount, int totalPlayers) {
-        this.sleepingCount = sleepingCount;
-        this.totalPlayers = totalPlayers;
-    }
-
-    public int sleepingCount() {
-        return sleepingCount;
-    }
-
-    public int totalPlayers() {
-        return totalPlayers;
-    }
+public record SleepingPlayersPacket(int sleepingCount, int totalPlayers) {
 
     public static void encode(SleepingPlayersPacket packet, FriendlyByteBuf buf) {
         buf.writeInt(packet.sleepingCount);

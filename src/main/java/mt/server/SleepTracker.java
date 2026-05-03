@@ -18,9 +18,9 @@ public class SleepTracker {
     private final MinecraftServer server;
     private int lastSleepingCount = 0;
     private boolean wasNight = false;
-    private boolean nightSkipTriggered = false;
     private long lastTimeOfDay = -1;
     private final Set<UUID> playersWhoSlept = new HashSet<>();
+    private final Set<UUID> wakeVoluntarily = new HashSet<>();
 
     public SleepTracker(MinecraftServer server) {
         this.server = server;
@@ -43,7 +43,6 @@ public class SleepTracker {
 
         if (currentlyNight) {
             wasNight = true;
-            nightSkipTriggered = false;
             for (ServerPlayer player : server.getPlayerList().getPlayers()) {
                 if (player.isSleeping()) {
                     playersWhoSlept.add(player.getUUID());
@@ -51,14 +50,15 @@ public class SleepTracker {
             }
         }
 
-        if (wasNight && !currentlyNight && !nightSkipTriggered) {
+        if (wasNight && !currentlyNight) {
             boolean timeJumped = lastTimeOfDay >= 0 && lastTimeOfDay > timeOfDay;
             boolean morningTransition = lastTimeOfDay >= 0 && isNightTime(lastTimeOfDay) && isMorningTime(timeOfDay);
             if (timeJumped || morningTransition) {
-                nightSkipTriggered = true;
                 wasNight = false;
                 Set<UUID> slept = new HashSet<>(playersWhoSlept);
+                slept.removeAll(wakeVoluntarily);
                 playersWhoSlept.clear();
+                wakeVoluntarily.clear();
                 DailyStatsManager.showDailySummaryAndReset(server, slept);
             }
         }
@@ -66,8 +66,17 @@ public class SleepTracker {
         lastTimeOfDay = timeOfDay;
     }
 
-    public void markPlayerSlept(UUID uuid) {
-        playersWhoSlept.add(uuid);
+    public void markPlayerWoke(UUID uuid) {
+        ServerLevel overworld = server.getLevel(Level.OVERWORLD);
+        if (overworld == null) return;
+        long timeOfDay = overworld.getDayTime() % 24000;
+        if (isNightTime(timeOfDay)) {
+            wakeVoluntarily.add(uuid);
+        }
+    }
+
+    public void markPlayerSleeping(UUID uuid) {
+        wakeVoluntarily.remove(uuid);
     }
 
     private boolean isNightTime(long time) {
@@ -95,9 +104,6 @@ public class SleepTracker {
     }
 
     private void sendSleepingCountToAllPlayers(int sleeping, int total) {
-        SleepingPlayersPacket packet = new SleepingPlayersPacket(sleeping, total);
-        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
-            NetworkHandler.sendSleepingPlayers(player, packet);
-        }
+        NetworkHandler.sendSleepingPlayersToAll(new SleepingPlayersPacket(sleeping, total));
     }
 }
