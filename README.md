@@ -1,12 +1,4 @@
-<p align="center" style="margin: 0; padding: 0;">
-  <a href="https://modrinth.com/mod/midnight-thoughts" style="display: inline-block; margin-bottom: 4px;">
-    <img src="https://img.shields.io/modrinth/dt/midnight-thoughts?style=for-the-badge&logo=modrinth&color=00AF5C" alt="Modrinth Downloads" style="vertical-align: middle;"/>
-  </a>
-  <br>
-  <a href="https://www.curseforge.com/minecraft/mc-mods/midnight-thoughts" style="display: inline-block;">
-    <img src="https://cf.way2muchnoise.eu/1401318.svg?badge_style=for_the_badge" alt="CurseForge Downloads" style="vertical-align: middle;"/>
-  </a>
-</p>
+<p align="center"><a href="https://modrinth.com/mod/midnight-thoughts"><img src="https://img.shields.io/modrinth/dt/midnight-thoughts?style=for-the-badge&logo=modrinth&label=Modrinth&color=1bd96a&logoColor=white" alt="Modrinth Downloads"/></a><a href="https://www.curseforge.com/minecraft/mc-mods/midnight-thoughts"><img src="https://cf.way2muchnoise.eu/full_1401318_downloads.svg?badge_style=for_the_badge" alt="CurseForge Downloads"/></a></p>
 
 <img width="2041" height="145" alt="Logo" src="https://github.com/user-attachments/assets/82b47de8-13a9-40dd-86d7-ef1e6a24d392" />
 <img width="2244" height="2141" alt="Head" src="https://github.com/user-attachments/assets/837df5ca-0ea2-4152-99b3-8be649f0b647" />
