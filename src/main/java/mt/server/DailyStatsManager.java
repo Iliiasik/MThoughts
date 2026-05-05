@@ -84,7 +84,7 @@ public class DailyStatsManager {
             DailyPlayerStats.DailyDelta delta = deltaMap.get(playerName);
             StatsStorage.SavedPlayerStats savedStats = savedStatsMap.get(playerName);
 
-            List<String> achievements = AchievementCalculator.calculateAchievements(player, delta, savedStats);
+            List<String> achievements = AchievementCalculator.calculateAchievements(delta, savedStats);
             boolean isMvp = playerName.equals(mvpName);
 
             summaries.add(new DailySummaryPacket.PlayerDailySummary(

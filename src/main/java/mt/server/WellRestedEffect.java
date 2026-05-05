@@ -29,8 +29,7 @@ public class WellRestedEffect {
 
     private static int clampLevel(int level) {
         if (level < 1) return 1;
-        if (level > 5) return 5;
-        return level;
+        return Math.min(level, 5);
     }
 
     public static int getTotalDurationTicks(int comfortLevel) {

@@ -9,10 +9,10 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.util.Identifier;
 
 public class WellRestedHud {
-    private static final Identifier SCALE_TEXTURE = Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/scale.png");
-    private static final Identifier FILL_TEXTURE = Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/fill.png");
-    private static final Identifier ICON_TEXTURE = Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/well_rested.png");
-    private static final Identifier MVP_ICON_TEXTURE = Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/mvp.png");
+    private static final Identifier SCALE_TEXTURE = Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/hud/scale.png");
+    private static final Identifier FILL_TEXTURE = Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/hud/fill.png");
+    private static final Identifier ICON_TEXTURE = Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/hud/well_rested.png");
+    private static final Identifier MVP_ICON_TEXTURE = Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/hud/mvp.png");
 
     private static final int TEX_SCALE_W = 54;
     private static final int TEX_SCALE_H = 9;
@@ -29,11 +29,7 @@ public class WellRestedHud {
     private static final int MARGIN_LEFT = 4;
     private static final int MARGIN_BOTTOM = 4;
 
-    public static boolean isActive() {
-        return WellRestedClientState.isActive();
-    }
-
-    public static void render(DrawContext context, int screenWidth, int screenHeight) {
+    public static void render(DrawContext context, int screenHeight) {
         if (!WellRestedClientState.isActive() || MidnightThoughtsConfig.getInstance().isHideWellRestedHud()) return;
         MinecraftClient mc = MinecraftClient.getInstance();
         if (mc.player == null) return;
@@ -47,7 +43,6 @@ public class WellRestedHud {
         float progress = totalTicks > 0 ? (float) ticksRemaining / totalTicks : 0f;
 
         int barY = screenHeight - MARGIN_BOTTOM - BAR_GUI_H;
-        int startX = MARGIN_LEFT;
 
         boolean isMvp = WellRestedClientState.isMvp();
         Identifier activeIcon = isMvp ? MVP_ICON_TEXTURE : ICON_TEXTURE;
@@ -55,17 +50,13 @@ public class WellRestedHud {
         String roman = (!isMvp && level >= 1 && level <= 5) ? ROMAN[level] : "";
         int romanWidth = roman.isEmpty() ? 0 : font.getWidth(roman);
 
-        int iconX = startX;
+        int iconX = MARGIN_LEFT;
         int romanX = iconX + ICON_GUI_SIZE + GAP;
         int barX = romanX + (roman.isEmpty() ? 0 : romanWidth + GAP);
         int barEndX = barX + TEX_SCALE_W;
         int barGuiW = barEndX - barX;
 
-        context.getMatrices().push();
-        context.getMatrices().translate(iconX, barY, 0);
-        context.getMatrices().scale((float) ICON_GUI_SIZE / TEX_ICON_SIZE, (float) ICON_GUI_SIZE / TEX_ICON_SIZE, 1.0f);
-        context.drawTexture(activeIcon, 0, 0, 0.0f, 0.0f, TEX_ICON_SIZE, TEX_ICON_SIZE, TEX_ICON_SIZE, TEX_ICON_SIZE);
-        context.getMatrices().pop();
+        blitScaled(context, activeIcon, iconX, barY, ICON_GUI_SIZE, ICON_GUI_SIZE, TEX_ICON_SIZE, TEX_ICON_SIZE);
 
         if (!roman.isEmpty()) {
             int romanY = barY + (BAR_GUI_H - font.fontHeight) / 2;
@@ -73,11 +64,7 @@ public class WellRestedHud {
         }
 
         if (barGuiW > 0) {
-            context.getMatrices().push();
-            context.getMatrices().translate(barX, barY, 0);
-            context.getMatrices().scale((float) barGuiW / TEX_SCALE_W, (float) BAR_GUI_H / TEX_SCALE_H, 1.0f);
-            context.drawTexture(SCALE_TEXTURE, 0, 0, 0.0f, 0.0f, TEX_SCALE_W, TEX_SCALE_H, TEX_SCALE_W, TEX_SCALE_H);
-            context.getMatrices().pop();
+            blitScaled(context, SCALE_TEXTURE, barX, barY, barGuiW, BAR_GUI_H, TEX_SCALE_W, TEX_SCALE_H);
 
             if (progress > 0f) {
                 int fillGuiW = barGuiW - FILL_INSET * 2;
@@ -94,5 +81,13 @@ public class WellRestedHud {
                 }
             }
         }
+    }
+
+    private static void blitScaled(DrawContext context, Identifier texture, int x, int y, int guiW, int guiH, int texW, int texH) {
+        context.getMatrices().push();
+        context.getMatrices().translate(x, y, 0);
+        context.getMatrices().scale((float) guiW / texW, (float) guiH / texH, 1.0f);
+        context.drawTexture(texture, 0, 0, 0.0f, 0.0f, texW, texH, texW, texH);
+        context.getMatrices().pop();
     }
 }

@@ -116,7 +116,7 @@ public class DailySummaryScreen extends Screen {
 
         super.render(context, mouseX, mouseY, delta);
 
-        TooltipRenderer.render(context, textRenderer, mouseX, mouseY, achievementAreas, width, height, fadeAlpha);
+        TooltipRenderer.render(context, textRenderer, mouseX, mouseY, achievementAreas, width, fadeAlpha);
 
         if (themeSwitchButton != null && themeSwitchButton.isMouseOver(mouseX, mouseY)) {
             context.drawOrderedTooltip(textRenderer, List.of(themeSwitchButton.getTooltipText().asOrderedText()), mouseX, mouseY);
