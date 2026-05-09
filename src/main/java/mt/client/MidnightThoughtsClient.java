@@ -124,6 +124,9 @@ public class MidnightThoughtsClient {
             RenderContext ctx = getRenderContext();
             if (ctx == null) return;
             ctx.inst().overlayRenderer.renderOverlayOnly(event.getGuiGraphics(), ctx.w(), ctx.h());
+            if (WellRestedHud.isPrimaryPosition()) {
+                WellRestedHud.render(event.getGuiGraphics(), ctx.w(), ctx.h());
+            }
         }
 
         @SubscribeEvent
@@ -132,7 +135,9 @@ public class MidnightThoughtsClient {
             if (ctx == null) return;
             ctx.inst().overlayRenderer.renderContentOnly(event.getGuiGraphics(), ctx.w(), ctx.h());
             SleepingPlayersHud.render(event.getGuiGraphics(), ctx.w(), ctx.h());
-            WellRestedHud.render(event.getGuiGraphics(), ctx.w(), ctx.h());
+            if (!WellRestedHud.isPrimaryPosition()) {
+                WellRestedHud.render(event.getGuiGraphics(), ctx.w(), ctx.h());
+            }
         }
 
         @SubscribeEvent

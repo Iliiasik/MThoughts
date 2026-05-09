@@ -262,7 +262,7 @@ public final class MidnightThoughtsConfig {
 
     public static class UISettings {
         public String theme = "classic";
-        public String wellRestedHudPosition = "alternative";
+        public String wellRestedHudPosition = "primary";
         public boolean hideWellRestedHud = false;
         public boolean hideThemeSwitchButton = false;
     }
