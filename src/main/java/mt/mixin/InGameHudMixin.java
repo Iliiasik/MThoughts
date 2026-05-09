@@ -1,4 +1,4 @@
-package mt.client.mixin;
+package mt.mixin;
 
 import mt.client.MidnightThoughtsClient;
 import net.minecraft.client.DeltaTracker;

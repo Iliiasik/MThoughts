@@ -7,11 +7,11 @@ config = "mthoughts.mixins.json"
 
 [[mods]]
 modId = "midnightthoughts"
-version = "1.3.9"
+version = "1.4"
 displayName = "Midnight Thoughts"
 logoFile = "assets/midnightthoughts/icon.png"
 authors = "iliiasik"
-description = '''An atmospheric sleep enhancement mod. Features random facts and Minecraft lore during sleep, daily player statistics summary (Stardew Valley style), MVP system for multiplayer, personal achievements, Well Rested effect with comfort levels, and a stylish sleeping players HUD.'''
+description = '''A unique reworking of the sleep mechanics, with player stats since the last sleep, a comfort and rest system, the addition of sleep-related facts, achievements, or both, and customization. Full server support and server-side customization are also included'''
 
 [[dependencies.midnightthoughts]]
 modId = "neoforge"

@@ -109,7 +109,7 @@ public class SlideRepository {
                 return slide;
             }
         }
-        return slides.get(slides.size() - 1);
+        return slides.getLast();
     }
 
     public void clearCache() {

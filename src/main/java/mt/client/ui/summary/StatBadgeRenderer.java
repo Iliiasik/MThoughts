@@ -1,7 +1,6 @@
 package mt.client.ui.summary;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import mt.server.config.MidnightThoughtsConfig;
+import mt.config.MidnightThoughtsConfig;
 import mt.client.util.NumberFormatter;
 import mt.network.packet.DailySummaryPacket;
 import net.minecraft.client.gui.Font;
@@ -36,11 +35,11 @@ public class StatBadgeRenderer {
         BadgeDimensions badgeDims = BadgeDimensions.calculate(dims);
         int badgeH = badgeDims.height();
         int rowSpacing = badgeDims.rowSpacing();
-        int iconSize = Math.max(6, Math.min(badgeH - 2, (int)(badgeH * 0.7f)));
+        int iconSize = Math.max(6, Math.min(badgeH - 2, (int) (badgeH * 0.7f)));
         float textScale = badgeDims.textScale();
 
         String theme = MidnightThoughtsConfig.getInstance().getUiTheme();
-        ThemeColors.ThemeColor colors = ThemeColors.getThemeColors(theme);
+        int textColorFromTheme = ThemeColors.getThemeColors(theme).statTextColor();
 
         int colGap = Math.max(3, dims.s(5));
         int colW = (width - colGap) / 2;
@@ -53,52 +52,42 @@ public class StatBadgeRenderer {
             int rowY = startY + i * (badgeH + rowSpacing);
             if (rowY + badgeH > y + height) break;
             renderBadge(context, textRenderer, x, rowY, colW, badgeH,
-                    stats[i].icon(), stats[i].labelKey(), stats[i].value(), iconSize, textScale, fadeAlpha, colors);
+                    stats[i].icon(), stats[i].labelKey(), stats[i].value(), iconSize, textScale, fadeAlpha, textColorFromTheme);
         }
         for (int i = 0; i < 3; i++) {
             int rowY = startY + i * (badgeH + rowSpacing);
             if (rowY + badgeH > y + height) break;
             renderBadge(context, textRenderer, col2X, rowY, colW, badgeH,
-                    stats[i + 3].icon(), stats[i + 3].labelKey(), stats[i + 3].value(), iconSize, textScale, fadeAlpha, colors);
+                    stats[i + 3].icon(), stats[i + 3].labelKey(), stats[i + 3].value(), iconSize, textScale, fadeAlpha, textColorFromTheme);
         }
     }
 
     private static void renderBadge(GuiGraphics context, Font textRenderer,
                                     int x, int y, int width, int height,
                                     ResourceLocation icon, String labelKey, int value,
-                                    int iconSize, float textScale, float fadeAlpha,
-                                    ThemeColors.ThemeColor colors) {
+                                    int iconSize, float textScale, float fadeAlpha, int themeTextColor) {
         int texW = SummaryConstants.STAT_BADGE_TEXTURE_WIDTH;
         int texH = SummaryConstants.STAT_BADGE_TEXTURE_HEIGHT;
-        float scaleH = (float) height / texH;
-        float scaleW = (float) width / texW;
-        float scale = Math.min(scaleH, scaleW);
-        int renderW = (int)(texW * scale);
-        int renderH = (int)(texH * scale);
-        int renderY = y + (height - renderH) / 2;
+        RenderHelper.ScaledBlit sb = RenderHelper.computeScaledBlit(y, width, height, texW, texH);
 
-        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, fadeAlpha);
-        context.pose().pushPose();
-        context.pose().translate(x, renderY, 0);
-        context.pose().scale((float) renderW / texW, (float) renderH / texH, 1.0f);
-        context.blit(SummaryConstants.getStatBadgeTexture(), 0, 0, 0, 0, texW, texH, texW, texH);
-        context.pose().popPose();
+        RenderHelper.blitTexture(context, SummaryConstants.getStatBadgeTexture(),
+                x, sb.renderY(), sb.renderW(), sb.renderH(), fadeAlpha);
 
-        int padX = Math.max(3, (int)(4 * scale));
+        int padX = Math.max(3, (int) (4 * ((float) sb.renderH() / texH)));
         int iconY = y + (height - iconSize) / 2;
-        context.blit(icon, x + padX, iconY, 0, 0, iconSize, iconSize, iconSize, iconSize);
-        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
 
-        int textY = y + (height - (int)(8 * textScale)) / 2;
-        int alpha = (int)(fadeAlpha * 255);
-        int textColor = (alpha << 24) | colors.statTextColor();
+        RenderHelper.blitTextureSimple(context, icon, x + padX, iconY, iconSize, iconSize, iconSize, iconSize, fadeAlpha);
+
+        int textY = y + (height - (int) (8 * textScale)) / 2;
+        int alpha = (int) (fadeAlpha * 255);
+        int textColor = (alpha << 24) | themeTextColor;
 
         String label = Component.translatable(labelKey).getString();
         RenderUtils.renderScaledText(context, textRenderer, label, x + padX + iconSize + padX, textY, textColor, textScale, true);
 
         String valueStr = NumberFormatter.formatLargeNumber(value);
-        int valueW = (int)(textRenderer.width(valueStr) * textScale);
-        int valueX = x + renderW - padX - valueW;
+        int valueW = (int) (textRenderer.width(valueStr) * textScale);
+        int valueX = x + sb.renderW() - padX - valueW;
         RenderUtils.renderScaledText(context, textRenderer, valueStr, valueX, textY, textColor, textScale, true);
     }
 }

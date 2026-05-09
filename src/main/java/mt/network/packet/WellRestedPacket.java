@@ -4,6 +4,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.NotNull;
 
 public record WellRestedPacket(boolean active, int level, int ticksRemaining, int totalTicks, int phase, boolean nightmareMode, boolean mvp) implements CustomPacketPayload {
     public static final ResourceLocation ID_LOC = ResourceLocation.fromNamespaceAndPath("midnightthoughts", "well_rested");
@@ -31,7 +32,7 @@ public record WellRestedPacket(boolean active, int level, int ticksRemaining, in
     );
 
     @Override
-    public Type<? extends CustomPacketPayload> type() {
+    public @NotNull Type<? extends CustomPacketPayload> type() {
         return TYPE;
     }
 }

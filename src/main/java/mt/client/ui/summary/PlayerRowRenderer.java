@@ -1,6 +1,5 @@
 package mt.client.ui.summary;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import mt.network.packet.DailySummaryPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -15,18 +14,17 @@ public class PlayerRowRenderer {
     public static void render(GuiGraphics context, Font textRenderer, DailySummaryPacket.PlayerDailySummary player,
                               int x, int y, SummaryDimensions dims, float fadeAlpha, long animationStartTime,
                               List<AchievementTooltipArea> achievementAreas) {
-
         int contentPaddingSides = dims.s(60);
         int rowWidth = dims.panelWidth - contentPaddingSides * 2;
         int rowHeight = dims.playerRowHeight - dims.s(11);
 
         renderRowBackground(context, player, x, y, rowWidth, rowHeight, fadeAlpha);
 
-        int headSize = (int)(dims.headSize * 0.75f);
+        int headSize = (int) (dims.headSize * 0.75f);
         int leftPad = dims.s(24);
         int headColumnWidth = leftPad + headSize + dims.s(19);
 
-        renderHead(context, player, x, y, rowHeight, headSize, leftPad, fadeAlpha);
+        renderHead(context, player, x, y, rowHeight, headSize, leftPad);
         renderNameBadge(context, textRenderer, player, x, y, rowWidth, rowHeight, dims, fadeAlpha);
 
         int pad = dims.s(8);
@@ -36,7 +34,7 @@ public class PlayerRowRenderer {
         int contentW = rowWidth - headColumnWidth - pad;
 
         boolean hasAchievements = !player.achievements().isEmpty();
-        int statsW = (int)(contentW * 0.65f);
+        int statsW = (int) (contentW * 0.65f);
         int achW = contentW - statsW - pad;
         StatBadgeRenderer.render(context, textRenderer, player, contentX, contentY, statsW, contentH, dims, fadeAlpha, animationStartTime);
         if (hasAchievements) {
@@ -49,24 +47,15 @@ public class PlayerRowRenderer {
                                             int x, int y, int rowWidth, int rowHeight, float fadeAlpha) {
         int texW = SummaryConstants.ROW_TEXTURE_WIDTH;
         int texH = SummaryConstants.ROW_TEXTURE_HEIGHT;
-        float scale = Math.min((float) rowHeight / texH, (float) rowWidth / texW);
-        int renderW = (int)(texW * scale);
-        int renderH = (int)(texH * scale);
-        int renderX = x + (rowWidth - renderW) / 2;
-        int renderY = y + (rowHeight - renderH) / 2;
+        RenderHelper.ScaledBlit sb = RenderHelper.computeScaledBlit(y, rowWidth, rowHeight, texW, texH);
+        int renderX = x + (rowWidth - sb.renderW()) / 2;
 
-        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, fadeAlpha);
-        context.pose().pushPose();
-        context.pose().translate(renderX, renderY, 0);
-        context.pose().scale(scale, scale, 1.0f);
         ResourceLocation rowTex = player.isMvp() ? SummaryConstants.getMvpRowTexture() : SummaryConstants.getRowTexture();
-        context.blit(rowTex, 0, 0, 0, 0, texW, texH, texW, texH);
-        context.pose().popPose();
-        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+        RenderHelper.blitTexture(context, rowTex, renderX, sb.renderY(), sb.renderW(), sb.renderH(), fadeAlpha);
     }
 
     private static void renderHead(GuiGraphics context, DailySummaryPacket.PlayerDailySummary player,
-                                   int x, int y, int rowHeight, int headSize, int leftPad, float fadeAlpha) {
+                                   int x, int y, int rowHeight, int headSize, int leftPad) {
         int skinX = x + leftPad;
         int headY = y + (rowHeight - headSize) / 2;
         try {
@@ -77,10 +66,8 @@ public class PlayerRowRenderer {
                         .findFirst().orElse(null);
                 if (playerEntry != null) {
                     ResourceLocation skin = playerEntry.getSkin().texture();
-                    RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, fadeAlpha);
                     context.blit(skin, skinX, headY, headSize, headSize, 8, 8, 8, 8, 64, 64);
                     context.blit(skin, skinX, headY, headSize, headSize, 40, 8, 8, 8, 64, 64);
-                    RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
                 }
             }
         } catch (Exception ignored) {}
@@ -94,38 +81,25 @@ public class PlayerRowRenderer {
         int texH = SummaryConstants.NAME_BADGE_TEXTURE_HEIGHT;
 
         float scale = Math.min(dims.uiScale * 1.5f, (float) rowHeight * 0.27f / texH);
-        int renderW = (int)(texW * scale);
-        int renderH = (int)(texH * scale);
-
+        int renderW = (int) (texW * scale);
+        int renderH = (int) (texH * scale);
         int badgeX = x + (rowWidth - renderW) / 2;
         int badgeY = y - renderH / 2;
 
-        int alpha = (int)(fadeAlpha * 255);
-        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, fadeAlpha);
-        context.pose().pushPose();
-        context.pose().translate(badgeX, badgeY, 0);
-        context.pose().scale((float) renderW / texW, (float) renderH / texH, 1.0f);
-        context.blit(SummaryConstants.getNameBadgeTexture(), 0, 0, 0, 0, texW, texH, texW, texH);
-        context.pose().popPose();
-        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+        RenderHelper.blitTexture(context, SummaryConstants.getNameBadgeTexture(),
+                badgeX, badgeY, renderW, renderH, fadeAlpha);
 
         float textScale = dims.uiScale * 1.35f;
         String name = player.playerName();
+        int nameAlpha = (int) (fadeAlpha * 255);
+        int nameColor = (nameAlpha << 24) | 0xFFFFFF;
 
-        int maxTextW = (int)((renderW - dims.s(6)) / textScale);
-        String ellipsis = "...";
-        int ellipsisW = textRenderer.width(ellipsis);
-        if (textRenderer.width(name) > maxTextW) {
-            while (name.length() > 0 && textRenderer.width(name) + ellipsisW > maxTextW) {
-                name = name.substring(0, name.length() - 1);
-            }
-            name = name + ellipsis;
-        }
+        int maxTextW = (int) ((renderW - dims.s(6)) / textScale);
+        name = RenderUtils.truncateWithEllipsis(textRenderer, name, maxTextW);
 
-        int textW = (int)(textRenderer.width(name) * textScale);
+        int textW = (int) (textRenderer.width(name) * textScale);
         int textX = badgeX + (renderW - textW) / 2;
-        int textY = badgeY + (renderH - (int)(8 * textScale)) / 2;
-        int textColor = (alpha << 24) | 0xFFFFFF;
-        RenderUtils.renderScaledText(context, textRenderer, name, textX, textY, textColor, textScale, true);
+        int textY = badgeY + (renderH - (int) (8 * textScale)) / 2;
+        RenderUtils.renderScaledText(context, textRenderer, name, textX, textY, nameColor, textScale, true);
     }
 }

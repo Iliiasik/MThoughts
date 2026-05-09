@@ -1,6 +1,6 @@
 package mt.server;
 
-import mt.server.config.MidnightThoughtsConfig;
+import mt.config.MidnightThoughtsConfig;
 import net.minecraft.network.protocol.game.ClientboundUpdateAttributesPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -18,8 +18,7 @@ public class WellRestedEffect {
 
     private static int clampLevel(int level) {
         if (level < 1) return 1;
-        if (level > 5) return 5;
-        return level;
+        return Math.min(level, 5);
     }
 
     public static int getTotalDurationTicks(int comfortLevel) {

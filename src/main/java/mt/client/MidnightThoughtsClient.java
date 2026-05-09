@@ -1,14 +1,16 @@
 package mt.client;
 
+import mt.cache.ClientAchievementCache;
+import mt.cache.ServerConfigCache;
 import mt.client.api.UselessFactsApiClient;
-import mt.server.config.MidnightThoughtsConfig;
+import mt.config.MidnightThoughtsConfig;
 import mt.client.manager.SleepStateManager;
 import mt.client.render.SleepOverlayRenderer;
 import mt.client.repository.SlideRepository;
 import mt.client.service.FactProvider;
-import mt.client.service.PlayerStatsService;
 import mt.client.service.SlideService;
 import mt.client.service.UserContentLoader;
+import mt.client.ui.SleepingPlayersHud;
 import mt.client.ui.WellRestedHud;
 import net.minecraft.client.Minecraft;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -20,6 +22,7 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
 import net.neoforged.neoforge.client.event.RenderGuiEvent;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 
 import javax.annotation.Nonnull;
 
@@ -31,11 +34,12 @@ public class MidnightThoughtsClient {
     private SlideRepository slideRepository;
     private SleepStateManager sleepStateManager;
     private SleepOverlayRenderer overlayRenderer;
+    private UserContentLoader userContentLoader;
 
     public static void init(IEventBus modEventBus) {
         if (instance == null) {
             instance = new MidnightThoughtsClient();
-            NeoForge.EVENT_BUS.register(new NeoForgeClientTickEvents());
+            NeoForge.EVENT_BUS.register(new NeoForgeClientEvents());
             modEventBus.addListener(instance::onRegisterReloadListeners);
         }
     }
@@ -47,17 +51,14 @@ public class MidnightThoughtsClient {
     private void initializeComponents() {
         MidnightThoughtsConfig config = MidnightThoughtsConfig.getInstance();
         slideRepository = new SlideRepository();
+        userContentLoader = new UserContentLoader();
 
         Minecraft mc = Minecraft.getInstance();
         slideRepository.loadAllSlides(mc.getResourceManager());
 
-        UserContentLoader userContentLoader = new UserContentLoader();
-        userContentLoader.writeDefaultFiles();
-
         UselessFactsApiClient apiClient = new UselessFactsApiClient();
         FactProvider factProvider = new FactProvider(apiClient, slideRepository, userContentLoader);
-        PlayerStatsService playerStatsService = new PlayerStatsService();
-        SlideService slideService = new SlideService(slideRepository, playerStatsService, config, factProvider);
+        SlideService slideService = new SlideService(slideRepository, config, factProvider);
         sleepStateManager = new SleepStateManager();
         overlayRenderer = new SleepOverlayRenderer(sleepStateManager, slideService, config);
     }
@@ -88,7 +89,24 @@ public class MidnightThoughtsClient {
         return overlayRenderer;
     }
 
-    private static class NeoForgeClientTickEvents {
+    public UserContentLoader getUserContentLoader() {
+        return userContentLoader;
+    }
+
+    private static class NeoForgeClientEvents {
+
+        private record RenderContext(MidnightThoughtsClient inst, Minecraft mc, int w, int h) {}
+
+        private static RenderContext getRenderContext() {
+            MidnightThoughtsClient inst = MidnightThoughtsClient.getInstance();
+            if (inst == null) return null;
+            Minecraft mc = Minecraft.getInstance();
+            if (mc.player == null) return null;
+            int w = mc.getWindow().getGuiScaledWidth();
+            int h = mc.getWindow().getGuiScaledHeight();
+            return new RenderContext(inst, mc, w, h);
+        }
+
         @SubscribeEvent
         public void onClientTick(ClientTickEvent.Post event) {
             Minecraft client = Minecraft.getInstance();
@@ -103,11 +121,29 @@ public class MidnightThoughtsClient {
 
         @SubscribeEvent
         public void onRenderGuiPre(RenderGuiEvent.Pre event) {
-            Minecraft mc = Minecraft.getInstance();
-            if (mc.player == null) return;
-            WellRestedHud.render(event.getGuiGraphics(),
-                    mc.getWindow().getGuiScaledWidth(),
-                    mc.getWindow().getGuiScaledHeight());
+            RenderContext ctx = getRenderContext();
+            if (ctx == null) return;
+            ctx.inst().overlayRenderer.renderOverlayOnly(event.getGuiGraphics(), ctx.w(), ctx.h());
+        }
+
+        @SubscribeEvent
+        public void onRenderGuiPost(RenderGuiEvent.Post event) {
+            RenderContext ctx = getRenderContext();
+            if (ctx == null) return;
+            ctx.inst().overlayRenderer.renderContentOnly(event.getGuiGraphics(), ctx.w(), ctx.h());
+            SleepingPlayersHud.render(event.getGuiGraphics(), ctx.w(), ctx.h());
+            WellRestedHud.render(event.getGuiGraphics(), ctx.w(), ctx.h());
+        }
+
+        @SubscribeEvent
+        public void onClientDisconnect(PlayerEvent.PlayerLoggedOutEvent event) {
+            if (!(event.getEntity() instanceof net.minecraft.client.player.LocalPlayer)) return;
+            ServerConfigCache.clear();
+            ClientAchievementCache.clear();
+            MidnightThoughtsClient inst = MidnightThoughtsClient.getInstance();
+            if (inst != null && inst.userContentLoader != null) {
+                inst.userContentLoader.clearServerContent();
+            }
         }
     }
 }

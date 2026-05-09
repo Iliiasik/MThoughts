@@ -3,7 +3,7 @@ package mt.server;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.SerializedName;
-import mt.server.config.MidnightThoughtsConfig;
+import mt.config.MidnightThoughtsConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,10 +52,6 @@ public class AchievementLoader {
 
         cached = Collections.emptyList();
         return cached;
-    }
-
-    public static void invalidateCache() {
-        cached = null;
     }
 
     private static void writeEmpty(Path file) {
