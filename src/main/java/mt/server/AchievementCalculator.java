@@ -1,7 +1,6 @@
 package mt.server;
 
 import mt.config.MidnightThoughtsConfig;
-import net.minecraft.server.network.ServerPlayerEntity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +10,6 @@ public class AchievementCalculator {
     private static final int MAX_SAFE_VALUE = Integer.MAX_VALUE / 2;
 
     public static List<String> calculateAchievements(
-            ServerPlayerEntity player,
             DailyPlayerStats.DailyDelta delta,
             StatsStorage.SavedPlayerStats savedStats
     ) {
@@ -81,9 +79,7 @@ public class AchievementCalculator {
 
         if (c.damageDealtEq != null && damage != c.damageDealtEq) return false;
         if (c.damageDealtMin != null && damage < c.damageDealtMin) return false;
-        if (c.damageDealtMax != null && damage > c.damageDealtMax) return false;
-
-        return true;
+        return c.damageDealtMax == null || damage <= c.damageDealtMax;
     }
 
     public static String determineMvp(List<PlayerSummaryData> players) {
@@ -130,8 +126,7 @@ public class AchievementCalculator {
 
     private static int clampValue(int value) {
         if (value < 0) return 0;
-        if (value > MAX_SAFE_VALUE) return MAX_SAFE_VALUE;
-        return value;
+        return Math.min(value, MAX_SAFE_VALUE);
     }
 
     public record PlayerSummaryData(

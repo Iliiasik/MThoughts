@@ -22,6 +22,12 @@ public class ComfortCalculator {
     private static final TagKey<Block> NEGATIVE_HOSTILE_TAG = TagKey.of(RegistryKeys.BLOCK, Identifier.of("midnightthoughts", "comfort_negative_hostile"));
     private static final TagKey<Block> NEGATIVE_DARK_TAG = TagKey.of(RegistryKeys.BLOCK, Identifier.of("midnightthoughts", "comfort_negative_dark"));
 
+    @SuppressWarnings("unchecked")
+    private static final TagKey<Block>[] ALL_TAGS = (TagKey<Block>[]) new TagKey[]{
+            LIGHTING_TAG, CARPET_TAG, FURNITURE_TAG, DECOR_TAG, STRUCTURE_TAG,
+            NEGATIVE_MACABRE_TAG, NEGATIVE_HOSTILE_TAG, NEGATIVE_DARK_TAG
+    };
+
     public static int calculateComfortLevel(ServerPlayerEntity player) {
         if (!CONFIG.getComfort().enabled) {
             return 0;
@@ -29,48 +35,33 @@ public class ComfortCalculator {
 
         int scanRadius = CONFIG.getComfort().scanRadius;
         BlockPos bedPos = player.getSleepingPosition().orElse(player.getBlockPos());
-        World world = player.getWorld();
+        World world = player.getEntityWorld();
 
-        boolean hasLighting = false;
-        boolean hasCarpet = false;
-        boolean hasFurniture = false;
-        boolean hasDecor = false;
-        boolean hasStructure = false;
-        boolean hasMacabre = false;
-        boolean hasHostile = false;
-        boolean hasDark = false;
-
+        boolean[] found = new boolean[ALL_TAGS.length];
+        outer:
         for (int x = -scanRadius; x <= scanRadius; x++) {
             for (int y = -scanRadius; y <= scanRadius; y++) {
                 for (int z = -scanRadius; z <= scanRadius; z++) {
-                    BlockPos checkPos = bedPos.add(x, y, z);
-                    BlockState state = world.getBlockState(checkPos);
-
-                    if (!hasLighting && state.isIn(LIGHTING_TAG)) hasLighting = true;
-                    if (!hasCarpet && state.isIn(CARPET_TAG)) hasCarpet = true;
-                    if (!hasFurniture && state.isIn(FURNITURE_TAG)) hasFurniture = true;
-                    if (!hasDecor && state.isIn(DECOR_TAG)) hasDecor = true;
-                    if (!hasStructure && state.isIn(STRUCTURE_TAG)) hasStructure = true;
-                    if (!hasMacabre && state.isIn(NEGATIVE_MACABRE_TAG)) hasMacabre = true;
-                    if (!hasHostile && state.isIn(NEGATIVE_HOSTILE_TAG)) hasHostile = true;
-                    if (!hasDark && state.isIn(NEGATIVE_DARK_TAG)) hasDark = true;
-
-                    if (hasLighting && hasCarpet && hasFurniture && hasDecor && hasStructure
-                            && hasMacabre && hasHostile && hasDark) break;
+                    BlockState state = world.getBlockState(bedPos.add(x, y, z));
+                    boolean allFound = true;
+                    for (int i = 0; i < ALL_TAGS.length; i++) {
+                        if (!found[i] && state.isIn(ALL_TAGS[i])) found[i] = true;
+                        if (!found[i]) allFound = false;
+                    }
+                    if (allFound) break outer;
                 }
             }
         }
 
         int comfortLevel = 0;
-        if (hasLighting) comfortLevel++;
-        if (hasCarpet) comfortLevel++;
-        if (hasFurniture) comfortLevel++;
-        if (hasDecor) comfortLevel++;
-        if (hasStructure) comfortLevel++;
-
-        if (hasMacabre) comfortLevel--;
-        if (hasHostile) comfortLevel--;
-        if (hasDark) comfortLevel--;
+        if (found[0]) comfortLevel++;
+        if (found[1]) comfortLevel++;
+        if (found[2]) comfortLevel++;
+        if (found[3]) comfortLevel++;
+        if (found[4]) comfortLevel++;
+        if (found[5]) comfortLevel--;
+        if (found[6]) comfortLevel--;
+        if (found[7]) comfortLevel--;
 
         return comfortLevel;
     }

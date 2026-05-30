@@ -23,10 +23,9 @@ public class UselessFactsApiClient {
     private static final Gson GSON = new GsonBuilder().create();
 
     private final HttpClient httpClient;
-    private final ExecutorService executor;
 
     public UselessFactsApiClient() {
-        this.executor = Executors.newSingleThreadExecutor(r -> {
+        ExecutorService executor = Executors.newSingleThreadExecutor(r -> {
             Thread thread = new Thread(r, "MidnightThoughts-API");
             thread.setDaemon(true);
             return thread;
@@ -85,10 +84,6 @@ public class UselessFactsApiClient {
             LOGGER.warn("Failed to parse API response: {}", e.getMessage());
         }
         return Optional.empty();
-    }
-
-    public void shutdown() {
-        executor.shutdown();
     }
 
     private static class ApiResponse {

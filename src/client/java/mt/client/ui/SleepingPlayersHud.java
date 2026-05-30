@@ -96,11 +96,4 @@ public class SleepingPlayersHud {
         context.drawText(textRenderer, sleepText, 0, 0, sleepColor, false);
         context.getMatrices().pop();
     }
-
-    public static void reset() {
-        sleepingCount = 0;
-        totalPlayers = 0;
-        displayAlpha = 0.0f;
-    }
 }
-

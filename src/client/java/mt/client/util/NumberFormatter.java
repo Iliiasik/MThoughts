@@ -54,8 +54,4 @@ public class NumberFormatter {
         }
         return value / divisor;
     }
-
-    public static boolean isLargeNumber(int number) {
-        return Math.abs(number) >= 10_000;
-    }
 }

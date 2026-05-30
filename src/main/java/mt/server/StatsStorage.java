@@ -139,7 +139,7 @@ public class StatsStorage {
             stats.recordDistance = safeGetInt(obj, "recordDistance");
             stats.recordMobs = safeGetInt(obj, "recordMobs");
             stats.totalSleeps = safeGetInt(obj, "totalSleeps");
-            stats.unlockedAchievements = safeGetStringSet(obj, "unlockedAchievements");
+            stats.unlockedAchievements = safeGetStringSet(obj);
             return stats;
         }
 
@@ -154,10 +154,10 @@ public class StatsStorage {
             return 0;
         }
 
-        private Set<String> safeGetStringSet(JsonObject obj, String field) {
+        private Set<String> safeGetStringSet(JsonObject obj) {
             Set<String> result = new HashSet<>();
-            if (obj.has(field) && obj.get(field).isJsonArray()) {
-                for (JsonElement item : obj.getAsJsonArray(field)) {
+            if (obj.has("unlockedAchievements") && obj.get("unlockedAchievements").isJsonArray()) {
+                for (JsonElement item : obj.getAsJsonArray("unlockedAchievements")) {
                     if (item.isJsonPrimitive()) result.add(item.getAsString());
                 }
             }
