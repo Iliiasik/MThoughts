@@ -2,8 +2,6 @@ package mt.client.ui.summary;
 
 public record BadgeDimensions(int height, int padding, int spacing, int rowSpacing, float textScale) {
 
-    public static final BadgeDimensions DEFAULT = new BadgeDimensions(16, 5, 4, 3, 0.9f);
-
     public static BadgeDimensions calculate(SummaryDimensions dims) {
         int height = dims.s(21);
         int padding = dims.s(7);

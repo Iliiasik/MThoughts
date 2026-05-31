@@ -1,8 +1,8 @@
 package mt.client.ui.summary;
 
-import mt.server.AchievementLoader;
+import mt.cache.ClientAchievementCache;
 import mt.server.AchievementDefinition;
-import mt.server.config.MidnightThoughtsConfig;
+import mt.config.MidnightThoughtsConfig;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -30,8 +30,6 @@ public class AchievementRenderer {
 
         int texW = SummaryConstants.ACHIEVEMENT_BADGE_TEXTURE_WIDTH;
         int texH = SummaryConstants.ACHIEVEMENT_BADGE_TEXTURE_HEIGHT;
-        float badgeScale = Math.min((float) badgeH / texH, (float) width / texW);
-        int renderW = (int)(texW * badgeScale);
 
         int totalH = count * badgeH + (count - 1) * rowSpacing;
         int startY = y + Math.max(0, (height - totalH) / 2);
@@ -40,10 +38,10 @@ public class AchievementRenderer {
             String achievementId = achievements.get(i);
             int rowY = startY + i * (badgeH + rowSpacing);
             if (rowY + badgeH > y + height) break;
-            int renderH = (int)(texH * badgeScale);
-            int actualY = rowY + (badgeH - renderH) / 2;
+
+            RenderHelper.ScaledBlit sb = RenderHelper.computeScaledBlit(rowY, width, badgeH, texW, texH);
             renderBadge(context, textRenderer, x, rowY, width, badgeH, achievementId, textScale, fadeAlpha, colors);
-            achievementAreas.add(new AchievementTooltipArea(x, actualY, renderW, renderH, achievementId));
+            achievementAreas.add(new AchievementTooltipArea(x, sb.renderY(), sb.renderW(), sb.renderH(), achievementId));
         }
     }
 
@@ -53,44 +51,29 @@ public class AchievementRenderer {
                                     ThemeColors.ThemeColor colors) {
         int texW = SummaryConstants.ACHIEVEMENT_BADGE_TEXTURE_WIDTH;
         int texH = SummaryConstants.ACHIEVEMENT_BADGE_TEXTURE_HEIGHT;
-        float scaleH = (float) height / texH;
-        float scaleW = (float) width / texW;
-        float scale = Math.min(scaleH, scaleW);
-        int renderW = (int)(texW * scale);
-        int renderH = (int)(texH * scale);
-        int renderY = y + (height - renderH) / 2;
+        RenderHelper.ScaledBlit sb = RenderHelper.computeScaledBlit(y, width, height, texW, texH);
 
         int texColor = ARGB.colorFromFloat(fadeAlpha, 1.0f, 1.0f, 1.0f);
         context.pose().pushMatrix();
-        context.pose().translate(x, renderY);
-        context.pose().scale((float) renderW / texW, (float) renderH / texH);
+        context.pose().translate(x, sb.renderY());
+        context.pose().scale((float) sb.renderW() / texW, (float) sb.renderH() / texH);
         context.blit(RenderPipelines.GUI_TEXTURED, SummaryConstants.getAchievementBadgeTexture(),
                 0, 0, 0.0f, 0.0f, texW, texH, texW, texH, texColor);
         context.pose().popMatrix();
 
-        int padX = Math.max(3, (int)(4 * scale));
         String name = resolveAchievementName(achievementId);
+        int padX = Math.max(3, (int) (4 * ((float) sb.renderH() / texH)));
+        int maxTextW = (int) ((sb.renderW() - padX * 2) / textScale);
+        name = RenderUtils.truncateWithEllipsis(textRenderer, name, maxTextW);
 
-        int maxTextW = (int) ((renderW - padX * 2) / textScale);
-
-        String ellipsis = "...";
-        int ellipsisW = textRenderer.width(ellipsis);
-        if (textRenderer.width(name) > maxTextW) {
-            while (!name.isEmpty() && textRenderer.width(name) + ellipsisW > maxTextW) {
-                name = name.substring(0, name.length() - 1);
-            }
-            name = name + ellipsis;
-        }
-
-        int alpha = (int)(fadeAlpha * 255);
+        int alpha = (int) (fadeAlpha * 255);
         int textColor = (alpha << 24) | colors.achievementTextColor();
-        int textY = renderY + (renderH - (int)(8 * textScale)) / 2;
+        int textY = sb.renderY() + (sb.renderH() - (int) (8 * textScale)) / 2;
         RenderUtils.renderScaledText(context, textRenderer, name, x + padX, textY, textColor, textScale, true);
     }
 
     private static String resolveAchievementName(String achievementId) {
-        List<AchievementDefinition> customAchievements = AchievementLoader.load();
-        for (AchievementDefinition def : customAchievements) {
+        for (AchievementDefinition def : ClientAchievementCache.get()) {
             if (def.id.equals(achievementId)) {
                 return def.name;
             }
@@ -99,8 +82,7 @@ public class AchievementRenderer {
     }
 
     public static String resolveAchievementTooltip(String achievementId) {
-        List<AchievementDefinition> customAchievements = AchievementLoader.load();
-        for (AchievementDefinition def : customAchievements) {
+        for (AchievementDefinition def : ClientAchievementCache.get()) {
             if (def.id.equals(achievementId)) {
                 return def.tooltip != null ? def.tooltip : def.name;
             }

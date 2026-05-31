@@ -4,13 +4,14 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public record DailySummaryPacket(List<PlayerDailySummary> summaries) implements CustomPacketPayload {
     public static final Identifier ID_LOC = Identifier.fromNamespaceAndPath("midnightthoughts", "daily_summary");
-    public static final CustomPacketPayload.Type<DailySummaryPacket> TYPE = new CustomPacketPayload.Type<>(ID_LOC);
+    public static final CustomPacketPayload.Type<@org.jetbrains.annotations.NotNull DailySummaryPacket> TYPE = new CustomPacketPayload.Type<>(ID_LOC);
 
     public static final StreamCodec<FriendlyByteBuf, DailySummaryPacket> CODEC = StreamCodec.of(
             (buf, packet) -> {
@@ -30,7 +31,7 @@ public record DailySummaryPacket(List<PlayerDailySummary> summaries) implements 
     );
 
     @Override
-    public Type<? extends CustomPacketPayload> type() {
+    public @NotNull Type<? extends CustomPacketPayload> type() {
         return TYPE;
     }
 

@@ -4,7 +4,7 @@ import mt.client.api.UselessFactsApiClient;
 import mt.client.model.Slide;
 import mt.client.model.SlideCategory;
 import mt.client.repository.SlideRepository;
-import mt.server.config.MidnightThoughtsConfig;
+import mt.config.MidnightThoughtsConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

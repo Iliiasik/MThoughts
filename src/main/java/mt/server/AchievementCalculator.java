@@ -1,7 +1,6 @@
 package mt.server;
 
-import mt.server.config.MidnightThoughtsConfig;
-import net.minecraft.server.level.ServerPlayer;
+import mt.config.MidnightThoughtsConfig;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +9,6 @@ public class AchievementCalculator {
     private static final MidnightThoughtsConfig CONFIG = MidnightThoughtsConfig.getInstance();
 
     public static List<String> calculateAchievements(
-            ServerPlayer player,
             DailyPlayerStats.DailyDelta delta,
             StatsStorage.SavedPlayerStats savedStats
     ) {
@@ -80,9 +78,7 @@ public class AchievementCalculator {
 
         if (c.damageDealtEq != null && damage != c.damageDealtEq) return false;
         if (c.damageDealtMin != null && damage < c.damageDealtMin) return false;
-        if (c.damageDealtMax != null && damage > c.damageDealtMax) return false;
-
-        return true;
+        return c.damageDealtMax == null || damage <= c.damageDealtMax;
     }
 
     public static String determineMvp(List<PlayerSummaryData> players) {

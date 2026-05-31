@@ -2,7 +2,7 @@ package mt.client.ui;
 
 import mt.client.MidnightThoughtsClient;
 import mt.client.manager.WellRestedClientState;
-import mt.server.config.MidnightThoughtsConfig;
+import mt.config.MidnightThoughtsConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -11,10 +11,10 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
 
 public class WellRestedHud {
-    private static final Identifier SCALE_TEXTURE = Identifier.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/scale.png");
-    private static final Identifier FILL_TEXTURE = Identifier.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/fill.png");
-    private static final Identifier ICON_TEXTURE = Identifier.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/well_rested.png");
-    private static final Identifier MVP_ICON_TEXTURE = Identifier.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/mvp.png");
+    private static final Identifier SCALE_TEXTURE = Identifier.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/hud/scale.png");
+    private static final Identifier FILL_TEXTURE = Identifier.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/hud/fill.png");
+    private static final Identifier ICON_TEXTURE = Identifier.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/hud/well_rested.png");
+    private static final Identifier MVP_ICON_TEXTURE = Identifier.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/hud/mvp.png");
 
     private static final int TEX_SCALE_W = 54;
     private static final int TEX_SCALE_H = 9;

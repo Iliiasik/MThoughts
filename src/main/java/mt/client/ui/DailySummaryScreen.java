@@ -6,6 +6,7 @@ import mt.network.packet.DailySummaryPacket;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -117,7 +118,7 @@ public class DailySummaryScreen extends Screen {
 
         super.render(context, mouseX, mouseY, delta);
 
-        TooltipRenderer.render(context, font, mouseX, mouseY, achievementAreas, width, height, fadeAlpha);
+        TooltipRenderer.render(context, font, mouseX, mouseY, achievementAreas, width, fadeAlpha);
 
         if (themeSwitchButton != null && themeSwitchButton.isMouseOver(mouseX, mouseY)) {
             context.setTooltipForNextFrame(font, themeSwitchButton.getTooltipText(), mouseX, mouseY);
@@ -125,7 +126,7 @@ public class DailySummaryScreen extends Screen {
     }
 
     @Override
-    public void renderBackground(GuiGraphics context, int mouseX, int mouseY, float delta) {
+    public void renderBackground(@NotNull GuiGraphics context, int mouseX, int mouseY, float delta) {
     }
 
     private void updateFadeAnimation() {

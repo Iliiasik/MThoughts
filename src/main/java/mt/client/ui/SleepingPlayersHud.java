@@ -1,6 +1,6 @@
 package mt.client.ui;
 
-import mt.server.config.MidnightThoughtsConfig;
+import mt.config.MidnightThoughtsConfig;
 import mt.client.ui.summary.SummaryConstants;
 import mt.client.ui.summary.ThemeColors;
 import net.minecraft.client.Minecraft;

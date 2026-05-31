@@ -2,7 +2,7 @@ package mt.client.ui.summary;
 
 import mt.client.MidnightThoughtsClient;
 import mt.client.config.ClientConfig;
-import mt.server.config.MidnightThoughtsConfig;
+import mt.config.MidnightThoughtsConfig;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -11,16 +11,17 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
+import org.jetbrains.annotations.NotNull;
 
 public class ThemeSwitchButton extends AbstractWidget {
-    private static final Identifier GEAR_ICON = Identifier.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/gear.png");
+    private static final Identifier GEAR_ICON = Identifier.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/summary/gear.png");
 
     public ThemeSwitchButton(int x, int y, int size) {
         super(x, y, size, size, Component.empty());
     }
 
     @Override
-    public void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
+    public void renderWidget(@NotNull GuiGraphics context, int mouseX, int mouseY, float delta) {
         if (MidnightThoughtsConfig.getInstance().isHideThemeSwitchButton()) return;
 
         boolean isHovered = mouseX >= this.getX() && mouseY >= this.getY() &&
@@ -35,7 +36,7 @@ public class ThemeSwitchButton extends AbstractWidget {
     }
 
     @Override
-    public boolean mouseClicked(MouseButtonEvent event, boolean consumed) {
+    public boolean mouseClicked(@NotNull MouseButtonEvent event, boolean consumed) {
         if (MidnightThoughtsConfig.getInstance().isHideThemeSwitchButton()) {
             return false;
         }
@@ -43,12 +44,12 @@ public class ThemeSwitchButton extends AbstractWidget {
     }
 
     @Override
-    public void onClick(MouseButtonEvent event, boolean consumed) {
+    public void onClick(@NotNull MouseButtonEvent event, boolean consumed) {
         ClientConfig.getInstance().cycleTheme();
     }
 
     @Override
-    protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
+    protected void updateWidgetNarration(@NotNull NarrationElementOutput narrationElementOutput) {
         this.defaultButtonNarrationText(narrationElementOutput);
     }
 

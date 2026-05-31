@@ -1,4 +1,4 @@
-package mt.client.mixin;
+package mt.mixin;
 
 import mt.client.ui.WellRestedHud;
 import net.minecraft.client.gui.Gui;

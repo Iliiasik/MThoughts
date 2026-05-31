@@ -83,7 +83,7 @@ public class DailyStatsManager {
             DailyPlayerStats.DailyDelta delta = deltaMap.get(playerName);
             StatsStorage.SavedPlayerStats savedStats = savedStatsMap.get(playerName);
 
-            List<String> achievements = AchievementCalculator.calculateAchievements(player, delta, savedStats);
+            List<String> achievements = AchievementCalculator.calculateAchievements(delta, savedStats);
 
             boolean isMvp = playerName.equals(mvpName);
             summaries.add(new DailySummaryPacket.PlayerDailySummary(
@@ -122,15 +122,13 @@ public class DailyStatsManager {
     public static void onPlayerJoin(ServerPlayer player) {
         MinecraftServer server = player.level().getServer();
         DailyPlayerStats stats = getOrCreateStats(player.getUUID());
-        if (server != null) {
-            stats.loadFromStorage(server);
-        }
+        stats.loadFromStorage(server);
     }
 
     public static void onPlayerLeave(ServerPlayer player) {
         MinecraftServer server = player.level().getServer();
         DailyPlayerStats stats = dailyStats.get(player.getUUID());
-        if (stats != null && server != null) {
+        if (stats != null) {
             stats.saveToStorage(server);
         }
     }

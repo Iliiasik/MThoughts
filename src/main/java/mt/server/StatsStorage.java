@@ -99,14 +99,6 @@ public class StatsStorage {
 
         public SavedPlayerStats() {}
 
-        public SavedPlayerStats(int baseBlocksDestroyed, int baseDistanceWalked, int baseMobsKilled, int baseDeaths, int baseJumps, int baseDamageDealt) {
-            this.baseBlocksDestroyed = baseBlocksDestroyed;
-            this.baseDistanceWalked = baseDistanceWalked;
-            this.baseMobsKilled = baseMobsKilled;
-            this.baseDeaths = baseDeaths;
-            this.baseJumps = baseJumps;
-            this.baseDamageDealt = baseDamageDealt;
-        }
     }
 
     private static class StatsAdapter implements JsonSerializer<SavedPlayerStats>, JsonDeserializer<SavedPlayerStats> {
@@ -142,7 +134,7 @@ public class StatsStorage {
             stats.recordDistance = safeGetInt(obj, "recordDistance");
             stats.recordMobs = safeGetInt(obj, "recordMobs");
             stats.totalSleeps = safeGetInt(obj, "totalSleeps");
-            stats.unlockedAchievements = safeGetStringSet(obj, "unlockedAchievements");
+            stats.unlockedAchievements = safeGetStringSet(obj);
 
             return stats;
         }
@@ -178,10 +170,10 @@ public class StatsStorage {
             return (int) value;
         }
 
-        private Set<String> safeGetStringSet(JsonObject obj, String field) {
+        private Set<String> safeGetStringSet(JsonObject obj) {
             Set<String> result = new HashSet<>();
-            if (obj.has(field) && obj.get(field).isJsonArray()) {
-                for (JsonElement item : obj.getAsJsonArray(field)) {
+            if (obj.has("unlockedAchievements") && obj.get("unlockedAchievements").isJsonArray()) {
+                for (JsonElement item : obj.getAsJsonArray("unlockedAchievements")) {
                     if (item.isJsonPrimitive()) result.add(item.getAsString());
                 }
             }
