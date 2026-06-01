@@ -74,7 +74,7 @@ public class SleepOverlayRenderer {
     }
 
     public void tick() {
-        if (config.isEnableOverlay()) return;
+        if (!config.isEnableOverlay()) return;
 
         long now = System.currentTimeMillis();
 
@@ -198,13 +198,13 @@ public class SleepOverlayRenderer {
     }
 
     public void renderOverlayOnly(DrawContext context, int screenWidth, int screenHeight) {
-        if (!sleepStateManager.isSleeping() || config.isEnableOverlay()) return;
+        if (!sleepStateManager.isSleeping() || !config.isEnableOverlay()) return;
         if (overlayAlpha <= 0 && !isOverlayVisible) return;
         renderOverlay(context, screenWidth, screenHeight);
     }
 
     public void renderContentOnly(DrawContext context, int screenWidth, int screenHeight) {
-        if (!sleepStateManager.isSleeping() || config.isEnableOverlay()) return;
+        if (!sleepStateManager.isSleeping() || !config.isEnableOverlay()) return;
         if (overlayAlpha <= 0 && !isOverlayVisible) return;
         renderContent(context, screenWidth, screenHeight);
     }
