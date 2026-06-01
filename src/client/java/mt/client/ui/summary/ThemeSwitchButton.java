@@ -12,7 +12,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 public class ThemeSwitchButton extends ClickableWidget {
-    private static final Identifier GEAR_ICON = Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/gear.png");
+    private static final Identifier GEAR_ICON = Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/summary/gear.png");
 
     public ThemeSwitchButton(int x, int y, int size) {
         super(x, y, size, size, Text.empty());

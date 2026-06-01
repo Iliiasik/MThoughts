@@ -9,8 +9,5 @@ public record SlideCollection(
         String text,
         float rarity
     ) {
-        public SlideEntry(String text) {
-            this(text, 1.0f);
-        }
     }
 }

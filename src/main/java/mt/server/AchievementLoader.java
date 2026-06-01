@@ -54,10 +54,6 @@ public class AchievementLoader {
         return cached;
     }
 
-    public static void invalidateCache() {
-        cached = null;
-    }
-
     private static void writeEmpty(Path file) {
         try {
             String json = GSON.toJson(new AchievementsFile());

@@ -11,10 +11,10 @@ import net.minecraft.util.Identifier;
 import org.joml.Matrix3x2fStack;
 
 public class WellRestedHud {
-    private static final Identifier SCALE_TEXTURE = Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/scale.png");
-    private static final Identifier FILL_TEXTURE = Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/fill.png");
-    private static final Identifier ICON_TEXTURE = Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/well_rested.png");
-    private static final Identifier MVP_ICON_TEXTURE = Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/mvp.png");
+    private static final Identifier SCALE_TEXTURE = Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/hud/scale.png");
+    private static final Identifier FILL_TEXTURE = Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/hud/fill.png");
+    private static final Identifier ICON_TEXTURE = Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/hud/well_rested.png");
+    private static final Identifier MVP_ICON_TEXTURE = Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/hud/mvp.png");
 
     private static final int TEX_SCALE_W = 54;
     private static final int TEX_SCALE_H = 9;
@@ -31,11 +31,7 @@ public class WellRestedHud {
     private static final int MARGIN_LEFT = 4;
     private static final int MARGIN_BOTTOM = 4;
 
-    public static boolean isActive() {
-        return WellRestedClientState.isActive();
-    }
-
-    public static void render(DrawContext context, int screenWidth, int screenHeight) {
+    public static void render(DrawContext context, int screenHeight) {
         if (!WellRestedClientState.isActive() || MidnightThoughtsConfig.getInstance().isHideWellRestedHud()) return;
         MinecraftClient mc = MinecraftClient.getInstance();
         if (mc.player == null) return;
@@ -50,7 +46,6 @@ public class WellRestedHud {
         float progress = totalTicks > 0 ? (float) ticksRemaining / totalTicks : 0f;
 
         int barY = screenHeight - MARGIN_BOTTOM - BAR_GUI_H;
-        int startX = MARGIN_LEFT;
 
         boolean isMvp = WellRestedClientState.isMvp();
         Identifier activeIcon = isMvp ? MVP_ICON_TEXTURE : ICON_TEXTURE;
@@ -58,7 +53,7 @@ public class WellRestedHud {
         String roman = (!isMvp && level >= 1 && level <= 5) ? ROMAN[level] : "";
         int romanWidth = roman.isEmpty() ? 0 : font.getWidth(roman);
 
-        int iconX = startX;
+        int iconX = MARGIN_LEFT;
         int romanX = iconX + ICON_GUI_SIZE + GAP;
         int barX = romanX + (roman.isEmpty() ? 0 : romanWidth + GAP);
         int barEndX = barX + TEX_SCALE_W;

@@ -8,17 +8,17 @@ import java.util.List;
 public class TooltipRenderer {
 
     public static void render(DrawContext context, TextRenderer textRenderer, int mouseX, int mouseY,
-                              List<AchievementTooltipArea> achievementAreas, int screenWidth, int screenHeight, float fadeAlpha) {
+                              List<AchievementTooltipArea> achievementAreas, int screenWidth, float fadeAlpha) {
         for (AchievementTooltipArea area : achievementAreas) {
             if (area.contains(mouseX, mouseY)) {
-                renderTooltip(context, textRenderer, mouseX, mouseY, area.achievementId(), screenWidth, screenHeight, fadeAlpha);
+                renderTooltip(context, textRenderer, mouseX, mouseY, area.achievementId(), screenWidth, fadeAlpha);
                 break;
             }
         }
     }
 
     private static void renderTooltip(DrawContext context, TextRenderer textRenderer, int mouseX, int mouseY,
-                                      String achievementId, int screenWidth, int screenHeight, float fadeAlpha) {
+                                      String achievementId, int screenWidth, float fadeAlpha) {
         String tooltipText = AchievementRenderer.resolveAchievementTooltip(achievementId);
 
         int tooltipPadding = 4;

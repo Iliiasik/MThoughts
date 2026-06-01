@@ -11,14 +11,12 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class SlideService {
     private final SlideRepository slideRepository;
-    private final PlayerStatsService playerStatsService;
     private final MidnightThoughtsConfig config;
     private final FactProvider factProvider;
 
-    public SlideService(SlideRepository slideRepository, PlayerStatsService playerStatsService,
+    public SlideService(SlideRepository slideRepository,
                         MidnightThoughtsConfig config, FactProvider factProvider) {
         this.slideRepository = slideRepository;
-        this.playerStatsService = playerStatsService;
         this.config = config;
         this.factProvider = factProvider;
     }
@@ -74,13 +72,6 @@ public class SlideService {
         } else {
             return SlideCategory.SURREAL;
         }
-    }
-
-    public void refreshStats() {
-        playerStatsService.collectStats();
-    }
-
-    public void resetSlideCounter() {
     }
 
     public String getCurrentLanguage() {

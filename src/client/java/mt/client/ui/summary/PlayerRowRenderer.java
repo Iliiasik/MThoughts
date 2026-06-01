@@ -5,8 +5,6 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.PlayerSkinDrawer;
-import net.minecraft.client.network.PlayerListEntry;
-import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.util.Identifier;
 
 import java.util.List;
@@ -49,19 +47,11 @@ public class PlayerRowRenderer {
                                             int x, int y, int rowWidth, int rowHeight, float fadeAlpha) {
         int texW = SummaryConstants.ROW_TEXTURE_WIDTH;
         int texH = SummaryConstants.ROW_TEXTURE_HEIGHT;
-        float scale = Math.min((float) rowHeight / texH, (float) rowWidth / texW);
-        int renderW = (int) (texW * scale);
-        int renderH = (int) (texH * scale);
-        int renderX = x + (rowWidth - renderW) / 2;
-        int renderY = y + (rowHeight - renderH) / 2;
+        RenderHelper.ScaledBlit sb = RenderHelper.computeScaledBlit(y, rowWidth, rowHeight, texW, texH);
+        int renderX = x + (rowWidth - sb.renderW()) / 2;
 
-        int color = (int) (fadeAlpha * 255) << 24 | 0xFFFFFF;
-        context.getMatrices().pushMatrix();
-        context.getMatrices().translate(renderX, renderY);
-        context.getMatrices().scale(scale, scale);
         Identifier rowTex = player.isMvp() ? SummaryConstants.getMvpRowTexture() : SummaryConstants.getRowTexture();
-        context.drawTexture(RenderPipelines.GUI_TEXTURED, rowTex, 0, 0, 0.0f, 0.0f, texW, texH, texW, texH, texW, texH, color);
-        context.getMatrices().popMatrix();
+        RenderHelper.blitTexture(context, rowTex, renderX, sb.renderY(), sb.renderW(), sb.renderH(), fadeAlpha);
     }
 
     private static void renderHead(DrawContext context, DailySummaryPacket.PlayerDailySummary player,
@@ -70,13 +60,10 @@ public class PlayerRowRenderer {
         int headY = y + (rowHeight - headSize) / 2;
         try {
             if (MinecraftClient.getInstance().getNetworkHandler() != null) {
-                PlayerListEntry playerEntry = MinecraftClient.getInstance().getNetworkHandler()
+                MinecraftClient.getInstance().getNetworkHandler()
                         .getPlayerList().stream()
                         .filter(e -> e.getProfile().name().equals(player.playerName()))
-                        .findFirst().orElse(null);
-                if (playerEntry != null) {
-                    PlayerSkinDrawer.draw(context, playerEntry.getSkinTextures(), skinX, headY, headSize);
-                }
+                        .findFirst().ifPresent(playerEntry -> PlayerSkinDrawer.draw(context, playerEntry.getSkinTextures(), skinX, headY, headSize));
             }
         } catch (Exception ignored) {}
     }
@@ -91,34 +78,23 @@ public class PlayerRowRenderer {
         float scale = Math.min(dims.uiScale * 1.5f, (float) rowHeight * 0.27f / texH);
         int renderW = (int) (texW * scale);
         int renderH = (int) (texH * scale);
-
         int badgeX = x + (rowWidth - renderW) / 2;
         int badgeY = y - renderH / 2;
 
-        int color = (int) (fadeAlpha * 255) << 24 | 0xFFFFFF;
-        context.getMatrices().pushMatrix();
-        context.getMatrices().translate(badgeX, badgeY);
-        context.getMatrices().scale((float) renderW / texW, (float) renderH / texH);
-        context.drawTexture(RenderPipelines.GUI_TEXTURED, SummaryConstants.getNameBadgeTexture(),
-                0, 0, 0.0f, 0.0f, texW, texH, texW, texH, texW, texH, color);
-        context.getMatrices().popMatrix();
+        RenderHelper.blitTexture(context, SummaryConstants.getNameBadgeTexture(),
+                badgeX, badgeY, renderW, renderH, fadeAlpha);
 
         float textScale = dims.uiScale * 1.35f;
         String name = player.playerName();
+        int nameAlpha = (int) (fadeAlpha * 255);
+        int nameColor = (nameAlpha << 24) | 0xFFFFFF;
 
         int maxTextW = (int) ((renderW - dims.s(6)) / textScale);
-        String ellipsis = "...";
-        int ellipsisW = textRenderer.getWidth(ellipsis);
-        if (textRenderer.getWidth(name) > maxTextW) {
-            while (name.length() > 0 && textRenderer.getWidth(name) + ellipsisW > maxTextW) {
-                name = name.substring(0, name.length() - 1);
-            }
-            name = name + ellipsis;
-        }
+        name = RenderUtils.truncateWithEllipsis(textRenderer, name, maxTextW);
 
         int textW = (int) (textRenderer.getWidth(name) * textScale);
         int textX = badgeX + (renderW - textW) / 2;
         int textY = badgeY + (renderH - (int) (8 * textScale)) / 2;
-        RenderUtils.renderScaledText(context, textRenderer, name, textX, textY, color, textScale, true);
+        RenderUtils.renderScaledText(context, textRenderer, name, textX, textY, nameColor, textScale, true);
     }
 }

@@ -74,6 +74,9 @@ public final class ClientConfig {
         if (theme != null && !theme.isEmpty()) {
             return theme;
         }
+        if (mt.cache.ServerConfigCache.has()) {
+            return mt.cache.ServerConfigCache.get().theme();
+        }
         return MidnightThoughtsConfig.getInstance().getUi().theme;
     }
 
