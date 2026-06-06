@@ -12,7 +12,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 public class StyledButton extends ClickableWidget {
-    private static final int TEX_W = 200;
+    private static final int TEX_W = 100;
     private static final int TEX_H = 32;
 
     public interface PressAction {

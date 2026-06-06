@@ -24,17 +24,17 @@ public class ThemeColors {
                     0xf7d5a3
             );
             case "tech" -> new ThemeColor(
-                    0x4a5a5e,
+                    0x45ab95,
+                    0x45ab95,
                     0xFFFFFF,
-                    0x2a3a3e,
-                    0x4a5a5e,
-                    0x2a3a3e,
-                    0x2a3a3e,
+                    0xd5bb2a,
+                    0xFFFFFF,
+                    0xFFFFFF,
                     0xFFFFFF,
                     0xFFFFFF
             );
             case "magic" -> new ThemeColor(
-                    0x68503c,
+                    0x3087b9,
                     0xFFFFFF,
                     0xc8a3d8,
                     0xd8a848,
