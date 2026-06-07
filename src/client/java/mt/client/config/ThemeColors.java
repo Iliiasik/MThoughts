@@ -4,12 +4,12 @@ public class ThemeColors {
     public static ThemeColor getThemeColors(String theme) {
         return switch (theme) {
             case "vanilla" -> new ThemeColor(
-                    0xf7d5a3,
+                    0xFFFFFF,
                     0xFFFFFF,
                     0x1a1a1a,
                     0x8a5a2a,
-                    0x3f3f3f,
-                    0x3f3f3f,
+                    0xFFFFFF,
+                    0xFFFFFF,
                     0xFFFFFF,
                     0xf7d5a3
             );
@@ -36,10 +36,10 @@ public class ThemeColors {
             case "magic" -> new ThemeColor(
                     0x3087b9,
                     0xFFFFFF,
-                    0xc8a3d8,
-                    0xd8a848,
-                    0xddccee,
-                    0xeeddff,
+                    0xFFFFFF,
+                    0xd97d1f,
+                    0xFFFFFF,
+                    0xFFFFFF,
                     0xFFFFFF,
                     0xFFFFFF
             );
