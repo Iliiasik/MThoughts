@@ -1,0 +1,11 @@
+{
+  "entries": [
+    {"text": "No puedes dormir en un lugar tan temible.", "rarity": 1.0},
+    {"text": "Un escalofrío recorre tu espalda.", "rarity": 1.0},
+    {"text": "Eres acosado por pesadillas.", "rarity": 1.0},
+    {"text": "Haz que tu lugar de descanso sea más cómodo.", "rarity": 1.0},
+    {"text": "Algo te observa desde las sombras.", "rarity": 0.8},
+    {"text": "La oscuridad se siente sofocante esta noche.", "rarity": 0.9},
+    {"text": "El descanso es imposible en este entorno sombrío.", "rarity": 1.0}
+  ]
+}
