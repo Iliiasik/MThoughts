@@ -44,7 +44,7 @@ public class MidnightThoughts implements ModInitializer {
                 int ticksRemaining = WellRestedEffect.getTicksRemaining(player);
                 int totalTicks = active ? WellRestedEffect.getTotalDurationTicksForPlayer(player) : 0;
                 int phase = WellRestedEffect.getCurrentPhase(player);
-                boolean nightmare = ComfortCalculator.isNightmareMode(player);
+                boolean nightmare = player.isSleeping() && ComfortCalculator.isNightmareMode(player);
                 boolean mvp = WellRestedEffect.isMvp(player);
                 NetworkHandler.sendWellRested(player, new WellRestedPacket(active, level, ticksRemaining, totalTicks, phase, nightmare, mvp));
             }
@@ -84,12 +84,8 @@ public class MidnightThoughts implements ModInitializer {
 
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
             DailyStatsManager.onPlayerJoin(handler.player);
-
             NetworkHandler.sendUserContent(handler.player, UserContentInitializer.buildPacket());
-
-            NetworkHandler.sendAchievements(handler.player,
-                    new SyncAchievementsPacket(AchievementLoader.load()));
-
+            NetworkHandler.sendAchievements(handler.player, new SyncAchievementsPacket(AchievementLoader.load()));
             MidnightThoughtsConfig cfg = MidnightThoughtsConfig.getInstance();
             NetworkHandler.sendConfig(handler.player, new SyncConfigPacket(
                     cfg.getSleepOverlay().minSlideDisplayTimeMs,
@@ -112,8 +108,10 @@ public class MidnightThoughts implements ModInitializer {
             ));
         });
 
-        ServerPlayConnectionEvents.DISCONNECT.register((handler, server) ->
-                DailyStatsManager.onPlayerLeave(handler.player));
+        ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
+            ComfortCalculator.invalidateCache(handler.player);
+            DailyStatsManager.onPlayerLeave(handler.player);
+        });
 
         ServerLifecycleEvents.SERVER_STOPPING.register(DailyStatsManager::onServerStop);
 
