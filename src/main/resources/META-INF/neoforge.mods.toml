@@ -7,7 +7,7 @@ config = "mthoughts.mixins.json"
 
 [[mods]]
 modId = "midnightthoughts"
-version = "1.4"
+version = "1.4.05"
 displayName = "Midnight Thoughts"
 logoFile = "assets/midnightthoughts/icon.png"
 authors = "iliiasik"

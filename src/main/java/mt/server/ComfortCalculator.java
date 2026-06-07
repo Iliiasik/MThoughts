@@ -10,8 +10,13 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
 public class ComfortCalculator {
     private static final MidnightThoughtsConfig CONFIG = MidnightThoughtsConfig.getInstance();
+    private static final int RECALCULATE_INTERVAL = 100;
 
     private static final TagKey<Block> LIGHTING_TAG = TagKey.create(Registries.BLOCK, ResourceLocation.fromNamespaceAndPath("midnightthoughts", "comfort_lighting"));
     private static final TagKey<Block> CARPET_TAG = TagKey.create(Registries.BLOCK, ResourceLocation.fromNamespaceAndPath("midnightthoughts", "comfort_carpet"));
@@ -28,13 +33,27 @@ public class ComfortCalculator {
             NEGATIVE_MACABRE_TAG, NEGATIVE_HOSTILE_TAG, NEGATIVE_DARK_TAG
     };
 
+    private record CachedComfort(int comfortLevel, long calculatedAtTick, BlockPos pos) {}
+    private static final Map<UUID, CachedComfort> cache = new HashMap<>();
+
     public static int calculateComfortLevel(ServerPlayer player) {
         if (!CONFIG.getComfort().enabled) {
             return 0;
         }
 
+        long currentTick = player.level().getGameTime();
+        BlockPos currentPos = player.blockPosition();
+        UUID uuid = player.getUUID();
+
+        CachedComfort cached = cache.get(uuid);
+        if (cached != null
+                && (currentTick - cached.calculatedAtTick()) < RECALCULATE_INTERVAL
+                && cached.pos().equals(currentPos)) {
+            return cached.comfortLevel();
+        }
+
         int scanRadius = CONFIG.getComfort().scanRadius;
-        BlockPos bedPos = player.getSleepingPos().orElse(player.blockPosition());
+        BlockPos bedPos = player.getSleepingPos().orElse(currentPos);
         Level world = player.level();
 
         boolean[] found = new boolean[ALL_TAGS.length];
@@ -63,6 +82,7 @@ public class ComfortCalculator {
         if (found[6]) comfortLevel--;
         if (found[7]) comfortLevel--;
 
+        cache.put(uuid, new CachedComfort(comfortLevel, currentTick, currentPos));
         return comfortLevel;
     }
 
@@ -72,5 +92,9 @@ public class ComfortCalculator {
 
     public static boolean isSleepBlocked(ServerPlayer player) {
         return calculateComfortLevel(player) <= -2;
+    }
+
+    public static void invalidateCache(ServerPlayer player) {
+        cache.remove(player.getUUID());
     }
 }
