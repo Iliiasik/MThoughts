@@ -71,7 +71,7 @@ public class MidnightThoughts {
             int ticksRemaining = WellRestedEffect.getTicksRemaining(player);
             int totalTicks = active ? WellRestedEffect.getTotalDurationTicksForPlayer(player) : 0;
             int phase = WellRestedEffect.getCurrentPhase(player);
-            boolean nightmare = ComfortCalculator.isNightmareMode(player);
+            boolean nightmare = player.isSleeping() && ComfortCalculator.isNightmareMode(player);
             boolean mvp = WellRestedEffect.isMvp(player);
             NetworkHandler.sendWellRested(player, new WellRestedPacket(active, level, ticksRemaining, totalTicks, phase, nightmare, mvp));
         }
@@ -143,6 +143,7 @@ public class MidnightThoughts {
     @SubscribeEvent
     public void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
         if (event.getEntity() instanceof ServerPlayer serverPlayer) {
+            ComfortCalculator.invalidateCache(serverPlayer);
             DailyStatsManager.onPlayerLeave(serverPlayer);
         }
     }
