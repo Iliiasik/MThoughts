@@ -34,11 +34,13 @@ public class TooltipRenderer {
         int bgAlpha = (int) (fadeAlpha * 240);
         int bgColor = (bgAlpha << 24) | 0x1a1a2e;
         int borderColor = (bgAlpha << 24) | 0x8a6a2a;
+        int textColor = ((int) (fadeAlpha * 255) << 24) | 0xffd700;
 
+        context.getMatrices().push();
+        context.getMatrices().translate(0, 0, 400);
         context.fill(tooltipX - 1, tooltipY - 1, tooltipX + tooltipWidth + 1, tooltipY + tooltipHeight + 1, borderColor);
         context.fill(tooltipX, tooltipY, tooltipX + tooltipWidth, tooltipY + tooltipHeight, bgColor);
-
-        int textColor = ((int) (fadeAlpha * 255) << 24) | 0xffd700;
         context.drawText(textRenderer, tooltipText, tooltipX + tooltipPadding, tooltipY + 2, textColor, false);
+        context.getMatrices().pop();
     }
 }

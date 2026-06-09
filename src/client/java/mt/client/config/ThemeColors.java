@@ -7,7 +7,7 @@ public class ThemeColors {
                     0xFFFFFF,
                     0xFFFFFF,
                     0x1a1a1a,
-                    0x8a5a2a,
+                    0x2a2a2a,
                     0xFFFFFF,
                     0xFFFFFF,
                     0xFFFFFF,
@@ -18,8 +18,8 @@ public class ThemeColors {
                     0xFFFFFF,
                     0x5a3a1a,
                     0x8a5a2a,
-                    0x4b371b,
-                    0x4b371b,
+                    0xFFFFFF,
+                    0xFFFFFF,
                     0xFFFFFF,
                     0xf7d5a3
             );
@@ -27,7 +27,7 @@ public class ThemeColors {
                     0x45ab95,
                     0x45ab95,
                     0xFFFFFF,
-                    0xd5bb2a,
+                    0x93e4a1,
                     0xFFFFFF,
                     0xFFFFFF,
                     0xFFFFFF,
