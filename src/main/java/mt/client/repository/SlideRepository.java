@@ -32,6 +32,7 @@ public class SlideRepository {
     public void loadAllSlides(ResourceManager manager) {
         loadSlidesForLanguage(manager, "en_us");
         loadSlidesForLanguage(manager, "de_de");
+        loadSlidesForLanguage(manager, "es_es");
     }
 
     private void loadSlidesForLanguage(ResourceManager manager, String language) {
