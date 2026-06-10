@@ -17,7 +17,7 @@ public class UserContentInitializer {
     private static final Logger LOGGER = LoggerFactory.getLogger("MidnightThoughts");
 
     private static final String[] ALL_CATEGORIES = {"facts", "lore", "nightmares", "special", "surreal"};
-    private static final String[] ALL_LANGUAGES = {"en_us", "de_de"};
+    private static final String[] ALL_LANGUAGES = {"en_us", "de_de", "es_es"};
     private static final String EMPTY_CONTENT = "{\n  \"entries\": []\n}\n";
 
     public static void writeDefaultFiles() {
