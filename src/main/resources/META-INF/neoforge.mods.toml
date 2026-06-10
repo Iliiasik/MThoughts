@@ -7,11 +7,11 @@ config = "mthoughts.mixins.json"
 
 [[mods]]
 modId = "midnightthoughts"
-version = "1.4.05"
+version = "1.4.1"
 displayName = "Midnight Thoughts"
 logoFile = "assets/midnightthoughts/icon.png"
 authors = "iliiasik"
-description = '''A unique reworking of the sleep mechanics, with player stats since the last sleep, a comfort and rest system, the addition of sleep-related facts, achievements, or both, and customization. Full server support and server-side customization are also included'''
+description = '''Diversify your gameplay and sleep mechanics with a comfort system, bedtime facts, nightmares, and general statistics since your last sleep. With full server support and convenient tools for building your world's lore through sleep facts and achievements'''
 
 [[dependencies.midnightthoughts]]
 modId = "neoforge"
