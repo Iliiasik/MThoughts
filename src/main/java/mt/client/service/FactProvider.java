@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -21,6 +22,7 @@ public class FactProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger("MidnightThoughts");
     private static final int PREFETCH_THRESHOLD = 2;
     private static final int MAX_QUEUE_SIZE = 10;
+    private static final Set<String> API_SUPPORTED_LANGUAGES = Set.of("en_us", "de_de");
 
     private final UselessFactsApiClient apiClient;
     private final SlideRepository slideRepository;
@@ -55,7 +57,7 @@ public class FactProvider {
             return randomUserSlide(userFacts, SlideCategory.FACT);
         }
 
-        if (!config.isUseFactsApi()) {
+        if (!config.isUseFactsApi() || !API_SUPPORTED_LANGUAGES.contains(language)) {
             return getFallbackFact(language);
         }
 

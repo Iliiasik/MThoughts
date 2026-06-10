@@ -3,7 +3,6 @@ package mt.client.ui.summary;
 public class SummaryDimensions {
     public static final float BASE_W = 1000.0f;
     public static final float BASE_H = 640.0f;
-
     public int panelWidth;
     public int panelHeight;
     public int panelX;
@@ -17,21 +16,19 @@ public class SummaryDimensions {
         float scaleX = screenWidth / BASE_W;
         float scaleY = screenHeight / BASE_H;
         uiScale = Math.min(scaleX, scaleY);
-
         playersPerPage = SummaryConstants.NORMAL_MODE_PLAYERS_PER_PAGE;
 
         int maxPanelHeight = Math.min(screenHeight - s(160), s(533));
-        panelWidth = (int)(maxPanelHeight * SummaryConstants.FRAME_ASPECT_RATIO);
+        panelWidth = (int) (maxPanelHeight * SummaryConstants.FRAME_ASPECT_RATIO);
         panelHeight = maxPanelHeight;
 
         if (panelWidth > screenWidth - s(80)) {
             panelWidth = screenWidth - s(80);
-            panelHeight = (int)(panelWidth / SummaryConstants.FRAME_ASPECT_RATIO);
+            panelHeight = (int) (panelWidth / SummaryConstants.FRAME_ASPECT_RATIO);
         }
 
         playerRowHeight = s(173);
         headSize = s(85);
-
         panelX = (screenWidth - panelWidth) / 2;
         panelY = (screenHeight - panelHeight) / 2 - s(40);
     }
@@ -45,10 +42,10 @@ public class SummaryDimensions {
     }
 
     public int getButtonWidth() {
-        return s(167);
+        return s(100);
     }
 
     public int getButtonHeight() {
-        return s(37);
+        return s(32);
     }
 }

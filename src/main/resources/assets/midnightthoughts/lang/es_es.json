@@ -1,0 +1,29 @@
+{
+  "midnightthoughts.sleep.nightmare_blocked": "No puedes dormir en un lugar tan temible...",
+
+  "midnightthoughts.summary.title": "Desde el último",
+  "midnightthoughts.summary.page": "Página %d de %d",
+  "midnightthoughts.summary.previous": "Anterior",
+  "midnightthoughts.summary.next": "Siguiente",
+  "midnightthoughts.summary.blocks": "Bloques",
+  "midnightthoughts.summary.distance": "Distancia",
+  "midnightthoughts.summary.mobs": "Criaturas",
+  "midnightthoughts.summary.deaths": "Muertes",
+  "midnightthoughts.summary.jumps": "Saltos",
+  "midnightthoughts.summary.damage": "Daño",
+
+  "midnightthoughts.hud.sleeping": "Durmiendo",
+
+  "midnightthoughts.achievement.distance_record": "¡Récord de distancia!",
+  "midnightthoughts.achievement.distance_record.desc": "Rompe tu récord personal de distancia",
+  "midnightthoughts.achievement.blocks_record": "¡Récord de minería!",
+  "midnightthoughts.achievement.blocks_record.desc": "Rompe tu récord personal de minería",
+  "midnightthoughts.achievement.mobs_record": "¡Récord de eliminaciones!",
+  "midnightthoughts.achievement.mobs_record.desc": "Rompe tu récord personal de eliminaciones",
+
+  "midnightthoughts.theme.magic": "Mágico",
+  "midnightthoughts.theme.classic": "Clásico",
+  "midnightthoughts.theme.tech": "Tech",
+  "midnightthoughts.theme.vanilla": "Vanilla",
+  "midnightthoughts.theme.current": "Tema: %s"
+}
