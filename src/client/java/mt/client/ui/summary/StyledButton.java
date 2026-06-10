@@ -14,7 +14,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 public class StyledButton extends ClickableWidget {
-    private static final int TEX_W = 200;
+    private static final int TEX_W = 100;
     private static final int TEX_H = 32;
 
     public interface PressAction {
@@ -72,7 +72,7 @@ public class StyledButton extends ClickableWidget {
         context.getMatrices().pushMatrix();
         context.getMatrices().translate(textX, textY);
         context.getMatrices().scale(textScale, textScale);
-        context.drawText(textRenderer, getMessage(), 0, 0, textColor, false);
+        context.drawText(textRenderer, getMessage(), 0, 0, textColor, true);
         context.getMatrices().popMatrix();
     }
 
