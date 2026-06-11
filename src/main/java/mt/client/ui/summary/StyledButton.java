@@ -13,7 +13,7 @@ import net.minecraft.resources.ResourceLocation;
 
 public class StyledButton extends Button {
 
-    private static final int TEX_W = 200;
+    private static final int TEX_W = 100;
     private static final int TEX_H = 32;
 
     public StyledButton(int x, int y, int width, int height, Component message, OnPress onPress) {
@@ -55,7 +55,7 @@ public class StyledButton extends Button {
         context.pose().pushPose();
         context.pose().translate(textX, textY, 0);
         context.pose().scale(textScale, textScale, 1.0f);
-        context.drawString(font, getMessage(), 0, 0, textColor, false);
+        context.drawString(font, getMessage(), 0, 0, textColor, true);
         context.pose().popPose();
     }
 }

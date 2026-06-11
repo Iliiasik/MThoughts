@@ -78,6 +78,9 @@ public class SlideService {
         if (lang.startsWith("de")) {
             return "de_de";
         }
+        if (lang.startsWith("es")) {
+            return "es_es";
+        }
         return "en_us";
     }
 }
