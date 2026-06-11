@@ -13,7 +13,7 @@ import net.minecraft.util.Identifier;
 
 public class StyledButton extends ButtonWidget {
 
-    private static final int TEX_W = 200;
+    private static final int TEX_W = 100;
     private static final int TEX_H = 32;
 
     public StyledButton(int x, int y, int width, int height, Text message, PressAction onPress) {
@@ -57,7 +57,7 @@ public class StyledButton extends ButtonWidget {
         context.getMatrices().push();
         context.getMatrices().translate(textX, textY, 0);
         context.getMatrices().scale(textScale, textScale, 1.0f);
-        context.drawText(textRenderer, getMessage(), 0, 0, textColor, false);
+        context.drawText(textRenderer, getMessage(), 0, 0, textColor, true);
         context.getMatrices().pop();
     }
 }
