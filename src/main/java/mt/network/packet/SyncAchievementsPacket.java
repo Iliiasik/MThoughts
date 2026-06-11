@@ -40,7 +40,7 @@ public record SyncAchievementsPacket(List<AchievementDefinition> achievements) i
     );
 
     @Override
-    public @NotNull Type<? extends CustomPacketPayload> type() {
+    public @NotNull Type<@NotNull ? extends CustomPacketPayload> type() {
         return TYPE;
     }
 }

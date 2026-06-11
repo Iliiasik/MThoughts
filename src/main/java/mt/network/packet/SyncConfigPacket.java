@@ -60,7 +60,7 @@ public record SyncConfigPacket(
     );
 
     @Override
-    public @NotNull Type<? extends CustomPacketPayload> type() {
+    public @NotNull Type<@NotNull ? extends CustomPacketPayload> type() {
         return TYPE;
     }
 }

@@ -3,7 +3,7 @@
   "id": "midnightthoughts",
   "version": "${version}",
   "name": "Midnight Thoughts",
-  "description": "An atmospheric sleep enhancement mod. Features random facts and Minecraft lore during sleep, daily player statistics summary (Stardew Valley style), MVP system for multiplayer, personal achievements, Well Rested effect with comfort levels, and a stylish sleeping players HUD.",
+  "description": "Diversify your gameplay and sleep mechanics with a comfort system, bedtime facts, nightmares, and general statistics since your last sleep. With full server support and convenient tools for building your world's lore through sleep facts and achievements",
   "icon": "assets/midnightthoughts/icon.png",
   "authors": ["MidnightThoughts Team"],
   "contact": {},

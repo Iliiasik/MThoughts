@@ -44,7 +44,7 @@ public record UserContentPacket(Map<String, List<String>> content) implements Cu
     );
 
     @Override
-    public @NotNull Type<? extends CustomPacketPayload> type() {
+    public @NotNull Type<@NotNull ? extends CustomPacketPayload> type() {
         return TYPE;
     }
 }

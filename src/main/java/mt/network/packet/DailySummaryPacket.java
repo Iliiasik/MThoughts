@@ -34,7 +34,7 @@ public record DailySummaryPacket(List<PlayerDailySummary> summaries) implements 
     };
 
     @Override
-    public CustomPacketPayload.@NotNull Type<? extends CustomPacketPayload> type() {
+    public CustomPacketPayload.@NotNull Type<@NotNull ? extends CustomPacketPayload> type() {
         return TYPE;
     }
 

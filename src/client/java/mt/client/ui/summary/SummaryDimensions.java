@@ -42,10 +42,10 @@ public class SummaryDimensions {
     }
 
     public int getButtonWidth() {
-        return s(167);
+        return s(100);
     }
 
     public int getButtonHeight() {
-        return s(37);
+        return s(32);
     }
 }

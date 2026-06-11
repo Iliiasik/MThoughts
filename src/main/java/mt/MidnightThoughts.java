@@ -44,7 +44,7 @@ public class MidnightThoughts implements ModInitializer {
                 int ticksRemaining = WellRestedEffect.getTicksRemaining(player);
                 int totalTicks = active ? WellRestedEffect.getTotalDurationTicksForPlayer(player) : 0;
                 int phase = WellRestedEffect.getCurrentPhase(player);
-                boolean nightmare = ComfortCalculator.isNightmareMode(player);
+                boolean nightmare = player.isSleeping() && ComfortCalculator.isNightmareMode(player);
                 boolean mvp = WellRestedEffect.isMvp(player);
                 NetworkHandler.sendWellRested(player, new WellRestedPacket(active, level, ticksRemaining, totalTicks, phase, nightmare, mvp));
             }
@@ -116,8 +116,10 @@ public class MidnightThoughts implements ModInitializer {
             ));
         });
 
-        ServerPlayConnectionEvents.DISCONNECT.register((handler, _) ->
-                DailyStatsManager.onPlayerLeave(handler.player));
+        ServerPlayConnectionEvents.DISCONNECT.register((handler, _) -> {
+            ComfortCalculator.invalidateCache(handler.player);
+            DailyStatsManager.onPlayerLeave(handler.player);
+        });
 
         ServerLifecycleEvents.SERVER_STOPPING.register(DailyStatsManager::onServerStop);
 

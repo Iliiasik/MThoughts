@@ -14,7 +14,7 @@ public record SummaryAcknowledgePacket() implements CustomPacketPayload {
             StreamCodec.unit(new SummaryAcknowledgePacket());
 
     @Override
-    public CustomPacketPayload.@NotNull Type<? extends CustomPacketPayload> type() {
+    public CustomPacketPayload.@NotNull Type<@NotNull ? extends CustomPacketPayload> type() {
         return TYPE;
     }
 }

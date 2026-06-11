@@ -15,7 +15,7 @@ import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 
 public class StyledButton extends AbstractButton {
-    private static final int TEX_W = 200;
+    private static final int TEX_W = 100;
     private static final int TEX_H = 32;
 
     public interface PressAction {
@@ -73,7 +73,7 @@ public class StyledButton extends AbstractButton {
         graphics.pose().pushMatrix();
         graphics.pose().translate(textX, textY);
         graphics.pose().scale(textScale, textScale);
-        graphics.text(font, getMessage(), 0, 0, textColor, false);
+        graphics.text(font, getMessage(), 0, 0, textColor, true);
         graphics.pose().popMatrix();
     }
 

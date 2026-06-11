@@ -5,7 +5,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.PlayerFaceExtractor;
-import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.Identifier;
 
 import java.util.List;
@@ -48,19 +47,11 @@ public class PlayerRowRenderer {
                                             int x, int y, int rowWidth, int rowHeight, float fadeAlpha) {
         int texW = SummaryConstants.ROW_TEXTURE_WIDTH;
         int texH = SummaryConstants.ROW_TEXTURE_HEIGHT;
-        float scale = Math.min((float) rowHeight / texH, (float) rowWidth / texW);
-        int renderW = (int) (texW * scale);
-        int renderH = (int) (texH * scale);
-        int renderX = x + (rowWidth - renderW) / 2;
-        int renderY = y + (rowHeight - renderH) / 2;
+        RenderHelper.ScaledBlit sb = RenderHelper.computeScaledBlit(y, rowWidth, rowHeight, texW, texH);
+        int renderX = x + (rowWidth - sb.renderW()) / 2;
 
-        int color = (int) (fadeAlpha * 255) << 24 | 0xFFFFFF;
-        graphics.pose().pushMatrix();
-        graphics.pose().translate(renderX, renderY);
-        graphics.pose().scale(scale, scale);
         Identifier rowTex = player.isMvp() ? SummaryConstants.getMvpRowTexture() : SummaryConstants.getRowTexture();
-        graphics.blit(RenderPipelines.GUI_TEXTURED, rowTex, 0, 0, 0.0f, 0.0f, texW, texH, texW, texH, texW, texH, color);
-        graphics.pose().popMatrix();
+        RenderHelper.blitTexture(graphics, rowTex, renderX, sb.renderY(), sb.renderW(), sb.renderH(), fadeAlpha);
     }
 
     private static void renderHead(GuiGraphicsExtractor graphics, DailySummaryPacket.PlayerDailySummary player,
@@ -87,34 +78,23 @@ public class PlayerRowRenderer {
         float scale = Math.min(dims.uiScale * 1.5f, (float) rowHeight * 0.27f / texH);
         int renderW = (int) (texW * scale);
         int renderH = (int) (texH * scale);
-
         int badgeX = x + (rowWidth - renderW) / 2;
         int badgeY = y - renderH / 2;
 
-        int color = (int) (fadeAlpha * 255) << 24 | 0xFFFFFF;
-        graphics.pose().pushMatrix();
-        graphics.pose().translate(badgeX, badgeY);
-        graphics.pose().scale((float) renderW / texW, (float) renderH / texH);
-        graphics.blit(RenderPipelines.GUI_TEXTURED, SummaryConstants.getNameBadgeTexture(),
-                0, 0, 0.0f, 0.0f, texW, texH, texW, texH, texW, texH, color);
-        graphics.pose().popMatrix();
+        RenderHelper.blitTexture(graphics, SummaryConstants.getNameBadgeTexture(),
+                badgeX, badgeY, renderW, renderH, fadeAlpha);
 
         float textScale = dims.uiScale * 1.35f;
         String name = player.playerName();
+        int nameAlpha = (int) (fadeAlpha * 255);
+        int nameColor = (nameAlpha << 24) | 0xFFFFFF;
 
         int maxTextW = (int) ((renderW - dims.s(6)) / textScale);
-        String ellipsis = "...";
-        int ellipsisW = font.width(ellipsis);
-        if (font.width(name) > maxTextW) {
-            while (!name.isEmpty() && font.width(name) + ellipsisW > maxTextW) {
-                name = name.substring(0, name.length() - 1);
-            }
-            name = name + ellipsis;
-        }
+        name = RenderUtils.truncateWithEllipsis(font, name, maxTextW);
 
         int textW = (int) (font.width(name) * textScale);
         int textX = badgeX + (renderW - textW) / 2;
         int textY = badgeY + (renderH - (int) (8 * textScale)) / 2;
-        RenderUtils.renderScaledText(graphics, font, name, textX, textY, color, textScale, true);
+        RenderUtils.renderScaledText(graphics, font, name, textX, textY, nameColor, textScale, true);
     }
 }

@@ -23,7 +23,7 @@ public record WellRestedPacket(boolean active, int level, int ticksRemaining, in
     );
 
     @Override
-    public CustomPacketPayload.@NotNull Type<? extends CustomPacketPayload> type() {
+    public CustomPacketPayload.@NotNull Type<@NotNull ? extends CustomPacketPayload> type() {
         return TYPE;
     }
 }

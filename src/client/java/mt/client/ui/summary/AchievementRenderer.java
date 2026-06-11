@@ -30,8 +30,6 @@ public class AchievementRenderer {
 
         int texW = SummaryConstants.ACHIEVEMENT_BADGE_TEXTURE_WIDTH;
         int texH = SummaryConstants.ACHIEVEMENT_BADGE_TEXTURE_HEIGHT;
-        float badgeScale = Math.min((float) badgeH / texH, (float) width / texW);
-        int renderW = (int) (texW * badgeScale);
 
         int totalH = count * badgeH + (count - 1) * rowSpacing;
         int startY = y + Math.max(0, (height - totalH) / 2);
@@ -41,11 +39,9 @@ public class AchievementRenderer {
             int rowY = startY + i * (badgeH + rowSpacing);
             if (rowY + badgeH > y + height) break;
 
-            int renderH = (int) (texH * badgeScale);
-            int actualY = rowY + (badgeH - renderH) / 2;
-
+            RenderHelper.ScaledBlit sb = RenderHelper.computeScaledBlit(rowY, width, badgeH, texW, texH);
             renderBadge(graphics, font, x, rowY, width, badgeH, achievementId, textScale, fadeAlpha, colors);
-            achievementAreas.add(new AchievementTooltipArea(x, actualY, renderW, renderH, achievementId));
+            achievementAreas.add(new AchievementTooltipArea(x, sb.renderY(), sb.renderW(), sb.renderH(), achievementId));
         }
     }
 
@@ -55,37 +51,24 @@ public class AchievementRenderer {
                                     ThemeColors.ThemeColor colors) {
         int texW = SummaryConstants.ACHIEVEMENT_BADGE_TEXTURE_WIDTH;
         int texH = SummaryConstants.ACHIEVEMENT_BADGE_TEXTURE_HEIGHT;
-        float scaleH = (float) height / texH;
-        float scaleW = (float) width / texW;
-        float scale = Math.min(scaleH, scaleW);
-        int renderW = (int) (texW * scale);
-        int renderH = (int) (texH * scale);
-        int renderY = y + (height - renderH) / 2;
+        RenderHelper.ScaledBlit sb = RenderHelper.computeScaledBlit(y, width, height, texW, texH);
 
         int color = (int) (fadeAlpha * 255) << 24 | 0xFFFFFF;
         graphics.pose().pushMatrix();
-        graphics.pose().translate(x, renderY);
-        graphics.pose().scale((float) renderW / texW, (float) renderH / texH);
+        graphics.pose().translate(x, sb.renderY());
+        graphics.pose().scale((float) sb.renderW() / texW, (float) sb.renderH() / texH);
         graphics.blit(RenderPipelines.GUI_TEXTURED, SummaryConstants.getAchievementBadgeTexture(),
                 0, 0, 0.0f, 0.0f, texW, texH, texW, texH, texW, texH, color);
         graphics.pose().popMatrix();
 
         String name = resolveAchievementName(achievementId);
-        int padX = Math.max(3, (int) (4 * scale));
-        int maxTextW = (int) ((renderW - padX * 2) / textScale);
-
-        String ellipsis = "...";
-        int ellipsisW = font.width(ellipsis);
-        if (font.width(name) > maxTextW) {
-            while (!name.isEmpty() && font.width(name) + ellipsisW > maxTextW) {
-                name = name.substring(0, name.length() - 1);
-            }
-            name = name + ellipsis;
-        }
+        int padX = Math.max(3, (int) (4 * ((float) sb.renderH() / texH)));
+        int maxTextW = (int) ((sb.renderW() - padX * 2) / textScale);
+        name = RenderUtils.truncateWithEllipsis(font, name, maxTextW);
 
         int alpha = (int) (fadeAlpha * 255);
         int textColor = (alpha << 24) | colors.achievementTextColor();
-        int textY = renderY + (renderH - (int) (8 * textScale)) / 2;
+        int textY = sb.renderY() + (sb.renderH() - (int) (8 * textScale)) / 2;
         RenderUtils.renderScaledText(graphics, font, name, x + padX, textY, textColor, textScale, true);
     }
 

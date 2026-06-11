@@ -10,14 +10,14 @@ import org.jetbrains.annotations.NotNull;
 public record MoonPhasePacket(int moonPhase) implements CustomPacketPayload {
 
     public static final Identifier ID_LOC = Identifier.fromNamespaceAndPath("midnightthoughts", "moon_phase");
-    public static final Type<MoonPhasePacket> TYPE = new Type<>(ID_LOC);
+    public static final Type<@NotNull MoonPhasePacket> TYPE = new Type<>(ID_LOC);
     public static final StreamCodec<RegistryFriendlyByteBuf, MoonPhasePacket> CODEC = StreamCodec.composite(
             ByteBufCodecs.INT, MoonPhasePacket::moonPhase,
             MoonPhasePacket::new
     );
 
     @Override
-    public @NotNull Type<? extends CustomPacketPayload> type() {
+    public @NotNull Type<@NotNull ? extends CustomPacketPayload> type() {
         return TYPE;
     }
 }
