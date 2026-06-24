@@ -39,8 +39,8 @@ public class SleepOverlayRenderer {
     private static final float TEXT_AREA_WIDTH_PERCENT = 0.35f;
     private static final float MIN_TEXT_SCALE = 1.5f;
     private static final float MAX_TEXT_SCALE = 3.0f;
+    private static final float ALPHA_LERP_SPEED = 0.15f;
     private static final long SLEEP_DEBOUNCE_MS = 200;
-    private static final long SLIDE_DELAY_MS = 500;
 
     private final SleepStateManager sleepStateManager;
     private final SlideService slideService;
@@ -48,18 +48,21 @@ public class SleepOverlayRenderer {
 
     private Slide currentSlide;
     private Slide nextSlide;
-    private long stateStartTime;
+    private long slideStartTime;
+    private long visibleStartTime;
     private long lastSleepEndTime;
     private int currentSlideDuration;
+    private float textAlpha = 0f;
+    private float targetTextAlpha = 0f;
+    private float overlayAlpha = 0f;
+    private SlideState slideState = SlideState.HIDDEN;
     private boolean isOverlayVisible = false;
     private int moonPhase = 0;
     private boolean isNightmareOverlay = false;
 
     private enum SlideState {
-        HIDDEN, VISIBLE, DELAY
+        HIDDEN, FADING_IN, VISIBLE, FADING_OUT
     }
-
-    private SlideState slideState = SlideState.HIDDEN;
 
     public SleepOverlayRenderer(SleepStateManager sleepStateManager, SlideService slideService, MidnightThoughtsConfig config) {
         this.sleepStateManager = sleepStateManager;
@@ -72,29 +75,23 @@ public class SleepOverlayRenderer {
     }
 
     public void tick() {
-        if (config.isEnableOverlay()) return;
+        if (!config.isEnableOverlay()) return;
 
         long now = System.currentTimeMillis();
 
-        if (sleepStateManager.justStoppedSleeping()) {
-            lastSleepEndTime = now;
-        }
+        if (sleepStateManager.justStoppedSleeping()) lastSleepEndTime = now;
 
         if (sleepStateManager.justStartedSleeping()) {
             boolean wasRecentlySleeping = (now - lastSleepEndTime) < SLEEP_DEBOUNCE_MS;
-            if (!isOverlayVisible && !wasRecentlySleeping) {
-                onSleepStart();
-            }
+            if (!isOverlayVisible && !wasRecentlySleeping) onSleepStart();
         }
 
         if (!sleepStateManager.isSleeping() && isOverlayVisible) {
-            boolean debounceExpired = (now - lastSleepEndTime) >= SLEEP_DEBOUNCE_MS;
-            if (debounceExpired) {
-                onSleepEnd();
-            }
+            if ((now - lastSleepEndTime) >= SLEEP_DEBOUNCE_MS) onSleepEnd();
         }
 
         if (sleepStateManager.isSleeping() && isOverlayVisible) {
+            updateOverlayAlpha();
             updateSlideState();
         }
     }
@@ -103,10 +100,14 @@ public class SleepOverlayRenderer {
         NetworkHandler.CHANNEL.sendToServer(new RequestMoonPhasePacket());
         isNightmareOverlay = WellRestedClientState.isNightmareMode();
         isOverlayVisible = true;
+        overlayAlpha = 1f;
+        textAlpha = 1f;
+        targetTextAlpha = 1f;
         currentSlide = getNightmareAwareSlide();
         nextSlide = getNightmareAwareSlide();
         currentSlideDuration = config.getRandomSlideDisplayTime();
-        stateStartTime = System.currentTimeMillis();
+        slideStartTime = System.currentTimeMillis();
+        visibleStartTime = System.currentTimeMillis();
         slideState = SlideState.VISIBLE;
     }
 
@@ -114,6 +115,9 @@ public class SleepOverlayRenderer {
         currentSlide = null;
         nextSlide = null;
         slideState = SlideState.HIDDEN;
+        textAlpha = 0f;
+        targetTextAlpha = 0f;
+        overlayAlpha = 0f;
         isOverlayVisible = false;
         isNightmareOverlay = false;
     }
@@ -126,38 +130,73 @@ public class SleepOverlayRenderer {
         return slideService.getNextSlide();
     }
 
+    private void updateOverlayAlpha() {
+        if (isOverlayVisible && overlayAlpha < 1f) overlayAlpha = Math.min(1f, overlayAlpha + 0.02f);
+    }
+
     private void updateSlideState() {
         long now = System.currentTimeMillis();
-        long elapsedInState = now - stateStartTime;
-
-        if (slideState == SlideState.VISIBLE) {
-            if (elapsedInState >= currentSlideDuration) {
-                slideState = SlideState.DELAY;
-                stateStartTime = now;
+        switch (slideState) {
+            case FADING_IN -> {
+                long elapsedFadeIn = now - slideStartTime;
+                float progressFadeIn = (float) elapsedFadeIn / config.getFadeInDurationMs();
+                if (progressFadeIn >= 1f && textAlpha > 0.95f) {
+                    targetTextAlpha = 1f;
+                    slideState = SlideState.VISIBLE;
+                    visibleStartTime = now;
+                    nextSlide = getNightmareAwareSlide();
+                } else {
+                    targetTextAlpha = easeInOut(Math.min(progressFadeIn, 1f));
+                }
             }
-        } else if (slideState == SlideState.DELAY) {
-            if (elapsedInState >= SLIDE_DELAY_MS) {
-                currentSlide = nextSlide != null ? nextSlide : getNightmareAwareSlide();
-                nextSlide = null;
-                currentSlideDuration = config.getRandomSlideDisplayTime();
-                slideState = SlideState.VISIBLE;
-                stateStartTime = now;
+            case VISIBLE -> {
+                targetTextAlpha = 1f;
+                if (now - visibleStartTime >= currentSlideDuration) {
+                    slideState = SlideState.FADING_OUT;
+                    slideStartTime = now;
+                }
             }
+            case FADING_OUT -> {
+                float progressFadeOut = (float) (now - slideStartTime) / config.getFadeOutDurationMs();
+                targetTextAlpha = 1f - easeInOut(Math.min(progressFadeOut, 1f));
+                if (progressFadeOut >= 1f && textAlpha < 0.05f) {
+                    currentSlide = nextSlide != null ? nextSlide : getNightmareAwareSlide();
+                    nextSlide = null;
+                    currentSlideDuration = config.getRandomSlideDisplayTime();
+                    slideStartTime = now;
+                    targetTextAlpha = 0f;
+                    slideState = SlideState.FADING_IN;
+                }
+            }
+            case HIDDEN -> targetTextAlpha = 0f;
         }
+        textAlpha = lerp(textAlpha, targetTextAlpha);
+        if (Math.abs(textAlpha - targetTextAlpha) < 0.01f) textAlpha = targetTextAlpha;
+    }
+
+    private float lerp(float current, float target) {
+        return current + (target - current) * ALPHA_LERP_SPEED;
+    }
+
+    private float easeInOut(float t) {
+        t = Math.max(0f, Math.min(1f, t));
+        return t < 0.5f ? 2 * t * t : 1 - (float) Math.pow(-2 * t + 2, 2) / 2;
     }
 
     public void renderOverlayOnly(GuiGraphics context, int screenWidth, int screenHeight) {
-        if (!sleepStateManager.isSleeping() || config.isEnableOverlay() || !isOverlayVisible) return;
+        if (!sleepStateManager.isSleeping() || !config.isEnableOverlay()) return;
+        if (overlayAlpha <= 0 && !isOverlayVisible) return;
         renderOverlay(context, screenWidth, screenHeight);
     }
 
     public void renderContentOnly(GuiGraphics context, int screenWidth, int screenHeight) {
-        if (!sleepStateManager.isSleeping() || config.isEnableOverlay() || !isOverlayVisible) return;
+        if (!sleepStateManager.isSleeping() || !config.isEnableOverlay()) return;
+        if (overlayAlpha <= 0 && !isOverlayVisible) return;
         renderContent(context, screenWidth, screenHeight);
     }
 
     private void renderOverlay(GuiGraphics context, int screenWidth, int screenHeight) {
-        int alpha = (int) (config.getOverlayOpacity() * 255);
+        int alpha = (int) (config.getOverlayOpacity() * overlayAlpha * 255);
         int overlayColor = isNightmareOverlay
                 ? (alpha << 24) | 0x1A0000
                 : (alpha << 24);
@@ -189,7 +228,7 @@ public class SleepOverlayRenderer {
             renderImage(context, imageX, imageY, imageWidth, imageHeight);
         }
 
-        if (currentSlide != null && slideState == SlideState.VISIBLE) {
+        if (currentSlide != null && textAlpha > 0.01f) {
             int scaledTextWidth = (int) (textAreaWidth / textScale);
             List<String> lines = wrapText(currentSlide.text(), font, scaledTextWidth);
             renderSlideText(context, font, lines, textAreaX, centerY, textScale);
@@ -206,6 +245,8 @@ public class SleepOverlayRenderer {
                 ? SKULL_TEXTURE
                 : MOON_PHASE_TEXTURES[moonPhase % MOON_PHASE_TEXTURES.length];
 
+        float alpha = overlayAlpha * config.getImageOpacity();
+        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, alpha);
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         context.pose().pushPose();
@@ -213,11 +254,13 @@ public class SleepOverlayRenderer {
         context.pose().scale((float) width / IMAGE_ORIGINAL_WIDTH, (float) height / IMAGE_ORIGINAL_HEIGHT, 1.0f);
         context.blit(texture, 0, 0, 0.0f, 0.0f, IMAGE_ORIGINAL_WIDTH, IMAGE_ORIGINAL_HEIGHT, IMAGE_ORIGINAL_WIDTH, IMAGE_ORIGINAL_HEIGHT);
         context.pose().popPose();
+        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
         RenderSystem.disableBlend();
     }
 
     private void renderSlideText(GuiGraphics context, Font font, List<String> lines, int areaX, int centerY, float scale) {
-        int textColor = 0xFFFFFFFF;
+        int alpha = (int) (config.getTextOpacity() * textAlpha * 255);
+        int textColor = (alpha << 24) | 0xFFFFFF;
         int lineHeight = font.lineHeight + 4;
         int totalTextHeight = (int) (lines.size() * lineHeight * scale);
         int textY = centerY - totalTextHeight / 2;

@@ -2,7 +2,8 @@ package mt.network.packet;
 
 import net.minecraft.network.FriendlyByteBuf;
 
-public record SyncConfigPacket(int minSlideDisplayTimeMs, int maxSlideDisplayTimeMs, float overlayOpacity,
+public record SyncConfigPacket(int minSlideDisplayTimeMs, int maxSlideDisplayTimeMs, int fadeInDurationMs,
+                               int fadeOutDurationMs, float overlayOpacity, float textOpacity, float imageOpacity,
                                float specialSlideChance, boolean enableOverlay, boolean enableImage,
                                boolean enableDailySummaryScreen, boolean useFactsApi, boolean userContentReplaces,
                                boolean hideChatWhenSleeping, String theme, boolean hideWellRestedHud,
@@ -11,7 +12,11 @@ public record SyncConfigPacket(int minSlideDisplayTimeMs, int maxSlideDisplayTim
     public static void encode(SyncConfigPacket packet, FriendlyByteBuf buf) {
         buf.writeInt(packet.minSlideDisplayTimeMs);
         buf.writeInt(packet.maxSlideDisplayTimeMs);
+        buf.writeInt(packet.fadeInDurationMs);
+        buf.writeInt(packet.fadeOutDurationMs);
         buf.writeFloat(packet.overlayOpacity);
+        buf.writeFloat(packet.textOpacity);
+        buf.writeFloat(packet.imageOpacity);
         buf.writeFloat(packet.specialSlideChance);
         buf.writeBoolean(packet.enableOverlay);
         buf.writeBoolean(packet.enableImage);
@@ -26,8 +31,8 @@ public record SyncConfigPacket(int minSlideDisplayTimeMs, int maxSlideDisplayTim
 
     public static SyncConfigPacket decode(FriendlyByteBuf buf) {
         return new SyncConfigPacket(
-                buf.readInt(), buf.readInt(),
-                buf.readFloat(), buf.readFloat(),
+                buf.readInt(), buf.readInt(), buf.readInt(), buf.readInt(),
+                buf.readFloat(), buf.readFloat(), buf.readFloat(), buf.readFloat(),
                 buf.readBoolean(), buf.readBoolean(),
                 buf.readBoolean(), buf.readBoolean(),
                 buf.readBoolean(), buf.readBoolean(),

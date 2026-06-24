@@ -13,12 +13,12 @@ import mt.client.service.UserContentLoader;
 import mt.client.ui.SleepingPlayersHud;
 import mt.client.ui.WellRestedHud;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
-import net.minecraftforge.client.event.RenderGuiOverlayEvent;
-import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
+import net.minecraftforge.client.event.RenderGuiEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -125,20 +125,19 @@ public class MidnightThoughtsClient {
         }
 
         @SubscribeEvent
-        public void onRenderGuiPre(RenderGuiOverlayEvent.Pre event) {
-            if (!event.getOverlay().id().equals(VanillaGuiOverlay.HOTBAR.id())) return;
+        public void onRenderGui(RenderGuiEvent.Post event) {
             RenderContext ctx = getRenderContext();
             if (ctx == null) return;
-            ctx.inst().overlayRenderer.renderOverlayOnly(event.getGuiGraphics(), ctx.w(), ctx.h());
-        }
-
-        @SubscribeEvent
-        public void onRenderGuiPost(RenderGuiOverlayEvent.Post event) {
-            RenderContext ctx = getRenderContext();
-            if (ctx == null) return;
-            ctx.inst().overlayRenderer.renderContentOnly(event.getGuiGraphics(), ctx.w(), ctx.h());
-            SleepingPlayersHud.render(event.getGuiGraphics(), ctx.w(), ctx.h());
-            WellRestedHud.render(event.getGuiGraphics(), ctx.h());
+            SleepOverlayRenderer r = ctx.inst().overlayRenderer;
+            GuiGraphics g = event.getGuiGraphics();
+            if (r.shouldHideCrosshair()) {
+                r.renderOverlayOnly(g, ctx.w(), ctx.h());
+                g.flush();
+                r.renderContentOnly(g, ctx.w(), ctx.h());
+                g.flush();
+            }
+            SleepingPlayersHud.render(g, ctx.w(), ctx.h());
+            WellRestedHud.render(g, ctx.h());
         }
 
         @SubscribeEvent
