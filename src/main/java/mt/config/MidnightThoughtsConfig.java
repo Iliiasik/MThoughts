@@ -251,4 +251,23 @@ public final class MidnightThoughtsConfig {
         public boolean hideWellRestedHud = false;
         public boolean hideThemeSwitchButton = false;
     }
+
+    public static void reload() {
+        MidnightThoughtsConfig fresh = load();
+        if (instance == null) {
+            instance = fresh;
+        } else {
+            instance.copyFrom(fresh);
+        }
+    }
+
+    private void copyFrom(MidnightThoughtsConfig other) {
+        this.sleepOverlay = other.sleepOverlay;
+        this.wellRested = other.wellRested;
+        this.mvp = other.mvp;
+        this.comfort = other.comfort;
+        this.server = other.server;
+        this.ui = other.ui;
+    }
+
 }

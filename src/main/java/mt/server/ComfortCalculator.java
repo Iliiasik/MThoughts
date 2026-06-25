@@ -17,6 +17,7 @@ import java.util.UUID;
 public class ComfortCalculator {
     private static final MidnightThoughtsConfig CONFIG = MidnightThoughtsConfig.getInstance();
     private static final int RECALCULATE_INTERVAL = 100;
+    private static final int MAX_SCAN_RADIUS = 8;
 
     private static final TagKey<Block> LIGHTING_TAG = TagKey.of(RegistryKeys.BLOCK, Identifier.of("midnightthoughts", "comfort_lighting"));
     private static final TagKey<Block> CARPET_TAG = TagKey.of(RegistryKeys.BLOCK, Identifier.of("midnightthoughts", "comfort_carpet"));
@@ -52,16 +53,18 @@ public class ComfortCalculator {
             return cached.comfortLevel();
         }
 
-        int scanRadius = CONFIG.getComfort().scanRadius;
+        int scanRadius = Math.max(0, Math.min(CONFIG.getComfort().scanRadius, MAX_SCAN_RADIUS));
         BlockPos bedPos = player.getSleepingPosition().orElse(currentPos);
         World world = player.getEntityWorld();
 
         boolean[] found = new boolean[ALL_TAGS.length];
+        BlockPos.Mutable cursor = new BlockPos.Mutable();
         outer:
         for (int x = -scanRadius; x <= scanRadius; x++) {
             for (int y = -scanRadius; y <= scanRadius; y++) {
                 for (int z = -scanRadius; z <= scanRadius; z++) {
-                    BlockState state = world.getBlockState(bedPos.add(x, y, z));
+                    cursor.set(bedPos, x, y, z);
+                    BlockState state = world.getBlockState(cursor);
                     boolean allFound = true;
                     for (int i = 0; i < ALL_TAGS.length; i++) {
                         if (!found[i] && state.isIn(ALL_TAGS[i])) found[i] = true;

@@ -6,10 +6,6 @@ import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
 public class WellRestedEffect {
     private static final MidnightThoughtsConfig CONFIG = MidnightThoughtsConfig.getInstance();
 
@@ -19,12 +15,44 @@ public class WellRestedEffect {
     private static final Identifier HASTE_ID = Identifier.of("midnightthoughts", "well_rested_haste");
     private static final Identifier HEALTH_ID = Identifier.of("midnightthoughts", "well_rested_health");
 
-    private static final Map<UUID, Integer> ticksRemainingMap = new HashMap<>();
-    private static final Map<UUID, Integer> levelMap = new HashMap<>();
-    private static final Map<UUID, Integer> phaseMap = new HashMap<>();
-    private static final Map<UUID, Boolean> mvpMap = new HashMap<>();
+    private static final String KEY_TICKS = "mt_well_rested_ticks_remaining";
+    private static final String KEY_LEVEL = "mt_well_rested_level";
+    private static final String KEY_PHASE = "mt_well_rested_phase";
+    private static final String KEY_MVP = "mt_well_rested_mvp_flag";
 
     public static void register() {
+    }
+
+    private static boolean dataContains(ServerPlayerEntity player, String key) {
+        String prefix = key + "=";
+        for (String tag : player.getCommandTags()) {
+            if (tag.startsWith(prefix)) return true;
+        }
+        return false;
+    }
+
+    private static int dataGetInt(ServerPlayerEntity player, String key, int def) {
+        String prefix = key + "=";
+        for (String tag : player.getCommandTags()) {
+            if (tag.startsWith(prefix)) {
+                try {
+                    return Integer.parseInt(tag.substring(prefix.length()));
+                } catch (NumberFormatException e) {
+                    return def;
+                }
+            }
+        }
+        return def;
+    }
+
+    private static void dataPutInt(ServerPlayerEntity player, String key, int value) {
+        dataRemove(player, key);
+        player.getCommandTags().add(key + "=" + value);
+    }
+
+    private static void dataRemove(ServerPlayerEntity player, String key) {
+        String prefix = key + "=";
+        player.getCommandTags().removeIf(tag -> tag.startsWith(prefix));
     }
 
     private static int clampLevel(int level) {
@@ -43,9 +71,8 @@ public class WellRestedEffect {
 
         removeFromPlayer(player);
 
-        UUID uuid = player.getUuid();
-        levelMap.put(uuid, lvlIdx);
-        ticksRemainingMap.put(uuid, getTotalDurationTicks(lvlIdx));
+        dataPutInt(player, KEY_LEVEL, lvlIdx);
+        dataPutInt(player, KEY_TICKS, getTotalDurationTicks(lvlIdx));
 
         applyHealthBonus(player, lvl.healthBonus);
         applyPhaseAttributes(player, lvl.speedPhase1, lvl.strengthPhase1, lvl.hastePhase1, lvl.attackSpeedPhase1);
@@ -54,21 +81,19 @@ public class WellRestedEffect {
     }
 
     public static void removeFromPlayer(ServerPlayerEntity player) {
-        UUID uuid = player.getUuid();
-        levelMap.remove(uuid);
-        ticksRemainingMap.remove(uuid);
-        phaseMap.remove(uuid);
-        mvpMap.remove(uuid);
+        dataRemove(player, KEY_LEVEL);
+        dataRemove(player, KEY_TICKS);
+        dataRemove(player, KEY_PHASE);
+        dataRemove(player, KEY_MVP);
         removeAttributes(player);
         player.setHealth(Math.min(player.getHealth(), player.getMaxHealth()));
     }
 
     public static void tick(ServerPlayerEntity player) {
-        UUID uuid = player.getUuid();
-        if (!ticksRemainingMap.containsKey(uuid)) return;
+        if (!dataContains(player, KEY_TICKS)) return;
 
-        int ticksRemaining = ticksRemainingMap.getOrDefault(uuid, 0);
-        int level = levelMap.getOrDefault(uuid, 1);
+        int ticksRemaining = dataGetInt(player, KEY_TICKS, 0);
+        int level = dataGetInt(player, KEY_LEVEL, 1);
 
         if (ticksRemaining <= 0) {
             removeFromPlayer(player);
@@ -76,7 +101,7 @@ public class WellRestedEffect {
         }
 
         ticksRemaining--;
-        ticksRemainingMap.put(uuid, ticksRemaining);
+        dataPutInt(player, KEY_TICKS, ticksRemaining);
 
         int totalTicks = getTotalDurationTicksForPlayer(player);
         int phaseTicks = totalTicks / 3;
@@ -92,10 +117,10 @@ public class WellRestedEffect {
             default -> { speed = lvl.speedPhase3; strength = lvl.strengthPhase3; haste = lvl.hastePhase3; attackSpeed = lvl.attackSpeedPhase3; regen = lvl.regenBonus; }
         }
 
-        int previousPhase = phaseMap.getOrDefault(uuid, -1);
+        int previousPhase = dataGetInt(player, KEY_PHASE, -1);
 
         if (previousPhase != currentPhaseIndex) {
-            phaseMap.put(uuid, currentPhaseIndex);
+            dataPutInt(player, KEY_PHASE, currentPhaseIndex);
             removePhaseAttributes(player);
             applyPhaseAttributes(player, speed, strength, haste, attackSpeed);
         }
@@ -150,7 +175,7 @@ public class WellRestedEffect {
     }
 
     public static boolean isMvp(ServerPlayerEntity player) {
-        return mvpMap.getOrDefault(player.getUuid(), false);
+        return dataGetInt(player, KEY_MVP, 0) == 1;
     }
 
     public static void applyMvpToPlayer(ServerPlayerEntity player) {
@@ -159,10 +184,9 @@ public class WellRestedEffect {
 
         removeFromPlayer(player);
 
-        UUID uuid = player.getUuid();
-        levelMap.put(uuid, 5);
-        ticksRemainingMap.put(uuid, durationTicks);
-        mvpMap.put(uuid, true);
+        dataPutInt(player, KEY_LEVEL, 5);
+        dataPutInt(player, KEY_TICKS, durationTicks);
+        dataPutInt(player, KEY_MVP, 1);
 
         applyHealthBonus(player, lvl.healthBonus);
         applyPhaseAttributes(player, lvl.speedPhase1, lvl.strengthPhase1, lvl.hastePhase1, lvl.attackSpeedPhase1);
@@ -178,18 +202,18 @@ public class WellRestedEffect {
     }
 
     public static boolean hasEffect(ServerPlayerEntity player) {
-        return ticksRemainingMap.getOrDefault(player.getUuid(), 0) > 0;
+        return dataContains(player, KEY_TICKS) && dataGetInt(player, KEY_TICKS, 0) > 0;
     }
 
     public static int getTicksRemaining(ServerPlayerEntity player) {
-        return ticksRemainingMap.getOrDefault(player.getUuid(), 0);
+        return dataGetInt(player, KEY_TICKS, 0);
     }
 
     public static int getLevel(ServerPlayerEntity player) {
-        return levelMap.getOrDefault(player.getUuid(), 0);
+        return dataGetInt(player, KEY_LEVEL, 0);
     }
 
     public static int getCurrentPhase(ServerPlayerEntity player) {
-        return phaseMap.getOrDefault(player.getUuid(), 0);
+        return dataGetInt(player, KEY_PHASE, 0);
     }
 }

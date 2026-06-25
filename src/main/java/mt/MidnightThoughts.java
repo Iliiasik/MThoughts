@@ -1,17 +1,19 @@
 package mt;
 
+import mt.command.MidnightThoughtsCommand;
 import mt.network.NetworkHandler;
 import mt.network.packet.SyncAchievementsPacket;
 import mt.network.packet.SyncConfigPacket;
-import mt.network.packet.WellRestedPacket;
 import mt.server.AchievementLoader;
 import mt.server.ComfortCalculator;
 import mt.server.DailyStatsManager;
 import mt.server.SleepTracker;
 import mt.server.UserContentInitializer;
 import mt.server.WellRestedEffect;
+import mt.server.WellRestedSync;
 import mt.config.MidnightThoughtsConfig;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.entity.event.v1.EntitySleepEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -39,14 +41,7 @@ public class MidnightThoughts implements ModInitializer {
             DailyStatsManager.tick(server);
             for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
                 WellRestedEffect.tick(player);
-                boolean active = WellRestedEffect.hasEffect(player);
-                int level = WellRestedEffect.getLevel(player);
-                int ticksRemaining = WellRestedEffect.getTicksRemaining(player);
-                int totalTicks = active ? WellRestedEffect.getTotalDurationTicksForPlayer(player) : 0;
-                int phase = WellRestedEffect.getCurrentPhase(player);
-                boolean nightmare = player.isSleeping() && ComfortCalculator.isNightmareMode(player);
-                boolean mvp = WellRestedEffect.isMvp(player);
-                NetworkHandler.sendWellRested(player, new WellRestedPacket(active, level, ticksRemaining, totalTicks, phase, nightmare, mvp));
+                WellRestedSync.sync(player);
             }
         });
 
@@ -111,9 +106,13 @@ public class MidnightThoughts implements ModInitializer {
         ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
             ComfortCalculator.invalidateCache(handler.player);
             DailyStatsManager.onPlayerLeave(handler.player);
+            WellRestedSync.clear(handler.player.getUuid());
         });
 
         ServerLifecycleEvents.SERVER_STOPPING.register(DailyStatsManager::onServerStop);
+
+        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) ->
+                MidnightThoughtsCommand.register(dispatcher));
 
         LOGGER.info("Midnight Thoughts initialized successfully!");
     }
