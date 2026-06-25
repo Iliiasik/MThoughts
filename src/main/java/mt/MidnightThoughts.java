@@ -1,15 +1,16 @@
 package mt;
 
+import mt.command.MidnightThoughtsCommand;
 import mt.network.NetworkHandler;
 import mt.network.packet.SyncAchievementsPacket;
 import mt.network.packet.SyncConfigPacket;
-import mt.network.packet.WellRestedPacket;
 import mt.server.AchievementLoader;
 import mt.server.ComfortCalculator;
 import mt.server.DailyStatsManager;
 import mt.server.SleepTracker;
 import mt.server.UserContentInitializer;
 import mt.server.WellRestedEffect;
+import mt.server.WellRestedSync;
 import mt.config.MidnightThoughtsConfig;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
@@ -21,6 +22,7 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.player.CanPlayerSleepEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
@@ -69,14 +71,7 @@ public class MidnightThoughts {
         DailyStatsManager.tick(event.getServer());
         for (ServerPlayer player : event.getServer().getPlayerList().getPlayers()) {
             WellRestedEffect.tick(player);
-            boolean active = WellRestedEffect.hasEffect(player);
-            int level = WellRestedEffect.getLevel(player);
-            int ticksRemaining = WellRestedEffect.getTicksRemaining(player);
-            int totalTicks = active ? WellRestedEffect.getTotalDurationTicksForPlayer(player) : 0;
-            int phase = WellRestedEffect.getCurrentPhase(player);
-            boolean nightmare = player.isSleeping() && ComfortCalculator.isNightmareMode(player);
-            boolean mvp = WellRestedEffect.isMvp(player);
-            NetworkHandler.sendWellRested(player, new WellRestedPacket(active, level, ticksRemaining, totalTicks, phase, nightmare, mvp));
+            WellRestedSync.sync(player);
         }
     }
 
@@ -122,6 +117,11 @@ public class MidnightThoughts {
     }
 
     @SubscribeEvent
+    public void onRegisterCommands(RegisterCommandsEvent event) {
+        MidnightThoughtsCommand.register(event.getDispatcher());
+    }
+
+    @SubscribeEvent
     public void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer serverPlayer)) return;
         DailyStatsManager.onPlayerJoin(serverPlayer);
@@ -155,6 +155,7 @@ public class MidnightThoughts {
         if (event.getEntity() instanceof ServerPlayer serverPlayer) {
             ComfortCalculator.invalidateCache(serverPlayer);
             DailyStatsManager.onPlayerLeave(serverPlayer);
+            WellRestedSync.clear(serverPlayer.getUUID());
         }
     }
 
