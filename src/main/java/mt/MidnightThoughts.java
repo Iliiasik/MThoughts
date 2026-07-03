@@ -86,6 +86,9 @@ public class MidnightThoughts {
                     Component.translatable("midnightthoughts.sleep.nightmare_blocked"),
                     true
             );
+        } else if (ComfortCalculator.isNightmareMode(serverPlayer)) {
+            MinecraftForge.EVENT_BUS.post(new mt.api.event.NightmareEvent(
+                    serverPlayer, ComfortCalculator.calculateComfortLevel(serverPlayer)));
         }
     }
 
@@ -101,7 +104,11 @@ public class MidnightThoughts {
     @SubscribeEvent
     public void onLivingDeath(LivingDeathEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
+            boolean had = WellRestedEffect.hasEffect(player);
             WellRestedEffect.removeFromPlayer(player);
+            if (had) {
+                MinecraftForge.EVENT_BUS.post(new mt.api.event.WellRestedExpiredEvent(player));
+            }
         }
     }
 
@@ -135,7 +142,9 @@ public class MidnightThoughts {
                 cfg.getSleepOverlay().hideChatWhenSleeping,
                 cfg.getUi().theme,
                 cfg.getUi().hideWellRestedHud,
-                cfg.getUi().hideThemeSwitchButton
+                cfg.getUi().hideThemeSwitchButton,
+                cfg.getSleepOverlay().enableStarDust,
+                cfg.getSleepOverlay().showSlideProgress
         ));
     }
 

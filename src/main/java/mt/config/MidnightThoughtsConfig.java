@@ -67,6 +67,7 @@ public final class MidnightThoughtsConfig {
         if (wellRested == null) wellRested = new WellRestedSettings();
         if (mvp == null) mvp = new MvpSettings();
         if (comfort == null) comfort = new ComfortSettings();
+        if (comfort.weights == null) comfort.weights = new ComfortWeights();
         if (server == null) server = new ServerSettings();
         if (ui == null) ui = new UISettings();
     }
@@ -180,6 +181,8 @@ public final class MidnightThoughtsConfig {
         public float textOpacity = 1.0f;
         public float imageOpacity = 0.6f;
         public float specialSlideChance = 0.05f;
+        public boolean enableStarDust = true;
+        public boolean showSlideProgress = true;
         public boolean enableOverlay = true;
         public boolean enableImage = true;
         public boolean enableDailySummaryScreen = true;
@@ -188,7 +191,18 @@ public final class MidnightThoughtsConfig {
         public boolean hideChatWhenSleeping = true;
     }
 
+    public boolean isEnableStarDust() {
+        if (mt.cache.ServerConfigCache.has()) return mt.cache.ServerConfigCache.get().enableStarDust();
+        return sleepOverlay.enableStarDust;
+    }
+
+    public boolean isShowSlideProgress() {
+        if (mt.cache.ServerConfigCache.has()) return mt.cache.ServerConfigCache.get().showSlideProgress();
+        return sleepOverlay.showSlideProgress;
+    }
+
     public static class WellRestedSettings {
+        public boolean enabled = true;
         public Map<String, WellRestedLevel> levels = new HashMap<>();
 
         public WellRestedSettings() {
@@ -240,6 +254,22 @@ public final class MidnightThoughtsConfig {
     public static class ComfortSettings {
         public boolean enabled = true;
         public int scanRadius = 5;
+        public ComfortWeights weights = new ComfortWeights();
+        public int nightmareThreshold = -1;
+        public int sleepBlockThreshold = -2;
+        public boolean nightmareEnabled = true;
+        public boolean sleepBlockEnabled = true;
+    }
+
+    public static class ComfortWeights {
+        public int lighting = 1;
+        public int carpet = 1;
+        public int furniture = 1;
+        public int decoration = 1;
+        public int structure = 1;
+        public int macabre = -1;
+        public int hostile = -1;
+        public int dark = -1;
     }
 
     public static class ServerSettings {

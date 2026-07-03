@@ -7,7 +7,7 @@ public record SyncConfigPacket(int minSlideDisplayTimeMs, int maxSlideDisplayTim
                                float specialSlideChance, boolean enableOverlay, boolean enableImage,
                                boolean enableDailySummaryScreen, boolean useFactsApi, boolean userContentReplaces,
                                boolean hideChatWhenSleeping, String theme, boolean hideWellRestedHud,
-                               boolean hideThemeSwitchButton) {
+                               boolean hideThemeSwitchButton, boolean enableStarDust, boolean showSlideProgress) {
 
     public static void encode(SyncConfigPacket packet, FriendlyByteBuf buf) {
         buf.writeInt(packet.minSlideDisplayTimeMs);
@@ -27,6 +27,8 @@ public record SyncConfigPacket(int minSlideDisplayTimeMs, int maxSlideDisplayTim
         buf.writeUtf(packet.theme);
         buf.writeBoolean(packet.hideWellRestedHud);
         buf.writeBoolean(packet.hideThemeSwitchButton);
+        buf.writeBoolean(packet.enableStarDust);
+        buf.writeBoolean(packet.showSlideProgress);
     }
 
     public static SyncConfigPacket decode(FriendlyByteBuf buf) {
@@ -37,6 +39,7 @@ public record SyncConfigPacket(int minSlideDisplayTimeMs, int maxSlideDisplayTim
                 buf.readBoolean(), buf.readBoolean(),
                 buf.readBoolean(), buf.readBoolean(),
                 buf.readUtf(),
+                buf.readBoolean(), buf.readBoolean(),
                 buf.readBoolean(), buf.readBoolean()
         );
     }

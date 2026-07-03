@@ -1,9 +1,11 @@
 package mt.server;
 
+import mt.config.MidnightThoughtsConfig;
 import mt.network.NetworkHandler;
 import mt.network.packet.DailySummaryPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraftforge.common.MinecraftForge;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -71,7 +73,8 @@ public class DailyStatsManager {
             ));
         }
 
-        String mvpName = AchievementCalculator.determineMvp(playerDataList);
+        boolean mvpEnabled = MidnightThoughtsConfig.getInstance().getMvp().enabled;
+        String mvpName = mvpEnabled ? AchievementCalculator.determineMvp(playerDataList) : null;
         List<DailySummaryPacket.PlayerDailySummary> summaries = new ArrayList<>();
 
         for (ServerPlayer player : sleptPlayers) {
@@ -97,6 +100,7 @@ public class DailyStatsManager {
             boolean isMvp = player.getName().getString().equals(mvpName);
             if (isMvp) {
                 WellRestedEffect.applyMvpToPlayer(player);
+                MinecraftForge.EVENT_BUS.post(new mt.api.event.MvpDeterminedEvent(player));
             } else {
                 int comfortLevel = ComfortCalculator.calculateComfortLevel(player);
                 WellRestedEffect.applyToPlayer(player, comfortLevel);
