@@ -186,7 +186,7 @@ public final class MidnightThoughtsConfig {
         public boolean enableOverlay = true;
         public boolean enableImage = true;
         public boolean enableDailySummaryScreen = true;
-        public boolean useFactsApi = true;
+        public boolean useFactsApi = false;
         public boolean userContentReplaces = false;
         public boolean hideChatWhenSleeping = true;
     }
