@@ -9,11 +9,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -30,7 +28,6 @@ public class FactProvider {
     private final Queue<Slide> factQueue;
     private final AtomicBoolean apiAvailable;
     private final AtomicBoolean fetchInProgress;
-    private final Map<String, List<String>> userContentCache = new ConcurrentHashMap<>();
 
     private String currentLanguage = "en_us";
 
@@ -47,7 +44,7 @@ public class FactProvider {
         updateLanguageIfChanged(language);
 
         MidnightThoughtsConfig config = MidnightThoughtsConfig.getInstance();
-        List<String> userFacts = getCachedUserContent(language, "facts");
+        List<String> userFacts = userContentLoader.loadEntries(language, "facts");
 
         if (!userFacts.isEmpty() && config.isUserContentReplaces()) {
             return randomUserSlide(userFacts, SlideCategory.FACT);
@@ -75,13 +72,11 @@ public class FactProvider {
         updateLanguageIfChanged(language);
 
         String categoryName = category.name().toLowerCase();
-
         if (category == SlideCategory.NIGHTMARE) {
             categoryName = "nightmares";
         }
 
-        List<String> userEntries = getCachedUserContent(language, categoryName);
-
+        List<String> userEntries = userContentLoader.loadEntries(language, categoryName);
         MidnightThoughtsConfig config = MidnightThoughtsConfig.getInstance();
 
         if (!userEntries.isEmpty() && config.isUserContentReplaces()) {
@@ -99,19 +94,7 @@ public class FactProvider {
         if (!language.equals(currentLanguage)) {
             currentLanguage = language;
             factQueue.clear();
-            userContentCache.clear();
         }
-    }
-
-    private List<String> getCachedUserContent(String language, String category) {
-        String key = language + ":" + category;
-        return userContentCache.computeIfAbsent(key, k -> {
-            List<String> entries = userContentLoader.loadEntries(language, category);
-            if (!entries.isEmpty()) {
-                LOGGER.info("Loaded {} user entries for {}/{}", entries.size(), language, category);
-            }
-            return entries;
-        });
     }
 
     private Slide randomUserSlide(List<String> entries, SlideCategory category) {

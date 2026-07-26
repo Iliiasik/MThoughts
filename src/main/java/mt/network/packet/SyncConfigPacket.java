@@ -24,7 +24,9 @@ public record SyncConfigPacket(
         String theme,
         String wellRestedHudPosition,
         boolean hideWellRestedHud,
-        boolean hideThemeSwitchButton
+        boolean hideThemeSwitchButton,
+        boolean enableStarDust,
+        boolean showSlideProgress
 ) implements CustomPacketPayload {
     public static final ResourceLocation ID_LOC = ResourceLocation.fromNamespaceAndPath("midnightthoughts", "sync_config");
     public static final CustomPacketPayload.Type<SyncConfigPacket> TYPE = new CustomPacketPayload.Type<>(ID_LOC);
@@ -49,6 +51,8 @@ public record SyncConfigPacket(
                 buf.writeUtf(p.wellRestedHudPosition());
                 buf.writeBoolean(p.hideWellRestedHud());
                 buf.writeBoolean(p.hideThemeSwitchButton());
+                buf.writeBoolean(p.enableStarDust());
+                buf.writeBoolean(p.showSlideProgress());
             },
             buf -> new SyncConfigPacket(
                     buf.readVarInt(),
@@ -67,6 +71,8 @@ public record SyncConfigPacket(
                     buf.readBoolean(),
                     buf.readUtf(),
                     buf.readUtf(),
+                    buf.readBoolean(),
+                    buf.readBoolean(),
                     buf.readBoolean(),
                     buf.readBoolean()
             )

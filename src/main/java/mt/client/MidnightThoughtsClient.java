@@ -23,11 +23,14 @@ import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
 import net.neoforged.neoforge.client.event.RenderGuiEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 
 public class MidnightThoughtsClient {
     public static final String MOD_ID = "midnightthoughts";
+    public static final Logger LOGGER = LoggerFactory.getLogger("MidnightThoughts");
 
     private static MidnightThoughtsClient instance;
 
@@ -41,6 +44,7 @@ public class MidnightThoughtsClient {
             instance = new MidnightThoughtsClient();
             NeoForge.EVENT_BUS.register(new NeoForgeClientEvents());
             modEventBus.addListener(instance::onRegisterReloadListeners);
+            LOGGER.info("[MidnightThoughtsClient] Midnight Thoughts initialized successfully!");
         }
     }
 

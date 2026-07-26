@@ -6,6 +6,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.neoforged.neoforge.common.NeoForge;
 
 public class WellRestedEffect {
     private static final MidnightThoughtsConfig CONFIG = MidnightThoughtsConfig.getInstance();
@@ -21,11 +22,16 @@ public class WellRestedEffect {
         return Math.min(level, 5);
     }
 
+    private static int getNbtInt(ServerPlayer player, String key, int def) {
+        return player.getPersistentData().contains(key) ? player.getPersistentData().getInt(key) : def;
+    }
+
     public static int getTotalDurationTicks(int comfortLevel) {
         return CONFIG.getWellRested().getLevel(clampLevel(comfortLevel)).durationMinutes * 60 * 20;
     }
 
     public static void applyToPlayer(ServerPlayer player, int comfortLevel) {
+        if (!CONFIG.getWellRested().enabled) return;
         if (comfortLevel <= 0) return;
         int lvlIdx = clampLevel(comfortLevel);
         MidnightThoughtsConfig.WellRestedLevel lvl = CONFIG.getWellRested().getLevel(lvlIdx);
@@ -39,6 +45,8 @@ public class WellRestedEffect {
         applyPhaseAttributes(player, lvl.speedPhase1, lvl.strengthPhase1, lvl.hastePhase1, lvl.attackSpeedPhase1);
 
         player.setHealth(player.getMaxHealth());
+
+        NeoForge.EVENT_BUS.post(new mt.api.event.WellRestedAppliedEvent(player, lvlIdx, false, getTotalDurationTicks(lvlIdx)));
     }
 
     public static void removeFromPlayer(ServerPlayer player) {
@@ -50,14 +58,23 @@ public class WellRestedEffect {
     }
 
     public static void tick(ServerPlayer player) {
+        if (!CONFIG.getWellRested().enabled) {
+            if (player.getPersistentData().contains("mt_well_rested_ticks_remaining")) {
+                removeFromPlayer(player);
+                syncAttributes(player);
+                NeoForge.EVENT_BUS.post(new mt.api.event.WellRestedExpiredEvent(player));
+            }
+            return;
+        }
         if (!player.getPersistentData().contains("mt_well_rested_ticks_remaining")) return;
 
-        int ticksRemaining = player.getPersistentData().getInt("mt_well_rested_ticks_remaining");
-        int level = player.getPersistentData().getInt("mt_well_rested_level");
+        int ticksRemaining = getNbtInt(player, "mt_well_rested_ticks_remaining", 0);
+        int level = getNbtInt(player, "mt_well_rested_level", 1);
 
         if (ticksRemaining <= 0) {
             removeFromPlayer(player);
             syncAttributes(player);
+            NeoForge.EVENT_BUS.post(new mt.api.event.WellRestedExpiredEvent(player));
             return;
         }
 
@@ -137,11 +154,11 @@ public class WellRestedEffect {
     }
 
     public static boolean isMvp(ServerPlayer player) {
-        return player.getPersistentData().contains("mt_well_rested_mvp_flag")
-                && player.getPersistentData().getInt("mt_well_rested_mvp_flag") == 1;
+        return getNbtInt(player, "mt_well_rested_mvp_flag", 0) == 1;
     }
 
     public static void applyMvpToPlayer(ServerPlayer player) {
+        if (!CONFIG.getWellRested().enabled) return;
         MidnightThoughtsConfig.WellRestedLevel lvl = CONFIG.getWellRested().getLevel(5);
         int durationTicks = CONFIG.getMvp().mvpWellRestedDurationMinutes * 60 * 20;
 
@@ -155,6 +172,8 @@ public class WellRestedEffect {
         applyPhaseAttributes(player, lvl.speedPhase1, lvl.strengthPhase1, lvl.hastePhase1, lvl.attackSpeedPhase1);
 
         player.setHealth(player.getMaxHealth());
+
+        NeoForge.EVENT_BUS.post(new mt.api.event.WellRestedAppliedEvent(player, 5, true, durationTicks));
     }
 
     public static int getTotalDurationTicksForPlayer(ServerPlayer player) {
@@ -166,22 +185,19 @@ public class WellRestedEffect {
 
     public static boolean hasEffect(ServerPlayer player) {
         return player.getPersistentData().contains("mt_well_rested_ticks_remaining")
-                && player.getPersistentData().getInt("mt_well_rested_ticks_remaining") > 0;
+                && getNbtInt(player, "mt_well_rested_ticks_remaining", 0) > 0;
     }
 
     public static int getTicksRemaining(ServerPlayer player) {
-        return player.getPersistentData().contains("mt_well_rested_ticks_remaining")
-                ? player.getPersistentData().getInt("mt_well_rested_ticks_remaining") : 0;
+        return getNbtInt(player, "mt_well_rested_ticks_remaining", 0);
     }
 
     public static int getLevel(ServerPlayer player) {
-        return player.getPersistentData().contains("mt_well_rested_level")
-                ? player.getPersistentData().getInt("mt_well_rested_level") : 0;
+        return getNbtInt(player, "mt_well_rested_level", 0);
     }
 
     public static int getCurrentPhase(ServerPlayer player) {
-        return player.getPersistentData().contains("mt_well_rested_phase")
-                ? player.getPersistentData().getInt("mt_well_rested_phase") : 0;
+        return getNbtInt(player, "mt_well_rested_phase", 0);
     }
 }
 

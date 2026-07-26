@@ -100,13 +100,21 @@ public class MidnightThoughts {
                 SleepTracker tracker = DailyStatsManager.getSleepTracker(srv);
                 if (tracker != null) tracker.markPlayerSleeping(serverPlayer.getUUID());
             }
+            if (ComfortCalculator.isNightmareMode(serverPlayer)) {
+                NeoForge.EVENT_BUS.post(new mt.api.event.NightmareEvent(
+                        serverPlayer, ComfortCalculator.calculateComfortLevel(serverPlayer)));
+            }
         }
     }
 
     @SubscribeEvent
     public void onLivingDeath(LivingDeathEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
+            boolean had = WellRestedEffect.hasEffect(player);
             WellRestedEffect.removeFromPlayer(player);
+            if (had) {
+                NeoForge.EVENT_BUS.post(new mt.api.event.WellRestedExpiredEvent(player));
+            }
         }
     }
 
@@ -146,7 +154,9 @@ public class MidnightThoughts {
                 cfg.getUi().theme,
                 cfg.getUi().wellRestedHudPosition,
                 cfg.getUi().hideWellRestedHud,
-                cfg.getUi().hideThemeSwitchButton
+                cfg.getUi().hideThemeSwitchButton,
+                cfg.getSleepOverlay().enableStarDust,
+                cfg.getSleepOverlay().showSlideProgress
         ));
     }
 
