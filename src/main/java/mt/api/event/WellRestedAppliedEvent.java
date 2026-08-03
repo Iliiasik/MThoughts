@@ -3,6 +3,7 @@ package mt.api.event;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.eventbus.api.Event;
 
+@SuppressWarnings("unused")
 public class WellRestedAppliedEvent extends Event {
     private final ServerPlayer player;
     private final int level;

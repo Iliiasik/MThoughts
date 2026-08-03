@@ -18,6 +18,7 @@ public class StarField {
     private final boolean[] big = new boolean[STAR_COUNT];
     private final Random rng = new Random();
     private long nextShuffle;
+    private long origin = System.currentTimeMillis();
 
     public StarField() {
         regenerate();
@@ -25,6 +26,7 @@ public class StarField {
 
     public void reset(long now) {
         regenerate();
+        origin = now;
         scheduleShuffle(now);
     }
 
@@ -37,12 +39,12 @@ public class StarField {
     }
 
     public void render(GuiGraphics context, int w, int h, float overlayAlpha) {
-        long now = System.currentTimeMillis();
+        float elapsed = System.currentTimeMillis() - origin;
         for (int i = 0; i < STAR_COUNT; i++) {
-            float twinkle = 0.35f + 0.65f * (float) Math.sin(now * speed[i] + phase[i]);
+            float twinkle = 0.35f + 0.65f * (float) Math.sin(elapsed * speed[i] + phase[i]);
             int a = clampAlpha(alpha[i] * twinkle * overlayAlpha);
             if (a <= 1) continue;
-            float dy = y[i] + now * drift[i];
+            float dy = y[i] + elapsed * drift[i];
             dy = dy - (float) Math.floor(dy);
             int px = Math.round(x[i] * w);
             int py = Math.round(dy * h);

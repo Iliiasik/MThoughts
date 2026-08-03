@@ -40,7 +40,9 @@ public class WellRestedHud {
         int ticksRemaining = WellRestedClientState.getTicksRemaining();
         int totalTicks = WellRestedClientState.getTotalTicks();
 
-        float progress = totalTicks > 0 ? (float) ticksRemaining / totalTicks : 0f;
+        float progress = totalTicks > 0
+                ? Math.max(0f, Math.min(1f, (float) ticksRemaining / totalTicks))
+                : 0f;
 
         int barY = screenHeight - MARGIN_BOTTOM - BAR_GUI_H;
 

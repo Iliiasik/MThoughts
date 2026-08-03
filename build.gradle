@@ -145,6 +145,7 @@ tasks.withType(JavaCompile).configureEach {
 
 test {
     useJUnitPlatform()
+    maxHeapSize = '2g'
     testLogging {
         events "passed", "skipped", "failed"
         exceptionFormat "full"

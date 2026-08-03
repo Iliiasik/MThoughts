@@ -4,6 +4,7 @@ import dev.latvian.mods.kubejs.KubeJSPlugin;
 import dev.latvian.mods.kubejs.script.BindingsEvent;
 import net.minecraftforge.common.MinecraftForge;
 
+@SuppressWarnings("unused")
 public class MidnightThoughtsKubeJSPlugin extends KubeJSPlugin {
 
     @Override

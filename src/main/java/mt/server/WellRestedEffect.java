@@ -1,6 +1,7 @@
 package mt.server;
 
 import mt.config.MidnightThoughtsConfig;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundUpdateAttributesPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -23,7 +24,8 @@ public class WellRestedEffect {
     }
 
     private static int getNbtInt(ServerPlayer player, String key, int def) {
-        return player.getPersistentData().contains(key) ? player.getPersistentData().getInt(key) : def;
+        CompoundTag data = player.getPersistentData();
+        return data.contains(key) ? data.getInt(key) : def;
     }
 
     public static int getTotalDurationTicks(int comfortLevel) {
@@ -47,6 +49,14 @@ public class WellRestedEffect {
         player.setHealth(player.getMaxHealth());
 
         MinecraftForge.EVENT_BUS.post(new mt.api.event.WellRestedAppliedEvent(player, lvlIdx, false, getTotalDurationTicks(lvlIdx)));
+    }
+
+    public static void clear(ServerPlayer player) {
+        boolean had = hasEffect(player);
+        removeFromPlayer(player);
+        if (had) {
+            MinecraftForge.EVENT_BUS.post(new mt.api.event.WellRestedExpiredEvent(player));
+        }
     }
 
     public static void removeFromPlayer(ServerPlayer player) {

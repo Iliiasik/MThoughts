@@ -100,6 +100,8 @@ public class ComfortCalculator {
             if (found[i]) comfortLevel += weights[i];
         }
 
+        cache.put(uuid, new CachedComfort(comfortLevel, currentTick, currentPos));
+
         mt.api.event.ComfortCalculatedEvent e = new mt.api.event.ComfortCalculatedEvent(player, comfortLevel);
         MinecraftForge.EVENT_BUS.post(e);
         comfortLevel = e.getLevel();

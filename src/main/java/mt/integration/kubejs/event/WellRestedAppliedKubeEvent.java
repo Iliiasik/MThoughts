@@ -3,6 +3,7 @@ package mt.integration.kubejs.event;
 import dev.latvian.mods.kubejs.event.EventJS;
 import net.minecraft.server.level.ServerPlayer;
 
+@SuppressWarnings("unused")
 public class WellRestedAppliedKubeEvent extends EventJS {
     private final ServerPlayer player;
     private final int level;

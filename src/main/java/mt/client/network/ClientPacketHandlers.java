@@ -6,11 +6,9 @@ import mt.client.MidnightThoughtsClient;
 import mt.client.manager.WellRestedClientState;
 import mt.client.ui.DailySummaryScreen;
 import mt.client.ui.SleepingPlayersHud;
-import mt.network.NetworkHandler;
 import mt.network.packet.DailySummaryPacket;
 import mt.network.packet.MoonPhasePacket;
 import mt.network.packet.SleepingPlayersPacket;
-import mt.network.packet.SummaryAcknowledgePacket;
 import mt.network.packet.SyncAchievementsPacket;
 import mt.network.packet.SyncConfigPacket;
 import mt.network.packet.UserContentPacket;
@@ -20,11 +18,8 @@ import net.minecraft.client.Minecraft;
 public class ClientPacketHandlers {
 
     public static void handleDailySummary(DailySummaryPacket packet) {
-        if (ServerConfigCache.has() ? ServerConfigCache.get().enableDailySummaryScreen()
-                : mt.config.MidnightThoughtsConfig.getInstance().isEnableDailySummaryScreen()) {
+        if (mt.config.MidnightThoughtsConfig.getInstance().isEnableDailySummaryScreen()) {
             Minecraft.getInstance().setScreen(new DailySummaryScreen(packet.summaries()));
-        } else {
-            sendSummaryAcknowledge();
         }
     }
 
@@ -61,7 +56,4 @@ public class ClientPacketHandlers {
         }
     }
 
-    public static void sendSummaryAcknowledge() {
-        NetworkHandler.CHANNEL.sendToServer(new SummaryAcknowledgePacket());
-    }
 }

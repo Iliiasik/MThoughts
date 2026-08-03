@@ -1,11 +1,12 @@
 package mt.server;
 
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import mt.mixin.StatsCounterAccessor;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.stats.Stat;
 import net.minecraft.stats.Stats;
 import net.minecraft.stats.StatsCounter;
-import net.minecraft.world.level.block.Block;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.UUID;
 
@@ -54,14 +55,21 @@ public class DailyPlayerStats {
         StatsStorage.savePlayerStats(server, playerUuid, saved);
     }
 
+    private static int getTotalBlocksMined(StatsCounter stats) {
+        long total = 0;
+        Object2IntMap<Stat<?>> raw = ((StatsCounterAccessor) stats).midnightthoughts$getStats();
+        for (Object2IntMap.Entry<Stat<?>> entry : raw.object2IntEntrySet()) {
+            if (entry.getKey().getType() == Stats.BLOCK_MINED) {
+                total += entry.getIntValue();
+            }
+        }
+        return (int) Math.min(total, Integer.MAX_VALUE);
+    }
+
     public void captureCurrentStats(ServerPlayer player) {
         StatsCounter stats = player.getStats();
 
-        long blocksDestroyed = 0;
-        for (Block block : ForgeRegistries.BLOCKS) {
-            blocksDestroyed += stats.getValue(Stats.BLOCK_MINED.get(block));
-        }
-        this.baseBlocksDestroyed = (int) Math.min(blocksDestroyed, Integer.MAX_VALUE);
+        this.baseBlocksDestroyed = getTotalBlocksMined(stats);
         this.baseDistanceWalked = getTotalDistance(stats);
         this.baseMobsKilled = stats.getValue(Stats.CUSTOM.get(Stats.MOB_KILLS));
         this.baseDeaths = stats.getValue(Stats.CUSTOM.get(Stats.DEATHS));
@@ -92,13 +100,7 @@ public class DailyPlayerStats {
     public DailyDelta calculateDelta(ServerPlayer player) {
         StatsCounter stats = player.getStats();
 
-        long blocksDestroyed = 0;
-        for (Block block : ForgeRegistries.BLOCKS) {
-            blocksDestroyed += stats.getValue(Stats.BLOCK_MINED.get(block));
-        }
-        int currentBlocksDestroyed = (int) Math.min(blocksDestroyed, Integer.MAX_VALUE);
-
-        int deltaBlocks = Math.max(0, currentBlocksDestroyed - baseBlocksDestroyed);
+        int deltaBlocks = Math.max(0, getTotalBlocksMined(stats) - baseBlocksDestroyed);
         int deltaDistance = Math.max(0, getTotalDistance(stats) - baseDistanceWalked);
         int deltaMobs = Math.max(0, stats.getValue(Stats.CUSTOM.get(Stats.MOB_KILLS)) - baseMobsKilled);
         int deltaDeaths = Math.max(0, stats.getValue(Stats.CUSTOM.get(Stats.DEATHS)) - baseDeaths);

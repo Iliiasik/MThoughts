@@ -40,7 +40,7 @@ public final class WellRestedSync {
 
         if (stateChanged || (active && resyncDue)) {
             NetworkHandler.sendWellRested(player,
-                    new WellRestedPacket(active, level, ticksRemaining, totalTicks, phase, nightmare, mvp));
+                    new WellRestedPacket(active, level, ticksRemaining, totalTicks, nightmare, mvp));
             lastSent.put(uuid, new Snapshot(active, level, totalTicks, phase, nightmare, mvp, now));
         }
     }

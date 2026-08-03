@@ -4,7 +4,6 @@ import mt.network.packet.DailySummaryPacket;
 import mt.network.packet.MoonPhasePacket;
 import mt.network.packet.RequestMoonPhasePacket;
 import mt.network.packet.SleepingPlayersPacket;
-import mt.network.packet.SummaryAcknowledgePacket;
 import mt.network.packet.SyncAchievementsPacket;
 import mt.network.packet.SyncConfigPacket;
 import mt.network.packet.UserContentPacket;
@@ -22,7 +21,7 @@ import net.minecraftforge.network.simple.SimpleChannel;
 import java.util.Objects;
 
 public class NetworkHandler {
-    private static final String PROTOCOL_VERSION = "1";
+    private static final String PROTOCOL_VERSION = "2";
     public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(
             ResourceLocation.fromNamespaceAndPath("midnightthoughts", "main"),
             () -> PROTOCOL_VERSION,
@@ -32,14 +31,6 @@ public class NetworkHandler {
     private static int packetId = 0;
 
     public static void registerPackets() {
-        CHANNEL.registerMessage(
-                packetId++,
-                SummaryAcknowledgePacket.class,
-                (packet2, buf2) -> SummaryAcknowledgePacket.encode(),
-                buf3 -> SummaryAcknowledgePacket.decode(),
-                (packet, ctx) -> ctx.get().setPacketHandled(true)
-        );
-
         CHANNEL.registerMessage(
                 packetId++,
                 RequestMoonPhasePacket.class,

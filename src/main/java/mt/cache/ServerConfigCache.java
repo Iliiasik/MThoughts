@@ -9,10 +9,6 @@ public class ServerConfigCache {
         cached = packet;
     }
 
-    public static boolean has() {
-        return cached != null;
-    }
-
     public static SyncConfigPacket get() {
         return cached;
     }

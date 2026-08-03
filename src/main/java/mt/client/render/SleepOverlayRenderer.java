@@ -1,6 +1,5 @@
 package mt.client.render;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import mt.client.MidnightThoughtsClient;
 import mt.config.MidnightThoughtsConfig;
 import mt.client.manager.SleepStateManager;
@@ -50,6 +49,7 @@ public class SleepOverlayRenderer {
     private final SlideService slideService;
     private final MidnightThoughtsConfig config;
     private final StarField starField = new StarField();
+    private final NightmareField nightmareField = new NightmareField();
 
     private Slide currentSlide;
     private Slide nextSlide;
@@ -66,21 +66,31 @@ public class SleepOverlayRenderer {
     private int moonPhase = 0;
     private boolean isNightmareOverlay = false;
 
-    private Slide curCacheSlide;
-    private int curCacheWidth = -1;
-    private float curCacheScale = Float.NaN;
-    private TextLayout curCacheLayout;
-
-    private Slide outCacheSlide;
-    private int outCacheWidth = -1;
-    private float outCacheScale = Float.NaN;
-    private TextLayout outCacheLayout;
+    private final LayoutCache currentCache = new LayoutCache();
+    private final LayoutCache outgoingCache = new LayoutCache();
 
     private enum SlideState {
         HIDDEN, VISIBLE, TRANSITION
     }
 
     private record TextLayout(List<String> lines, float scale) {}
+
+    private static final class LayoutCache {
+        private Slide slide;
+        private int width = -1;
+        private float scale = Float.NaN;
+        private TextLayout layout;
+
+        TextLayout get(Slide source, Font font, int textAreaWidth, float uiScale) {
+            if (source != slide || textAreaWidth != width || uiScale != scale) {
+                slide = source;
+                width = textAreaWidth;
+                scale = uiScale;
+                layout = layoutText(source.text(), font, textAreaWidth, uiScale);
+            }
+            return layout;
+        }
+    }
 
     public SleepOverlayRenderer(SleepStateManager sleepStateManager, SlideService slideService, MidnightThoughtsConfig config) {
         this.sleepStateManager = sleepStateManager;
@@ -111,7 +121,7 @@ public class SleepOverlayRenderer {
         if (sleepStateManager.isSleeping() && isOverlayVisible) {
             updateOverlayAlpha();
             updateSlideState();
-            if (config.isEnableStarDust()) {
+            if (config.isEnableStarDust() && !isNightmareOverlay) {
                 starField.tick(now);
             }
         }
@@ -130,7 +140,11 @@ public class SleepOverlayRenderer {
         currentSlideDuration = config.getRandomSlideDisplayTime();
         visibleStartTime = System.currentTimeMillis();
         slideState = SlideState.VISIBLE;
-        starField.reset(System.currentTimeMillis());
+        if (isNightmareOverlay) {
+            nightmareField.reset(System.currentTimeMillis());
+        } else {
+            starField.reset(System.currentTimeMillis());
+        }
     }
 
     private void onSleepEnd() {
@@ -237,7 +251,7 @@ public class SleepOverlayRenderer {
         fillHorizontalGradient(context, w - bandW, w, h, 0, edgeA, rgb);
     }
 
-    private void fillHorizontalGradient(GuiGraphics context, int x1, int x2, int y2, int alphaLeft, int alphaRight, int rgb) {
+    static void fillHorizontalGradient(GuiGraphics context, int x1, int x2, int y2, int alphaLeft, int alphaRight, int rgb) {
         int step = 3;
         int width = x2 - x1;
         if (width <= 0) return;
@@ -263,7 +277,11 @@ public class SleepOverlayRenderer {
         int imageTop = Math.round(h * GROUP_TOP_PERCENT);
 
         if (config.isEnableStarDust()) {
-            starField.render(context, w, h, overlayAlpha);
+            if (isNightmareOverlay) {
+                nightmareField.render(context, w, h, overlayAlpha);
+            } else {
+                starField.render(context, w, h, overlayAlpha);
+            }
         }
 
         if (showImage) {
@@ -272,13 +290,13 @@ public class SleepOverlayRenderer {
         int textTop = imageTop + (showImage ? imageSize + gap : 0);
 
         if (outgoingSlide != null && outgoingAlpha > 0.01f) {
-            TextLayout ol = outgoingLayout(outgoingSlide, font, textAreaWidth, uiScale);
-            drawLayout(context, font, ol, centerX, textTop, lineHeight, outgoingAlpha);
+            TextLayout outgoing = outgoingCache.get(outgoingSlide, font, textAreaWidth, uiScale);
+            drawLayout(context, font, outgoing, centerX, textTop, lineHeight, outgoingAlpha);
         }
 
         TextLayout currentLayout = null;
         if (currentSlide != null && incomingAlpha > 0.01f) {
-            currentLayout = currentLayout(currentSlide, font, textAreaWidth, uiScale);
+            currentLayout = currentCache.get(currentSlide, font, textAreaWidth, uiScale);
             drawLayout(context, font, currentLayout, centerX, textTop, lineHeight, incomingAlpha);
         }
 
@@ -288,41 +306,16 @@ public class SleepOverlayRenderer {
         }
     }
 
-    private TextLayout currentLayout(Slide slide, Font font, int textAreaWidth, float uiScale) {
-        if (slide != curCacheSlide || textAreaWidth != curCacheWidth || uiScale != curCacheScale) {
-            curCacheSlide = slide;
-            curCacheWidth = textAreaWidth;
-            curCacheScale = uiScale;
-            curCacheLayout = layoutText(slide.text(), font, textAreaWidth, uiScale);
-        }
-        return curCacheLayout;
-    }
-
-    private TextLayout outgoingLayout(Slide slide, Font font, int textAreaWidth, float uiScale) {
-        if (slide != outCacheSlide || textAreaWidth != outCacheWidth || uiScale != outCacheScale) {
-            outCacheSlide = slide;
-            outCacheWidth = textAreaWidth;
-            outCacheScale = uiScale;
-            outCacheLayout = layoutText(slide.text(), font, textAreaWidth, uiScale);
-        }
-        return outCacheLayout;
-    }
-
     private void renderImage(GuiGraphics context, int x, int y, int size) {
         ResourceLocation texture = isNightmareOverlay
                 ? SKULL_TEXTURE
-                : MOON_PHASE_TEXTURES[moonPhase % MOON_PHASE_TEXTURES.length];
+                : MOON_PHASE_TEXTURES[Math.floorMod(moonPhase, MOON_PHASE_TEXTURES.length)];
 
-        float alpha = overlayAlpha * config.getImageOpacity();
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, alpha);
-        context.blit(texture, x, y, size, size, 0.0f, 0.0f, IMAGE_TEXTURE_SIZE, IMAGE_TEXTURE_SIZE, IMAGE_TEXTURE_SIZE, IMAGE_TEXTURE_SIZE);
-        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
-        RenderSystem.disableBlend();
+        mt.client.ui.summary.RenderHelper.blitTexture(context, texture, x, y, size, size,
+                overlayAlpha * config.getImageOpacity());
     }
 
-    private TextLayout layoutText(String text, Font font, int textAreaWidth, float uiScale) {
+    private static TextLayout layoutText(String text, Font font, int textAreaWidth, float uiScale) {
         float base = VIRTUAL_TEXT_SCALE * uiScale;
         float minScale = base * 0.60f;
         float maxScale = base * 1.25f;
@@ -380,29 +373,54 @@ public class SleepOverlayRenderer {
         return clamp01(elapsed / (float) currentSlideDuration);
     }
 
-    private List<String> wrapText(String text, Font font, int maxWidth) {
+    static List<String> wrapText(String text, Font font, int maxWidth) {
         List<String> lines = new ArrayList<>();
         if (text == null || text.isEmpty()) return lines;
 
-        String[] words = text.split(" ");
         StringBuilder currentLine = new StringBuilder();
 
-        for (String word : words) {
-            String testLine = currentLine.isEmpty() ? word : currentLine + " " + word;
-            if (font.width(testLine) <= maxWidth) {
-                if (!currentLine.isEmpty()) currentLine.append(" ");
-                currentLine.append(word);
-            } else {
+        for (String word : text.split(" ")) {
+            if (word.isEmpty()) continue;
+
+            if (font.width(word) > maxWidth) {
                 if (!currentLine.isEmpty()) {
                     lines.add(currentLine.toString());
-                    currentLine = new StringBuilder(word);
-                } else {
-                    lines.add(word);
+                    currentLine.setLength(0);
                 }
+                breakByCharacters(word, font, maxWidth, lines, currentLine);
+                continue;
+            }
+
+            String testLine = currentLine.isEmpty() ? word : currentLine + " " + word;
+            if (font.width(testLine) <= maxWidth) {
+                if (!currentLine.isEmpty()) currentLine.append(' ');
+                currentLine.append(word);
+            } else {
+                lines.add(currentLine.toString());
+                currentLine.setLength(0);
+                currentLine.append(word);
             }
         }
         if (!currentLine.isEmpty()) lines.add(currentLine.toString());
         return lines;
+    }
+
+    private static void breakByCharacters(String word, Font font, int maxWidth, List<String> lines, StringBuilder tail) {
+        StringBuilder chunk = new StringBuilder();
+        int i = 0;
+        while (i < word.length()) {
+            int codePoint = word.codePointAt(i);
+            int charCount = Character.charCount(codePoint);
+            String character = word.substring(i, i + charCount);
+            i += charCount;
+
+            if (!chunk.isEmpty() && font.width(chunk + character) > maxWidth) {
+                lines.add(chunk.toString());
+                chunk.setLength(0);
+            }
+            chunk.append(character);
+        }
+        tail.append(chunk);
     }
 
     public boolean shouldHideCrosshair() {

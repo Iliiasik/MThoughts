@@ -141,10 +141,11 @@ public class MidnightThoughtsClient {
         }
 
         @SubscribeEvent
-        public void onClientDisconnect(net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedOutEvent event) {
-            if (!(event.getEntity() instanceof net.minecraft.client.player.LocalPlayer)) return;
+        public void onClientDisconnect(net.minecraftforge.client.event.ClientPlayerNetworkEvent.LoggingOut event) {
             ServerConfigCache.clear();
             ClientAchievementCache.clear();
+            mt.client.manager.WellRestedClientState.reset();
+            SleepingPlayersHud.reset();
             MidnightThoughtsClient inst = MidnightThoughtsClient.getInstance();
             if (inst != null && inst.userContentLoader != null) {
                 inst.userContentLoader.clearServerContent();

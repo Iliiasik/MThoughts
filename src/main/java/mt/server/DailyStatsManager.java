@@ -38,6 +38,7 @@ public class DailyStatsManager {
             stats.captureCurrentStats(player);
             stats.saveToStorage(server);
         }
+        StatsStorage.flush();
     }
 
     public static void showDailySummary(MinecraftServer server, Set<UUID> sleepingPlayers) {
@@ -93,6 +94,7 @@ public class DailyStatsManager {
 
             StatsStorage.savePlayerStats(server, player.getUUID(), savedStats);
         }
+        StatsStorage.flush();
 
         DailySummaryPacket packet = new DailySummaryPacket(summaries);
         for (ServerPlayer player : sleptPlayers) {
@@ -117,6 +119,7 @@ public class DailyStatsManager {
         MinecraftServer server = player.server;
         DailyPlayerStats stats = getOrCreateStats(player.getUUID());
         stats.loadFromStorage(server);
+        markPlayerListChanged(server);
     }
 
     public static void onPlayerLeave(ServerPlayer player) {
@@ -124,6 +127,15 @@ public class DailyStatsManager {
         DailyPlayerStats stats = dailyStats.get(player.getUUID());
         if (stats != null) {
             stats.saveToStorage(server);
+            StatsStorage.flush();
+        }
+        markPlayerListChanged(server);
+    }
+
+    private static void markPlayerListChanged(MinecraftServer server) {
+        SleepTracker tracker = sleepTrackers.get(server);
+        if (tracker != null) {
+            tracker.markPlayerListChanged();
         }
     }
 
@@ -134,6 +146,8 @@ public class DailyStatsManager {
                 stats.saveToStorage(server);
             }
         }
+        StatsStorage.unload();
+        ComfortCalculator.clearCache();
         dailyStats.clear();
         sleepTrackers.remove(server);
     }

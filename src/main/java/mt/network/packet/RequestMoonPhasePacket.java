@@ -1,8 +1,6 @@
 package mt.network.packet;
 
-public class RequestMoonPhasePacket {
-
-    public RequestMoonPhasePacket() {}
+public record RequestMoonPhasePacket() {
 
     public static void encode() {}
 

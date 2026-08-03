@@ -158,6 +158,11 @@ public final class MidnightThoughtsCommand {
     }
 
     private static int wellRestedGrant(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        if (!MidnightThoughtsConfig.getInstance().getWellRested().enabled) {
+            replyFailure(ctx, "Well-rested is disabled in the server config.");
+            return 0;
+        }
+
         Collection<ServerPlayer> targets = EntityArgument.getPlayers(ctx, "targets");
         int level = IntegerArgumentType.getInteger(ctx, "level");
         for (ServerPlayer player : targets) {
@@ -171,11 +176,7 @@ public final class MidnightThoughtsCommand {
     private static int wellRestedClear(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
         Collection<ServerPlayer> targets = EntityArgument.getPlayers(ctx, "targets");
         for (ServerPlayer player : targets) {
-            boolean had = WellRestedEffect.hasEffect(player);
-            WellRestedEffect.removeFromPlayer(player);
-            if (had) {
-                net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new mt.api.event.WellRestedExpiredEvent(player));
-            }
+            WellRestedEffect.clear(player);
         }
         int n = targets.size();
         reply(ctx, "Cleared well-rested from " + n + " player(s).");
@@ -185,7 +186,7 @@ public final class MidnightThoughtsCommand {
     private static void doReloadConfig(MinecraftServer server) {
         MidnightThoughtsConfig.reload();
         ComfortCalculator.clearCache();
-        SyncConfigPacket packet = buildConfigPacket(MidnightThoughtsConfig.getInstance());
+        SyncConfigPacket packet = SyncConfigPacket.of(MidnightThoughtsConfig.getInstance());
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             NetworkHandler.sendConfig(player, packet);
         }
@@ -202,6 +203,7 @@ public final class MidnightThoughtsCommand {
 
     private static void doReloadContent(MinecraftServer server) {
         UserContentInitializer.writeDefaultFiles();
+        UserContentInitializer.invalidateCache();
         UserContentPacket packet = UserContentInitializer.buildPacket();
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             NetworkHandler.sendUserContent(player, packet);
@@ -212,27 +214,8 @@ public final class MidnightThoughtsCommand {
         ctx.getSource().sendSuccess(() -> Component.literal("[Midnight Thoughts] " + message), true);
     }
 
-    private static SyncConfigPacket buildConfigPacket(MidnightThoughtsConfig cfg) {
-        return new SyncConfigPacket(
-                cfg.getSleepOverlay().minSlideDisplayTimeMs,
-                cfg.getSleepOverlay().maxSlideDisplayTimeMs,
-                cfg.getSleepOverlay().fadeInDurationMs,
-                cfg.getSleepOverlay().fadeOutDurationMs,
-                cfg.getSleepOverlay().overlayOpacity,
-                cfg.getSleepOverlay().textOpacity,
-                cfg.getSleepOverlay().imageOpacity,
-                cfg.getSleepOverlay().specialSlideChance,
-                cfg.getSleepOverlay().enableOverlay,
-                cfg.getSleepOverlay().enableImage,
-                cfg.getSleepOverlay().enableDailySummaryScreen,
-                cfg.getSleepOverlay().useFactsApi,
-                cfg.getSleepOverlay().userContentReplaces,
-                cfg.getSleepOverlay().hideChatWhenSleeping,
-                cfg.getUi().theme,
-                cfg.getUi().hideWellRestedHud,
-                cfg.getUi().hideThemeSwitchButton,
-                cfg.getSleepOverlay().enableStarDust,
-                cfg.getSleepOverlay().showSlideProgress
-        );
+    private static void replyFailure(CommandContext<CommandSourceStack> ctx, String message) {
+        ctx.getSource().sendFailure(Component.literal("[Midnight Thoughts] " + message));
     }
+
 }

@@ -3,8 +3,8 @@ package mt.integration.kubejs;
 import mt.server.ComfortCalculator;
 import mt.server.WellRestedEffect;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.common.MinecraftForge;
 
+@SuppressWarnings("unused")
 public class MTBindings {
     private MTBindings() {}
 
@@ -17,11 +17,7 @@ public class MTBindings {
     }
 
     public static void clearWellRested(ServerPlayer player) {
-        boolean had = WellRestedEffect.hasEffect(player);
-        WellRestedEffect.removeFromPlayer(player);
-        if (had) {
-            MinecraftForge.EVENT_BUS.post(new mt.api.event.WellRestedExpiredEvent(player));
-        }
+        WellRestedEffect.clear(player);
     }
 
     public static boolean hasWellRested(ServerPlayer player) {
@@ -33,6 +29,6 @@ public class MTBindings {
     }
 
     public static int getComfort(ServerPlayer player) {
-        return ComfortCalculator.debug(player).total();
+        return ComfortCalculator.calculateComfortLevel(player);
     }
 }

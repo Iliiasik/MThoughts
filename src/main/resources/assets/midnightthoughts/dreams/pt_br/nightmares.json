@@ -1,0 +1,32 @@
+{
+  "entries": [
+    {
+      "text": "Você não consegue dormir em um lugar tão terrível.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Um arrepio percorre sua espinha.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Você é assombrado por pesadelos.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Torne seu local de descanso mais confortável.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Algo observa você das sombras.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Esta noite a escuridão é sufocante.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Descansar é impossível neste ambiente sombrio.",
+      "rarity": 1.0
+    }
+  ]
+}

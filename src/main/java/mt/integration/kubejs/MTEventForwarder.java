@@ -12,6 +12,7 @@ import mt.integration.kubejs.event.WellRestedAppliedKubeEvent;
 import mt.integration.kubejs.event.WellRestedExpiredKubeEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
+@SuppressWarnings("unused")
 public class MTEventForwarder {
 
     @SubscribeEvent

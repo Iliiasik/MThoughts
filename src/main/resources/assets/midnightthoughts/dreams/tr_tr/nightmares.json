@@ -1,0 +1,32 @@
+{
+  "entries": [
+    {
+      "text": "Böylesine korkunç bir yerde uyuyamazsın.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Sırtından bir ürperti geçiyor.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Kâbuslar peşini bırakmıyor.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Dinlenme yerini daha rahat hale getir.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Gölgelerden bir şey seni izliyor.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Bu gece karanlık boğucu.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Bu kasvetli ortamda dinlenmek imkânsız.",
+      "rarity": 1.0
+    }
+  ]
+}

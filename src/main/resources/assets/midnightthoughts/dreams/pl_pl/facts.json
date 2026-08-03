@@ -1,0 +1,984 @@
+{
+  "entries": [
+    {
+      "text": "Koty wydają ponad 20 dźwięków, w tym mruczenie, miauczenie i ćwierkanie.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Grupę kotów nazywa się 'clowder'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Koty przesypiają 70% swojego życia.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Słuch kota jest o wiele czulszy niż człowieka czy psa.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Koty potrafią obrócić uszy o 180 stopni.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszym kotem w kosmosie była Francuzka Félicette w 1963 roku.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Wyjątkowy obojczyk sprawia, że koty zawsze lądują na łapach.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Odcisk nosa kota jest niepowtarzalny jak ludzki odcisk palca.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Kot potrafi skoczyć na sześciokrotność własnej długości.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Najstarszego kota domowego znaleziono w grobie na Cyprze sprzed 9500 lat.",
+      "rarity": 0.7
+    },
+    {
+      "text": "Słońce ma około 4,6 miliarda lat.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Doba na Wenus trwa dłużej niż rok na Wenus.",
+      "rarity": 0.9
+    },
+    {
+      "text": "We wszechświecie jest więcej gwiazd niż ziaren piasku na Ziemi.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Gwiazdy neutronowe obracają się do 600 razy na sekundę.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Wewnątrz Słońca zmieściłby się milion Ziem.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Ślady stóp na Księżycu przetrwają 100 milionów lat.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Gęstość Saturna jest tak mała, że unosiłby się na wodzie.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Łyżeczka gwiazdy neutronowej ważyłaby około 6 miliardów ton.",
+      "rarity": 0.7
+    },
+    {
+      "text": "W największej znanej gwieździe UY Scuti zmieściłoby się 5 miliardów Słońc.",
+      "rarity": 0.6
+    },
+    {
+      "text": "Olympus Mons na Marsie to największy wulkan Układu Słonecznego.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Miód nigdy się nie psuje. W egipskich grobowcach znaleziono miód sprzed 3000 lat.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Ośmiornice mają trzy serca i błękitną krew.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Banany to jagody, a truskawki nie.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Jiffy to prawdziwa jednostka czasu: jedna setna sekundy.",
+      "rarity": 0.8
+    },
+    {
+      "text": "W upalne dni wieża Eiffla rośnie o 15 centymetrów.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Rekiny istnieją dłużej niż drzewa.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Możliwych partii szachów jest więcej niż atomów w obserwowalnym wszechświecie.",
+      "rarity": 0.7
+    },
+    {
+      "text": "Krowy mają najlepszych przyjaciół i przeżywają stres w rozłące.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Wynalazca puszki Pringles został w takiej pochowany.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Chmura może ważyć ponad 500 ton.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Zwierzęciem narodowym Szkocji jest jednorożec.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Odchody wombata mają kształt sześcianów.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Serce krewetki znajduje się w jej głowie.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Grupę flamingów nazywa się 'flamboyance'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Słonie to jedyne zwierzęta, które nie potrafią skakać.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Futro niedźwiedzia polarnego nie jest białe — jest przezroczyste.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Leniwce wstrzymują oddech dłużej niż delfiny.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Najkrótsza wojna w historii trwała od 38 do 45 minut.",
+      "rarity": 0.7
+    },
+    {
+      "text": "Pierwsze pomarańcze nie były pomarańczowe, lecz zielone.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Twój mózg zużywa około 20% całej twojej energii.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Delfiny śpią z jednym okiem otwartym.",
+      "rarity": 1.0
+    },
+    {
+      "text": "W ciągu życia człowiek pokonuje dystans trzech okrążeń Ziemi.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Piorun jest pięć razy gorętszy niż powierzchnia Słońca.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Na Ziemi jest więcej drzew niż gwiazd w Drodze Mlecznej.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Ludzie dzielą 60% swojego DNA z bananami.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Najdłuższa czkawka trwała 68 lat.",
+      "rarity": 0.6
+    },
+    {
+      "text": "Wenus to jedyna planeta obracająca się zgodnie z ruchem wskazówek zegara.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Jedno uderzenie pioruna zasiliłoby 150 000 domów przez minutę.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Wielkiego Muru Chińskiego nie widać z kosmosu gołym okiem.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Koale śpią do 22 godzin na dobę.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Grupę nosorożców nazywa się 'crash'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Wydry śpią trzymając się za łapy, by nie odpłynąć od siebie.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Oko strusia jest większe od jego mózgu.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Żaby piją wodę przez skórę.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Ślimak potrafi spać trzy lata z rzędu.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Istnieje ponad 1000 odmian bananów.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Sam język płetwala błękitnego może ważyć tyle co słoń.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Ośmiornica przeciśnie się przez każdą szczelinę większą od jej oka.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Mona Lisa nie ma brwi.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Większość ludzi nie potrafi polizać własnego łokcia.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Motyle czują smak stopami.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Świnie fizycznie nie potrafią spojrzeć w niebo.",
+      "rarity": 1.0
+    },
+    {
+      "text": "'Sixth sick sheik's sixth sheep's sick' uchodzi za najtrudniejszy angielski łamaniec językowy.",
+      "rarity": 0.7
+    },
+    {
+      "text": "Szczury mnożą się tak szybko, że w 18 miesięcy dwa dałyby ponad milion potomków.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Ustawienie oczu pozwala osłu widzieć wszystkie cztery kopyta naraz.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Niektóre pomadki zawierają rybie łuski.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Podobnie jak odciski palców, odcisk języka każdego jest inny.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pchła skacze na 350 długości swojego ciała.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Krokodyl nie rusza językiem i nie potrafi żuć.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Serce płetwala błękitnego jest tak duże, że człowiek przepłynąłby jego tętnicami.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Najstarsza guma do żucia na świecie ma 9000 lat.",
+      "rarity": 0.7
+    },
+    {
+      "text": "Karaluch potrafi przeżyć kilka tygodni bez głowy.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Ważki mają sześć nóg, ale nie potrafią chodzić.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Nazwy wszystkich kontynentów po angielsku zaczynają się i kończą tą samą literą.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Pojemność pamięci ludzkiego mózgu przekracza cztery terabajty.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Rodzimy się z 300 kośćmi, a jako dorośli mamy ich 206.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Twój szkielet jest mokry.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Najsilniejszym mięśniem ciała jest język.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Najczęstszym imieniem na świecie jest Mohammed.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Tlenek węgla potrafi zabić człowieka w mniej niż 15 minut.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Przeciętny człowiek zasypia w siedem minut.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Nocą mózg jest bardziej aktywny niż za dnia.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Nie da się nucić, zatykając nos.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Kichnięcie osiąga około 160 kilometrów na godzinę.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Ziemia ma 4,54 miliarda lat.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Sto zakładek na czapce kucharza oznacza sto sposobów na przyrządzenie jajka.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Pszczoły potrafią rozpoznawać ludzkie twarze.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Doba na Plutonie trwa 6,4 ziemskiej doby, czyli 153,3 godziny.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Najsuchszym miejscem na Ziemi jest pustynia Atakama w Chile.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Hymn Grecji ma 158 zwrotek.",
+      "rarity": 0.7
+    },
+    {
+      "text": "Od 1924 do 1984 roku posiadanie psa w stolicy Islandii było nielegalne.",
+      "rarity": 0.8
+    },
+    {
+      "text": "W Szwajcarii nie wolno trzymać tylko jednej świnki morskiej.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Pierwszy magnetowid był wielkości pianina.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Kropla pasty na szczoteczce ma nazwę: 'nurdle'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Napis Hollywood w Los Angeles brzmiał kiedyś 'Hollywoodland'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszym filmem z kategorią PG-13 był 'Czerwony świt' z 1984 roku.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Aktorzy podkładający głos Myszce Miki i Minnie byli małżeństwem.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Kształt chipsów Pringles nazywa się 'paraboloida hiperboliczna'.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Ptak Twittera oficjalnie nazywał się Larry.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Lęk przed długimi słowami to 'hipopotomonstrosesquipedaliofobia'.",
+      "rarity": 0.7
+    },
+    {
+      "text": "Symbol kratki fachowo nazywa się 'octothorpe'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Kropka nad literami 'i' oraz 'j' nazywa się 'tittle'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Grupę mopsów nazywa się 'grumble'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Ślimak może mieć tysiące maleńkich zębów na języku.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Fachowa nazwa 'zamrożenia mózgu' to 'neuralgia zwoju skrzydłowo-podniebiennego'.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Włókna wewnątrz banana nazywają się 'wiązkami łyka'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Plastikowe końcówki sznurowadeł nazywają się 'skuwkami'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Przestrzeń między brwiami nazywa się 'gładzizna'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Zapach świeżo skoszonej trawy to wołanie rośliny o pomoc.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Litery 'M' w M&M's oznaczają 'Mars' i 'Murrie'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwotna nazwa wyszukiwarki Google brzmiała 'Backrub'.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Leniwiec może trawić jeden posiłek nawet miesiąc.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszy budzik potrafił dzwonić tylko o jednej porze: o 4 rano.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Najdłuższe angielskie słowo ma 189 819 liter.",
+      "rarity": 0.6
+    },
+    {
+      "text": "Niektóre pingwiny zalecają się do partnera kamyczkiem.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Wgłębienie na dnie butelki wina nazywa się 'punt'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Coca-Cola była pierwotnie zielona.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszy skazany za przekroczenie prędkości jechał 13 km/h.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Na Księżycu występują księżycotrzęsienia.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Głowy z Wyspy Wielkanocnej mają ciała.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Istnieje gatunek meduzy, który jest nieśmiertelny.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Pojedyncze pasmo spaghetti nazywa się 'spaghetto'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Serce kolibra może bić ponad 1200 razy na minutę.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Na świecie jest więcej sztucznych flamingów niż prawdziwych.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Przeciwieństwem 'déjà vu' jest 'jamais vu'.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Słowo 'nerd' wymyślił dr Seuss w 'If I Ran the Zoo'.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Największą pustynią świata jest Antarktyda.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Najdłuższa przerwa między narodzinami bliźniąt wyniosła 87 dni.",
+      "rarity": 0.7
+    },
+    {
+      "text": "Rogówka to jedna z dwóch części ciała pozbawionych naczyń krwionośnych.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Najgłębsza skrzynka pocztowa świata leży 10 metrów pod wodą w zatoce Susami w Japonii.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Rozgwiazdy nie mają ani mózgu, ani krwi.",
+      "rarity": 1.0
+    },
+    {
+      "text": "W Japonii istnieje ponad 200 smaków Kit Kata.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Bank of America nazywał się pierwotnie Bank of Italy.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Najdłuższy welon ślubny był dłuższy niż 63 boiska piłkarskie.",
+      "rarity": 0.7
+    },
+    {
+      "text": "Wszystkie łabędzie w Anglii należą do królowej.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Król kier to jedyny król bez wąsów.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Piorun zawiera energię wystarczającą, by opiec 100 000 kromek chleba.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Pierwszym produktem z kodem kreskowym była guma Wrigley's.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Alfabet hawajski ma 13 liter.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Ludzki nos rozróżnia ponad bilion zapachów.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Przeciętny człowiek ma cztery do sześciu snów na noc.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Wynalazcę frisbee po śmierci przerobiono na frisbee.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Pierwszy komputer wynaleziono w latach 40. XX wieku.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszy SMS wysłano w 1992 roku.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszy film na YouTube wgrano w 2005 roku.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszy e-mail wysłano w 1971 roku.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwsza strona internetowa ruszyła w 1991 roku.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszym zdjęciem na Instagramie było zdjęcie psa.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszy tweet wysłano w 2006 roku.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszą piosenką w radiu było 'O Holy Night'.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Pierwszym teledyskiem na MTV było 'Video Killed the Radio Star'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszą grę wideo stworzono w 1958 roku.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszą konsolą była Magnavox Odyssey.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszą grą wideo w kosmosie był Tetris.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Pierwszą postacią z gier wideo był Pac-Man.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszą grą z fabułą była 'Colossal Cave Adventure'.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Pierwszą grą z bohaterką była 'Metroid'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszą grą z zapisem stanu była 'The Legend of Zelda'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszą grą z trybem wieloosobowym był 'Pong'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszą grą z trójwymiarowym światem była 'Battlezone'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszą grą z widokiem pierwszoosobowym była 'Maze War'.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Pierwszą grą z systemem osłon była 'Kill Switch'.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Pierwszą grą z regeneracją zdrowia była 'Halo: Combat Evolved'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszą grą z silnikiem fizyki była 'Jurassic Park: Trespasser'.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Pierwszą grą z cyklem dnia i nocy była 'The Legend of Zelda: Ocarina of Time'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszą grą z rozgałęzioną fabułą była 'Dragon's Lair'.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Pierwszą grą z systemem wyborów moralnych była 'Fable'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszą grą z systemem wytwarzania był 'Minecraft'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszą grą z trybem battle royale była 'H1Z1: King of the Kill'.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Pierwszą grą z przepustką sezonową była 'L.A. Noire'.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Pierwszą grą ze skrzynkami z łupami była 'FIFA 09'.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Pierwszą grą z mikropłatnościami była 'The Elder Scrolls IV: Oblivion'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszą usługą gier w chmurze było 'OnLive'.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Pierwszą grą w wirtualnej rzeczywistości była 'Dactyl Nightmare'.",
+      "rarity": 0.7
+    },
+    {
+      "text": "Pierwszą grą z rzeczywistością rozszerzoną była 'ARQuake'.",
+      "rarity": 0.7
+    },
+    {
+      "text": "Pierwszym systemem sterowania ruchem było Nintendo Wii.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszą grą ze sterowaniem głosem była 'Hey You, Pikachu!'.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Pierwszą konsolą z ekranem dotykowym było Nintendo DS.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszą konsolą z dwoma ekranami było Nintendo DS.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszą grą z wibracjami była 'Star Fox 64'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszą konsolą z kartą pamięci było Neo Geo.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Pierwszą konsolą z CD-ROM było Sega CD.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszą konsolą z DVD-ROM było PlayStation 2.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszą konsolą z Blu-ray było PlayStation 3.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszą grą z sieciowym trybem wieloosobowym było 'Snipes'.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Pierwszym trwałym światem online był 'MUD1'.",
+      "rarity": 0.7
+    },
+    {
+      "text": "Pierwszą grą z graficznym interfejsem była 'The Oregon Trail'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszą grą typu wskaż i kliknij była 'Maniac Mansion'.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Pierwszą strategią czasu rzeczywistego była 'Dune II'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszą grą typu tower defense była 'Rampart'.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Pierwszą grą skradankową było '005'.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Pierwszym survival horrorem było 'Resident Evil'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszą grą rytmiczną była 'PaRappa the Rapper'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszą grą imprezową było 'Mario Party'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszym symulatorem życia było 'Little Computer People'.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Pierwszym symulatorem zwierzaka było 'Petz'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszym symulatorem randek było 'Dōkyūsei'.",
+      "rarity": 0.7
+    },
+    {
+      "text": "Pierwszą powieścią wizualną było 'The Portopia Serial Murder Case'.",
+      "rarity": 0.7
+    },
+    {
+      "text": "Pierwszym filmem interaktywnym było 'Astron Belt'.",
+      "rarity": 0.7
+    },
+    {
+      "text": "Pierwszą grą z pełnoekranowym wideo była 'Dragon's Lair'.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Pierwszą grą w stylu cel-shading było 'Jet Set Radio'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszą grą w stylu pixel art było 'Space Invaders'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszą grą wokselową było 'Comanche: Maximum Overkill'.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Pierwszą grą z generowaniem proceduralnym było 'Rogue'.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Pierwszą grą z dynamicznym poziomem trudności było 'Zanac'.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Pierwszą grą z trybem New Game Plus było 'Chrono Trigger'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszą grą z systemem osiągnięć było 'E-Motion'.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Pierwszą grą z tabelą wyników było 'Star Fire'.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Pierwszą grą z systemem powtórek było 'Replay'.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Pierwszą grą z trybem foto było 'Gran Turismo 4'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszą grą z kreatorem postaci było 'The Character Creator'.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Pierwszą grą z edytorem poziomów było 'Lode Runner'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszą grą ze społecznością modderów było 'Doom'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszym turniejem e-sportowym była 'Intergalactic Spacewar Olympics'.",
+      "rarity": 0.7
+    },
+    {
+      "text": "Pierwszą grą ze społecznością speedrunnerów było 'Dragster'.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Pierwszą grą z glitchem było 'Computer Space'.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Pierwszą grą z easter eggiem było 'Adventure'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszym kodem do gry był 'Konami Code'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszą grą z demem było 'Super Mario Bros. 3'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszą grą ze zwiastunem było 'Super Mario 64'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszą grą z recenzją było 'Computer Space'.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Pierwszym magazynem o grach było 'Computer and Video Games'.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Pierwszym programem TV o grach było 'Video Power'.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Pierwszym filmem na podstawie gry było 'Super Mario Bros.'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszym parkiem rozrywki o grach było 'Nintendo Land'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszym muzeum gier było 'The Art of Video Games'.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Pierwszą grą powiązaną z Nagrodą Nobla było 'Foldit'.",
+      "rarity": 0.7
+    },
+    {
+      "text": "Pierwszą grą w Księdze rekordów Guinnessa był 'Pac-Man'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszą grą z gwiazdą w Alei Gwiazd był 'Pac-Man'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszą grą na znaczku pocztowym było 'Space Invaders'.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Pierwszą grą na monecie był 'Pong'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszą grą jako zabawka był 'Pong'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszą grą na pudełku płatków był 'Pac-Man'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszą grą jako napój był 'Donkey Kong'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszą grą jako słodycze był 'Pac-Man'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszą grą z komiksem był 'Pac-Man'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszą grą z powieścią był 'Pac-Man'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszą grą z mangą był 'Pac-Man'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszą grą z anime był 'Pac-Man'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszą grą ze ścieżką dźwiękową był 'Pac-Man'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszą grą z koncertem była 'The Legend of Zelda'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszą grą z musicalem był 'Pac-Man'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszą grą ze sztuką teatralną był 'Pac-Man'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszą grą z baletem był 'Pac-Man'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pierwszą grą z operą był 'Pac-Man'.",
+      "rarity": 1.0
+    }
+  ]
+}

@@ -74,13 +74,6 @@ public class SlideService {
 
     public String getCurrentLanguage() {
         Minecraft mc = Minecraft.getInstance();
-        String lang = mc.getLanguageManager().getSelected();
-        if (lang.startsWith("de")) {
-            return "de_de";
-        }
-        if (lang.startsWith("es")) {
-            return "es_es";
-        }
-        return "en_us";
+        return mt.common.SupportedLanguages.fromLocale(mc.getLanguageManager().getSelected());
     }
 }

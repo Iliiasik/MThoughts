@@ -4,7 +4,7 @@ license = "${mod_license}"
 
 [[mods]]
 modId = "${mod_id}"
-version = "1.5"
+version = "1.5.1"
 displayName = "${mod_name}"
 displayURL="https://iliiasik.github.io/MThoughts-Wiki/"
 logoFile= "${mod_id}_banner.png"

@@ -9,6 +9,32 @@ public record SyncConfigPacket(int minSlideDisplayTimeMs, int maxSlideDisplayTim
                                boolean hideChatWhenSleeping, String theme, boolean hideWellRestedHud,
                                boolean hideThemeSwitchButton, boolean enableStarDust, boolean showSlideProgress) {
 
+    public static SyncConfigPacket of(mt.config.MidnightThoughtsConfig cfg) {
+        mt.config.MidnightThoughtsConfig.SleepOverlaySettings o = cfg.getSleepOverlay();
+        mt.config.MidnightThoughtsConfig.UISettings ui = cfg.getUi();
+        return new SyncConfigPacket(
+                o.minSlideDisplayTimeMs,
+                o.maxSlideDisplayTimeMs,
+                o.fadeInDurationMs,
+                o.fadeOutDurationMs,
+                o.overlayOpacity,
+                o.textOpacity,
+                o.imageOpacity,
+                o.specialSlideChance,
+                o.enableOverlay,
+                o.enableImage,
+                o.enableDailySummaryScreen,
+                o.useFactsApi,
+                o.userContentReplaces,
+                o.hideChatWhenSleeping,
+                ui.theme,
+                ui.hideWellRestedHud,
+                ui.hideThemeSwitchButton,
+                o.enableStarDust,
+                o.showSlideProgress
+        );
+    }
+
     public static void encode(SyncConfigPacket packet, FriendlyByteBuf buf) {
         buf.writeInt(packet.minSlideDisplayTimeMs);
         buf.writeInt(packet.maxSlideDisplayTimeMs);
