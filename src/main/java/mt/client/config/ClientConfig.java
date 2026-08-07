@@ -48,9 +48,7 @@ public final class ClientConfig {
     public void save() {
         Path configPath = getConfigPath();
         try {
-            Files.createDirectories(configPath.getParent());
-            String json = GSON.toJson(this);
-            Files.writeString(configPath, json);
+            mt.common.AtomicFiles.writeString(configPath, GSON.toJson(this));
             LOGGER.info("Client configuration saved to {}", configPath);
         } catch (IOException e) {
             LOGGER.error("Failed to save client configuration: {}", e.getMessage());
@@ -61,21 +59,18 @@ public final class ClientConfig {
         return MidnightThoughtsConfig.getConfigDir().resolve("midnightthoughts-client.json");
     }
 
-    public String getTheme() {
-        return theme;
-    }
-
     public void setTheme(String theme) {
         this.theme = theme;
         save();
     }
 
     public String getEffectiveTheme() {
-        if (theme != null && !theme.isEmpty()) {
+        if (mt.config.MidnightThoughtsConfigValidation.isValidTheme(theme)) {
             return theme;
         }
-        if (mt.cache.ServerConfigCache.has()) {
-            return mt.cache.ServerConfigCache.get().theme();
+        mt.network.packet.SyncConfigPacket cached = mt.cache.ServerConfigCache.get();
+        if (cached != null) {
+            return cached.theme();
         }
         return MidnightThoughtsConfig.getInstance().getUi().theme;
     }
@@ -86,7 +81,6 @@ public final class ClientConfig {
             case "vanilla" -> "magic";
             case "magic" -> "classic";
             case "classic" -> "tech";
-            case "tech" -> "vanilla";
             default -> "vanilla";
         };
         setTheme(nextTheme);

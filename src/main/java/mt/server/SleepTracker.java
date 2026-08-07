@@ -1,11 +1,11 @@
 package mt.server;
 
-import mt.network.NetworkHandler;
 import mt.network.packet.SleepingPlayersPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -16,7 +16,8 @@ public class SleepTracker {
     private static final long MORNING_TIME = 1000;
 
     private final MinecraftServer server;
-    private int lastSleepingCount = 0;
+    private int lastSleepingCount = -1;
+    private int lastTotalPlayers = -1;
     private boolean wasNight = false;
     private long lastTimeOfDay = -1;
     private final Set<UUID> playersWhoSlept = new HashSet<>();
@@ -26,28 +27,33 @@ public class SleepTracker {
         this.server = server;
     }
 
+    @SuppressWarnings("resource")
     public void tick() {
         ServerLevel overworld = server.getLevel(Level.OVERWORLD);
         if (overworld == null) return;
 
         long timeOfDay = overworld.getDayTime() % 24000;
-        int sleepingCount = countSleepingPlayers();
-        int totalPlayers = countNonSpectatorPlayers();
+        boolean currentlyNight = isNightTime(timeOfDay);
 
-        if (sleepingCount != lastSleepingCount) {
-            sendSleepingCountToAllPlayers(sleepingCount, totalPlayers);
-            lastSleepingCount = sleepingCount;
+        int sleepingCount = 0;
+        int totalPlayers = 0;
+        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+            boolean sleeping = player.isSleeping();
+            if (sleeping) sleepingCount++;
+            if (!player.isSpectator()) totalPlayers++;
+            if (currentlyNight && sleeping) {
+                playersWhoSlept.add(player.getUUID());
+            }
         }
 
-        boolean currentlyNight = isNightTime(timeOfDay);
+        if (sleepingCount != lastSleepingCount || totalPlayers != lastTotalPlayers) {
+            sendSleepingCountToAllPlayers(sleepingCount, totalPlayers);
+            lastSleepingCount = sleepingCount;
+            lastTotalPlayers = totalPlayers;
+        }
 
         if (currentlyNight) {
             wasNight = true;
-            for (ServerPlayer player : server.getPlayerList().getPlayers()) {
-                if (player.isSleeping()) {
-                    playersWhoSlept.add(player.getUUID());
-                }
-            }
         }
 
         if (wasNight && !currentlyNight) {
@@ -66,6 +72,16 @@ public class SleepTracker {
         lastTimeOfDay = timeOfDay;
     }
 
+    public void markPlayerListChanged() {
+        lastSleepingCount = -1;
+        lastTotalPlayers = -1;
+    }
+
+    public void markPlayerSleeping(UUID uuid) {
+        wakeVoluntarily.remove(uuid);
+    }
+
+    @SuppressWarnings("resource")
     public void markPlayerWoke(UUID uuid) {
         ServerLevel overworld = server.getLevel(Level.OVERWORLD);
         if (overworld == null) return;
@@ -73,10 +89,6 @@ public class SleepTracker {
         if (isNightTime(timeOfDay)) {
             wakeVoluntarily.add(uuid);
         }
-    }
-
-    public void markPlayerSleeping(UUID uuid) {
-        wakeVoluntarily.remove(uuid);
     }
 
     private boolean isNightTime(long time) {
@@ -87,26 +99,7 @@ public class SleepTracker {
         return time >= 0 && time <= MORNING_TIME + 500;
     }
 
-    private int countSleepingPlayers() {
-        int count = 0;
-        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
-            if (player.isSleeping()) count++;
-        }
-        return count;
-    }
-
-    private int countNonSpectatorPlayers() {
-        int count = 0;
-        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
-            if (!player.isSpectator()) count++;
-        }
-        return count;
-    }
-
     private void sendSleepingCountToAllPlayers(int sleeping, int total) {
-        SleepingPlayersPacket packet = new SleepingPlayersPacket(sleeping, total);
-        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
-            NetworkHandler.sendSleepingPlayers(player, packet);
-        }
+        PacketDistributor.sendToAllPlayers(new SleepingPlayersPacket(sleeping, total));
     }
 }

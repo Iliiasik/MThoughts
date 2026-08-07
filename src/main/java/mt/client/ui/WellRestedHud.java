@@ -50,7 +50,9 @@ public class WellRestedHud {
         int ticksRemaining = WellRestedClientState.getTicksRemaining();
         int totalTicks = WellRestedClientState.getTotalTicks();
 
-        float progress = totalTicks > 0 ? (float) ticksRemaining / totalTicks : 0f;
+        float progress = totalTicks > 0
+                ? Math.max(0f, Math.min(1f, (float) ticksRemaining / totalTicks))
+                : 0f;
 
         boolean isMvp = WellRestedClientState.isMvp();
         ResourceLocation activeIcon = isMvp ? MVP_ICON_TEXTURE : ICON_TEXTURE;
@@ -89,11 +91,7 @@ public class WellRestedHud {
         }
 
         graphics.setColor(1f, 1f, 1f, 1f);
-        graphics.pose().pushPose();
-        graphics.pose().translate((float) iconX, (float) barY, 0f);
-        graphics.pose().scale((float) ICON_GUI_SIZE / TEX_ICON_SIZE, (float) ICON_GUI_SIZE / TEX_ICON_SIZE, 1f);
-        graphics.blit(activeIcon, 0, 0, 0.0f, 0.0f, TEX_ICON_SIZE, TEX_ICON_SIZE, TEX_ICON_SIZE, TEX_ICON_SIZE);
-        graphics.pose().popPose();
+        blitScaled(graphics, activeIcon, iconX, barY, ICON_GUI_SIZE, ICON_GUI_SIZE, TEX_ICON_SIZE, TEX_ICON_SIZE);
         graphics.setColor(1f, 1f, 1f, scaleAlpha);
 
         if (!roman.isEmpty()) {
@@ -103,11 +101,7 @@ public class WellRestedHud {
 
         if (barGuiW > 0) {
             graphics.setColor(1f, 1f, 1f, scaleAlpha);
-            graphics.pose().pushPose();
-            graphics.pose().translate((float) barX, (float) barY, 0f);
-            graphics.pose().scale((float) barGuiW / TEX_SCALE_W, (float) BAR_GUI_H / TEX_SCALE_H, 1f);
-            graphics.blit(SCALE_TEXTURE, 0, 0, 0.0f, 0.0f, TEX_SCALE_W, TEX_SCALE_H, TEX_SCALE_W, TEX_SCALE_H);
-            graphics.pose().popPose();
+            blitScaled(graphics, SCALE_TEXTURE, barX, barY, barGuiW, BAR_GUI_H, TEX_SCALE_W, TEX_SCALE_H);
 
             if (progress > 0f) {
                 int fillGuiW = barGuiW - FILL_INSET * 2;
@@ -127,5 +121,13 @@ public class WellRestedHud {
         }
 
         graphics.setColor(1f, 1f, 1f, 1f);
+    }
+
+    private static void blitScaled(GuiGraphics graphics, ResourceLocation texture, int x, int y, int guiW, int guiH, int texW, int texH) {
+        graphics.pose().pushPose();
+        graphics.pose().translate((float) x, (float) y, 0f);
+        graphics.pose().scale((float) guiW / texW, (float) guiH / texH, 1f);
+        graphics.blit(texture, 0, 0, 0.0f, 0.0f, texW, texH, texW, texH);
+        graphics.pose().popPose();
     }
 }

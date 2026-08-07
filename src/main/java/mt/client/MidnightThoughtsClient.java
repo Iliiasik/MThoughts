@@ -22,7 +22,6 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
 import net.neoforged.neoforge.client.event.RenderGuiEvent;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -145,10 +144,11 @@ public class MidnightThoughtsClient {
         }
 
         @SubscribeEvent
-        public void onClientDisconnect(PlayerEvent.PlayerLoggedOutEvent event) {
-            if (!(event.getEntity() instanceof net.minecraft.client.player.LocalPlayer)) return;
+        public void onClientDisconnect(net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent.LoggingOut event) {
             ServerConfigCache.clear();
             ClientAchievementCache.clear();
+            mt.client.manager.WellRestedClientState.reset();
+            SleepingPlayersHud.reset();
             MidnightThoughtsClient inst = MidnightThoughtsClient.getInstance();
             if (inst != null && inst.userContentLoader != null) {
                 inst.userContentLoader.clearServerContent();

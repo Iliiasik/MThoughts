@@ -78,11 +78,10 @@ public class MidnightThoughts {
     @SubscribeEvent
     public void onPlayerWakeUp(PlayerWakeUpEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer serverPlayer)) return;
-        MinecraftServer srv = serverPlayer.level().getServer();
-        if (srv != null) {
-            SleepTracker tracker = DailyStatsManager.getSleepTracker(srv);
-            if (tracker != null) tracker.markPlayerWoke(serverPlayer.getUUID());
-        }
+        if (event.wakeImmediately()) return;
+        MinecraftServer srv = serverPlayer.server;
+        SleepTracker tracker = DailyStatsManager.getSleepTracker(srv);
+        if (tracker != null) tracker.markPlayerWoke(serverPlayer.getUUID());
     }
 
     @SubscribeEvent
@@ -95,11 +94,9 @@ public class MidnightThoughts {
                     true
             );
         } else {
-            MinecraftServer srv = serverPlayer.level().getServer();
-            if (srv != null) {
-                SleepTracker tracker = DailyStatsManager.getSleepTracker(srv);
-                if (tracker != null) tracker.markPlayerSleeping(serverPlayer.getUUID());
-            }
+            MinecraftServer srv = serverPlayer.server;
+            SleepTracker tracker = DailyStatsManager.getSleepTracker(srv);
+            if (tracker != null) tracker.markPlayerSleeping(serverPlayer.getUUID());
             if (ComfortCalculator.isNightmareMode(serverPlayer)) {
                 NeoForge.EVENT_BUS.post(new mt.api.event.NightmareEvent(
                         serverPlayer, ComfortCalculator.calculateComfortLevel(serverPlayer)));
@@ -110,11 +107,7 @@ public class MidnightThoughts {
     @SubscribeEvent
     public void onLivingDeath(LivingDeathEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
-            boolean had = WellRestedEffect.hasEffect(player);
-            WellRestedEffect.removeFromPlayer(player);
-            if (had) {
-                NeoForge.EVENT_BUS.post(new mt.api.event.WellRestedExpiredEvent(player));
-            }
+            WellRestedEffect.clear(player);
         }
     }
 
@@ -135,29 +128,7 @@ public class MidnightThoughts {
         DailyStatsManager.onPlayerJoin(serverPlayer);
         NetworkHandler.sendUserContent(serverPlayer, UserContentInitializer.buildPacket());
         NetworkHandler.sendAchievements(serverPlayer, new SyncAchievementsPacket(AchievementLoader.load()));
-        MidnightThoughtsConfig cfg = MidnightThoughtsConfig.getInstance();
-        NetworkHandler.sendConfig(serverPlayer, new SyncConfigPacket(
-                cfg.getSleepOverlay().minSlideDisplayTimeMs,
-                cfg.getSleepOverlay().maxSlideDisplayTimeMs,
-                cfg.getSleepOverlay().fadeInDurationMs,
-                cfg.getSleepOverlay().fadeOutDurationMs,
-                cfg.getSleepOverlay().overlayOpacity,
-                cfg.getSleepOverlay().textOpacity,
-                cfg.getSleepOverlay().imageOpacity,
-                cfg.getSleepOverlay().specialSlideChance,
-                cfg.getSleepOverlay().enableOverlay,
-                cfg.getSleepOverlay().enableImage,
-                cfg.getSleepOverlay().enableDailySummaryScreen,
-                cfg.getSleepOverlay().useFactsApi,
-                cfg.getSleepOverlay().userContentReplaces,
-                cfg.getSleepOverlay().hideChatWhenSleeping,
-                cfg.getUi().theme,
-                cfg.getUi().wellRestedHudPosition,
-                cfg.getUi().hideWellRestedHud,
-                cfg.getUi().hideThemeSwitchButton,
-                cfg.getSleepOverlay().enableStarDust,
-                cfg.getSleepOverlay().showSlideProgress
-        ));
+        NetworkHandler.sendConfig(serverPlayer, SyncConfigPacket.of(MidnightThoughtsConfig.getInstance()));
     }
 
     @SubscribeEvent
@@ -172,6 +143,7 @@ public class MidnightThoughts {
     @SubscribeEvent
     public void onServerStopping(ServerStoppingEvent event) {
         DailyStatsManager.onServerStop(event.getServer());
+        UserContentInitializer.invalidateCache();
         LOGGER.info("Midnight Thoughts server stopping");
     }
 }

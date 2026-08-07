@@ -22,8 +22,7 @@ public class ServerLevelMixin {
     )
     private void onAfterWakeUpAllPlayers(BooleanSupplier hasTimeLeft, CallbackInfo ci) {
         if (!MidnightThoughtsConfig.getInstance().getServer().resetPhantomTimerForNonSleepers) return;
-        ServerLevel level = (ServerLevel) (Object) this;
-        for (ServerPlayer player : level.players()) {
+        for (ServerPlayer player : ((ServerLevel) (Object) this).players()) {
             if (!player.isSpectator()) {
                 player.resetStat(Stats.CUSTOM.get(Stats.TIME_SINCE_REST));
             }

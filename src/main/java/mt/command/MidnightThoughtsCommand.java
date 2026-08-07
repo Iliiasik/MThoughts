@@ -21,7 +21,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.neoforge.common.NeoForge;
 
 import java.util.Collection;
 
@@ -39,7 +38,10 @@ public final class MidnightThoughtsCommand {
                                 .then(Commands.literal("achievements").executes(MidnightThoughtsCommand::reloadAchievements))
                                 .then(Commands.literal("content").executes(MidnightThoughtsCommand::reloadContent))
                                 .then(Commands.literal("all").executes(MidnightThoughtsCommand::reloadAll)))
-                        .then(Commands.literal("comfort").executes(MidnightThoughtsCommand::comfortDebug))
+                        .then(Commands.literal("comfort")
+                                .executes(MidnightThoughtsCommand::comfortDebug)
+                                .then(Commands.argument("target", EntityArgument.player())
+                                        .executes(MidnightThoughtsCommand::comfortDebugTarget)))
                         .then(Commands.literal("wellrested")
                                 .then(Commands.literal("grant")
                                         .then(Commands.argument("targets", EntityArgument.players())
@@ -79,11 +81,18 @@ public final class MidnightThoughtsCommand {
     }
 
     private static int comfortDebug(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
-        ServerPlayer player = ctx.getSource().getPlayerOrException();
-        ComfortCalculator.ComfortDebug d = ComfortCalculator.debug(player);
-        CommandSourceStack src = ctx.getSource();
+        return reportComfort(ctx.getSource(), ctx.getSource().getPlayerOrException());
+    }
 
-        src.sendSuccess(() -> Component.literal("── Comfort Report ──").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD), false);
+    private static int comfortDebugTarget(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        return reportComfort(ctx.getSource(), EntityArgument.getPlayer(ctx, "target"));
+    }
+
+    private static int reportComfort(CommandSourceStack src, ServerPlayer player) {
+        ComfortCalculator.ComfortDebug d = ComfortCalculator.debug(player);
+
+        src.sendSuccess(() -> Component.literal("── Comfort Report: " + player.getName().getString() + " ──")
+                .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD), false);
 
         if (!d.enabled()) {
             src.sendSuccess(() -> Component.literal("Comfort system is disabled in config.").withStyle(ChatFormatting.RED), false);
@@ -159,6 +168,11 @@ public final class MidnightThoughtsCommand {
     }
 
     private static int wellRestedGrant(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        if (!MidnightThoughtsConfig.getInstance().getWellRested().enabled) {
+            replyFailure(ctx, "Well-rested is disabled in the server config.");
+            return 0;
+        }
+
         Collection<ServerPlayer> targets = EntityArgument.getPlayers(ctx, "targets");
         int level = IntegerArgumentType.getInteger(ctx, "level");
         for (ServerPlayer player : targets) {
@@ -172,11 +186,7 @@ public final class MidnightThoughtsCommand {
     private static int wellRestedClear(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
         Collection<ServerPlayer> targets = EntityArgument.getPlayers(ctx, "targets");
         for (ServerPlayer player : targets) {
-            boolean had = WellRestedEffect.hasEffect(player);
-            WellRestedEffect.removeFromPlayer(player);
-            if (had) {
-                NeoForge.EVENT_BUS.post(new mt.api.event.WellRestedExpiredEvent(player));
-            }
+            WellRestedEffect.clear(player);
         }
         int n = targets.size();
         reply(ctx, "Cleared well-rested from " + n + " player(s).");
@@ -186,7 +196,7 @@ public final class MidnightThoughtsCommand {
     private static void doReloadConfig(MinecraftServer server) {
         MidnightThoughtsConfig.reload();
         ComfortCalculator.clearCache();
-        SyncConfigPacket packet = buildPacket(MidnightThoughtsConfig.getInstance());
+        SyncConfigPacket packet = SyncConfigPacket.of(MidnightThoughtsConfig.getInstance());
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             NetworkHandler.sendConfig(player, packet);
         }
@@ -203,38 +213,19 @@ public final class MidnightThoughtsCommand {
 
     private static void doReloadContent(MinecraftServer server) {
         UserContentInitializer.writeDefaultFiles();
+        UserContentInitializer.invalidateCache();
         UserContentPacket packet = UserContentInitializer.buildPacket();
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             NetworkHandler.sendUserContent(player, packet);
         }
     }
 
+    private static void replyFailure(CommandContext<CommandSourceStack> ctx, String message) {
+        ctx.getSource().sendFailure(Component.literal("[Midnight Thoughts] " + message));
+    }
+
     private static void reply(CommandContext<CommandSourceStack> ctx, String message) {
         ctx.getSource().sendSuccess(() -> Component.literal("[Midnight Thoughts] " + message), true);
     }
 
-    private static SyncConfigPacket buildPacket(MidnightThoughtsConfig cfg) {
-        return new SyncConfigPacket(
-                cfg.getSleepOverlay().minSlideDisplayTimeMs,
-                cfg.getSleepOverlay().maxSlideDisplayTimeMs,
-                cfg.getSleepOverlay().fadeInDurationMs,
-                cfg.getSleepOverlay().fadeOutDurationMs,
-                cfg.getSleepOverlay().overlayOpacity,
-                cfg.getSleepOverlay().textOpacity,
-                cfg.getSleepOverlay().imageOpacity,
-                cfg.getSleepOverlay().specialSlideChance,
-                cfg.getSleepOverlay().enableOverlay,
-                cfg.getSleepOverlay().enableImage,
-                cfg.getSleepOverlay().enableDailySummaryScreen,
-                cfg.getSleepOverlay().useFactsApi,
-                cfg.getSleepOverlay().userContentReplaces,
-                cfg.getSleepOverlay().hideChatWhenSleeping,
-                cfg.getUi().theme,
-                cfg.getUi().wellRestedHudPosition,
-                cfg.getUi().hideWellRestedHud,
-                cfg.getUi().hideThemeSwitchButton,
-                cfg.getSleepOverlay().enableStarDust,
-                cfg.getSleepOverlay().showSlideProgress
-        );
-    }
 }

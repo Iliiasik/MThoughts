@@ -1,6 +1,6 @@
 package mt.client.ui.summary;
 
-import mt.config.MidnightThoughtsConfig;
+import mt.client.config.ClientConfig;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
@@ -17,7 +17,6 @@ public class FrameRenderer {
 
         int badgeWidth = dims.s(180);
         int badgeHeight = dims.s(60);
-
         int contentPaddingSides = dims.s(60);
         int badgeX = dims.panelX + contentPaddingSides + dims.s(11);
         int badgeY = dims.panelY - badgeHeight / 2 + dims.s(19);
@@ -25,21 +24,27 @@ public class FrameRenderer {
         RenderHelper.blitTexture(context, SummaryConstants.getBadgeTexture(),
                 badgeX, badgeY, badgeWidth, badgeHeight, fadeAlpha);
 
-        String theme = MidnightThoughtsConfig.getInstance().getUiTheme();
+        String theme = ClientConfig.getInstance().getEffectiveTheme();
         ThemeColors.ThemeColor colors = ThemeColors.getThemeColors(theme);
 
         int titleAlpha = (int) (fadeAlpha * 255);
         int titleColor = (titleAlpha << 24) | colors.badgeTextColor();
 
-        float textScale = dims.uiScale * 1.35f;
-        int scaledTextWidth = (int) (textRenderer.width(title) * textScale);
-        int titleX = badgeX + (badgeWidth - scaledTextWidth) / 2;
-        int titleY = badgeY + (badgeHeight - (int) (textRenderer.lineHeight * textScale)) / 2;
+        drawCenteredScaledText(context, textRenderer, title, badgeX, badgeY, badgeWidth, badgeHeight,
+                dims.uiScale * 1.35f, titleColor, false);
+    }
+
+    private static void drawCenteredScaledText(GuiGraphics context, Font textRenderer, Component text,
+                                               int boxX, int boxY, int boxWidth, int boxHeight,
+                                               float textScale, int color, boolean shadow) {
+        int scaledTextWidth = (int) (textRenderer.width(text) * textScale);
+        int textX = boxX + (boxWidth - scaledTextWidth) / 2;
+        int textY = boxY + (boxHeight - (int) (textRenderer.lineHeight * textScale)) / 2;
 
         context.pose().pushPose();
-        context.pose().translate(titleX, titleY, 0);
+        context.pose().translate(textX, textY, 0);
         context.pose().scale(textScale, textScale, 1.0f);
-        context.drawString(textRenderer, title, 0, 0, titleColor, false);
+        context.drawString(textRenderer, text, 0, 0, color, shadow);
         context.pose().popPose();
     }
 
@@ -51,30 +56,20 @@ public class FrameRenderer {
 
         int pagesHolderHeight = dims.s(45);
         int pagesHolderWidth = (int) (pagesHolderHeight * (SummaryConstants.PAGES_HOLDER_TEXTURE_WIDTH / (float) SummaryConstants.PAGES_HOLDER_TEXTURE_HEIGHT));
-
         int contentPaddingBottom = dims.s(37);
-
         int pagesHolderX = dims.panelX + (dims.panelWidth - pagesHolderWidth) / 2;
         int pagesHolderY = dims.panelY + dims.panelHeight - contentPaddingBottom - pagesHolderHeight - dims.s(5);
 
         RenderHelper.blitTexture(context, SummaryConstants.getPagesHolderTexture(),
                 pagesHolderX, pagesHolderY, pagesHolderWidth, pagesHolderHeight, fadeAlpha);
 
-        String theme = MidnightThoughtsConfig.getInstance().getUiTheme();
+        String theme = ClientConfig.getInstance().getEffectiveTheme();
         ThemeColors.ThemeColor colors = ThemeColors.getThemeColors(theme);
 
         int pageTextAlpha = (int) (fadeAlpha * 255);
         int pageTextColor = (pageTextAlpha << 24) | colors.pagesHolderTextColor();
 
-        float textScale = dims.uiScale * 1.12f;
-        int scaledTextWidth = (int) (textRenderer.width(pageInfo) * textScale);
-        int pageTextX = pagesHolderX + (pagesHolderWidth - scaledTextWidth) / 2;
-        int pageTextY = pagesHolderY + (pagesHolderHeight - (int) (textRenderer.lineHeight * textScale)) / 2;
-
-        context.pose().pushPose();
-        context.pose().translate(pageTextX, pageTextY, 0);
-        context.pose().scale(textScale, textScale, 1.0f);
-        context.drawString(textRenderer, pageInfo, 0, 0, pageTextColor, true);
-        context.pose().popPose();
+        drawCenteredScaledText(context, textRenderer, pageInfo, pagesHolderX, pagesHolderY,
+                pagesHolderWidth, pagesHolderHeight, dims.uiScale * 1.12f, pageTextColor, true);
     }
 }

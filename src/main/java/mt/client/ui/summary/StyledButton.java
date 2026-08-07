@@ -1,7 +1,7 @@
 package mt.client.ui.summary;
 
 import mt.client.MidnightThoughtsClient;
-import mt.config.MidnightThoughtsConfig;
+import mt.client.config.ClientConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -20,7 +20,7 @@ public class StyledButton extends Button {
 
     @Override
     public void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
-        String theme = MidnightThoughtsConfig.getInstance().getUiTheme();
+        String theme = ClientConfig.getInstance().getEffectiveTheme();
         boolean hovered = isMouseOver(mouseX, mouseY);
 
         ResourceLocation texture = ResourceLocation.fromNamespaceAndPath(

@@ -1,6 +1,7 @@
 package mt.server;
 
 import mt.config.MidnightThoughtsConfig;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundUpdateAttributesPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -23,7 +24,8 @@ public class WellRestedEffect {
     }
 
     private static int getNbtInt(ServerPlayer player, String key, int def) {
-        return player.getPersistentData().contains(key) ? player.getPersistentData().getInt(key) : def;
+        CompoundTag data = player.getPersistentData();
+        return data.contains(key) ? data.getInt(key) : def;
     }
 
     public static int getTotalDurationTicks(int comfortLevel) {
@@ -47,6 +49,14 @@ public class WellRestedEffect {
         player.setHealth(player.getMaxHealth());
 
         NeoForge.EVENT_BUS.post(new mt.api.event.WellRestedAppliedEvent(player, lvlIdx, false, getTotalDurationTicks(lvlIdx)));
+    }
+
+    public static void clear(ServerPlayer player) {
+        boolean had = hasEffect(player);
+        removeFromPlayer(player);
+        if (had) {
+            NeoForge.EVENT_BUS.post(new mt.api.event.WellRestedExpiredEvent(player));
+        }
     }
 
     public static void removeFromPlayer(ServerPlayer player) {
@@ -95,8 +105,7 @@ public class WellRestedEffect {
             default -> { speed = lvl.speedPhase3; strength = lvl.strengthPhase3; haste = lvl.hastePhase3; attackSpeed = lvl.attackSpeedPhase3; regen = lvl.regenBonus; }
         }
 
-        int previousPhase = player.getPersistentData().contains("mt_well_rested_phase")
-                ? player.getPersistentData().getInt("mt_well_rested_phase") : -1;
+        int previousPhase = getNbtInt(player, "mt_well_rested_phase", -1);
 
         if (previousPhase != currentPhaseIndex) {
             player.getPersistentData().putInt("mt_well_rested_phase", currentPhaseIndex);
@@ -200,4 +209,3 @@ public class WellRestedEffect {
         return getNbtInt(player, "mt_well_rested_phase", 0);
     }
 }
-

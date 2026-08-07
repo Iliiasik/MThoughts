@@ -24,10 +24,39 @@ public record SyncConfigPacket(
         String theme,
         String wellRestedHudPosition,
         boolean hideWellRestedHud,
+        boolean hideSleepingPlayersHud,
         boolean hideThemeSwitchButton,
         boolean enableStarDust,
         boolean showSlideProgress
 ) implements CustomPacketPayload {
+    public static SyncConfigPacket of(mt.config.MidnightThoughtsConfig cfg) {
+        mt.config.MidnightThoughtsConfig.SleepOverlaySettings o = cfg.getSleepOverlay();
+        mt.config.MidnightThoughtsConfig.UISettings ui = cfg.getUi();
+        return new SyncConfigPacket(
+                o.minSlideDisplayTimeMs,
+                o.maxSlideDisplayTimeMs,
+                o.fadeInDurationMs,
+                o.fadeOutDurationMs,
+                o.overlayOpacity,
+                o.textOpacity,
+                o.imageOpacity,
+                o.specialSlideChance,
+                o.enableOverlay,
+                o.enableImage,
+                o.enableDailySummaryScreen,
+                o.useFactsApi,
+                o.userContentReplaces,
+                o.hideChatWhenSleeping,
+                ui.theme,
+                ui.wellRestedHudPosition,
+                ui.hideWellRestedHud,
+                ui.hideSleepingPlayersHud,
+                ui.hideThemeSwitchButton,
+                o.enableStarDust,
+                o.showSlideProgress
+        );
+    }
+
     public static final ResourceLocation ID_LOC = ResourceLocation.fromNamespaceAndPath("midnightthoughts", "sync_config");
     public static final CustomPacketPayload.Type<SyncConfigPacket> TYPE = new CustomPacketPayload.Type<>(ID_LOC);
 
@@ -50,6 +79,7 @@ public record SyncConfigPacket(
                 buf.writeUtf(p.theme());
                 buf.writeUtf(p.wellRestedHudPosition());
                 buf.writeBoolean(p.hideWellRestedHud());
+                buf.writeBoolean(p.hideSleepingPlayersHud());
                 buf.writeBoolean(p.hideThemeSwitchButton());
                 buf.writeBoolean(p.enableStarDust());
                 buf.writeBoolean(p.showSlideProgress());
@@ -71,6 +101,7 @@ public record SyncConfigPacket(
                     buf.readBoolean(),
                     buf.readUtf(),
                     buf.readUtf(),
+                    buf.readBoolean(),
                     buf.readBoolean(),
                     buf.readBoolean(),
                     buf.readBoolean(),

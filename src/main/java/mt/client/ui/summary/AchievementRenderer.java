@@ -68,7 +68,9 @@ public class AchievementRenderer {
 
         int textColor = (alpha << 24) | colors.achievementTextColor();
         int textY = sb.renderY() + (sb.renderH() - (int) (8 * textScale)) / 2;
-        RenderUtils.renderScaledText(context, textRenderer, name, x + padX, textY, textColor, textScale, true);
+        int textW = (int) (textRenderer.width(name) * textScale);
+        int textX = x + Math.max(padX, (sb.renderW() - textW) / 2);
+        RenderUtils.renderScaledText(context, textRenderer, name, textX, textY, textColor, textScale, true);
     }
 
     private static String resolveAchievementName(String achievementId) {

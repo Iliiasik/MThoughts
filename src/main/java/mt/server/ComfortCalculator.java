@@ -52,6 +52,7 @@ public class ComfortCalculator {
         return new int[]{ w.lighting, w.carpet, w.furniture, w.decoration, w.structure, w.macabre, w.hostile, w.dark };
     }
 
+    @SuppressWarnings("resource")
     private static boolean[] scanFound(ServerPlayer player) {
         int scanRadius = Math.max(0, Math.min(CONFIG.getComfort().scanRadius, MAX_SCAN_RADIUS));
         BlockPos bedPos = player.getSleepingPos().orElse(player.blockPosition());
@@ -77,6 +78,7 @@ public class ComfortCalculator {
         return found;
     }
 
+    @SuppressWarnings("resource")
     public static int calculateComfortLevel(ServerPlayer player) {
         if (!CONFIG.getComfort().enabled) {
             return 0;
@@ -99,6 +101,8 @@ public class ComfortCalculator {
         for (int i = 0; i < ALL_TAGS.length; i++) {
             if (found[i]) comfortLevel += weights[i];
         }
+
+        cache.put(uuid, new CachedComfort(comfortLevel, currentTick, currentPos));
 
         mt.api.event.ComfortCalculatedEvent e = new mt.api.event.ComfortCalculatedEvent(player, comfortLevel);
         NeoForge.EVENT_BUS.post(e);

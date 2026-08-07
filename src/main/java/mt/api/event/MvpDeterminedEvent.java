@@ -3,6 +3,7 @@ package mt.api.event;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.Event;
 
+@SuppressWarnings("unused")
 public class MvpDeterminedEvent extends Event {
     private final ServerPlayer mvp;
 

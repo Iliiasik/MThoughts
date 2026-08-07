@@ -7,7 +7,7 @@ config = "mthoughts.mixins.json"
 
 [[mods]]
 modId = "${mod_id}"
-version = "1.5"
+version = "1.5.2"
 displayName = "${mod_name}"
 displayURL = "https://iliiasik.github.io/MThoughts-Wiki/"
 logoFile = "${mod_id}_banner.png"

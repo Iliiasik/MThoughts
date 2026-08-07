@@ -4,7 +4,6 @@ import mt.network.packet.DailySummaryPacket;
 import mt.network.packet.MoonPhasePacket;
 import mt.network.packet.RequestMoonPhasePacket;
 import mt.network.packet.SleepingPlayersPacket;
-import mt.network.packet.SummaryAcknowledgePacket;
 import mt.network.packet.SyncAchievementsPacket;
 import mt.network.packet.SyncConfigPacket;
 import mt.network.packet.UserContentPacket;
@@ -22,14 +21,9 @@ import java.util.Objects;
 
 public class NetworkHandler {
 
+    @SuppressWarnings("resource")
     public static void registerPackets(RegisterPayloadHandlersEvent event) {
-        PayloadRegistrar registrar = event.registrar("1");
-
-        registrar.playToServer(
-                SummaryAcknowledgePacket.TYPE,
-                SummaryAcknowledgePacket.CODEC,
-                (packet, ctx) -> {}
-        );
+        PayloadRegistrar registrar = event.registrar("3");
 
         registrar.playToServer(
                 RequestMoonPhasePacket.TYPE,
@@ -108,10 +102,6 @@ public class NetworkHandler {
     }
 
     public static void sendWellRested(ServerPlayer player, WellRestedPacket packet) {
-        PacketDistributor.sendToPlayer(player, packet);
-    }
-
-    public static void sendSleepingPlayers(ServerPlayer player, SleepingPlayersPacket packet) {
         PacketDistributor.sendToPlayer(player, packet);
     }
 

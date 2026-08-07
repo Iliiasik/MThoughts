@@ -5,6 +5,7 @@ import dev.latvian.mods.kubejs.plugin.KubeJSPlugin;
 import dev.latvian.mods.kubejs.script.BindingRegistry;
 import net.neoforged.neoforge.common.NeoForge;
 
+@SuppressWarnings("unused")
 public class MidnightThoughtsKubeJSPlugin implements KubeJSPlugin {
 
     @Override

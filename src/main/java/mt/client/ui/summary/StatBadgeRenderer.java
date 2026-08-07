@@ -1,6 +1,6 @@
 package mt.client.ui.summary;
 
-import mt.config.MidnightThoughtsConfig;
+import mt.client.config.ClientConfig;
 import mt.client.util.NumberFormatter;
 import mt.network.packet.DailySummaryPacket;
 import net.minecraft.client.gui.Font;
@@ -38,7 +38,7 @@ public class StatBadgeRenderer {
         int iconSize = Math.max(6, Math.min(badgeH - 2, (int) (badgeH * 0.7f)));
         float textScale = badgeDims.textScale();
 
-        String theme = MidnightThoughtsConfig.getInstance().getUiTheme();
+        String theme = ClientConfig.getInstance().getEffectiveTheme();
         int textColorFromTheme = ThemeColors.getThemeColors(theme).statTextColor();
 
         int colGap = Math.max(3, dims.s(5));
@@ -76,7 +76,7 @@ public class StatBadgeRenderer {
         int padX = Math.max(3, (int) (4 * ((float) sb.renderH() / texH)));
         int iconY = y + (height - iconSize) / 2;
 
-        RenderHelper.blitTextureSimple(context, icon, x + padX, iconY, iconSize, iconSize, iconSize, iconSize, fadeAlpha);
+        RenderHelper.blitTexture(context, icon, x + padX, iconY, iconSize, iconSize, fadeAlpha);
 
         int textY = y + (height - (int) (8 * textScale)) / 2;
         int alpha = (int) (fadeAlpha * 255);

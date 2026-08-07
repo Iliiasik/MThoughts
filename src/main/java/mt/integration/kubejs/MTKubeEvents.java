@@ -8,6 +8,7 @@ import mt.integration.kubejs.event.NightmareKubeEvent;
 import mt.integration.kubejs.event.WellRestedAppliedKubeEvent;
 import mt.integration.kubejs.event.WellRestedExpiredKubeEvent;
 
+@SuppressWarnings("unused")
 public interface MTKubeEvents {
     EventGroup GROUP = EventGroup.of("MidnightThoughtsEvents");
 

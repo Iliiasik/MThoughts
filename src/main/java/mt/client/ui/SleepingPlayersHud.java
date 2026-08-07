@@ -1,7 +1,7 @@
 package mt.client.ui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import mt.config.MidnightThoughtsConfig;
+import mt.client.config.ClientConfig;
 import mt.client.ui.summary.SummaryConstants;
 import mt.client.ui.summary.ThemeColors;
 import net.minecraft.client.Minecraft;
@@ -17,11 +17,26 @@ public class SleepingPlayersHud {
     private static int sleepingCount = 0;
     private static int totalPlayers = 0;
     private static float displayAlpha = 0.0f;
-    private static final float FADE_SPEED = 0.1f;
+    private static long lastRenderTime = 0L;
+    private static final float FADE_DURATION_MS = 160.0f;
+    private static final float MAX_FRAME_DELTA_MS = 100.0f;
 
     public static void updateSleepingCount(int sleeping, int total) {
         sleepingCount = sleeping;
         totalPlayers = total;
+    }
+
+    public static void reset() {
+        sleepingCount = 0;
+        totalPlayers = 0;
+        displayAlpha = 0.0f;
+        lastRenderTime = 0L;
+    }
+
+    static float fadeStep(long now, long previous) {
+        if (previous <= 0L) return 1.0f / FADE_DURATION_MS * 16.0f;
+        float delta = Math.min(MAX_FRAME_DELTA_MS, Math.max(0.0f, now - previous));
+        return delta / FADE_DURATION_MS;
     }
 
     public static void render(GuiGraphics context, int screenWidth, int screenHeight) {
@@ -29,13 +44,20 @@ public class SleepingPlayersHud {
         if (client.player == null) {
             return;
         }
+        if (mt.config.MidnightThoughtsConfig.getInstance().isHideSleepingPlayersHud()) {
+            return;
+        }
 
         boolean shouldShow = sleepingCount > 0 && totalPlayers > 0;
 
+        long now = System.currentTimeMillis();
+        float step = fadeStep(now, lastRenderTime);
+        lastRenderTime = now;
+
         if (shouldShow) {
-            displayAlpha = Math.min(1.0f, displayAlpha + FADE_SPEED);
+            displayAlpha = Math.min(1.0f, displayAlpha + step);
         } else {
-            displayAlpha = Math.max(0.0f, displayAlpha - FADE_SPEED);
+            displayAlpha = Math.max(0.0f, displayAlpha - step);
         }
 
         if (displayAlpha <= 0.01f) {
@@ -69,7 +91,7 @@ public class SleepingPlayersHud {
         String sleepText = sleepingCount + " / " + totalPlayers;
         Component titleText = Component.translatable("midnightthoughts.hud.sleeping");
 
-        String theme = MidnightThoughtsConfig.getInstance().getUiTheme();
+        String theme = ClientConfig.getInstance().getEffectiveTheme();
         ThemeColors.ThemeColor colors = ThemeColors.getThemeColors(theme);
 
         int textAlpha = (int)(displayAlpha * 255);

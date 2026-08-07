@@ -15,28 +15,30 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class FactProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger("MidnightThoughts");
     private static final int PREFETCH_THRESHOLD = 2;
     private static final int MAX_QUEUE_SIZE = 10;
-    private static final Set<String> API_SUPPORTED_LANGUAGES = Set.of("en_us", "de_de");
+    private static final long RETRY_COOLDOWN_MS = 120_000L;
+    private static final Set<String> API_SUPPORTED_LANGUAGES = mt.common.SupportedLanguages.apiSupported();
 
     private final UselessFactsApiClient apiClient;
     private final SlideRepository slideRepository;
     private final UserContentLoader userContentLoader;
     private final Queue<Slide> factQueue;
-    private final AtomicBoolean apiAvailable;
+    private final AtomicLong nextApiAttempt;
     private final AtomicBoolean fetchInProgress;
 
-    private String currentLanguage = "en_us";
+    private String currentLanguage = mt.common.SupportedLanguages.DEFAULT;
 
     public FactProvider(UselessFactsApiClient apiClient, SlideRepository slideRepository, UserContentLoader userContentLoader) {
         this.apiClient = apiClient;
         this.slideRepository = slideRepository;
         this.userContentLoader = userContentLoader;
         this.factQueue = new ConcurrentLinkedQueue<>();
-        this.apiAvailable = new AtomicBoolean(true);
+        this.nextApiAttempt = new AtomicLong(0L);
         this.fetchInProgress = new AtomicBoolean(false);
     }
 
@@ -72,6 +74,7 @@ public class FactProvider {
         updateLanguageIfChanged(language);
 
         String categoryName = category.name().toLowerCase();
+
         if (category == SlideCategory.NIGHTMARE) {
             categoryName = "nightmares";
         }
@@ -103,9 +106,13 @@ public class FactProvider {
     }
 
     private void prefetchIfNeeded() {
-        if (factQueue.size() < PREFETCH_THRESHOLD && !fetchInProgress.get() && apiAvailable.get()) {
-            fetchFromApi();
+        if (factQueue.size() >= PREFETCH_THRESHOLD || fetchInProgress.get()) {
+            return;
         }
+        if (System.currentTimeMillis() < nextApiAttempt.get()) {
+            return;
+        }
+        fetchFromApi();
     }
 
     private void fetchFromApi() {
@@ -113,7 +120,7 @@ public class FactProvider {
             return;
         }
 
-        int fetchCount = MAX_QUEUE_SIZE - factQueue.size();
+        int fetchCount = Math.max(1, MAX_QUEUE_SIZE - factQueue.size());
         CompletableFuture<?>[] futures = new CompletableFuture[fetchCount];
 
         for (int i = 0; i < fetchCount; i++) {
@@ -129,15 +136,13 @@ public class FactProvider {
                 .whenComplete((result, error) -> {
                     fetchInProgress.set(false);
                     if (factQueue.isEmpty()) {
-                        if (apiAvailable.get()) {
-                            LOGGER.info("API unavailable, switching to fallback mode");
-                            apiAvailable.set(false);
+                        long previous = nextApiAttempt.getAndSet(System.currentTimeMillis() + RETRY_COOLDOWN_MS);
+                        if (previous == 0L) {
+                            LOGGER.info("API unavailable, falling back to local facts and retrying in {} seconds",
+                                    RETRY_COOLDOWN_MS / 1000);
                         }
-                    } else {
-                        if (!apiAvailable.get()) {
-                            LOGGER.info("API connection restored");
-                            apiAvailable.set(true);
-                        }
+                    } else if (nextApiAttempt.getAndSet(0L) != 0L) {
+                        LOGGER.info("API connection restored");
                     }
                 });
     }
@@ -147,6 +152,6 @@ public class FactProvider {
         if (localFact != null) {
             return localFact;
         }
-        return slideRepository.getRandomSlide("en_us", SlideCategory.FACT);
+        return slideRepository.getRandomSlide(mt.common.SupportedLanguages.DEFAULT, SlideCategory.FACT);
     }
 }
