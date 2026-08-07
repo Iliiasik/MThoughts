@@ -1,0 +1,32 @@
+modLoader = "javafml"
+loaderVersion = "${loader_version_range}"
+license = "${mod_license}"
+
+[[mixins]]
+config = "mthoughts.mixins.json"
+
+[[mods]]
+modId = "${mod_id}"
+version = "1.5.1"
+displayName = "${mod_name}"
+displayURL = "https://iliiasik.github.io/MThoughts-Wiki/"
+logoFile = "${mod_id}_banner.png"
+authors = "${mod_authors}"
+description = '''${mod_description}'''
+
+[modproperties."${mod_id}"]
+catalogueImageIcon = "${mod_id}_icon.png"
+
+[[dependencies."${mod_id}"]]
+modId = "neoforge"
+type = "required"
+versionRange = "${neoforge_version_range}"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies."${mod_id}"]]
+modId = "minecraft"
+type = "required"
+versionRange = "${minecraft_version_range}"
+ordering = "NONE"
+side = "BOTH"

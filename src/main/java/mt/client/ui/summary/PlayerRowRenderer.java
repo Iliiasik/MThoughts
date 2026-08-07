@@ -59,22 +59,28 @@ public class PlayerRowRenderer {
 
     private static void renderHead(GuiGraphics context, DailySummaryPacket.PlayerDailySummary player,
                                    int x, int y, int rowHeight, int headSize, int leftPad) {
+        var connection = Minecraft.getInstance().getConnection();
+        if (connection == null) return;
+
+        String name = player.playerName();
+        if (name == null) return;
+
+        PlayerInfo playerEntry = null;
+        for (PlayerInfo info : connection.getOnlinePlayers()) {
+            if (name.equals(info.getProfile().name())) {
+                playerEntry = info;
+                break;
+            }
+        }
+        if (playerEntry == null) return;
+
         int skinX = x + leftPad;
         int headY = y + (rowHeight - headSize) / 2;
-        try {
-            if (Minecraft.getInstance().getConnection() != null) {
-                PlayerInfo playerEntry = Minecraft.getInstance().getConnection()
-                        .getOnlinePlayers().stream()
-                        .filter(e -> e.getProfile().name().equals(player.playerName()))
-                        .findFirst().orElse(null);
-                if (playerEntry != null) {
-                    Identifier skin = playerEntry.getSkin().body().texturePath();
-                    int color = ARGB.colorFromFloat(1.0f, 1.0f, 1.0f, 1.0f);
-                    context.blit(RenderPipelines.GUI_TEXTURED, skin, skinX, headY, 8.0f, 8.0f, headSize, headSize, 8, 8, 64, 64, color);
-                    context.blit(RenderPipelines.GUI_TEXTURED, skin, skinX, headY, 40.0f, 8.0f, headSize, headSize, 8, 8, 64, 64, color);
-                }
-            }
-        } catch (Exception ignored) {}
+        Identifier skin = playerEntry.getSkin().body().texturePath();
+        int color = ARGB.colorFromFloat(1.0f, 1.0f, 1.0f, 1.0f);
+
+        context.blit(RenderPipelines.GUI_TEXTURED, skin, skinX, headY, 8.0f, 8.0f, headSize, headSize, 8, 8, 64, 64, color);
+        context.blit(RenderPipelines.GUI_TEXTURED, skin, skinX, headY, 40.0f, 8.0f, headSize, headSize, 8, 8, 64, 64, color);
     }
 
     private static void renderNameBadge(GuiGraphics context, Font textRenderer,

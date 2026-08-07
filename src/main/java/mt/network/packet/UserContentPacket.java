@@ -13,7 +13,7 @@ import java.util.Map;
 
 public record UserContentPacket(Map<String, List<String>> content) implements CustomPacketPayload {
     public static final Identifier ID_LOC = Identifier.fromNamespaceAndPath("midnightthoughts", "user_content");
-    public static final CustomPacketPayload.Type<@org.jetbrains.annotations.NotNull UserContentPacket> TYPE = new CustomPacketPayload.Type<>(ID_LOC);
+    public static final CustomPacketPayload.Type<@NotNull UserContentPacket> TYPE = new CustomPacketPayload.Type<>(ID_LOC);
     public static final StreamCodec<FriendlyByteBuf, UserContentPacket> CODEC = StreamCodec.of(
             (buf, packet) -> {
                 buf.writeVarInt(packet.content().size());
@@ -42,7 +42,7 @@ public record UserContentPacket(Map<String, List<String>> content) implements Cu
     );
 
     @Override
-    public @NotNull Type<@org.jetbrains.annotations.NotNull ? extends CustomPacketPayload> type() {
+    public @NotNull Type<@NotNull ? extends CustomPacketPayload> type() {
         return TYPE;
     }
 }

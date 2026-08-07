@@ -17,6 +17,15 @@ public class WellRestedClientState {
         WellRestedClientState.mvp = mvp;
     }
 
+    public static void reset() {
+        active = false;
+        level = 0;
+        ticksRemaining = 0;
+        totalTicks = 0;
+        nightmareMode = false;
+        mvp = false;
+    }
+
     public static boolean isActive() { return active; }
     public static int getLevel() { return level; }
     public static int getTicksRemaining() { return ticksRemaining; }

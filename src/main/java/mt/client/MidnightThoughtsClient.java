@@ -23,11 +23,13 @@ import net.neoforged.neoforge.client.event.AddClientReloadListenersEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RenderGuiEvent;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MidnightThoughtsClient {
     public static final String MOD_ID = "midnightthoughts";
+    public static final Logger LOGGER = LoggerFactory.getLogger("MidnightThoughts");
 
     private static MidnightThoughtsClient instance;
 
@@ -41,6 +43,7 @@ public class MidnightThoughtsClient {
             instance = new MidnightThoughtsClient();
             NeoForge.EVENT_BUS.register(new NeoForgeClientTickEvents());
             modEventBus.addListener(instance::onAddReloadListeners);
+            LOGGER.info("[MidnightThoughtsClient] Midnight Thoughts initialized successfully!");
         }
     }
 
@@ -140,10 +143,11 @@ public class MidnightThoughtsClient {
         }
 
         @SubscribeEvent
-        public void onClientDisconnect(PlayerEvent.PlayerLoggedOutEvent event) {
-            if (!(event.getEntity() instanceof net.minecraft.client.player.LocalPlayer)) return;
+        public void onClientDisconnect(net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent.LoggingOut event) {
             ServerConfigCache.clear();
             ClientAchievementCache.clear();
+            mt.client.manager.WellRestedClientState.reset();
+            mt.client.ui.SleepingPlayersHud.reset();
             MidnightThoughtsClient inst = MidnightThoughtsClient.getInstance();
             if (inst != null && inst.userContentLoader != null) {
                 inst.userContentLoader.clearServerContent();

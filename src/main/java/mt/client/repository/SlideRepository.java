@@ -29,9 +29,9 @@ public class SlideRepository {
     private final Map<String, Map<SlideCategory, List<Slide>>> slideCache = new HashMap<>();
 
     public void loadAllSlides(ResourceManager manager) {
-        loadSlidesForLanguage(manager, "en_us");
-        loadSlidesForLanguage(manager, "de_de");
-        loadSlidesForLanguage(manager, "es_es");
+        for (String language : mt.common.SupportedLanguages.codes()) {
+            loadSlidesForLanguage(manager, language);
+        }
     }
 
     private void loadSlidesForLanguage(ResourceManager manager, String language) {
@@ -62,7 +62,9 @@ public class SlideRepository {
                 SlideCollection collection = GSON.fromJson(reader, SlideCollection.class);
                 if (collection != null && collection.entries() != null) {
                     for (SlideCollection.SlideEntry entry : collection.entries()) {
-                        slides.add(Slide.ofRare(entry.text(), category, entry.rarity()));
+                        if (entry == null || entry.text() == null || entry.text().isBlank()) continue;
+                        float rarity = entry.rarity() > 0f ? entry.rarity() : 1.0f;
+                        slides.add(Slide.ofRare(entry.text(), category, rarity));
                     }
                 }
             }
@@ -73,10 +75,17 @@ public class SlideRepository {
     }
 
     public List<Slide> getSlidesByCategory(String language, SlideCategory category) {
-        Map<SlideCategory, List<Slide>> categoryMap = slideCache.get(language);
-        if (categoryMap == null) {
-            categoryMap = slideCache.get("en_us");
+        List<Slide> slides = slidesFrom(slideCache.get(language), category);
+        if (!slides.isEmpty()) {
+            return slides;
         }
+        if (!mt.common.SupportedLanguages.DEFAULT.equals(language)) {
+            return slidesFrom(slideCache.get(mt.common.SupportedLanguages.DEFAULT), category);
+        }
+        return List.of();
+    }
+
+    private List<Slide> slidesFrom(Map<SlideCategory, List<Slide>> categoryMap, SlideCategory category) {
         if (categoryMap == null) {
             return List.of();
         }

@@ -1,6 +1,6 @@
 package mt.client.ui.summary;
 
-import mt.config.MidnightThoughtsConfig;
+import mt.client.config.ClientConfig;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
@@ -25,7 +25,7 @@ public class FrameRenderer {
         RenderHelper.blitTexture(context, SummaryConstants.getBadgeTexture(),
                 badgeX, badgeY, badgeWidth, badgeHeight, fadeAlpha);
 
-        String theme = MidnightThoughtsConfig.getInstance().getUiTheme();
+        String theme = ClientConfig.getInstance().getEffectiveTheme();
         ThemeColors.ThemeColor colors = ThemeColors.getThemeColors(theme);
 
         int titleAlpha = (int) (fadeAlpha * 255);
@@ -53,7 +53,7 @@ public class FrameRenderer {
         RenderHelper.blitTexture(context, SummaryConstants.getPagesHolderTexture(),
                 pagesHolderX, pagesHolderY, pagesHolderWidth, pagesHolderHeight, fadeAlpha);
 
-        String theme = MidnightThoughtsConfig.getInstance().getUiTheme();
+        String theme = ClientConfig.getInstance().getEffectiveTheme();
         ThemeColors.ThemeColor colors = ThemeColors.getThemeColors(theme);
 
         int pageTextAlpha = (int) (fadeAlpha * 255);

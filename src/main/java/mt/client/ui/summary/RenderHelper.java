@@ -18,22 +18,10 @@ public class RenderHelper {
 
     public static void blitTexture(GuiGraphics context, Identifier texture,
                                    int x, int y, int width, int height, float alpha) {
-        int color = ARGB.colorFromFloat(alpha, 1.0f, 1.0f, 1.0f);
-        context.pose().pushMatrix();
-        context.pose().translate(x, y);
-        context.pose().scale((float) width, (float) height);
-        context.blit(RenderPipelines.GUI_TEXTURED, texture, 0, 0, 0.0f, 0.0f, 1, 1, 1, 1, color);
-        context.pose().popMatrix();
-    }
+        if (width <= 0 || height <= 0) return;
 
-    public static void blitTextureSimple(GuiGraphics context, Identifier texture,
-                                         int x, int y, int width, int height,
-                                         int texW, int texH, float alpha) {
         int color = ARGB.colorFromFloat(alpha, 1.0f, 1.0f, 1.0f);
-        context.pose().pushMatrix();
-        context.pose().translate(x, y);
-        context.pose().scale((float) width / texW, (float) height / texH);
-        context.blit(RenderPipelines.GUI_TEXTURED, texture, 0, 0, 0.0f, 0.0f, texW, texH, texW, texH, color);
-        context.pose().popMatrix();
+        context.blit(RenderPipelines.GUI_TEXTURED, texture, x, y, 0.0f, 0.0f,
+                width, height, width, height, color);
     }
 }

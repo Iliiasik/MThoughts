@@ -72,4 +72,9 @@ public class AchievementLoader {
         @SerializedName("achievements")
         List<AchievementDefinition> achievements = Collections.emptyList();
     }
+
+    public static List<AchievementDefinition> reload() {
+        cached = null;
+        return load();
+    }
 }

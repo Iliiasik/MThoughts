@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 
 public record SleepingPlayersPacket(int sleepingCount, int totalPlayers) implements CustomPacketPayload {
     public static final Identifier ID_LOC = Identifier.fromNamespaceAndPath("midnightthoughts", "sleeping_players");
-    public static final CustomPacketPayload.Type<@org.jetbrains.annotations.NotNull SleepingPlayersPacket> TYPE = new CustomPacketPayload.Type<>(ID_LOC);
+    public static final CustomPacketPayload.Type<@NotNull SleepingPlayersPacket> TYPE = new CustomPacketPayload.Type<>(ID_LOC);
 
     public static final StreamCodec<FriendlyByteBuf, SleepingPlayersPacket> CODEC = StreamCodec.of(
             (buf, packet) -> {
@@ -19,7 +19,7 @@ public record SleepingPlayersPacket(int sleepingCount, int totalPlayers) impleme
     );
 
     @Override
-    public @NotNull Type<? extends CustomPacketPayload> type() {
+    public @NotNull Type<@NotNull ? extends CustomPacketPayload> type() {
         return TYPE;
     }
 }

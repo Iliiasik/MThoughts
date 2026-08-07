@@ -1,8 +1,8 @@
 package mt.client.ui.summary;
 
 import mt.cache.ClientAchievementCache;
+import mt.client.config.ClientConfig;
 import mt.server.AchievementDefinition;
-import mt.config.MidnightThoughtsConfig;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -25,7 +25,7 @@ public class AchievementRenderer {
         int rowSpacing = badgeDims.rowSpacing();
         float textScale = badgeDims.textScale();
 
-        String theme = MidnightThoughtsConfig.getInstance().getUiTheme();
+        String theme = ClientConfig.getInstance().getEffectiveTheme();
         ThemeColors.ThemeColor colors = ThemeColors.getThemeColors(theme);
 
         int texW = SummaryConstants.ACHIEVEMENT_BADGE_TEXTURE_WIDTH;
@@ -69,7 +69,9 @@ public class AchievementRenderer {
         int alpha = (int) (fadeAlpha * 255);
         int textColor = (alpha << 24) | colors.achievementTextColor();
         int textY = sb.renderY() + (sb.renderH() - (int) (8 * textScale)) / 2;
-        RenderUtils.renderScaledText(context, textRenderer, name, x + padX, textY, textColor, textScale, true);
+        int textW = (int) (textRenderer.width(name) * textScale);
+        int textX = x + Math.max(padX, (sb.renderW() - textW) / 2);
+        RenderUtils.renderScaledText(context, textRenderer, name, textX, textY, textColor, textScale, true);
     }
 
     private static String resolveAchievementName(String achievementId) {

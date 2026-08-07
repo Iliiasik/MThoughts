@@ -1,6 +1,5 @@
 package mt.client.ui;
 
-import mt.client.network.ClientPacketHandlers;
 import mt.client.ui.summary.*;
 import mt.network.packet.DailySummaryPacket;
 import net.minecraft.client.gui.GuiGraphics;
@@ -42,7 +41,7 @@ public class DailySummaryScreen extends Screen {
         int buttonWidth = dimensions.getButtonWidth();
         int buttonHeight = dimensions.getButtonHeight();
         int buttonSpacing = dimensions.s(8);
-        int totalPages = dimensions.getTotalPages(allPlayers.size());
+        int totalPages = SummaryDimensions.getTotalPages(allPlayers.size());
 
         int buttonY = dimensions.panelY + dimensions.panelHeight + dimensions.s(8);
 
@@ -86,7 +85,7 @@ public class DailySummaryScreen extends Screen {
     }
 
     private void navigateToNextPage() {
-        int totalPages = dimensions.getTotalPages(allPlayers.size());
+        int totalPages = SummaryDimensions.getTotalPages(allPlayers.size());
         if (currentPage < totalPages - 1) {
             currentPage++;
             rebuildWidgets();
@@ -99,11 +98,6 @@ public class DailySummaryScreen extends Screen {
         this.init();
     }
 
-    @Override
-    public void onClose() {
-        ClientPacketHandlers.sendSummaryAcknowledge();
-        super.onClose();
-    }
 
     @Override
     public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
@@ -137,7 +131,7 @@ public class DailySummaryScreen extends Screen {
     private void renderPanel(GuiGraphics context) {
         FrameRenderer.render(context, dimensions, fadeAlpha);
         FrameRenderer.renderBadge(context, font, dimensions, fadeAlpha);
-        int totalPages = dimensions.getTotalPages(allPlayers.size());
+        int totalPages = SummaryDimensions.getTotalPages(allPlayers.size());
         FrameRenderer.renderPagesHolder(context, font, dimensions, currentPage, totalPages, fadeAlpha);
     }
 
@@ -145,8 +139,8 @@ public class DailySummaryScreen extends Screen {
         int contentPaddingTop = dimensions.s(53);
         int contentPaddingSides = dimensions.s(60);
 
-        int startIndex = currentPage * dimensions.playersPerPage;
-        int endIndex = Math.min(startIndex + dimensions.playersPerPage, allPlayers.size());
+        int startIndex = currentPage * SummaryConstants.PLAYERS_PER_PAGE;
+        int endIndex = Math.min(startIndex + SummaryConstants.PLAYERS_PER_PAGE, allPlayers.size());
 
         int startY = dimensions.panelY + contentPaddingTop;
 

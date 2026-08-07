@@ -12,7 +12,7 @@ import java.util.List;
 
 public record SyncAchievementsPacket(List<AchievementDefinition> achievements) implements CustomPacketPayload {
     public static final Identifier ID_LOC = Identifier.fromNamespaceAndPath("midnightthoughts", "sync_achievements");
-    public static final CustomPacketPayload.Type<@org.jetbrains.annotations.NotNull SyncAchievementsPacket> TYPE = new CustomPacketPayload.Type<>(ID_LOC);
+    public static final CustomPacketPayload.Type<@NotNull SyncAchievementsPacket> TYPE = new CustomPacketPayload.Type<>(ID_LOC);
     public static final StreamCodec<FriendlyByteBuf, SyncAchievementsPacket> CODEC = StreamCodec.of(
             (buf, packet) -> {
                 buf.writeVarInt(packet.achievements().size());
@@ -38,7 +38,7 @@ public record SyncAchievementsPacket(List<AchievementDefinition> achievements) i
     );
 
     @Override
-    public @NotNull Type<@org.jetbrains.annotations.NotNull ? extends CustomPacketPayload> type() {
+    public @NotNull Type<@NotNull ? extends CustomPacketPayload> type() {
         return TYPE;
     }
 }

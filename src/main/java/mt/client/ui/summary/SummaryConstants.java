@@ -1,7 +1,7 @@
 package mt.client.ui.summary;
 
 import mt.client.MidnightThoughtsClient;
-import mt.config.MidnightThoughtsConfig;
+import mt.client.config.ClientConfig;
 import net.minecraft.resources.Identifier;
 
 public class SummaryConstants {
@@ -31,50 +31,50 @@ public class SummaryConstants {
     public static final int PAGES_HOLDER_TEXTURE_WIDTH = 380;
     public static final int PAGES_HOLDER_TEXTURE_HEIGHT = 170;
 
-    public static final int NORMAL_MODE_PLAYERS_PER_PAGE = 2;
+    public static final int PLAYERS_PER_PAGE = 2;
 
     public static Identifier getFrameTexture() {
-        String theme = MidnightThoughtsConfig.getInstance().getUiTheme();
+        String theme = ClientConfig.getInstance().getEffectiveTheme();
         return Identifier.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/" + theme + "/frame.png");
     }
 
     public static Identifier getBadgeTexture() {
-        String theme = MidnightThoughtsConfig.getInstance().getUiTheme();
+        String theme = ClientConfig.getInstance().getEffectiveTheme();
         return Identifier.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/" + theme + "/badge.png");
     }
 
     public static Identifier getPagesHolderTexture() {
-        String theme = MidnightThoughtsConfig.getInstance().getUiTheme();
+        String theme = ClientConfig.getInstance().getEffectiveTheme();
         return Identifier.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/" + theme + "/pages_holder.png");
     }
 
     public static Identifier getSleepingHudTexture() {
-        String theme = MidnightThoughtsConfig.getInstance().getUiTheme();
+        String theme = ClientConfig.getInstance().getEffectiveTheme();
         return Identifier.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/" + theme + "/sleeping_hud.png");
     }
 
     public static Identifier getRowTexture() {
-        String theme = MidnightThoughtsConfig.getInstance().getUiTheme();
+        String theme = ClientConfig.getInstance().getEffectiveTheme();
         return Identifier.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/" + theme + "/row.png");
     }
 
     public static Identifier getMvpRowTexture() {
-        String theme = MidnightThoughtsConfig.getInstance().getUiTheme();
+        String theme = ClientConfig.getInstance().getEffectiveTheme();
         return Identifier.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/" + theme + "/mvp_row.png");
     }
 
     public static Identifier getNameBadgeTexture() {
-        String theme = MidnightThoughtsConfig.getInstance().getUiTheme();
+        String theme = ClientConfig.getInstance().getEffectiveTheme();
         return Identifier.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/" + theme + "/name_badge.png");
     }
 
     public static Identifier getStatBadgeTexture() {
-        String theme = MidnightThoughtsConfig.getInstance().getUiTheme();
+        String theme = ClientConfig.getInstance().getEffectiveTheme();
         return Identifier.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/" + theme + "/stat_badge.png");
     }
 
     public static Identifier getAchievementBadgeTexture() {
-        String theme = MidnightThoughtsConfig.getInstance().getUiTheme();
+        String theme = ClientConfig.getInstance().getEffectiveTheme();
         return Identifier.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/" + theme + "/achievement_badge.png");
     }
 }

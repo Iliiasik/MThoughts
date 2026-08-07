@@ -11,7 +11,7 @@ import java.util.List;
 
 public record DailySummaryPacket(List<PlayerDailySummary> summaries) implements CustomPacketPayload {
     public static final Identifier ID_LOC = Identifier.fromNamespaceAndPath("midnightthoughts", "daily_summary");
-    public static final CustomPacketPayload.Type<@org.jetbrains.annotations.NotNull DailySummaryPacket> TYPE = new CustomPacketPayload.Type<>(ID_LOC);
+    public static final CustomPacketPayload.Type<@NotNull DailySummaryPacket> TYPE = new CustomPacketPayload.Type<>(ID_LOC);
 
     public static final StreamCodec<FriendlyByteBuf, DailySummaryPacket> CODEC = StreamCodec.of(
             (buf, packet) -> {
@@ -31,7 +31,7 @@ public record DailySummaryPacket(List<PlayerDailySummary> summaries) implements 
     );
 
     @Override
-    public @NotNull Type<? extends CustomPacketPayload> type() {
+    public @NotNull Type<@NotNull ? extends CustomPacketPayload> type() {
         return TYPE;
     }
 

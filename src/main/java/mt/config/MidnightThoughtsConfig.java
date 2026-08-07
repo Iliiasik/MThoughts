@@ -2,7 +2,8 @@ package mt.config;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import mt.client.config.ClientConfig;
+import mt.cache.ServerConfigCache;
+import mt.network.packet.SyncConfigPacket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,8 +11,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 
 public final class MidnightThoughtsConfig {
     private static final Logger LOGGER = LoggerFactory.getLogger("MidnightThoughts");
@@ -26,44 +29,51 @@ public final class MidnightThoughtsConfig {
     private ServerSettings server = new ServerSettings();
     private UISettings ui = new UISettings();
 
-    private MidnightThoughtsConfig() {
-    }
+    private MidnightThoughtsConfig() {}
 
     public static MidnightThoughtsConfig getInstance() {
-        if (instance == null) {
-            instance = load();
-        }
+        if (instance == null) instance = load();
         return instance;
     }
 
     public static MidnightThoughtsConfig load() {
         Path configPath = getConfigPath();
-
         if (Files.exists(configPath)) {
+            MidnightThoughtsConfig config = null;
             try {
-                String json = Files.readString(configPath);
-                MidnightThoughtsConfig config = GSON.fromJson(json, MidnightThoughtsConfig.class);
-                if (config != null) {
-                    config.validate();
-                    return config;
-                }
+                config = GSON.fromJson(Files.readString(configPath), MidnightThoughtsConfig.class);
             } catch (IOException e) {
-                LOGGER.error("Failed to load configuration: {}", e.getMessage());
+                LOGGER.error("Failed to read configuration: {}", e.getMessage());
+                backupBrokenConfig(configPath);
+            } catch (RuntimeException e) {
+                LOGGER.error("Configuration is malformed and will be regenerated: {}", e.getMessage());
+                backupBrokenConfig(configPath);
+            }
+            if (config != null) {
+                config.validate();
+                config.save();
+                return config;
             }
         }
-
         MidnightThoughtsConfig config = new MidnightThoughtsConfig();
         config.save();
         return config;
     }
 
+    private static void backupBrokenConfig(Path configPath) {
+        try {
+            Path backup = configPath.resolveSibling("midnightthoughts.json.broken");
+            Files.move(configPath, backup, StandardCopyOption.REPLACE_EXISTING);
+            LOGGER.warn("Previous configuration saved as {}", backup.getFileName());
+        } catch (IOException e) {
+            LOGGER.error("Failed to back up broken configuration: {}", e.getMessage());
+        }
+    }
+
     public void save() {
         Path configPath = getConfigPath();
-
         try {
-            Files.createDirectories(configPath.getParent());
-            String json = GSON.toJson(this);
-            Files.writeString(configPath, json);
+            mt.common.AtomicFiles.writeString(configPath, GSON.toJson(this));
         } catch (IOException e) {
             LOGGER.error("Failed to save configuration: {}", e.getMessage());
         }
@@ -74,8 +84,11 @@ public final class MidnightThoughtsConfig {
         if (wellRested == null) wellRested = new WellRestedSettings();
         if (mvp == null) mvp = new MvpSettings();
         if (comfort == null) comfort = new ComfortSettings();
+        if (comfort.weights == null) comfort.weights = new ComfortWeights();
         if (server == null) server = new ServerSettings();
         if (ui == null) ui = new UISettings();
+
+        MidnightThoughtsConfigValidation.apply(this);
     }
 
     public static Path getConfigDir() {
@@ -93,113 +106,120 @@ public final class MidnightThoughtsConfig {
     public ServerSettings getServer() { return server; }
     public UISettings getUi() { return ui; }
 
-    public String getUiTheme() {
-        return ClientConfig.getInstance().getEffectiveTheme();
+    public String getWellRestedHudPosition() {
+        SyncConfigPacket s = ServerConfigCache.get();
+        return s != null ? s.wellRestedHudPosition() : ui.wellRestedHudPosition;
     }
 
-    public String getWellRestedHudPosition() {
-        if (mt.cache.ServerConfigCache.has()) return mt.cache.ServerConfigCache.get().wellRestedHudPosition();
-        return ui.wellRestedHudPosition;
-    }
     public int getFadeInDurationMs() {
-        if (mt.cache.ServerConfigCache.has()) return mt.cache.ServerConfigCache.get().fadeInDurationMs();
-        return sleepOverlay.fadeInDurationMs;
+        SyncConfigPacket s = ServerConfigCache.get();
+        return s != null ? s.fadeInDurationMs() : sleepOverlay.fadeInDurationMs;
     }
 
     public int getFadeOutDurationMs() {
-        if (mt.cache.ServerConfigCache.has()) return mt.cache.ServerConfigCache.get().fadeOutDurationMs();
-        return sleepOverlay.fadeOutDurationMs;
+        SyncConfigPacket s = ServerConfigCache.get();
+        return s != null ? s.fadeOutDurationMs() : sleepOverlay.fadeOutDurationMs;
     }
 
     public float getOverlayOpacity() {
-        if (mt.cache.ServerConfigCache.has()) return mt.cache.ServerConfigCache.get().overlayOpacity();
-        return sleepOverlay.overlayOpacity;
+        SyncConfigPacket s = ServerConfigCache.get();
+        return s != null ? s.overlayOpacity() : sleepOverlay.overlayOpacity;
     }
 
     public float getTextOpacity() {
-        if (mt.cache.ServerConfigCache.has()) return mt.cache.ServerConfigCache.get().textOpacity();
-        return sleepOverlay.textOpacity;
+        SyncConfigPacket s = ServerConfigCache.get();
+        return s != null ? s.textOpacity() : sleepOverlay.textOpacity;
     }
 
     public float getImageOpacity() {
-        if (mt.cache.ServerConfigCache.has()) return mt.cache.ServerConfigCache.get().imageOpacity();
-        return sleepOverlay.imageOpacity;
+        SyncConfigPacket s = ServerConfigCache.get();
+        return s != null ? s.imageOpacity() : sleepOverlay.imageOpacity;
     }
 
     public float getSpecialSlideChance() {
-        if (mt.cache.ServerConfigCache.has()) return mt.cache.ServerConfigCache.get().specialSlideChance();
-        return sleepOverlay.specialSlideChance;
+        SyncConfigPacket s = ServerConfigCache.get();
+        return s != null ? s.specialSlideChance() : sleepOverlay.specialSlideChance;
     }
 
     public boolean isEnableOverlay() {
-        if (mt.cache.ServerConfigCache.has()) return !mt.cache.ServerConfigCache.get().enableOverlay();
-        return !sleepOverlay.enableOverlay;
+        SyncConfigPacket s = ServerConfigCache.get();
+        return s != null ? s.enableOverlay() : sleepOverlay.enableOverlay;
     }
 
     public boolean isEnableImage() {
-        if (mt.cache.ServerConfigCache.has()) return mt.cache.ServerConfigCache.get().enableImage();
-        return sleepOverlay.enableImage;
+        SyncConfigPacket s = ServerConfigCache.get();
+        return s != null ? s.enableImage() : sleepOverlay.enableImage;
     }
 
     public boolean isEnableDailySummaryScreen() {
-        if (mt.cache.ServerConfigCache.has()) return mt.cache.ServerConfigCache.get().enableDailySummaryScreen();
-        return sleepOverlay.enableDailySummaryScreen;
+        SyncConfigPacket s = ServerConfigCache.get();
+        return s != null ? s.enableDailySummaryScreen() : sleepOverlay.enableDailySummaryScreen;
     }
 
     public boolean isUseFactsApi() {
-        if (mt.cache.ServerConfigCache.has()) return mt.cache.ServerConfigCache.get().useFactsApi();
-        return sleepOverlay.useFactsApi;
+        SyncConfigPacket s = ServerConfigCache.get();
+        return s != null ? s.useFactsApi() : sleepOverlay.useFactsApi;
     }
 
     public boolean isUserContentReplaces() {
-        if (mt.cache.ServerConfigCache.has()) return mt.cache.ServerConfigCache.get().userContentReplaces();
-        return sleepOverlay.userContentReplaces;
+        SyncConfigPacket s = ServerConfigCache.get();
+        return s != null ? s.userContentReplaces() : sleepOverlay.userContentReplaces;
     }
 
     public boolean isHideChatWhenSleeping() {
-        if (mt.cache.ServerConfigCache.has()) return mt.cache.ServerConfigCache.get().hideChatWhenSleeping();
-        return sleepOverlay.hideChatWhenSleeping;
+        SyncConfigPacket s = ServerConfigCache.get();
+        return s != null ? s.hideChatWhenSleeping() : sleepOverlay.hideChatWhenSleeping;
     }
 
     public boolean isHideWellRestedHud() {
-        if (mt.cache.ServerConfigCache.has()) return mt.cache.ServerConfigCache.get().hideWellRestedHud();
-        return ui.hideWellRestedHud;
+        SyncConfigPacket s = ServerConfigCache.get();
+        return s != null ? s.hideWellRestedHud() : ui.hideWellRestedHud;
     }
 
     public boolean isHideThemeSwitchButton() {
-        if (mt.cache.ServerConfigCache.has()) return mt.cache.ServerConfigCache.get().hideThemeSwitchButton();
-        return ui.hideThemeSwitchButton;
+        SyncConfigPacket s = ServerConfigCache.get();
+        return s != null ? s.hideThemeSwitchButton() : ui.hideThemeSwitchButton;
+    }
+
+    public boolean isEnableStarDust() {
+        SyncConfigPacket s = ServerConfigCache.get();
+        return s != null ? s.enableStarDust() : sleepOverlay.enableStarDust;
+    }
+
+    public boolean isShowSlideProgress() {
+        SyncConfigPacket s = ServerConfigCache.get();
+        return s != null ? s.showSlideProgress() : sleepOverlay.showSlideProgress;
     }
 
     public int getRandomSlideDisplayTime() {
-        int min = mt.cache.ServerConfigCache.has()
-                ? mt.cache.ServerConfigCache.get().minSlideDisplayTimeMs()
-                : sleepOverlay.minSlideDisplayTimeMs;
-        int max = mt.cache.ServerConfigCache.has()
-                ? mt.cache.ServerConfigCache.get().maxSlideDisplayTimeMs()
-                : sleepOverlay.maxSlideDisplayTimeMs;
+        SyncConfigPacket s = ServerConfigCache.get();
+        int min = s != null ? s.minSlideDisplayTimeMs() : sleepOverlay.minSlideDisplayTimeMs;
+        int max = s != null ? s.maxSlideDisplayTimeMs() : sleepOverlay.maxSlideDisplayTimeMs;
         if (min >= max) return min;
-        return min + (int) (Math.random() * (max - min));
+        return ThreadLocalRandom.current().nextInt(min, max);
     }
 
     public static class SleepOverlaySettings {
-        public int minSlideDisplayTimeMs = 2500;
-        public int maxSlideDisplayTimeMs = 4000;
+        public int minSlideDisplayTimeMs = 6000;
+        public int maxSlideDisplayTimeMs = 8000;
         public int fadeInDurationMs = 300;
         public int fadeOutDurationMs = 300;
         public float overlayOpacity = 0.4f;
         public float textOpacity = 1.0f;
         public float imageOpacity = 0.6f;
         public float specialSlideChance = 0.05f;
+        public boolean enableStarDust = true;
+        public boolean showSlideProgress = true;
         public boolean enableOverlay = true;
         public boolean enableImage = true;
         public boolean enableDailySummaryScreen = true;
-        public boolean useFactsApi = true;
+        public boolean useFactsApi = false;
         public boolean userContentReplaces = false;
         public boolean hideChatWhenSleeping = true;
     }
 
     public static class WellRestedSettings {
+        public boolean enabled = true;
         public Map<String, WellRestedLevel> levels = new HashMap<>();
 
         public WellRestedSettings() {
@@ -254,6 +274,22 @@ public final class MidnightThoughtsConfig {
     public static class ComfortSettings {
         public boolean enabled = true;
         public int scanRadius = 5;
+        public ComfortWeights weights = new ComfortWeights();
+        public int nightmareThreshold = -1;
+        public int sleepBlockThreshold = -2;
+        public boolean nightmareEnabled = true;
+        public boolean sleepBlockEnabled = true;
+    }
+
+    public static class ComfortWeights {
+        public int lighting = 1;
+        public int carpet = 1;
+        public int furniture = 1;
+        public int decoration = 1;
+        public int structure = 1;
+        public int macabre = -1;
+        public int hostile = -1;
+        public int dark = -1;
     }
 
     public static class ServerSettings {
@@ -265,5 +301,23 @@ public final class MidnightThoughtsConfig {
         public String wellRestedHudPosition = "primary";
         public boolean hideWellRestedHud = false;
         public boolean hideThemeSwitchButton = false;
+    }
+
+    public static void reload() {
+        MidnightThoughtsConfig fresh = load();
+        if (instance == null) {
+            instance = fresh;
+        } else {
+            instance.copyFrom(fresh);
+        }
+    }
+
+    private void copyFrom(MidnightThoughtsConfig other) {
+        this.sleepOverlay = other.sleepOverlay;
+        this.wellRested = other.wellRested;
+        this.mvp = other.mvp;
+        this.comfort = other.comfort;
+        this.server = other.server;
+        this.ui = other.ui;
     }
 }

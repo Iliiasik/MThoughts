@@ -29,12 +29,23 @@ public class RenderUtils {
     }
 
     public static String truncateWithEllipsis(Font font, String text, int maxWidth) {
-        String ellipsis = "...";
-        int ellipsisW = font.width(ellipsis);
+        if (text == null || text.isEmpty()) return text;
         if (font.width(text) <= maxWidth) return text;
-        while (!text.isEmpty() && font.width(text) + ellipsisW > maxWidth) {
-            text = text.substring(0, text.length() - 1);
+
+        String ellipsis = "...";
+        int budget = maxWidth - font.width(ellipsis);
+        if (budget <= 0) return ellipsis;
+
+        int lo = 0;
+        int hi = text.length();
+        while (lo < hi) {
+            int mid = (lo + hi + 1) >>> 1;
+            if (font.width(text.substring(0, mid)) <= budget) {
+                lo = mid;
+            } else {
+                hi = mid - 1;
+            }
         }
-        return text + ellipsis;
+        return text.substring(0, lo) + ellipsis;
     }
 }

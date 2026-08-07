@@ -1,9 +1,11 @@
 package mt.server;
 
+import mt.config.MidnightThoughtsConfig;
 import mt.network.NetworkHandler;
 import mt.network.packet.DailySummaryPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.neoforged.neoforge.common.NeoForge;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -36,6 +38,7 @@ public class DailyStatsManager {
             stats.captureCurrentStats(player);
             stats.saveToStorage(server);
         }
+        StatsStorage.flush();
     }
 
     public static void showDailySummary(MinecraftServer server, Set<UUID> sleepingPlayers) {
@@ -75,7 +78,8 @@ public class DailyStatsManager {
             ));
         }
 
-        String mvpName = AchievementCalculator.determineMvp(playerDataList);
+        boolean mvpEnabled = MidnightThoughtsConfig.getInstance().getMvp().enabled;
+        String mvpName = mvpEnabled ? AchievementCalculator.determineMvp(playerDataList) : null;
         List<DailySummaryPacket.PlayerDailySummary> summaries = new ArrayList<>();
 
         for (ServerPlayer player : sleptPlayers) {
@@ -100,6 +104,7 @@ public class DailyStatsManager {
 
             StatsStorage.savePlayerStats(server, player.getUUID(), savedStats);
         }
+        StatsStorage.flush();
 
         DailySummaryPacket packet = new DailySummaryPacket(summaries);
         for (ServerPlayer player : sleptPlayers) {
@@ -107,6 +112,7 @@ public class DailyStatsManager {
             boolean isMvp = player.getName().getString().equals(mvpName);
             if (isMvp) {
                 WellRestedEffect.applyMvpToPlayer(player);
+                NeoForge.EVENT_BUS.post(new mt.api.event.MvpDeterminedEvent(player));
             } else {
                 int comfortLevel = ComfortCalculator.calculateComfortLevel(player);
                 WellRestedEffect.applyToPlayer(player, comfortLevel);
@@ -119,17 +125,29 @@ public class DailyStatsManager {
         resetDailyStats(server, sleepingPlayers);
     }
 
+    @SuppressWarnings("resource")
     public static void onPlayerJoin(ServerPlayer player) {
         MinecraftServer server = player.level().getServer();
         DailyPlayerStats stats = getOrCreateStats(player.getUUID());
         stats.loadFromStorage(server);
+        markPlayerListChanged(server);
     }
 
+    @SuppressWarnings("resource")
     public static void onPlayerLeave(ServerPlayer player) {
         MinecraftServer server = player.level().getServer();
         DailyPlayerStats stats = dailyStats.get(player.getUUID());
         if (stats != null) {
             stats.saveToStorage(server);
+            StatsStorage.flush();
+        }
+        markPlayerListChanged(server);
+    }
+
+    private static void markPlayerListChanged(MinecraftServer server) {
+        SleepTracker tracker = sleepTrackers.get(server);
+        if (tracker != null) {
+            tracker.markPlayerListChanged();
         }
     }
 
@@ -140,6 +158,8 @@ public class DailyStatsManager {
                 stats.saveToStorage(server);
             }
         }
+        StatsStorage.unload();
+        ComfortCalculator.clearCache();
         dailyStats.clear();
         sleepTrackers.remove(server);
     }

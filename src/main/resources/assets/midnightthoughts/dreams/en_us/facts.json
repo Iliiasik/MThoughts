@@ -1,249 +1,984 @@
 {
   "entries": [
-    {"text": "Cats have over 20 vocalizations, including the purr, meow, and chirp.", "rarity": 1.0},
-    {"text": "A group of cats is called a clowder.", "rarity": 1.0},
-    {"text": "Cats spend 70% of their lives sleeping.", "rarity": 1.0},
-    {"text": "A cat's hearing is much more sensitive than a human's or dog's.", "rarity": 1.0},
-    {"text": "Cats can rotate their ears 180 degrees.", "rarity": 1.0},
-    {"text": "The first cat in space was a French cat named Felicette in 1963.", "rarity": 0.8},
-    {"text": "Cats have a specialized collarbone that allows them to always land on their feet.", "rarity": 1.0},
-    {"text": "A cat's nose print is unique, like a human fingerprint.", "rarity": 1.0},
-    {"text": "Cats can jump up to six times their length.", "rarity": 1.0},
-    {"text": "The oldest known pet cat was found in a 9,500-year-old grave on Cyprus.", "rarity": 0.7},
-    {"text": "The Sun is about 4.6 billion years old.", "rarity": 1.0},
-    {"text": "A day on Venus is longer than a year on Venus.", "rarity": 0.9},
-    {"text": "There are more stars in the universe than grains of sand on Earth.", "rarity": 1.0},
-    {"text": "Neutron stars can spin 600 times per second.", "rarity": 0.8},
-    {"text": "One million Earths could fit inside the Sun.", "rarity": 1.0},
-    {"text": "The footprints on the Moon will remain for 100 million years.", "rarity": 1.0},
-    {"text": "Saturn's density is low enough that it would float in water.", "rarity": 0.9},
-    {"text": "A teaspoon of neutron star would weigh about 6 billion tons.", "rarity": 0.7},
-    {"text": "The largest known star, UY Scuti, could fit 5 billion Suns.", "rarity": 0.6},
-    {"text": "Olympus Mons on Mars is the largest volcano in the solar system.", "rarity": 1.0},
-    {"text": "Honey never spoils. Archaeologists found 3000-year-old honey in Egyptian tombs.", "rarity": 1.0},
-    {"text": "Octopuses have three hearts and blue blood.", "rarity": 1.0},
-    {"text": "Bananas are berries, but strawberries are not.", "rarity": 1.0},
-    {"text": "A jiffy is an actual unit of time: 1/100th of a second.", "rarity": 0.8},
-    {"text": "The Eiffel Tower can grow by 15 cm during hot days.", "rarity": 1.0},
-    {"text": "Sharks have been around longer than trees.", "rarity": 0.9},
-    {"text": "There are more possible chess games than atoms in the observable universe.", "rarity": 0.7},
-    {"text": "Cows have best friends and get stressed when separated.", "rarity": 1.0},
-    {"text": "The inventor of the Pringles can is buried in one.", "rarity": 0.8},
-    {"text": "A cloud can weigh more than a million pounds.", "rarity": 1.0},
-    {"text": "Scotland's national animal is the unicorn.", "rarity": 0.9},
-    {"text": "Wombat poop is cube-shaped.", "rarity": 0.8},
-    {"text": "The heart of a shrimp is located in its head.", "rarity": 1.0},
-    {"text": "A group of flamingos is called a flamboyance.", "rarity": 1.0},
-    {"text": "Elephants are the only animals that can't jump.", "rarity": 1.0},
-    {"text": "Polar bear fur is not white – it's transparent.", "rarity": 0.9},
-    {"text": "Sloths can hold their breath longer than dolphins.", "rarity": 0.8},
-    {"text": "The shortest war in history lasted 38 to 45 minutes.", "rarity": 0.7},
-    {"text": "The first oranges weren't orange – they were green.", "rarity": 0.9},
-    {"text": "Your brain uses about 20% of your total energy.", "rarity": 1.0},
-    {"text": "Dolphins sleep with one eye open.", "rarity": 1.0},
-    {"text": "The average person walks the equivalent of three times around the world in a lifetime.", "rarity": 1.0},
-    {"text": "A bolt of lightning is five times hotter than the surface of the Sun.", "rarity": 0.9},
-    {"text": "There are more trees on Earth than stars in the Milky Way.", "rarity": 0.8},
-    {"text": "Humans share 60% of their DNA with bananas.", "rarity": 1.0},
-    {"text": "The longest hiccuping spree lasted 68 years.", "rarity": 0.6},
-    {"text": "Venus is the only planet that spins clockwise.", "rarity": 1.0},
-    {"text": "A single lightning bolt can power 150,000 homes for a minute.", "rarity": 0.8},
-    {"text": "The Great Wall of China is not visible from space with the naked eye.", "rarity": 1.0},
-    {"text": "Koalas sleep up to 22 hours a day.", "rarity": 1.0},
-    {"text": "A group of rhinos is called a crash.", "rarity": 1.0},
-    {"text": "The unicorn is the national animal of Scotland.", "rarity": 0.9},
-    {"text": "An ostrich's eye is bigger than its brain.", "rarity": 1.0},
-    {"text": "Frogs drink water through their skin.", "rarity": 1.0},
-    {"text": "A snail can sleep for three years.", "rarity": 0.8},
-    {"text": "There are more than 1,000 kinds of bananas.", "rarity": 1.0},
-    {"text": "The Hawaiian alphabet has only 12 letters.", "rarity": 0.9},
-    {"text": "A crocodile cannot stick its tongue out.", "rarity": 1.0},
-    {"text": "The Mona Lisa has no eyebrows.", "rarity": 1.0},
-    {"text": "It is impossible for most people to lick their own elbow.", "rarity": 1.0},
-    {"text": "A shrimp's heart is in its head.", "rarity": 1.0},
-    {"text": "It is physically impossible for pigs to look up into the sky.", "rarity": 1.0},
-    {"text": "The 'sixth sick sheik's sixth sheep's sick' is believed to be the toughest tongue twister in the English language.", "rarity": 0.7},
-    {"text": "Rats multiply so quickly that in 18 months, two rats could have over a million descendants.", "rarity": 0.8},
-    {"text": "The placement of a donkey's eyes in its head enables it to see all four of its feet at the same time.", "rarity": 0.9},
-    {"text": "Some lipsticks contain fish scales.", "rarity": 1.0},
-    {"text": "Like fingerprints, everyone's tongue print is different.", "rarity": 1.0},
-    {"text": "A flea can jump 350 times its body length.", "rarity": 1.0},
-    {"text": "A crocodile can't move its tongue and cannot chew.", "rarity": 1.0},
-    {"text": "The heart of a blue whale is so big, a human can swim through the arteries.", "rarity": 0.8},
-    {"text": "The world's oldest piece of chewing gum is 9,000 years old.", "rarity": 0.7},
-    {"text": "A cockroach can live several weeks with its head cut off.", "rarity": 1.0},
-    {"text": "Dragonflies have 6 legs but cannot walk.", "rarity": 0.9},
-    {"text": "The name of all the continents end with the same letter that they start with.", "rarity": 0.8},
-    {"text": "The human brain has a memory capacity which is the equivalent of more than four terabytes on a hard drive.", "rarity": 1.0},
-    {"text": "You are born with 300 bones, but by the time you are an adult, you have 206.", "rarity": 1.0},
-    {"text": "Your skeleton is wet.", "rarity": 1.0},
-    {"text": "The strongest muscle in the body is the tongue.", "rarity": 1.0},
-    {"text": "The most common name in the world is Mohammed.", "rarity": 1.0},
-    {"text": "Carbon monoxide can kill a person in less than 15 minutes.", "rarity": 1.0},
-    {"text": "The average person falls asleep in seven minutes.", "rarity": 1.0},
-    {"text": "The brain is more active at night than during the day.", "rarity": 1.0},
-    {"text": "It's impossible to hum while holding your nose.", "rarity": 1.0},
-    {"text": "A sneeze travels about 100 miles per hour.", "rarity": 1.0},
-    {"text": "The Earth is 4.54 billion years old.", "rarity": 1.0},
-    {"text": "The 100 folds in a chef's hat represent 100 ways to cook an egg.", "rarity": 0.9},
-    {"text": "A 'jiffy' is the scientific name for 1/100th of a second.", "rarity": 0.8},
-    {"text": "A day on Pluto is 6.4 Earth days or 153.3 hours long.", "rarity": 1.0},
-    {"text": "The driest place on Earth is the Atacama Desert in Chile.", "rarity": 1.0},
-    {"text": "The national anthem of Greece has 158 verses.", "rarity": 0.7},
-    {"text": "It was illegal to own a dog in Iceland's capital city from 1924 to 1984.", "rarity": 0.8},
-    {"text": "In Switzerland, it is illegal to own just one guinea pig.", "rarity": 0.9},
-    {"text": "The first-ever VCR was the size of a piano.", "rarity": 1.0},
-    {"text": "The blob of toothpaste on a toothbrush has a name: a nurdle.", "rarity": 1.0},
-    {"text": "The Hollywood sign in Los Angeles used to say 'Hollywoodland'.", "rarity": 1.0},
-    {"text": "The first movie to be rated PG-13 was 'Red Dawn' in 1984.", "rarity": 0.9},
-    {"text": "The voices of Mickey and Minnie Mouse were married in real life.", "rarity": 1.0},
-    {"text": "The name for the shape of Pringles is a 'Hyperbolic Paraboloid'.", "rarity": 0.8},
-    {"text": "The Twitter bird's official name is Larry.", "rarity": 1.0},
-    {"text": "The fear of long words is called 'Hippopotomonstrosesquippedaliophobia'.", "rarity": 0.7},
-    {"text": "The hashtag symbol is technically called an octothorpe.", "rarity": 1.0},
-    {"text": "The small dot over the letter 'i' and 'j' is called a tittle.", "rarity": 1.0},
-    {"text": "A group of pugs is called a grumble.", "rarity": 1.0},
-    {"text": "The sound a cat makes is called a meow, but a group of cats is called a clowder.", "rarity": 1.0},
-    {"text": "The official term for a 'brain freeze' is 'sphenopalatine ganglioneuralgia'.", "rarity": 0.8},
-    {"text": "The string on the inside of a banana is called a 'phloem bundle'.", "rarity": 1.0},
-    {"text": "The plastic tips at the end of shoelaces are called aglets.", "rarity": 1.0},
-    {"text": "The space between your eyebrows is called the glabella.", "rarity": 1.0},
-    {"text": "The smell of freshly-cut grass is a plant distress call.", "rarity": 1.0},
-    {"text": "The 'M's' in M&Ms stand for 'Mars' and 'Murrie'.", "rarity": 1.0},
-    {"text": "The original name for the search engine Google was Backrub.", "rarity": 0.9},
-    {"text": "The real name for a hashtag is an octothorpe.", "rarity": 1.0},
-    {"text": "The first alarm clock could only ring at one time: 4 a.m.", "rarity": 1.0},
-    {"text": "The longest English word is 189,819 letters long.", "rarity": 0.6},
-    {"text": "The dot over the letter 'i' is called a tittle.", "rarity": 1.0},
-    {"text": "The indentation at the bottom of a wine bottle is called a punt.", "rarity": 1.0},
-    {"text": "The original color of Coca-Cola was green.", "rarity": 1.0},
-    {"text": "The first person to be convicted of speeding was going eight mph.", "rarity": 0.9},
-    {"text": "The moon has moonquakes.", "rarity": 1.0},
-    {"text": "The heads on Easter Island have bodies.", "rarity": 1.0},
-    {"text": "There's a species of jellyfish that is immortal.", "rarity": 0.8},
-    {"text": "A single strand of spaghetti is called a 'spaghetto'.", "rarity": 1.0},
-    {"text": "The unicorn is the national animal of Scotland.", "rarity": 0.9},
-    {"text": "There are more fake flamingos in the world than real ones.", "rarity": 1.0},
-    {"text": "The opposite of a 'deja vu' is a 'jamais vu'.", "rarity": 0.8},
-    {"text": "The word 'nerd' was first coined by Dr. Seuss in 'If I Ran the Zoo'.", "rarity": 0.9},
-    {"text": "The world's largest desert is Antarctica.", "rarity": 1.0},
-    {"text": "The longest time between two twins being born is 87 days.", "rarity": 0.7},
-    {"text": "The cornea is one of only two parts of the human body without blood vessels.", "rarity": 1.0},
-    {"text": "The world's deepest postbox is in Susami Bay, Japan. It's 10 meters underwater.", "rarity": 0.8},
-    {"text": "The first oranges weren't orange.", "rarity": 1.0},
-    {"text": "There are more than 200 Kit Kat flavors in Japan.", "rarity": 1.0},
-    {"text": "The original name for Bank of America was Bank of Italy.", "rarity": 0.9},
-    {"text": "The longest wedding veil was longer than 63 football fields.", "rarity": 0.7},
-    {"text": "The Queen owns all the swans in England.", "rarity": 1.0},
-    {"text": "The King of Hearts is the only king without a mustache.", "rarity": 1.0},
-    {"text": "A bolt of lightning contains enough energy to toast 100,000 slices of bread.", "rarity": 0.8},
-    {"text": "The first product to have a barcode was Wrigley's gum.", "rarity": 1.0},
-    {"text": "The Hawaiian alphabet has 13 letters.", "rarity": 0.9},
-    {"text": "The human nose can detect over 1 trillion smells.", "rarity": 1.0},
-    {"text": "The average person has four to six dreams a night.", "rarity": 1.0},
-    {"text": "The inventor of the frisbee was turned into a frisbee after he died.", "rarity": 0.8},
-    {"text": "The first computer was invented in the 1940s.", "rarity": 1.0},
-    {"text": "The first text message was sent in 1992.", "rarity": 1.0},
-    {"text": "The first YouTube video was uploaded in 2005.", "rarity": 1.0},
-    {"text": "The first email was sent in 1971.", "rarity": 1.0},
-    {"text": "The first website went live in 1991.", "rarity": 1.0},
-    {"text": "The first photo on Instagram was of a dog.", "rarity": 1.0},
-    {"text": "The first tweet was sent in 2006.", "rarity": 1.0},
-    {"text": "The first song played on the radio was 'O Holy Night'.", "rarity": 0.9},
-    {"text": "The first video played on MTV was 'Video Killed the Radio Star'.", "rarity": 1.0},
-    {"text": "The first video game was created in 1958.", "rarity": 1.0},
-    {"text": "The first video game console was the Magnavox Odyssey.", "rarity": 1.0},
-    {"text": "The first video game to be played in space was Tetris.", "rarity": 0.8},
-    {"text": "The first video game character was Pac-Man.", "rarity": 1.0},
-    {"text": "The first video game to have a story was 'Colossal Cave Adventure'.", "rarity": 0.9},
-    {"text": "The first video game to have a female protagonist was 'Metroid'.", "rarity": 1.0},
-    {"text": "The first video game to have a save feature was 'The Legend of Zelda'.", "rarity": 1.0},
-    {"text": "The first video game to have a multiplayer mode was 'Pong'.", "rarity": 1.0},
-    {"text": "The first video game to have a 3D world was 'Battlezone'.", "rarity": 1.0},
-    {"text": "The first video game to have a first-person perspective was 'Maze War'.", "rarity": 0.9},
-    {"text": "The first video game to have a cover system was 'Kill Switch'.", "rarity": 0.8},
-    {"text": "The first video game to have a regenerating health system was 'Halo: Combat Evolved'.", "rarity": 1.0},
-    {"text": "The first video game to have a physics engine was 'Jurassic Park: Trespasser'.", "rarity": 0.8},
-    {"text": "The first video game to have a day/night cycle was 'The Legend of Zelda: Ocarina of Time'.", "rarity": 1.0},
-    {"text": "The first video game to have a branching storyline was 'Dragon's Lair'.", "rarity": 0.9},
-    {"text": "The first video game to have a moral choice system was 'Fable'.", "rarity": 1.0},
-    {"text": "The first video game to have a crafting system was 'Minecraft'.", "rarity": 1.0},
-    {"text": "The first video game to have a battle royale mode was 'H1Z1: King of the Kill'.", "rarity": 0.9},
-    {"text": "The first video game to have a season pass was 'L.A. Noire'.", "rarity": 0.8},
-    {"text": "The first video game to have a loot box system was 'FIFA 09'.", "rarity": 0.9},
-    {"text": "The first video game to have a microtransaction system was 'The Elder Scrolls IV: Oblivion'.", "rarity": 1.0},
-    {"text": "The first video game to have a cloud gaming service was 'OnLive'.", "rarity": 0.8},
-    {"text": "The first video game to have a virtual reality mode was 'Dactyl Nightmare'.", "rarity": 0.7},
-    {"text": "The first video game to have an augmented reality mode was 'ARQuake'.", "rarity": 0.7},
-    {"text": "The first video game to have a motion control system was the Nintendo Wii.", "rarity": 1.0},
-    {"text": "The first video game to have a voice command system was 'Hey You, Pikachu!'.", "rarity": 0.9},
-    {"text": "The first video game to have a touch screen was the Nintendo DS.", "rarity": 1.0},
-    {"text": "The first video game to have a dual screen was the Nintendo DS.", "rarity": 1.0},
-    {"text": "The first video game to have a rumble feature was 'Star Fox 64'.", "rarity": 1.0},
-    {"text": "The first video game to have a memory card was the Neo Geo.", "rarity": 0.9},
-    {"text": "The first video game to have a CD-ROM was the Sega CD.", "rarity": 1.0},
-    {"text": "The first video game to have a DVD-ROM was the PlayStation 2.", "rarity": 1.0},
-    {"text": "The first video game to have a Blu-ray Disc was the PlayStation 3.", "rarity": 1.0},
-    {"text": "The first video game to have an online multiplayer mode was 'Snipes'.", "rarity": 0.8},
-    {"text": "The first video game to have a persistent online world was 'MUD1'.", "rarity": 0.7},
-    {"text": "The first video game to have a graphical user interface was 'The Oregon Trail'.", "rarity": 1.0},
-    {"text": "The first video game to have a point-and-click interface was 'Maniac Mansion'.", "rarity": 0.9},
-    {"text": "The first video game to have a real-time strategy genre was 'Dune II'.", "rarity": 1.0},
-    {"text": "The first video game to have a tower defense genre was 'Rampart'.", "rarity": 0.9},
-    {"text": "The first video game to have a stealth genre was '005'.", "rarity": 0.8},
-    {"text": "The first video game to have a survival horror genre was 'Resident Evil'.", "rarity": 1.0},
-    {"text": "The first video game to have a rhythm game genre was 'PaRappa the Rapper'.", "rarity": 1.0},
-    {"text": "The first video game to have a party game genre was 'Mario Party'.", "rarity": 1.0},
-    {"text": "The first video game to have a life simulation genre was 'Little Computer People'.", "rarity": 0.9},
-    {"text": "The first video game to have a pet simulation genre was 'Petz'.", "rarity": 1.0},
-    {"text": "The first video game to have a dating sim genre was 'Dōkyūsei'.", "rarity": 0.7},
-    {"text": "The first video game to have a visual novel genre was 'The Portopia Serial Murder Case'.", "rarity": 0.7},
-    {"text": "The first video game to have an interactive movie genre was 'Astron Belt'.", "rarity": 0.7},
-    {"text": "The first video game to have a full motion video was 'Dragon's Lair'.", "rarity": 0.9},
-    {"text": "The first video game to have a cel-shaded art style was 'Jet Set Radio'.", "rarity": 1.0},
-    {"text": "The first video game to have a pixel art style was 'Space Invaders'.", "rarity": 1.0},
-    {"text": "The first video game to have a voxel art style was 'Comanche: Maximum Overkill'.", "rarity": 0.8},
-    {"text": "The first video game to have a procedural generation was 'Rogue'.", "rarity": 0.9},
-    {"text": "The first video game to have a dynamic difficulty was 'Zanac'.", "rarity": 0.8},
-    {"text": "The first video game to have a New Game Plus mode was 'Chrono Trigger'.", "rarity": 1.0},
-    {"text": "The first video game to have an achievement system was 'E-Motion'.", "rarity": 0.8},
-    {"text": "The first video game to have a leaderboard was 'Star Fire'.", "rarity": 0.9},
-    {"text": "The first video game to have a replay system was 'Replay'.", "rarity": 0.8},
-    {"text": "The first video game to have a photo mode was 'Gran Turismo 4'.", "rarity": 1.0},
-    {"text": "The first video game to have a character creator was 'The Character Creator'.", "rarity": 0.9},
-    {"text": "The first video game to have a level editor was 'Lode Runner'.", "rarity": 1.0},
-    {"text": "The first video game to have a modding community was 'Doom'.", "rarity": 1.0},
-    {"text": "The first video game to have an esports tournament was 'The Intergalactic Spacewar Olympics'.", "rarity": 0.7},
-    {"text": "The first video game to have a speedrunning community was 'Dragster'.", "rarity": 0.8},
-    {"text": "The first video game to have a glitch was 'Computer Space'.", "rarity": 0.9},
-    {"text": "The first video game to have an easter egg was 'Adventure'.", "rarity": 1.0},
-    {"text": "The first video game to have a cheat code was 'The Konami Code'.", "rarity": 1.0},
-    {"text": "The first video game to have a demo was 'Super Mario Bros. 3'.", "rarity": 1.0},
-    {"text": "The first video game to have a trailer was 'Super Mario 64'.", "rarity": 1.0},
-    {"text": "The first video game to have a review was 'Computer Space'.", "rarity": 0.9},
-    {"text": "The first video game to have a magazine was 'Computer and Video Games'.", "rarity": 0.9},
-    {"text": "The first video game to have a TV show was 'Video Power'.", "rarity": 0.8},
-    {"text": "The first video game to have a movie was 'Super Mario Bros.'.", "rarity": 1.0},
-    {"text": "The first video game to have a theme park was 'Nintendo Land'.", "rarity": 1.0},
-    {"text": "The first video game to have a museum was 'The Art of Video Games'.", "rarity": 0.9},
-    {"text": "The first video game to have a Nobel Prize was 'Foldit'.", "rarity": 0.7},
-    {"text": "The first video game to have a Guinness World Record was 'Pac-Man'.", "rarity": 1.0},
-    {"text": "The first video game to have a star on the Hollywood Walk of Fame was 'Pac-Man'.", "rarity": 1.0},
-    {"text": "The first video game to have a postage stamp was 'Space Invaders'.", "rarity": 0.9},
-    {"text": "The first video game to have a coin was 'Pong'.", "rarity": 1.0},
-    {"text": "The first video game to have a toy was 'Pong'.", "rarity": 1.0},
-    {"text": "The first video game to have a cereal was 'Pac-Man'.", "rarity": 1.0},
-    {"text": "The first video game to have a soda was 'Donkey Kong'.", "rarity": 1.0},
-    {"text": "The first video game to have a candy was 'Pac-Man'.", "rarity": 1.0},
-    {"text": "The first video game to have a comic book was 'Pac-Man'.", "rarity": 1.0},
-    {"text": "The first video game to have a novel was 'Pac-Man'.", "rarity": 1.0},
-    {"text": "The first video game to have a manga was 'Pac-Man'.", "rarity": 1.0},
-    {"text": "The first video game to have an anime was 'Pac-Man'.", "rarity": 1.0},
-    {"text": "The first video game to have a soundtrack was 'Pac-Man'.", "rarity": 1.0},
-    {"text": "The first video game to have a concert was 'The Legend of Zelda'.", "rarity": 1.0},
-    {"text": "The first video game to have a musical was 'Pac-Man'.", "rarity": 1.0},
-    {"text": "The first video game to have a play was 'Pac-Man'.", "rarity": 1.0},
-    {"text": "The first video game to have a ballet was 'Pac-Man'.", "rarity": 1.0},
-    {"text": "The first video game to have an opera was 'Pac-Man'.", "rarity": 1.0}
+    {
+      "text": "Cats have over 20 vocalizations, including the purr, meow, and chirp.",
+      "rarity": 1.0
+    },
+    {
+      "text": "A group of cats is called a clowder.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Cats spend 70% of their lives sleeping.",
+      "rarity": 1.0
+    },
+    {
+      "text": "A cat's hearing is much more sensitive than a human's or dog's.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Cats can rotate their ears 180 degrees.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first cat in space was a French cat named Felicette in 1963.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Cats have a specialized collarbone that allows them to always land on their feet.",
+      "rarity": 1.0
+    },
+    {
+      "text": "A cat's nose print is unique, like a human fingerprint.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Cats can jump up to six times their length.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The oldest known pet cat was found in a 9,500-year-old grave on Cyprus.",
+      "rarity": 0.7
+    },
+    {
+      "text": "The Sun is about 4.6 billion years old.",
+      "rarity": 1.0
+    },
+    {
+      "text": "A day on Venus is longer than a year on Venus.",
+      "rarity": 0.9
+    },
+    {
+      "text": "There are more stars in the universe than grains of sand on Earth.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Neutron stars can spin 600 times per second.",
+      "rarity": 0.8
+    },
+    {
+      "text": "One million Earths could fit inside the Sun.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The footprints on the Moon will remain for 100 million years.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Saturn's density is low enough that it would float in water.",
+      "rarity": 0.9
+    },
+    {
+      "text": "A teaspoon of neutron star would weigh about 6 billion tons.",
+      "rarity": 0.7
+    },
+    {
+      "text": "The largest known star, UY Scuti, could fit 5 billion Suns.",
+      "rarity": 0.6
+    },
+    {
+      "text": "Olympus Mons on Mars is the largest volcano in the solar system.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Honey never spoils. Archaeologists found 3000-year-old honey in Egyptian tombs.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Octopuses have three hearts and blue blood.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Bananas are berries, but strawberries are not.",
+      "rarity": 1.0
+    },
+    {
+      "text": "A jiffy is an actual unit of time: 1/100th of a second.",
+      "rarity": 0.8
+    },
+    {
+      "text": "The Eiffel Tower can grow by 15 cm during hot days.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Sharks have been around longer than trees.",
+      "rarity": 0.9
+    },
+    {
+      "text": "There are more possible chess games than atoms in the observable universe.",
+      "rarity": 0.7
+    },
+    {
+      "text": "Cows have best friends and get stressed when separated.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The inventor of the Pringles can is buried in one.",
+      "rarity": 0.8
+    },
+    {
+      "text": "A cloud can weigh more than a million pounds.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Scotland's national animal is the unicorn.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Wombat poop is cube-shaped.",
+      "rarity": 0.8
+    },
+    {
+      "text": "The heart of a shrimp is located in its head.",
+      "rarity": 1.0
+    },
+    {
+      "text": "A group of flamingos is called a flamboyance.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Elephants are the only animals that can't jump.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Polar bear fur is not white – it's transparent.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Sloths can hold their breath longer than dolphins.",
+      "rarity": 0.8
+    },
+    {
+      "text": "The shortest war in history lasted 38 to 45 minutes.",
+      "rarity": 0.7
+    },
+    {
+      "text": "The first oranges weren't orange – they were green.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Your brain uses about 20% of your total energy.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Dolphins sleep with one eye open.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The average person walks the equivalent of three times around the world in a lifetime.",
+      "rarity": 1.0
+    },
+    {
+      "text": "A bolt of lightning is five times hotter than the surface of the Sun.",
+      "rarity": 0.9
+    },
+    {
+      "text": "There are more trees on Earth than stars in the Milky Way.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Humans share 60% of their DNA with bananas.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The longest hiccuping spree lasted 68 years.",
+      "rarity": 0.6
+    },
+    {
+      "text": "Venus is the only planet that spins clockwise.",
+      "rarity": 1.0
+    },
+    {
+      "text": "A single lightning bolt can power 150,000 homes for a minute.",
+      "rarity": 0.8
+    },
+    {
+      "text": "The Great Wall of China is not visible from space with the naked eye.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Koalas sleep up to 22 hours a day.",
+      "rarity": 1.0
+    },
+    {
+      "text": "A group of rhinos is called a crash.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Otters hold hands while they sleep so they don't drift apart.",
+      "rarity": 0.9
+    },
+    {
+      "text": "An ostrich's eye is bigger than its brain.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Frogs drink water through their skin.",
+      "rarity": 1.0
+    },
+    {
+      "text": "A snail can sleep for three years.",
+      "rarity": 0.8
+    },
+    {
+      "text": "There are more than 1,000 kinds of bananas.",
+      "rarity": 1.0
+    },
+    {
+      "text": "A blue whale's tongue alone can weigh as much as an elephant.",
+      "rarity": 0.9
+    },
+    {
+      "text": "An octopus can squeeze through any gap bigger than its eye.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The Mona Lisa has no eyebrows.",
+      "rarity": 1.0
+    },
+    {
+      "text": "It is impossible for most people to lick their own elbow.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Butterflies taste with their feet.",
+      "rarity": 1.0
+    },
+    {
+      "text": "It is physically impossible for pigs to look up into the sky.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The 'sixth sick sheik's sixth sheep's sick' is believed to be the toughest tongue twister in the English language.",
+      "rarity": 0.7
+    },
+    {
+      "text": "Rats multiply so quickly that in 18 months, two rats could have over a million descendants.",
+      "rarity": 0.8
+    },
+    {
+      "text": "The placement of a donkey's eyes in its head enables it to see all four of its feet at the same time.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Some lipsticks contain fish scales.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Like fingerprints, everyone's tongue print is different.",
+      "rarity": 1.0
+    },
+    {
+      "text": "A flea can jump 350 times its body length.",
+      "rarity": 1.0
+    },
+    {
+      "text": "A crocodile can't move its tongue and cannot chew.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The heart of a blue whale is so big, a human can swim through the arteries.",
+      "rarity": 0.8
+    },
+    {
+      "text": "The world's oldest piece of chewing gum is 9,000 years old.",
+      "rarity": 0.7
+    },
+    {
+      "text": "A cockroach can live several weeks with its head cut off.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Dragonflies have 6 legs but cannot walk.",
+      "rarity": 0.9
+    },
+    {
+      "text": "The name of all the continents end with the same letter that they start with.",
+      "rarity": 0.8
+    },
+    {
+      "text": "The human brain has a memory capacity which is the equivalent of more than four terabytes on a hard drive.",
+      "rarity": 1.0
+    },
+    {
+      "text": "You are born with 300 bones, but by the time you are an adult, you have 206.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Your skeleton is wet.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The strongest muscle in the body is the tongue.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The most common name in the world is Mohammed.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Carbon monoxide can kill a person in less than 15 minutes.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The average person falls asleep in seven minutes.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The brain is more active at night than during the day.",
+      "rarity": 1.0
+    },
+    {
+      "text": "It's impossible to hum while holding your nose.",
+      "rarity": 1.0
+    },
+    {
+      "text": "A sneeze travels about 100 miles per hour.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The Earth is 4.54 billion years old.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The 100 folds in a chef's hat represent 100 ways to cook an egg.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Honeybees can recognize individual human faces.",
+      "rarity": 0.8
+    },
+    {
+      "text": "A day on Pluto is 6.4 Earth days or 153.3 hours long.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The driest place on Earth is the Atacama Desert in Chile.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The national anthem of Greece has 158 verses.",
+      "rarity": 0.7
+    },
+    {
+      "text": "It was illegal to own a dog in Iceland's capital city from 1924 to 1984.",
+      "rarity": 0.8
+    },
+    {
+      "text": "In Switzerland, it is illegal to own just one guinea pig.",
+      "rarity": 0.9
+    },
+    {
+      "text": "The first-ever VCR was the size of a piano.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The blob of toothpaste on a toothbrush has a name: a nurdle.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The Hollywood sign in Los Angeles used to say 'Hollywoodland'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first movie to be rated PG-13 was 'Red Dawn' in 1984.",
+      "rarity": 0.9
+    },
+    {
+      "text": "The voices of Mickey and Minnie Mouse were married in real life.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The name for the shape of Pringles is a 'Hyperbolic Paraboloid'.",
+      "rarity": 0.8
+    },
+    {
+      "text": "The Twitter bird's official name is Larry.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The fear of long words is called 'Hippopotomonstrosesquippedaliophobia'.",
+      "rarity": 0.7
+    },
+    {
+      "text": "The hashtag symbol is technically called an octothorpe.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The small dot over the letter 'i' and 'j' is called a tittle.",
+      "rarity": 1.0
+    },
+    {
+      "text": "A group of pugs is called a grumble.",
+      "rarity": 1.0
+    },
+    {
+      "text": "A snail can have thousands of tiny teeth on its tongue.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The official term for a 'brain freeze' is 'sphenopalatine ganglioneuralgia'.",
+      "rarity": 0.8
+    },
+    {
+      "text": "The string on the inside of a banana is called a 'phloem bundle'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The plastic tips at the end of shoelaces are called aglets.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The space between your eyebrows is called the glabella.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The smell of freshly-cut grass is a plant distress call.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The 'M's' in M&Ms stand for 'Mars' and 'Murrie'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The original name for the search engine Google was Backrub.",
+      "rarity": 0.9
+    },
+    {
+      "text": "A sloth can take up to a month to digest a single meal.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first alarm clock could only ring at one time: 4 a.m.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The longest English word is 189,819 letters long.",
+      "rarity": 0.6
+    },
+    {
+      "text": "Some penguins propose to their mate with a pebble.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The indentation at the bottom of a wine bottle is called a punt.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The original color of Coca-Cola was green.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first person to be convicted of speeding was going eight mph.",
+      "rarity": 0.9
+    },
+    {
+      "text": "The moon has moonquakes.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The heads on Easter Island have bodies.",
+      "rarity": 1.0
+    },
+    {
+      "text": "There's a species of jellyfish that is immortal.",
+      "rarity": 0.8
+    },
+    {
+      "text": "A single strand of spaghetti is called a 'spaghetto'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "A hummingbird's heart can beat over 1,200 times per minute.",
+      "rarity": 0.9
+    },
+    {
+      "text": "There are more fake flamingos in the world than real ones.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The opposite of a 'deja vu' is a 'jamais vu'.",
+      "rarity": 0.8
+    },
+    {
+      "text": "The word 'nerd' was first coined by Dr. Seuss in 'If I Ran the Zoo'.",
+      "rarity": 0.9
+    },
+    {
+      "text": "The world's largest desert is Antarctica.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The longest time between two twins being born is 87 days.",
+      "rarity": 0.7
+    },
+    {
+      "text": "The cornea is one of only two parts of the human body without blood vessels.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The world's deepest postbox is in Susami Bay, Japan. It's 10 meters underwater.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Starfish have no brain and no blood.",
+      "rarity": 1.0
+    },
+    {
+      "text": "There are more than 200 Kit Kat flavors in Japan.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The original name for Bank of America was Bank of Italy.",
+      "rarity": 0.9
+    },
+    {
+      "text": "The longest wedding veil was longer than 63 football fields.",
+      "rarity": 0.7
+    },
+    {
+      "text": "The Queen owns all the swans in England.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The King of Hearts is the only king without a mustache.",
+      "rarity": 1.0
+    },
+    {
+      "text": "A bolt of lightning contains enough energy to toast 100,000 slices of bread.",
+      "rarity": 0.8
+    },
+    {
+      "text": "The first product to have a barcode was Wrigley's gum.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The Hawaiian alphabet has 13 letters.",
+      "rarity": 0.9
+    },
+    {
+      "text": "The human nose can detect over 1 trillion smells.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The average person has four to six dreams a night.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The inventor of the frisbee was turned into a frisbee after he died.",
+      "rarity": 0.8
+    },
+    {
+      "text": "The first computer was invented in the 1940s.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first text message was sent in 1992.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first YouTube video was uploaded in 2005.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first email was sent in 1971.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first website went live in 1991.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first photo on Instagram was of a dog.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first tweet was sent in 2006.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first song played on the radio was 'O Holy Night'.",
+      "rarity": 0.9
+    },
+    {
+      "text": "The first video played on MTV was 'Video Killed the Radio Star'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first video game was created in 1958.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first video game console was the Magnavox Odyssey.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first video game to be played in space was Tetris.",
+      "rarity": 0.8
+    },
+    {
+      "text": "The first video game character was Pac-Man.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first video game to have a story was 'Colossal Cave Adventure'.",
+      "rarity": 0.9
+    },
+    {
+      "text": "The first video game to have a female protagonist was 'Metroid'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first video game to have a save feature was 'The Legend of Zelda'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first video game to have a multiplayer mode was 'Pong'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first video game to have a 3D world was 'Battlezone'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first video game to have a first-person perspective was 'Maze War'.",
+      "rarity": 0.9
+    },
+    {
+      "text": "The first video game to have a cover system was 'Kill Switch'.",
+      "rarity": 0.8
+    },
+    {
+      "text": "The first video game to have a regenerating health system was 'Halo: Combat Evolved'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first video game to have a physics engine was 'Jurassic Park: Trespasser'.",
+      "rarity": 0.8
+    },
+    {
+      "text": "The first video game to have a day/night cycle was 'The Legend of Zelda: Ocarina of Time'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first video game to have a branching storyline was 'Dragon's Lair'.",
+      "rarity": 0.9
+    },
+    {
+      "text": "The first video game to have a moral choice system was 'Fable'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first video game to have a crafting system was 'Minecraft'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first video game to have a battle royale mode was 'H1Z1: King of the Kill'.",
+      "rarity": 0.9
+    },
+    {
+      "text": "The first video game to have a season pass was 'L.A. Noire'.",
+      "rarity": 0.8
+    },
+    {
+      "text": "The first video game to have a loot box system was 'FIFA 09'.",
+      "rarity": 0.9
+    },
+    {
+      "text": "The first video game to have a microtransaction system was 'The Elder Scrolls IV: Oblivion'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first video game to have a cloud gaming service was 'OnLive'.",
+      "rarity": 0.8
+    },
+    {
+      "text": "The first video game to have a virtual reality mode was 'Dactyl Nightmare'.",
+      "rarity": 0.7
+    },
+    {
+      "text": "The first video game to have an augmented reality mode was 'ARQuake'.",
+      "rarity": 0.7
+    },
+    {
+      "text": "The first video game to have a motion control system was the Nintendo Wii.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first video game to have a voice command system was 'Hey You, Pikachu!'.",
+      "rarity": 0.9
+    },
+    {
+      "text": "The first video game to have a touch screen was the Nintendo DS.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first video game to have a dual screen was the Nintendo DS.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first video game to have a rumble feature was 'Star Fox 64'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first video game to have a memory card was the Neo Geo.",
+      "rarity": 0.9
+    },
+    {
+      "text": "The first video game to have a CD-ROM was the Sega CD.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first video game to have a DVD-ROM was the PlayStation 2.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first video game to have a Blu-ray Disc was the PlayStation 3.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first video game to have an online multiplayer mode was 'Snipes'.",
+      "rarity": 0.8
+    },
+    {
+      "text": "The first video game to have a persistent online world was 'MUD1'.",
+      "rarity": 0.7
+    },
+    {
+      "text": "The first video game to have a graphical user interface was 'The Oregon Trail'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first video game to have a point-and-click interface was 'Maniac Mansion'.",
+      "rarity": 0.9
+    },
+    {
+      "text": "The first video game to have a real-time strategy genre was 'Dune II'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first video game to have a tower defense genre was 'Rampart'.",
+      "rarity": 0.9
+    },
+    {
+      "text": "The first video game to have a stealth genre was '005'.",
+      "rarity": 0.8
+    },
+    {
+      "text": "The first video game to have a survival horror genre was 'Resident Evil'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first video game to have a rhythm game genre was 'PaRappa the Rapper'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first video game to have a party game genre was 'Mario Party'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first video game to have a life simulation genre was 'Little Computer People'.",
+      "rarity": 0.9
+    },
+    {
+      "text": "The first video game to have a pet simulation genre was 'Petz'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first video game to have a dating sim genre was 'Dōkyūsei'.",
+      "rarity": 0.7
+    },
+    {
+      "text": "The first video game to have a visual novel genre was 'The Portopia Serial Murder Case'.",
+      "rarity": 0.7
+    },
+    {
+      "text": "The first video game to have an interactive movie genre was 'Astron Belt'.",
+      "rarity": 0.7
+    },
+    {
+      "text": "The first video game to have a full motion video was 'Dragon's Lair'.",
+      "rarity": 0.9
+    },
+    {
+      "text": "The first video game to have a cel-shaded art style was 'Jet Set Radio'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first video game to have a pixel art style was 'Space Invaders'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first video game to have a voxel art style was 'Comanche: Maximum Overkill'.",
+      "rarity": 0.8
+    },
+    {
+      "text": "The first video game to have a procedural generation was 'Rogue'.",
+      "rarity": 0.9
+    },
+    {
+      "text": "The first video game to have a dynamic difficulty was 'Zanac'.",
+      "rarity": 0.8
+    },
+    {
+      "text": "The first video game to have a New Game Plus mode was 'Chrono Trigger'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first video game to have an achievement system was 'E-Motion'.",
+      "rarity": 0.8
+    },
+    {
+      "text": "The first video game to have a leaderboard was 'Star Fire'.",
+      "rarity": 0.9
+    },
+    {
+      "text": "The first video game to have a replay system was 'Replay'.",
+      "rarity": 0.8
+    },
+    {
+      "text": "The first video game to have a photo mode was 'Gran Turismo 4'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first video game to have a character creator was 'The Character Creator'.",
+      "rarity": 0.9
+    },
+    {
+      "text": "The first video game to have a level editor was 'Lode Runner'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first video game to have a modding community was 'Doom'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first video game to have an esports tournament was 'The Intergalactic Spacewar Olympics'.",
+      "rarity": 0.7
+    },
+    {
+      "text": "The first video game to have a speedrunning community was 'Dragster'.",
+      "rarity": 0.8
+    },
+    {
+      "text": "The first video game to have a glitch was 'Computer Space'.",
+      "rarity": 0.9
+    },
+    {
+      "text": "The first video game to have an easter egg was 'Adventure'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first video game to have a cheat code was 'The Konami Code'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first video game to have a demo was 'Super Mario Bros. 3'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first video game to have a trailer was 'Super Mario 64'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first video game to have a review was 'Computer Space'.",
+      "rarity": 0.9
+    },
+    {
+      "text": "The first video game to have a magazine was 'Computer and Video Games'.",
+      "rarity": 0.9
+    },
+    {
+      "text": "The first video game to have a TV show was 'Video Power'.",
+      "rarity": 0.8
+    },
+    {
+      "text": "The first video game to have a movie was 'Super Mario Bros.'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first video game to have a theme park was 'Nintendo Land'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first video game to have a museum was 'The Art of Video Games'.",
+      "rarity": 0.9
+    },
+    {
+      "text": "The first video game to have a Nobel Prize was 'Foldit'.",
+      "rarity": 0.7
+    },
+    {
+      "text": "The first video game to have a Guinness World Record was 'Pac-Man'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first video game to have a star on the Hollywood Walk of Fame was 'Pac-Man'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first video game to have a postage stamp was 'Space Invaders'.",
+      "rarity": 0.9
+    },
+    {
+      "text": "The first video game to have a coin was 'Pong'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first video game to have a toy was 'Pong'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first video game to have a cereal was 'Pac-Man'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first video game to have a soda was 'Donkey Kong'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first video game to have a candy was 'Pac-Man'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first video game to have a comic book was 'Pac-Man'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first video game to have a novel was 'Pac-Man'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first video game to have a manga was 'Pac-Man'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first video game to have an anime was 'Pac-Man'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first video game to have a soundtrack was 'Pac-Man'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first video game to have a concert was 'The Legend of Zelda'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first video game to have a musical was 'Pac-Man'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first video game to have a play was 'Pac-Man'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first video game to have a ballet was 'Pac-Man'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "The first video game to have an opera was 'Pac-Man'.",
+      "rarity": 1.0
+    }
   ]
 }

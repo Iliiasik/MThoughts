@@ -9,22 +9,17 @@ import mt.client.ui.SleepingPlayersHud;
 import mt.network.packet.DailySummaryPacket;
 import mt.network.packet.MoonPhasePacket;
 import mt.network.packet.SleepingPlayersPacket;
-import mt.network.packet.SummaryAcknowledgePacket;
 import mt.network.packet.SyncAchievementsPacket;
 import mt.network.packet.SyncConfigPacket;
 import mt.network.packet.UserContentPacket;
 import mt.network.packet.WellRestedPacket;
 import net.minecraft.client.Minecraft;
-import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 public class ClientPacketHandlers {
 
     public static void handleDailySummary(DailySummaryPacket packet) {
-        if (ServerConfigCache.has() ? ServerConfigCache.get().enableDailySummaryScreen()
-                : mt.config.MidnightThoughtsConfig.getInstance().isEnableDailySummaryScreen()) {
+        if (mt.config.MidnightThoughtsConfig.getInstance().isEnableDailySummaryScreen()) {
             Minecraft.getInstance().setScreen(new DailySummaryScreen(packet.summaries()));
-        } else {
-            sendSummaryAcknowledge();
         }
     }
 
@@ -59,9 +54,5 @@ public class ClientPacketHandlers {
         if (client != null) {
             client.getOverlayRenderer().setMoonPhase(packet.moonPhase());
         }
-    }
-
-    public static void sendSummaryAcknowledge() {
-        ClientPacketDistributor.sendToServer(new SummaryAcknowledgePacket());
     }
 }

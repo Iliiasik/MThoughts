@@ -1,15 +1,16 @@
 package mt;
 
+import mt.command.MidnightThoughtsCommand;
 import mt.network.NetworkHandler;
 import mt.network.packet.SyncAchievementsPacket;
 import mt.network.packet.SyncConfigPacket;
-import mt.network.packet.WellRestedPacket;
 import mt.server.AchievementLoader;
 import mt.server.ComfortCalculator;
 import mt.server.DailyStatsManager;
 import mt.server.SleepTracker;
 import mt.server.UserContentInitializer;
 import mt.server.WellRestedEffect;
+import mt.server.WellRestedSync;
 import mt.config.MidnightThoughtsConfig;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
@@ -21,6 +22,7 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.player.CanPlayerSleepEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
@@ -69,26 +71,27 @@ public class MidnightThoughts {
         DailyStatsManager.tick(event.getServer());
         for (ServerPlayer player : event.getServer().getPlayerList().getPlayers()) {
             WellRestedEffect.tick(player);
-            boolean active = WellRestedEffect.hasEffect(player);
-            int level = WellRestedEffect.getLevel(player);
-            int ticksRemaining = WellRestedEffect.getTicksRemaining(player);
-            int totalTicks = active ? WellRestedEffect.getTotalDurationTicksForPlayer(player) : 0;
-            int phase = WellRestedEffect.getCurrentPhase(player);
-            boolean nightmare = player.isSleeping() && ComfortCalculator.isNightmareMode(player);
-            boolean mvp = WellRestedEffect.isMvp(player);
-            NetworkHandler.sendWellRested(player, new WellRestedPacket(active, level, ticksRemaining, totalTicks, phase, nightmare, mvp));
+            WellRestedSync.sync(player);
         }
     }
 
     @SubscribeEvent
+    public void onRegisterCommands(RegisterCommandsEvent event) {
+        MidnightThoughtsCommand.register(event.getDispatcher());
+    }
+
+    @SubscribeEvent
+    @SuppressWarnings("resource")
     public void onPlayerWakeUp(PlayerWakeUpEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer serverPlayer)) return;
+        if (event.wakeImmediately()) return;
         MinecraftServer srv = serverPlayer.level().getServer();
         SleepTracker tracker = DailyStatsManager.getSleepTracker(srv);
         if (tracker != null) tracker.markPlayerWoke(serverPlayer.getUUID());
     }
 
     @SubscribeEvent
+    @SuppressWarnings("resource")
     public void onCanPlayerSleep(CanPlayerSleepEvent event) {
         ServerPlayer serverPlayer = event.getEntity();
         if (ComfortCalculator.isSleepBlocked(serverPlayer)) {
@@ -101,13 +104,17 @@ public class MidnightThoughts {
             MinecraftServer srv = serverPlayer.level().getServer();
             SleepTracker tracker = DailyStatsManager.getSleepTracker(srv);
             if (tracker != null) tracker.markPlayerSleeping(serverPlayer.getUUID());
+            if (ComfortCalculator.isNightmareMode(serverPlayer)) {
+                NeoForge.EVENT_BUS.post(new mt.api.event.NightmareEvent(
+                        serverPlayer, ComfortCalculator.calculateComfortLevel(serverPlayer)));
+            }
         }
     }
 
     @SubscribeEvent
     public void onLivingDeath(LivingDeathEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
-            WellRestedEffect.removeFromPlayer(player);
+            WellRestedEffect.clear(player);
         }
     }
 
@@ -123,27 +130,7 @@ public class MidnightThoughts {
         DailyStatsManager.onPlayerJoin(serverPlayer);
         NetworkHandler.sendUserContent(serverPlayer, UserContentInitializer.buildPacket());
         NetworkHandler.sendAchievements(serverPlayer, new SyncAchievementsPacket(AchievementLoader.load()));
-        MidnightThoughtsConfig cfg = MidnightThoughtsConfig.getInstance();
-        NetworkHandler.sendConfig(serverPlayer, new SyncConfigPacket(
-                cfg.getSleepOverlay().minSlideDisplayTimeMs,
-                cfg.getSleepOverlay().maxSlideDisplayTimeMs,
-                cfg.getSleepOverlay().fadeInDurationMs,
-                cfg.getSleepOverlay().fadeOutDurationMs,
-                cfg.getSleepOverlay().overlayOpacity,
-                cfg.getSleepOverlay().textOpacity,
-                cfg.getSleepOverlay().imageOpacity,
-                cfg.getSleepOverlay().specialSlideChance,
-                cfg.getSleepOverlay().enableOverlay,
-                cfg.getSleepOverlay().enableImage,
-                cfg.getSleepOverlay().enableDailySummaryScreen,
-                cfg.getSleepOverlay().useFactsApi,
-                cfg.getSleepOverlay().userContentReplaces,
-                cfg.getSleepOverlay().hideChatWhenSleeping,
-                cfg.getUi().theme,
-                cfg.getUi().wellRestedHudPosition,
-                cfg.getUi().hideWellRestedHud,
-                cfg.getUi().hideThemeSwitchButton
-        ));
+        NetworkHandler.sendConfig(serverPlayer, SyncConfigPacket.of(MidnightThoughtsConfig.getInstance()));
     }
 
     @SubscribeEvent
@@ -151,6 +138,7 @@ public class MidnightThoughts {
         if (event.getEntity() instanceof ServerPlayer serverPlayer) {
             ComfortCalculator.invalidateCache(serverPlayer);
             DailyStatsManager.onPlayerLeave(serverPlayer);
+            WellRestedSync.clear(serverPlayer.getUUID());
         }
     }
 

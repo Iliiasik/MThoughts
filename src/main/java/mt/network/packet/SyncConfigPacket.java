@@ -24,10 +24,39 @@ public record SyncConfigPacket(
         String theme,
         String wellRestedHudPosition,
         boolean hideWellRestedHud,
-        boolean hideThemeSwitchButton
+        boolean hideThemeSwitchButton,
+        boolean enableStarDust,
+        boolean showSlideProgress
 ) implements CustomPacketPayload {
+
+    public static SyncConfigPacket of(mt.config.MidnightThoughtsConfig cfg) {
+        mt.config.MidnightThoughtsConfig.SleepOverlaySettings o = cfg.getSleepOverlay();
+        mt.config.MidnightThoughtsConfig.UISettings ui = cfg.getUi();
+        return new SyncConfigPacket(
+                o.minSlideDisplayTimeMs,
+                o.maxSlideDisplayTimeMs,
+                o.fadeInDurationMs,
+                o.fadeOutDurationMs,
+                o.overlayOpacity,
+                o.textOpacity,
+                o.imageOpacity,
+                o.specialSlideChance,
+                o.enableOverlay,
+                o.enableImage,
+                o.enableDailySummaryScreen,
+                o.useFactsApi,
+                o.userContentReplaces,
+                o.hideChatWhenSleeping,
+                ui.theme,
+                ui.wellRestedHudPosition,
+                ui.hideWellRestedHud,
+                ui.hideThemeSwitchButton,
+                o.enableStarDust,
+                o.showSlideProgress
+        );
+    }
     public static final Identifier ID_LOC = Identifier.fromNamespaceAndPath("midnightthoughts", "sync_config");
-    public static final CustomPacketPayload.Type<@org.jetbrains.annotations.NotNull SyncConfigPacket> TYPE = new CustomPacketPayload.Type<>(ID_LOC);
+    public static final CustomPacketPayload.Type<@NotNull SyncConfigPacket> TYPE = new CustomPacketPayload.Type<>(ID_LOC);
     public static final StreamCodec<FriendlyByteBuf, SyncConfigPacket> CODEC = StreamCodec.of(
             (buf, p) -> {
                 buf.writeVarInt(p.minSlideDisplayTimeMs());
@@ -48,6 +77,8 @@ public record SyncConfigPacket(
                 buf.writeUtf(p.wellRestedHudPosition());
                 buf.writeBoolean(p.hideWellRestedHud());
                 buf.writeBoolean(p.hideThemeSwitchButton());
+                buf.writeBoolean(p.enableStarDust());
+                buf.writeBoolean(p.showSlideProgress());
             },
             buf -> new SyncConfigPacket(
                     buf.readVarInt(),
@@ -67,12 +98,14 @@ public record SyncConfigPacket(
                     buf.readUtf(),
                     buf.readUtf(),
                     buf.readBoolean(),
+                    buf.readBoolean(),
+                    buf.readBoolean(),
                     buf.readBoolean()
             )
     );
 
     @Override
-    public @NotNull Type<@org.jetbrains.annotations.NotNull ? extends CustomPacketPayload> type() {
+    public @NotNull Type<@NotNull ? extends CustomPacketPayload> type() {
         return TYPE;
     }
 }

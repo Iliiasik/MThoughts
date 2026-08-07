@@ -52,7 +52,9 @@ public class WellRestedHud {
         int ticksRemaining = WellRestedClientState.getTicksRemaining();
         int totalTicks = WellRestedClientState.getTotalTicks();
 
-        float progress = totalTicks > 0 ? (float) ticksRemaining / totalTicks : 0f;
+        float progress = totalTicks > 0
+                ? Math.max(0f, Math.min(1f, (float) ticksRemaining / totalTicks))
+                : 0f;
 
         boolean isMvp = WellRestedClientState.isMvp();
         Identifier activeIcon = isMvp ? MVP_ICON_TEXTURE : ICON_TEXTURE;
@@ -93,14 +95,7 @@ public class WellRestedHud {
             barGuiW = TEX_SCALE_W;
         }
 
-        graphics.pose().pushMatrix();
-        graphics.pose().translate(iconX, barY);
-        graphics.pose().scale((float) ICON_GUI_SIZE / TEX_ICON_SIZE, (float) ICON_GUI_SIZE / TEX_ICON_SIZE);
-        graphics.blit(RenderPipelines.GUI_TEXTURED, activeIcon,
-                0, 0, 0.0f, 0.0f,
-                TEX_ICON_SIZE, TEX_ICON_SIZE,
-                TEX_ICON_SIZE, TEX_ICON_SIZE, white);
-        graphics.pose().popMatrix();
+        blitScaled(graphics, activeIcon, iconX, barY, ICON_GUI_SIZE, ICON_GUI_SIZE, TEX_ICON_SIZE, TEX_ICON_SIZE, white);
 
         if (!roman.isEmpty()) {
             int romanY = barY + (BAR_GUI_H - font.lineHeight) / 2;
@@ -108,14 +103,7 @@ public class WellRestedHud {
         }
 
         if (barGuiW > 0) {
-            graphics.pose().pushMatrix();
-            graphics.pose().translate(barX, barY);
-            graphics.pose().scale((float) barGuiW / TEX_SCALE_W, (float) BAR_GUI_H / TEX_SCALE_H);
-            graphics.blit(RenderPipelines.GUI_TEXTURED, SCALE_TEXTURE,
-                    0, 0, 0.0f, 0.0f,
-                    TEX_SCALE_W, TEX_SCALE_H,
-                    TEX_SCALE_W, TEX_SCALE_H, scaleColor);
-            graphics.pose().popMatrix();
+            blitScaled(graphics, SCALE_TEXTURE, barX, barY, barGuiW, BAR_GUI_H, TEX_SCALE_W, TEX_SCALE_H, scaleColor);
 
             if (progress > 0f) {
                 int fillGuiW = barGuiW - FILL_INSET * 2;
@@ -126,7 +114,7 @@ public class WellRestedHud {
                     float texFillW = visibleFillGuiW * ((float) TEX_FILL_W / fillGuiW);
                     graphics.pose().pushMatrix();
                     graphics.pose().translate(fillGuiX, fillGuiY);
-                    graphics.pose().scale((float) fillGuiW / TEX_FILL_W, (float) TEX_FILL_H / TEX_FILL_H);
+                    graphics.pose().scale((float) fillGuiW / TEX_FILL_W, 1.0f);
                     graphics.blit(RenderPipelines.GUI_TEXTURED, FILL_TEXTURE,
                             0, 0, 0.0f, 0.0f,
                             Math.round(texFillW), TEX_FILL_H,
@@ -135,5 +123,15 @@ public class WellRestedHud {
                 }
             }
         }
+    }
+
+    private static void blitScaled(GuiGraphics graphics, Identifier texture, int x, int y,
+                                   int guiW, int guiH, int texW, int texH, int color) {
+        graphics.pose().pushMatrix();
+        graphics.pose().translate(x, y);
+        graphics.pose().scale((float) guiW / texW, (float) guiH / texH);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, texture, 0, 0, 0.0f, 0.0f,
+                texW, texH, texW, texH, color);
+        graphics.pose().popMatrix();
     }
 }

@@ -6,6 +6,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.resources.Identifier;
+import net.neoforged.neoforge.common.NeoForge;
 
 public class WellRestedEffect {
     private static final MidnightThoughtsConfig CONFIG = MidnightThoughtsConfig.getInstance();
@@ -26,6 +27,7 @@ public class WellRestedEffect {
     }
 
     public static void applyToPlayer(ServerPlayer player, int comfortLevel) {
+        if (!CONFIG.getWellRested().enabled) return;
         if (comfortLevel <= 0) return;
         int lvlIdx = clampLevel(comfortLevel);
         MidnightThoughtsConfig.WellRestedLevel lvl = CONFIG.getWellRested().getLevel(lvlIdx);
@@ -39,6 +41,16 @@ public class WellRestedEffect {
         applyPhaseAttributes(player, lvl.speedPhase1, lvl.strengthPhase1, lvl.hastePhase1, lvl.attackSpeedPhase1);
 
         player.setHealth(player.getMaxHealth());
+
+        NeoForge.EVENT_BUS.post(new mt.api.event.WellRestedAppliedEvent(player, lvlIdx, false, getTotalDurationTicks(lvlIdx)));
+    }
+
+    public static void clear(ServerPlayer player) {
+        boolean had = hasEffect(player);
+        removeFromPlayer(player);
+        if (had) {
+            NeoForge.EVENT_BUS.post(new mt.api.event.WellRestedExpiredEvent(player));
+        }
     }
 
     public static void removeFromPlayer(ServerPlayer player) {
@@ -50,6 +62,14 @@ public class WellRestedEffect {
     }
 
     public static void tick(ServerPlayer player) {
+        if (!CONFIG.getWellRested().enabled) {
+            if (player.getPersistentData().contains("mt_well_rested_ticks_remaining")) {
+                removeFromPlayer(player);
+                syncAttributes(player);
+                NeoForge.EVENT_BUS.post(new mt.api.event.WellRestedExpiredEvent(player));
+            }
+            return;
+        }
         if (!player.getPersistentData().contains("mt_well_rested_ticks_remaining")) return;
 
         int ticksRemaining = player.getPersistentData().getIntOr("mt_well_rested_ticks_remaining", 0);
@@ -58,6 +78,7 @@ public class WellRestedEffect {
         if (ticksRemaining <= 0) {
             removeFromPlayer(player);
             syncAttributes(player);
+            NeoForge.EVENT_BUS.post(new mt.api.event.WellRestedExpiredEvent(player));
             return;
         }
 
@@ -140,6 +161,7 @@ public class WellRestedEffect {
     }
 
     public static void applyMvpToPlayer(ServerPlayer player) {
+        if (!CONFIG.getWellRested().enabled) return;
         MidnightThoughtsConfig.WellRestedLevel lvl = CONFIG.getWellRested().getLevel(5);
         int durationTicks = CONFIG.getMvp().mvpWellRestedDurationMinutes * 60 * 20;
 
@@ -153,6 +175,8 @@ public class WellRestedEffect {
         applyPhaseAttributes(player, lvl.speedPhase1, lvl.strengthPhase1, lvl.hastePhase1, lvl.attackSpeedPhase1);
 
         player.setHealth(player.getMaxHealth());
+
+        NeoForge.EVENT_BUS.post(new mt.api.event.WellRestedAppliedEvent(player, 5, true, durationTicks));
     }
 
     public static int getTotalDurationTicksForPlayer(ServerPlayer player) {
