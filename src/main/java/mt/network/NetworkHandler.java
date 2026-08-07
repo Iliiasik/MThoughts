@@ -21,7 +21,7 @@ import net.minecraftforge.network.simple.SimpleChannel;
 import java.util.Objects;
 
 public class NetworkHandler {
-    private static final String PROTOCOL_VERSION = "2";
+    private static final String PROTOCOL_VERSION = "3";
     public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(
             ResourceLocation.fromNamespaceAndPath("midnightthoughts", "main"),
             () -> PROTOCOL_VERSION,

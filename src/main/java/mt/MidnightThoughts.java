@@ -76,20 +76,20 @@ public class MidnightThoughts {
     @SubscribeEvent
     public void onPlayerSleepInBed(PlayerSleepInBedEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer serverPlayer)) return;
-        MinecraftServer srv = serverPlayer.server;
-        SleepTracker tracker = DailyStatsManager.getSleepTracker(srv);
-        if (tracker != null) {
-            tracker.markPlayerSleeping(serverPlayer.getUUID());
-        }
         if (ComfortCalculator.isSleepBlocked(serverPlayer)) {
             event.setResult(Player.BedSleepingProblem.OTHER_PROBLEM);
             serverPlayer.displayClientMessage(
                     Component.translatable("midnightthoughts.sleep.nightmare_blocked"),
                     true
             );
-        } else if (ComfortCalculator.isNightmareMode(serverPlayer)) {
-            MinecraftForge.EVENT_BUS.post(new mt.api.event.NightmareEvent(
-                    serverPlayer, ComfortCalculator.calculateComfortLevel(serverPlayer)));
+        } else {
+            MinecraftServer srv = serverPlayer.server;
+            SleepTracker tracker = DailyStatsManager.getSleepTracker(srv);
+            if (tracker != null) tracker.markPlayerSleeping(serverPlayer.getUUID());
+            if (ComfortCalculator.isNightmareMode(serverPlayer)) {
+                MinecraftForge.EVENT_BUS.post(new mt.api.event.NightmareEvent(
+                        serverPlayer, ComfortCalculator.calculateComfortLevel(serverPlayer)));
+            }
         }
     }
 

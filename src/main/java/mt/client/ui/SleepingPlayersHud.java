@@ -44,6 +44,9 @@ public class SleepingPlayersHud {
         if (client.player == null) {
             return;
         }
+        if (mt.config.MidnightThoughtsConfig.getInstance().isHideSleepingPlayersHud()) {
+            return;
+        }
 
         boolean shouldShow = sleepingCount > 0 && totalPlayers > 0;
 

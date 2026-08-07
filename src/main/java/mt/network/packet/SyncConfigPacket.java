@@ -7,7 +7,8 @@ public record SyncConfigPacket(int minSlideDisplayTimeMs, int maxSlideDisplayTim
                                float specialSlideChance, boolean enableOverlay, boolean enableImage,
                                boolean enableDailySummaryScreen, boolean useFactsApi, boolean userContentReplaces,
                                boolean hideChatWhenSleeping, String theme, boolean hideWellRestedHud,
-                               boolean hideThemeSwitchButton, boolean enableStarDust, boolean showSlideProgress) {
+                               boolean hideSleepingPlayersHud, boolean hideThemeSwitchButton,
+                               boolean enableStarDust, boolean showSlideProgress) {
 
     public static SyncConfigPacket of(mt.config.MidnightThoughtsConfig cfg) {
         mt.config.MidnightThoughtsConfig.SleepOverlaySettings o = cfg.getSleepOverlay();
@@ -29,6 +30,7 @@ public record SyncConfigPacket(int minSlideDisplayTimeMs, int maxSlideDisplayTim
                 o.hideChatWhenSleeping,
                 ui.theme,
                 ui.hideWellRestedHud,
+                ui.hideSleepingPlayersHud,
                 ui.hideThemeSwitchButton,
                 o.enableStarDust,
                 o.showSlideProgress
@@ -52,6 +54,7 @@ public record SyncConfigPacket(int minSlideDisplayTimeMs, int maxSlideDisplayTim
         buf.writeBoolean(packet.hideChatWhenSleeping);
         buf.writeUtf(packet.theme);
         buf.writeBoolean(packet.hideWellRestedHud);
+        buf.writeBoolean(packet.hideSleepingPlayersHud);
         buf.writeBoolean(packet.hideThemeSwitchButton);
         buf.writeBoolean(packet.enableStarDust);
         buf.writeBoolean(packet.showSlideProgress);
@@ -65,7 +68,7 @@ public record SyncConfigPacket(int minSlideDisplayTimeMs, int maxSlideDisplayTim
                 buf.readBoolean(), buf.readBoolean(),
                 buf.readBoolean(), buf.readBoolean(),
                 buf.readUtf(),
-                buf.readBoolean(), buf.readBoolean(),
+                buf.readBoolean(), buf.readBoolean(), buf.readBoolean(),
                 buf.readBoolean(), buf.readBoolean()
         );
     }

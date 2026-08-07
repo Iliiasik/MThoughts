@@ -17,7 +17,7 @@ class SyncConfigPacketTest {
             0.1f, 0.2f, 0.3f, 0.4f,
             true, false, true, false, true, false,
             "magic",
-            true, false, true, false
+            true, true, false, true, false
     );
 
     private static SyncConfigPacket roundTrip(SyncConfigPacket packet) {
@@ -96,11 +96,11 @@ class SyncConfigPacketTest {
 
         int fourInts = 4 * 4;
         int fourFloats = 4 * 4;
-        int tenBooleans = 10;
+        int elevenBooleans = 11;
         int themeLengthPrefix = 1;
         int themeBytes = "magic".getBytes(java.nio.charset.StandardCharsets.UTF_8).length;
 
-        assertEquals(fourInts + fourFloats + tenBooleans + themeLengthPrefix + themeBytes,
+        assertEquals(fourInts + fourFloats + elevenBooleans + themeLengthPrefix + themeBytes,
                 buf.readableBytes(),
                 "wire format changed, bump the protocol version before shipping this");
     }
@@ -112,7 +112,7 @@ class SyncConfigPacketTest {
                 0.0f, 0.0f, 0.0f, 0.0f,
                 false, false, false, false, false, false,
                 "vanilla",
-                false, false, false, false
+                false, false, false, false, false
         );
 
         assertEquals(packet, roundTrip(packet));
@@ -125,7 +125,7 @@ class SyncConfigPacketTest {
                 1.0f, 1.0f, 1.0f, 1.0f,
                 true, true, true, true, true, true,
                 "tech",
-                true, true, true, true
+                true, true, true, true, true
         );
 
         assertEquals(packet, roundTrip(packet));
@@ -138,7 +138,7 @@ class SyncConfigPacketTest {
                 Float.MIN_VALUE, Float.MAX_VALUE, -0.0f, 1.0E-10f,
                 true, false, true, false, true, false,
                 "classic",
-                true, false, true, false
+                true, true, false, true, false
         );
 
         assertEquals(packet, roundTrip(packet));
@@ -152,7 +152,7 @@ class SyncConfigPacketTest {
                     0.1f, 0.2f, 0.3f, 0.4f,
                     true, false, true, false, true, false,
                     theme,
-                    true, false, true, false
+                    true, true, false, true, false
             );
 
             assertEquals(theme, roundTrip(packet).theme());
@@ -166,7 +166,7 @@ class SyncConfigPacketTest {
                 0.1f, 0.2f, 0.3f, 0.4f,
                 true, false, true, false, true, false,
                 "",
-                true, false, true, false
+                true, true, false, true, false
         );
 
         assertEquals("", roundTrip(packet).theme());

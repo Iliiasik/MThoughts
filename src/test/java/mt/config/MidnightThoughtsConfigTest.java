@@ -314,6 +314,7 @@ class MidnightThoughtsConfigTest {
         assertTrue(overlay.has("enableStarDust"), "new key missing after migration");
         assertTrue(overlay.has("showSlideProgress"), "new key missing after migration");
         assertTrue(onDisk.getAsJsonObject("ui").has("hideWellRestedHud"));
+        assertTrue(onDisk.getAsJsonObject("ui").has("hideSleepingPlayersHud"));
         assertTrue(onDisk.getAsJsonObject("ui").has("hideThemeSwitchButton"));
         assertEquals(4500, overlay.get("minSlideDisplayTimeMs").getAsInt());
         assertEquals(7500, overlay.get("maxSlideDisplayTimeMs").getAsInt());
