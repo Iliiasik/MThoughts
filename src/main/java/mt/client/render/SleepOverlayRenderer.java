@@ -31,7 +31,6 @@ public class SleepOverlayRenderer {
             ResourceLocation.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/overlay/moon_phases/waxing_gibbous.png")
     };
 
-    private static final int IMAGE_TEXTURE_SIZE = 18;
     private static final float BASE_W = 1920.0f;
     private static final float BASE_H = 1080.0f;
     private static final int VIRTUAL_IMAGE_SIZE = 252;
