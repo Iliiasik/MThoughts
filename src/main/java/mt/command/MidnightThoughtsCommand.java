@@ -38,7 +38,10 @@ public final class MidnightThoughtsCommand {
                                 .then(Commands.literal("achievements").executes(MidnightThoughtsCommand::reloadAchievements))
                                 .then(Commands.literal("content").executes(MidnightThoughtsCommand::reloadContent))
                                 .then(Commands.literal("all").executes(MidnightThoughtsCommand::reloadAll)))
-                        .then(Commands.literal("comfort").executes(MidnightThoughtsCommand::comfortDebug))
+                        .then(Commands.literal("comfort")
+                                .executes(MidnightThoughtsCommand::comfortDebug)
+                                .then(Commands.argument("target", EntityArgument.player())
+                                        .executes(MidnightThoughtsCommand::comfortDebugTarget)))
                         .then(Commands.literal("wellrested")
                                 .then(Commands.literal("grant")
                                         .then(Commands.argument("targets", EntityArgument.players())
@@ -78,11 +81,18 @@ public final class MidnightThoughtsCommand {
     }
 
     private static int comfortDebug(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
-        ServerPlayer player = ctx.getSource().getPlayerOrException();
-        ComfortCalculator.ComfortDebug d = ComfortCalculator.debug(player);
-        CommandSourceStack src = ctx.getSource();
+        return reportComfort(ctx.getSource(), ctx.getSource().getPlayerOrException());
+    }
 
-        src.sendSuccess(() -> Component.literal("── Comfort Report ──").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD), false);
+    private static int comfortDebugTarget(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        return reportComfort(ctx.getSource(), EntityArgument.getPlayer(ctx, "target"));
+    }
+
+    private static int reportComfort(CommandSourceStack src, ServerPlayer player) {
+        ComfortCalculator.ComfortDebug d = ComfortCalculator.debug(player);
+
+        src.sendSuccess(() -> Component.literal("── Comfort Report: " + player.getName().getString() + " ──")
+                .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD), false);
 
         if (!d.enabled()) {
             src.sendSuccess(() -> Component.literal("Comfort system is disabled in config.").withStyle(ChatFormatting.RED), false);

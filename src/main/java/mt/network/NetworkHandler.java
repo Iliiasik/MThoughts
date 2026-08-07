@@ -21,7 +21,7 @@ public class NetworkHandler {
 
     @SuppressWarnings("resource")
     public static void registerPackets(RegisterPayloadHandlersEvent event) {
-        PayloadRegistrar registrar = event.registrar("2");
+        PayloadRegistrar registrar = event.registrar("3");
 
         registrar.playToServer(
                 RequestMoonPhasePacket.TYPE,

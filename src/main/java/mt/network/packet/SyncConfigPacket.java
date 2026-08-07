@@ -24,6 +24,7 @@ public record SyncConfigPacket(
         String theme,
         String wellRestedHudPosition,
         boolean hideWellRestedHud,
+        boolean hideSleepingPlayersHud,
         boolean hideThemeSwitchButton,
         boolean enableStarDust,
         boolean showSlideProgress
@@ -50,6 +51,7 @@ public record SyncConfigPacket(
                 ui.theme,
                 ui.wellRestedHudPosition,
                 ui.hideWellRestedHud,
+                ui.hideSleepingPlayersHud,
                 ui.hideThemeSwitchButton,
                 o.enableStarDust,
                 o.showSlideProgress
@@ -76,6 +78,7 @@ public record SyncConfigPacket(
                 buf.writeUtf(p.theme());
                 buf.writeUtf(p.wellRestedHudPosition());
                 buf.writeBoolean(p.hideWellRestedHud());
+                buf.writeBoolean(p.hideSleepingPlayersHud());
                 buf.writeBoolean(p.hideThemeSwitchButton());
                 buf.writeBoolean(p.enableStarDust());
                 buf.writeBoolean(p.showSlideProgress());
@@ -97,6 +100,7 @@ public record SyncConfigPacket(
                     buf.readBoolean(),
                     buf.readUtf(),
                     buf.readUtf(),
+                    buf.readBoolean(),
                     buf.readBoolean(),
                     buf.readBoolean(),
                     buf.readBoolean(),

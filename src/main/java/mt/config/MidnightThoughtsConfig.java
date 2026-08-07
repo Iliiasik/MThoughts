@@ -176,6 +176,11 @@ public final class MidnightThoughtsConfig {
         return s != null ? s.hideWellRestedHud() : ui.hideWellRestedHud;
     }
 
+    public boolean isHideSleepingPlayersHud() {
+        SyncConfigPacket s = ServerConfigCache.get();
+        return s != null ? s.hideSleepingPlayersHud() : ui.hideSleepingPlayersHud;
+    }
+
     public boolean isHideThemeSwitchButton() {
         SyncConfigPacket s = ServerConfigCache.get();
         return s != null ? s.hideThemeSwitchButton() : ui.hideThemeSwitchButton;
@@ -300,6 +305,7 @@ public final class MidnightThoughtsConfig {
         public String theme = "classic";
         public String wellRestedHudPosition = "primary";
         public boolean hideWellRestedHud = false;
+        public boolean hideSleepingPlayersHud = false;
         public boolean hideThemeSwitchButton = false;
     }
 
