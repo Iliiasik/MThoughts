@@ -3,10 +3,10 @@ plugins {
 }
 
 group = maven_group
-version = mod_version
+version = "${mod_version}+${project.name}.${minecraft_version}"
 
 base {
-    archivesName = "${mod_id}-${project.name}-${minecraft_version}"
+    archivesName = mod_id
 }
 
 java {
