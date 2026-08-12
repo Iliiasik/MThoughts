@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "id": "${mod_id}",
+  "version": "${mod_version}",
+  "name": "${mod_name}",
+  "description": "${mod_description}",
+  "icon": "${mod_id}_icon.png",
+  "authors": ["${mod_authors}"],
+  "contact": {
+    "homepage": "https://iliiasik.github.io/MThoughts-Wiki/",
+    "sources": "https://github.com/Iliiasik/MThoughts",
+    "issues": "https://github.com/Iliiasik/MThoughts/issues"
+  },
+  "license": "${mod_license}",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "mt.MidnightThoughts"
+    ],
+    "client": [
+      "mt.client.MidnightThoughtsClient"
+    ]
+  },
+  "mixins": [
+    "${mod_id}.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": "${loader_version_range}",
+    "minecraft": "${fabric_minecraft_range}",
+    "java": ">=${java_version}",
+    "fabric-api": "*"
+  }
+}

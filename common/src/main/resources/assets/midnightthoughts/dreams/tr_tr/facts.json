@@ -1,0 +1,984 @@
+{
+  "entries": [
+    {
+      "text": "Kedilerin mırlama, miyavlama ve cıvıldama dahil 20'den fazla sesi vardır.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Bir kedi grubuna 'clowder' denir.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Kediler ömürlerinin %70'ini uyuyarak geçirir.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Bir kedinin işitmesi insan ya da köpekten çok daha hassastır.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Kediler kulaklarını 180 derece döndürebilir.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Uzaya giden ilk kedi, 1963'te Fransız Félicette'ti.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Özel bir köprücük kemiği kedilerin hep ayaklarının üzerine düşmesini sağlar.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Bir kedinin burun izi, insan parmak izi gibi benzersizdir.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Kediler kendi boylarının altı katı kadar zıplayabilir.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Bilinen en eski evcil kedi, Kıbrıs'ta 9.500 yıllık bir mezarda bulundu.",
+      "rarity": 0.7
+    },
+    {
+      "text": "Güneş yaklaşık 4,6 milyar yaşındadır.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Venüs'te bir gün, bir Venüs yılından daha uzundur.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Evrende, Dünya'daki kum tanelerinden daha çok yıldız vardır.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Nötron yıldızları saniyede 600 kez dönebilir.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Güneş'in içine bir milyon Dünya sığardı.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Ay'daki ayak izleri 100 milyon yıl kalacak.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Satürn'ün yoğunluğu o kadar düşüktür ki suda yüzerdi.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Bir çay kaşığı nötron yıldızı yaklaşık 6 milyar ton gelirdi.",
+      "rarity": 0.7
+    },
+    {
+      "text": "Bilinen en büyük yıldız UY Scuti'ye 5 milyar Güneş sığardı.",
+      "rarity": 0.6
+    },
+    {
+      "text": "Mars'taki Olympus Mons, Güneş Sistemi'nin en büyük yanardağıdır.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Bal asla bozulmaz. Arkeologlar Mısır mezarlarında 3000 yıllık bal buldu.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Ahtapotların üç kalbi ve mavi kanı vardır.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Muz bir meyvedir ama çilek değildir.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Jiffy gerçek bir zaman birimidir: saniyenin yüzde biri.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Sıcak günlerde Eyfel Kulesi 15 santimetre uzar.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Köpekbalıkları ağaçlardan daha eskidir.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Olası satranç oyunları, gözlemlenebilir evrendeki atomlardan çoktur.",
+      "rarity": 0.7
+    },
+    {
+      "text": "İneklerin en yakın arkadaşları vardır ve ayrılınca strese girerler.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pringles kutusunun mucidi bir Pringles kutusuna gömüldü.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Bir bulut 500 tondan fazla gelebilir.",
+      "rarity": 1.0
+    },
+    {
+      "text": "İskoçya'nın ulusal hayvanı tek boynuzlu attır.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Vombat dışkısı küp şeklindedir.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Bir karidesin kalbi başında bulunur.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Bir flamingo grubuna 'flamboyance' denir.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Filler zıplayamayan tek hayvandır.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Kutup ayısının kürkü beyaz değil, saydamdır.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Tembel hayvanlar nefeslerini yunuslardan uzun tutar.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Tarihin en kısa savaşı 38 ila 45 dakika sürdü.",
+      "rarity": 0.7
+    },
+    {
+      "text": "İlk portakallar turuncu değil, yeşildi.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Beynin toplam enerjinin yaklaşık %20'sini kullanır.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Yunuslar bir gözü açık uyur.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Ortalama bir insan ömrü boyunca dünyanın çevresini üç kez dolaşır.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Bir şimşek, Güneş'in yüzeyinden beş kat daha sıcaktır.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Dünya'da Samanyolu'ndaki yıldızlardan daha çok ağaç var.",
+      "rarity": 0.8
+    },
+    {
+      "text": "İnsanlar DNA'sının %60'ını muzlarla paylaşır.",
+      "rarity": 1.0
+    },
+    {
+      "text": "En uzun hıçkırık nöbeti 68 yıl sürdü.",
+      "rarity": 0.6
+    },
+    {
+      "text": "Venüs saat yönünde dönen tek gezegendir.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Tek bir şimşek 150.000 evi bir dakika besleyebilir.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Çin Seddi çıplak gözle uzaydan görülemez.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Koalalar günde 22 saate kadar uyur.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Bir gergedan grubuna 'crash' denir.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Su samurları uykuda birbirinden ayrılmamak için el ele tutuşur.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Devekuşunun gözü beyninden büyüktür.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Kurbağalar suyu derilerinden içer.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Bir salyangoz üç yıl boyunca uyuyabilir.",
+      "rarity": 0.8
+    },
+    {
+      "text": "1.000'den fazla muz çeşidi vardır.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Mavi balinanın yalnızca dili bir fil kadar gelebilir.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Bir ahtapot, gözünden büyük her aralıktan geçebilir.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Mona Lisa'nın kaşı yoktur.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Çoğu insan kendi dirseğini yalayamaz.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Kelebekler tadı ayaklarıyla alır.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Domuzlar fiziksel olarak gökyüzüne bakamaz.",
+      "rarity": 1.0
+    },
+    {
+      "text": "'Sixth sick sheik's sixth sheep's sick' İngilizcenin en zor tekerlemesi sayılır.",
+      "rarity": 0.7
+    },
+    {
+      "text": "Fareler o kadar hızlı çoğalır ki 18 ayda iki fare bir milyondan fazla soy verebilir.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Gözlerinin konumu, eşeğin dört ayağını aynı anda görmesini sağlar.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Bazı rujlar balık pulu içerir.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Parmak izleri gibi, herkesin dil izi de farklıdır.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Bir pire kendi boyunun 350 katı zıplayabilir.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Timsah dilini oynatamaz ve çiğneyemez.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Mavi balinanın kalbi o kadar büyüktür ki bir insan atardamarlarından yüzebilir.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Dünyanın en eski sakızı 9.000 yaşındadır.",
+      "rarity": 0.7
+    },
+    {
+      "text": "Bir hamam böceği kafası koptuktan sonra haftalarca yaşayabilir.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Yusufçukların altı bacağı vardır ama yürüyemezler.",
+      "rarity": 0.9
+    },
+    {
+      "text": "İngilizcede tüm kıtaların adı başladığı harfle biter.",
+      "rarity": 0.8
+    },
+    {
+      "text": "İnsan beyninin bellek kapasitesi dört terabayttan fazladır.",
+      "rarity": 1.0
+    },
+    {
+      "text": "300 kemikle doğarsın, yetişkinlikte 206 kemiğin kalır.",
+      "rarity": 1.0
+    },
+    {
+      "text": "İskeletin ıslak.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Vücuttaki en güçlü kas dildir.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Dünyadaki en yaygın isim Mohammed'dir.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Karbon monoksit bir insanı 15 dakikadan kısa sürede öldürebilir.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Ortalama bir insan yedi dakikada uykuya dalar.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Beyin geceleri gündüzden daha aktiftir.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Burnunu tutarken mırıldanmak imkânsızdır.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Bir hapşırık saatte yaklaşık 160 kilometre hızla yayılır.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Dünya 4,54 milyar yaşındadır.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Aşçı şapkasındaki 100 kıvrım, yumurta pişirmenin 100 yolunu temsil eder.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Bal arıları insan yüzlerini ayırt edebilir.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Plüton'da bir gün 6,4 Dünya günü ya da 153,3 saat sürer.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Dünyanın en kurak yeri Şili'deki Atacama Çölü'dür.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Yunanistan'ın millî marşında 158 kıta vardır.",
+      "rarity": 0.7
+    },
+    {
+      "text": "1924'ten 1984'e kadar İzlanda'nın başkentinde köpek sahiplenmek yasaktı.",
+      "rarity": 0.8
+    },
+    {
+      "text": "İsviçre'de tek bir gine domuzu beslemek yasaktır.",
+      "rarity": 0.9
+    },
+    {
+      "text": "İlk video kaydedici bir piyano büyüklüğündeydi.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Fırçadaki diş macunu damlasının bir adı var: 'nurdle'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Los Angeles'taki Hollywood tabelası eskiden 'Hollywoodland' yazıyordu.",
+      "rarity": 1.0
+    },
+    {
+      "text": "PG-13 dereceli ilk film 1984 yapımı 'Red Dawn' oldu.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Mickey ve Minnie Mouse'un seslendirmenleri gerçek hayatta evliydi.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Pringles'ın şekline 'hiperbolik paraboloit' denir.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Twitter kuşunun resmî adı Larry'dir.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Uzun kelime korkusuna 'Hippopotomonstrosesquippedaliophobia' denir.",
+      "rarity": 0.7
+    },
+    {
+      "text": "Kare işaretinin teknik adı 'octothorpe'tur.",
+      "rarity": 1.0
+    },
+    {
+      "text": "'i' ve 'j' harflerinin üstündeki noktaya 'tittle' denir.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Bir pug grubuna 'grumble' denir.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Bir salyangozun dilinde binlerce küçük diş olabilir.",
+      "rarity": 1.0
+    },
+    {
+      "text": "'Beyin donması'nın resmî adı 'sfenopalatin gangliyonöraljidir'.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Muzun içindeki liflere 'floem demeti' denir.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Ayakkabı bağcıklarının plastik uçlarına 'aglet' denir.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Kaşların arasındaki boşluğa 'glabella' denir.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Yeni biçilmiş çimen kokusu, bitkinin imdat çağrısıdır.",
+      "rarity": 1.0
+    },
+    {
+      "text": "M&M's'teki 'M'ler 'Mars' ve 'Murrie' anlamına gelir.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Google arama motorunun ilk adı 'Backrub'dı.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Bir tembel hayvan tek bir öğünü sindirmek için bir ay harcayabilir.",
+      "rarity": 1.0
+    },
+    {
+      "text": "İlk çalar saat yalnızca tek bir saatte çalabiliyordu: sabah 4'te.",
+      "rarity": 1.0
+    },
+    {
+      "text": "En uzun İngilizce kelime 189.819 harflidir.",
+      "rarity": 0.6
+    },
+    {
+      "text": "Bazı penguenler eşine bir çakıl taşıyla kur yapar.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Şarap şişesinin dibindeki girintiye 'punt' denir.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Coca-Cola'nın ilk rengi yeşildi.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Hız yapmaktan ilk mahkûm edilen kişi saatte 13 kilometre gidiyordu.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Ay'da ay depremleri olur.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Paskalya Adası'ndaki kafaların gövdeleri vardır.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Ölümsüz olan bir denizanası türü vardır.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Tek bir spagetti teline 'spaghetto' denir.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Bir sinek kuşunun kalbi dakikada 1.200'den fazla atabilir.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Dünyada gerçek flamingolardan çok sahte flamingo var.",
+      "rarity": 1.0
+    },
+    {
+      "text": "'Déjà vu'nun tersi 'jamais vu'dur.",
+      "rarity": 0.8
+    },
+    {
+      "text": "'Nerd' kelimesini ilk kez Dr. Seuss 'If I Ran the Zoo'da kullandı.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Dünyanın en büyük çölü Antarktika'dır.",
+      "rarity": 1.0
+    },
+    {
+      "text": "İkizlerin doğumu arasındaki en uzun süre 87 gündü.",
+      "rarity": 0.7
+    },
+    {
+      "text": "Kornea, insan vücudunda kan damarı olmayan iki bölümden biridir.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Dünyanın en derin posta kutusu Japonya'da Susami Koyu'nda, 10 metre su altındadır.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Deniz yıldızlarının ne beyni ne de kanı vardır.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Japonya'da 200'den fazla Kit Kat çeşidi vardır.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Bank of America'nın ilk adı Bank of Italy'ydi.",
+      "rarity": 0.9
+    },
+    {
+      "text": "En uzun gelin duvağı 63 futbol sahasından uzundu.",
+      "rarity": 0.7
+    },
+    {
+      "text": "İngiltere'deki tüm kuğular kraliçeye aittir.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Kupa Papazı, bıyığı olmayan tek papazdır.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Bir şimşek 100.000 dilim ekmeği kızartacak enerji taşır.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Barkodlu ilk ürün Wrigley's sakızıydı.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Hawaii alfabesinde 13 harf vardır.",
+      "rarity": 0.9
+    },
+    {
+      "text": "İnsan burnu bir trilyondan fazla kokuyu ayırt edebilir.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Ortalama bir insan gecede dört ila altı rüya görür.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Frisbee'nin mucidi öldükten sonra küllerinden frisbee yapıldı.",
+      "rarity": 0.8
+    },
+    {
+      "text": "İlk bilgisayar 1940'larda icat edildi.",
+      "rarity": 1.0
+    },
+    {
+      "text": "İlk kısa mesaj 1992'de gönderildi.",
+      "rarity": 1.0
+    },
+    {
+      "text": "İlk YouTube videosu 2005'te yüklendi.",
+      "rarity": 1.0
+    },
+    {
+      "text": "İlk e-posta 1971'de gönderildi.",
+      "rarity": 1.0
+    },
+    {
+      "text": "İlk web sitesi 1991'de yayına girdi.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Instagram'daki ilk fotoğraf bir köpeğe aitti.",
+      "rarity": 1.0
+    },
+    {
+      "text": "İlk tweet 2006'da atıldı.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Radyoda çalınan ilk şarkı 'O Holy Night' oldu.",
+      "rarity": 0.9
+    },
+    {
+      "text": "MTV'de yayınlanan ilk klip 'Video Killed the Radio Star' oldu.",
+      "rarity": 1.0
+    },
+    {
+      "text": "İlk video oyunu 1958'de yapıldı.",
+      "rarity": 1.0
+    },
+    {
+      "text": "İlk oyun konsolu Magnavox Odyssey'di.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Uzayda oynanan ilk video oyunu Tetris oldu.",
+      "rarity": 0.8
+    },
+    {
+      "text": "İlk video oyunu karakteri Pac-Man'di.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Hikâyesi olan ilk video oyunu 'Colossal Cave Adventure' oldu.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Kadın baş karakteri olan ilk oyun 'Metroid' oldu.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Kayıt özelliği olan ilk oyun 'The Legend of Zelda' oldu.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Çok oyunculu modu olan ilk oyun 'Pong' oldu.",
+      "rarity": 1.0
+    },
+    {
+      "text": "3B dünyası olan ilk oyun 'Battlezone' oldu.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Birinci şahıs bakışı olan ilk oyun 'Maze War' oldu.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Siper sistemi olan ilk oyun 'Kill Switch' oldu.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Yenilenen can sistemi olan ilk oyun 'Halo: Combat Evolved' oldu.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Fizik motoru olan ilk oyun 'Jurassic Park: Trespasser' oldu.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Gece gündüz döngüsü olan ilk oyun 'The Legend of Zelda: Ocarina of Time' oldu.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Dallanan hikâyesi olan ilk oyun 'Dragon's Lair' oldu.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Ahlaki seçim sistemi olan ilk oyun 'Fable' oldu.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Üretim sistemi olan ilk oyun 'Minecraft' oldu.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Battle royale modu olan ilk oyun 'H1Z1: King of the Kill' oldu.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Sezon geçişi olan ilk oyun 'L.A. Noire' oldu.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Ganimet kutusu olan ilk oyun 'FIFA 09' oldu.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Mikro ödeme sistemi olan ilk oyun 'The Elder Scrolls IV: Oblivion' oldu.",
+      "rarity": 1.0
+    },
+    {
+      "text": "İlk bulut oyun servisi 'OnLive' oldu.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Sanal gerçeklik modu olan ilk oyun 'Dactyl Nightmare' oldu.",
+      "rarity": 0.7
+    },
+    {
+      "text": "Artırılmış gerçeklik modu olan ilk oyun 'ARQuake' oldu.",
+      "rarity": 0.7
+    },
+    {
+      "text": "İlk hareket kontrol sistemi Nintendo Wii oldu.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Sesli komut sistemi olan ilk oyun 'Hey You, Pikachu!' oldu.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Dokunmatik ekranı olan ilk konsol Nintendo DS oldu.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Çift ekranı olan ilk konsol Nintendo DS oldu.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Titreşim özelliği olan ilk oyun 'Star Fox 64' oldu.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Hafıza kartı olan ilk konsol Neo Geo oldu.",
+      "rarity": 0.9
+    },
+    {
+      "text": "CD-ROM'u olan ilk konsol Sega CD oldu.",
+      "rarity": 1.0
+    },
+    {
+      "text": "DVD-ROM'u olan ilk konsol PlayStation 2 oldu.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Blu-ray'i olan ilk konsol PlayStation 3 oldu.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Çevrimiçi çok oyunculu modu olan ilk oyun 'Snipes' oldu.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Kalıcı çevrimiçi dünyası olan ilk oyun 'MUD1' oldu.",
+      "rarity": 0.7
+    },
+    {
+      "text": "Grafik arayüzü olan ilk oyun 'The Oregon Trail' oldu.",
+      "rarity": 1.0
+    },
+    {
+      "text": "İşaretle ve tıkla arayüzü olan ilk oyun 'Maniac Mansion' oldu.",
+      "rarity": 0.9
+    },
+    {
+      "text": "İlk gerçek zamanlı strateji oyunu 'Dune II' oldu.",
+      "rarity": 1.0
+    },
+    {
+      "text": "İlk kule savunma oyunu 'Rampart' oldu.",
+      "rarity": 0.9
+    },
+    {
+      "text": "İlk gizlilik oyunu '005' oldu.",
+      "rarity": 0.8
+    },
+    {
+      "text": "İlk hayatta kalma korku oyunu 'Resident Evil' oldu.",
+      "rarity": 1.0
+    },
+    {
+      "text": "İlk ritim oyunu 'PaRappa the Rapper' oldu.",
+      "rarity": 1.0
+    },
+    {
+      "text": "İlk parti oyunu 'Mario Party' oldu.",
+      "rarity": 1.0
+    },
+    {
+      "text": "İlk yaşam simülasyonu 'Little Computer People' oldu.",
+      "rarity": 0.9
+    },
+    {
+      "text": "İlk evcil hayvan simülasyonu 'Petz' oldu.",
+      "rarity": 1.0
+    },
+    {
+      "text": "İlk flört simülasyonu 'Dōkyūsei' oldu.",
+      "rarity": 0.7
+    },
+    {
+      "text": "İlk görsel roman 'The Portopia Serial Murder Case' oldu.",
+      "rarity": 0.7
+    },
+    {
+      "text": "İlk interaktif film 'Astron Belt' oldu.",
+      "rarity": 0.7
+    },
+    {
+      "text": "Tam hareketli videosu olan ilk oyun 'Dragon's Lair' oldu.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Cel-shading tarzı olan ilk oyun 'Jet Set Radio' oldu.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Piksel sanatı olan ilk oyun 'Space Invaders' oldu.",
+      "rarity": 1.0
+    },
+    {
+      "text": "İlk voksel oyunu 'Comanche: Maximum Overkill' oldu.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Prosedürel üretimi olan ilk oyun 'Rogue' oldu.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Dinamik zorluğu olan ilk oyun 'Zanac' oldu.",
+      "rarity": 0.8
+    },
+    {
+      "text": "New Game Plus modu olan ilk oyun 'Chrono Trigger' oldu.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Başarım sistemi olan ilk oyun 'E-Motion' oldu.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Liderlik tablosu olan ilk oyun 'Star Fire' oldu.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Tekrar sistemi olan ilk oyun 'Replay' oldu.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Fotoğraf modu olan ilk oyun 'Gran Turismo 4' oldu.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Karakter oluşturucusu olan ilk oyun 'The Character Creator' oldu.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Seviye editörü olan ilk oyun 'Lode Runner' oldu.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Mod topluluğu olan ilk oyun 'Doom' oldu.",
+      "rarity": 1.0
+    },
+    {
+      "text": "İlk espor turnuvası 'Intergalactic Spacewar Olympics' oldu.",
+      "rarity": 0.7
+    },
+    {
+      "text": "Speedrun topluluğu olan ilk oyun 'Dragster' oldu.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Hatası olan ilk oyun 'Computer Space' oldu.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Paskalya yumurtası olan ilk oyun 'Adventure' oldu.",
+      "rarity": 1.0
+    },
+    {
+      "text": "İlk oyun hilesi 'Konami Code' oldu.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Demosu olan ilk oyun 'Super Mario Bros. 3' oldu.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Fragmanı olan ilk oyun 'Super Mario 64' oldu.",
+      "rarity": 1.0
+    },
+    {
+      "text": "İncelemesi yapılan ilk oyun 'Computer Space' oldu.",
+      "rarity": 0.9
+    },
+    {
+      "text": "İlk oyun dergisi 'Computer and Video Games' oldu.",
+      "rarity": 0.9
+    },
+    {
+      "text": "İlk oyun TV programı 'Video Power' oldu.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Oyundan uyarlanan ilk film 'Super Mario Bros.' oldu.",
+      "rarity": 1.0
+    },
+    {
+      "text": "İlk oyun temalı eğlence parkı 'Nintendo Land' oldu.",
+      "rarity": 1.0
+    },
+    {
+      "text": "İlk oyun müzesi 'The Art of Video Games' oldu.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Nobel Ödülü ile bağlantılı ilk oyun 'Foldit' oldu.",
+      "rarity": 0.7
+    },
+    {
+      "text": "Guinness Rekorlar Kitabı'na giren ilk oyun 'Pac-Man' oldu.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Şöhret Yolu'nda yıldızı olan ilk oyun 'Pac-Man' oldu.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Posta pulu basılan ilk oyun 'Space Invaders' oldu.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Madeni paraya basılan ilk oyun 'Pong' oldu.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Oyuncak olan ilk oyun 'Pong' oldu.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Mısır gevreği kutusuna çıkan ilk oyun 'Pac-Man' oldu.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Gazoz olan ilk oyun 'Donkey Kong' oldu.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Şekerleme olan ilk oyun 'Pac-Man' oldu.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Çizgi romanı olan ilk oyun 'Pac-Man' oldu.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Romanı olan ilk oyun 'Pac-Man' oldu.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Mangası olan ilk oyun 'Pac-Man' oldu.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Animesi olan ilk oyun 'Pac-Man' oldu.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Film müziği olan ilk oyun 'Pac-Man' oldu.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Konseri olan ilk oyun 'The Legend of Zelda' oldu.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Müzikali olan ilk oyun 'Pac-Man' oldu.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Tiyatro oyunu olan ilk oyun 'Pac-Man' oldu.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Balesi olan ilk oyun 'Pac-Man' oldu.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Operası olan ilk oyun 'Pac-Man' oldu.",
+      "rarity": 1.0
+    }
+  ]
+}

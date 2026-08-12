@@ -1,0 +1,32 @@
+{
+  "entries": [
+    {
+      "text": "Vous ne pouvez pas dormir dans un lieu aussi effroyable.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Un frisson vous parcourt l'échine.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Les cauchemars vous hantent.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Rendez votre lieu de repos plus confortable.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Quelque chose vous observe depuis les ombres.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Cette nuit, l'obscurité étouffe.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Le repos est impossible dans ce cadre sinistre.",
+      "rarity": 1.0
+    }
+  ]
+}

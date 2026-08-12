@@ -1,0 +1,84 @@
+{
+  "entries": [
+    {
+      "text": "Réveillez-vous.",
+      "rarity": 0.05
+    },
+    {
+      "text": "Ils observent.",
+      "rarity": 0.03
+    },
+    {
+      "text": "Ce n'est pas un rêve.",
+      "rarity": 0.04
+    },
+    {
+      "text": "Ne vous retournez pas.",
+      "rarity": 0.03
+    },
+    {
+      "text": "La nuit se souvient de tout.",
+      "rarity": 0.05
+    },
+    {
+      "text": "Vous êtes déjà venu ici.",
+      "rarity": 0.04
+    },
+    {
+      "text": "Quelque chose se tient derrière vous.",
+      "rarity": 0.02
+    },
+    {
+      "text": "Le vide vous regarde aussi.",
+      "rarity": 0.03
+    },
+    {
+      "text": "Le temps n'existe pas ici.",
+      "rarity": 0.05
+    },
+    {
+      "text": "Vous avez laissé la porte ouverte.",
+      "rarity": 0.04
+    },
+    {
+      "text": "Ce n'est pas un jeu.",
+      "rarity": 0.04
+    },
+    {
+      "text": "Vous n'êtes pas seul.",
+      "rarity": 0.03
+    },
+    {
+      "text": "La simulation se fissure.",
+      "rarity": 0.02
+    },
+    {
+      "text": "Regardez derrière le rideau.",
+      "rarity": 0.03
+    },
+    {
+      "text": "Les murmures ont un nom.",
+      "rarity": 0.02
+    },
+    {
+      "text": "Ne croyez pas vos yeux.",
+      "rarity": 0.04
+    },
+    {
+      "text": "Le ciel est un mensonge.",
+      "rarity": 0.03
+    },
+    {
+      "text": "Le monstre, c'est vous.",
+      "rarity": 0.01
+    },
+    {
+      "text": "Les murs respirent.",
+      "rarity": 0.02
+    },
+    {
+      "text": "Il connaît votre nom.",
+      "rarity": 0.01
+    }
+  ]
+}

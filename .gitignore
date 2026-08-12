@@ -1,6 +1,16 @@
-.gradle/
-build/
-run/
+# idea
+out
+*.ipr
+*.iws
+*.iml
 .idea/
-out/
+
+# gradle
+build
+.gradle
+
+# other
+run
+runs
+logs
 *.log
