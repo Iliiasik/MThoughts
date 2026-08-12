@@ -14,7 +14,7 @@ public abstract class GuiAirBubblesMixin {
 
     @Inject(method = "extractAirBubbles", at = @At("HEAD"))
     private void onExtractAirBubblesHead(GuiGraphicsExtractor graphics, Player player, int vehicleHearts, int yLineAir, int xRight, CallbackInfo ci) {
-        if (WellRestedHud.isActive() && WellRestedHud.isPrimaryPosition()) {
+        if (WellRestedHud.isActive() && WellRestedHud.isBarPosition()) {
             graphics.pose().pushMatrix();
             graphics.pose().translate(0, -(WellRestedHud.BAR_GUI_H + 3));
         }
@@ -22,7 +22,7 @@ public abstract class GuiAirBubblesMixin {
 
     @Inject(method = "extractAirBubbles", at = @At("TAIL"))
     private void onExtractAirBubblesTail(GuiGraphicsExtractor graphics, Player player, int vehicleHearts, int yLineAir, int xRight, CallbackInfo ci) {
-        if (WellRestedHud.isActive() && WellRestedHud.isPrimaryPosition()) {
+        if (WellRestedHud.isActive() && WellRestedHud.isBarPosition()) {
             graphics.pose().popMatrix();
         }
     }

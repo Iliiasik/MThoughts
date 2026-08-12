@@ -17,6 +17,10 @@ import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
 public final class MidnightThoughtsConfig {
+    public static final String HUD_POSITION_LEFT = "left";
+    public static final String HUD_POSITION_BAR = "bar";
+    public static final String HUD_POSITION_RIGHT = "right";
+
     private static final Logger LOGGER = LoggerFactory.getLogger("MidnightThoughts");
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
@@ -303,7 +307,7 @@ public final class MidnightThoughtsConfig {
 
     public static class UISettings {
         public String theme = "classic";
-        public String wellRestedHudPosition = "primary";
+        public String wellRestedHudPosition = HUD_POSITION_LEFT;
         public boolean hideWellRestedHud = false;
         public boolean hideSleepingPlayersHud = false;
         public boolean hideThemeSwitchButton = false;

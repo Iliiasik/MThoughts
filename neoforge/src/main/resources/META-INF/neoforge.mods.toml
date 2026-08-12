@@ -1,12 +1,10 @@
 modLoader = "javafml"
 loaderVersion = "${neoforge_loader_version_range}"
 license = "${mod_license}"
+issueTrackerURL = "https://github.com/Iliiasik/MThoughts/issues"
 
 [[mixins]]
 config = "${mod_id}.mixins.json"
-
-[[mixins]]
-config = "${mod_id}.neoforge.mixins.json"
 
 [[mods]]
 modId = "${mod_id}"
@@ -19,6 +17,7 @@ description = '''${mod_description}'''
 
 [modproperties."${mod_id}"]
 catalogueImageIcon = "${mod_id}_icon.png"
+catalogueBackground = "${mod_id}_background.png"
 
 [[dependencies."${mod_id}"]]
 modId = "neoforge"

@@ -29,5 +29,11 @@
     "minecraft": "${fabric_minecraft_range}",
     "java": ">=${java_version}",
     "fabric-api": "*"
+  },
+  "custom": {
+    "catalogue": {
+      "banner": "${mod_id}_banner.png",
+      "background": "${mod_id}_background.png"
+    }
   }
 }

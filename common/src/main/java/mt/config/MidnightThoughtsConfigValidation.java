@@ -10,7 +10,10 @@ public final class MidnightThoughtsConfigValidation {
     private static final Logger LOGGER = LoggerFactory.getLogger("MidnightThoughts");
 
     private static final Set<String> VALID_THEMES = Set.of("classic", "magic", "tech", "vanilla");
-    private static final Set<String> VALID_HUD_POSITIONS = Set.of("primary", "secondary");
+    private static final Set<String> VALID_HUD_POSITIONS = Set.of(
+            MidnightThoughtsConfig.HUD_POSITION_LEFT,
+            MidnightThoughtsConfig.HUD_POSITION_BAR,
+            MidnightThoughtsConfig.HUD_POSITION_RIGHT);
 
     private static final String CLAMPED_TO_MINIMUM = "Config value {} was {}, clamped to minimum {}";
     private static final String CLAMPED_TO_MAXIMUM = "Config value {} was {}, clamped to maximum {}";
@@ -142,8 +145,9 @@ public final class MidnightThoughtsConfigValidation {
             ui.theme = "classic";
         }
         if (!isValidHudPosition(ui.wellRestedHudPosition)) {
-            LOGGER.warn("Config value ui.wellRestedHudPosition was '{}', reset to 'primary'", ui.wellRestedHudPosition);
-            ui.wellRestedHudPosition = "primary";
+            LOGGER.warn("Config value ui.wellRestedHudPosition was '{}', reset to '{}'",
+                    ui.wellRestedHudPosition, MidnightThoughtsConfig.HUD_POSITION_LEFT);
+            ui.wellRestedHudPosition = MidnightThoughtsConfig.HUD_POSITION_LEFT;
         }
     }
 }

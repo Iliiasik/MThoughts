@@ -8,6 +8,7 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.minecraft.client.Minecraft;
@@ -36,14 +37,25 @@ public class MidnightThoughtsClient implements ClientModInitializer {
     private void registerEventListeners() {
         ClientTickEvents.END_CLIENT_TICK.register(client -> MTClient.tick(client.player));
 
-        HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MTConstants.MOD_ID, "sleep_overlay"), (context, _) -> {
+        HudElementRegistry.attachElementBefore(VanillaHudElements.HELD_ITEM_TOOLTIP,
+                Identifier.fromNamespaceAndPath(MTConstants.MOD_ID, "well_rested_hud"), (context, _) -> {
+            Minecraft mc = Minecraft.getInstance();
+            WellRestedHud.render(context, mc.getWindow().getGuiScaledWidth(), mc.getWindow().getGuiScaledHeight());
+        });
+
+        HudElementRegistry.attachElementAfter(VanillaHudElements.SLEEP,
+                Identifier.fromNamespaceAndPath(MTConstants.MOD_ID, "sleep_overlay"), (context, _) -> {
             Minecraft mc = Minecraft.getInstance();
             int width = mc.getWindow().getGuiScaledWidth();
             int height = mc.getWindow().getGuiScaledHeight();
             MTClient.overlay().renderOverlayOnly(context, width, height);
             MTClient.overlay().renderContentOnly(context, width, height);
-            SleepingPlayersHud.render(context, width, height);
-            WellRestedHud.render(context, width, height);
+        });
+
+        HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT,
+                Identifier.fromNamespaceAndPath(MTConstants.MOD_ID, "sleeping_players_hud"), (context, _) -> {
+            Minecraft mc = Minecraft.getInstance();
+            SleepingPlayersHud.render(context, mc.getWindow().getGuiScaledWidth(), mc.getWindow().getGuiScaledHeight());
         });
 
         ClientPlayConnectionEvents.DISCONNECT.register((_, _) -> MTClient.onDisconnect());

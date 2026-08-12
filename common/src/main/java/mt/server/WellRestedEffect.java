@@ -169,7 +169,6 @@ public class WellRestedEffect {
         if (hasteAttr != null) hasteAttr.removeModifier(HASTE_ID);
         if (attackSpeedAttr != null) attackSpeedAttr.removeModifier(ATTACK_SPEED_ID);
         if (healthAttr != null) healthAttr.removeModifier(HEALTH_ID);
-        player.setHealth(Math.min(player.getHealth(), player.getMaxHealth()));
     }
 
     public static boolean isMvp(ServerPlayer player) {

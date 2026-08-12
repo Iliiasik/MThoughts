@@ -28,7 +28,7 @@ public class WellRestedHud {
 
     private static final String[] ROMAN = {"", "I", "II", "III", "IV", "V"};
 
-    private static final int MARGIN_LEFT = 4;
+    private static final int MARGIN_SIDE = 4;
     private static final int MARGIN_BOTTOM = 4;
     private static final int TOTAL_GUI_W = 81;
 
@@ -37,8 +37,9 @@ public class WellRestedHud {
                 && !MidnightThoughtsConfig.getInstance().isHideWellRestedHud();
     }
 
-    public static boolean isPrimaryPosition() {
-        return "primary".equals(MidnightThoughtsConfig.getInstance().getWellRestedHudPosition());
+    public static boolean isBarPosition() {
+        return MidnightThoughtsConfig.HUD_POSITION_BAR
+                .equals(MidnightThoughtsConfig.getInstance().getWellRestedHudPosition());
     }
 
     public static void render(GuiGraphicsExtractor context, int screenWidth, int screenHeight) {
@@ -63,22 +64,26 @@ public class WellRestedHud {
         String roman = (!isMvp && level >= 1 && level <= 5) ? ROMAN[level] : "";
         int romanWidth = roman.isEmpty() ? 0 : font.width(roman);
 
-        boolean primary = isPrimaryPosition();
+        String position = MidnightThoughtsConfig.getInstance().getWellRestedHudPosition();
+        boolean bar = MidnightThoughtsConfig.HUD_POSITION_BAR.equals(position);
+        int romanSpace = roman.isEmpty() ? 0 : romanWidth + GAP;
         int totalRight = screenWidth / 2 + 91;
 
         int iconX;
         int barY;
-        if (primary) {
+        if (bar) {
             iconX = totalRight - TOTAL_GUI_W;
             barY = screenHeight - 32 - BAR_GUI_H - 10;
         } else {
-            iconX = MARGIN_LEFT;
             barY = screenHeight - MARGIN_BOTTOM - BAR_GUI_H;
+            iconX = MidnightThoughtsConfig.HUD_POSITION_RIGHT.equals(position)
+                    ? screenWidth - MARGIN_SIDE - (ICON_GUI_SIZE + GAP + romanSpace + TEX_SCALE_W)
+                    : MARGIN_SIDE;
         }
 
         int romanX = iconX + ICON_GUI_SIZE + GAP;
-        int barX = romanX + (roman.isEmpty() ? 0 : romanWidth + GAP);
-        int barGuiW = primary ? totalRight - barX : TEX_SCALE_W;
+        int barX = romanX + romanSpace;
+        int barGuiW = bar ? totalRight - barX : TEX_SCALE_W;
 
         blitScaled(context, activeIcon, iconX, barY, ICON_GUI_SIZE, ICON_GUI_SIZE, TEX_ICON_SIZE, TEX_ICON_SIZE);
 

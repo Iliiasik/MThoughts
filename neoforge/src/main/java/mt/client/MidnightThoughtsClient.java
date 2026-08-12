@@ -2,6 +2,9 @@ package mt.client;
 
 import mt.MTConstants;
 import mt.client.network.ClientPacketHandlers;
+import mt.client.render.SleepOverlayRenderer;
+import mt.client.ui.SleepingPlayersHud;
+import mt.client.ui.WellRestedHud;
 import mt.network.packet.DailySummaryPacket;
 import mt.network.packet.MoonPhasePacket;
 import mt.network.packet.SleepingPlayersPacket;
@@ -22,6 +25,8 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.client.event.AddClientReloadListenersEvent;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
+import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.client.network.event.RegisterClientPayloadHandlersEvent;
 import net.neoforged.neoforge.common.NeoForge;
@@ -40,9 +45,47 @@ public class MidnightThoughtsClient {
 
         modEventBus.addListener(this::onAddReloadListeners);
         modEventBus.addListener(this::onRegisterClientPayloadHandlers);
+        modEventBus.addListener(this::onRegisterGuiLayers);
         NeoForge.EVENT_BUS.register(this);
 
         LOGGER.info("[MidnightThoughtsClient] Midnight Thoughts client setup complete");
+    }
+
+    private void onRegisterGuiLayers(RegisterGuiLayersEvent event) {
+        event.registerBelow(VanillaGuiLayers.SELECTED_ITEM_NAME,
+                Identifier.fromNamespaceAndPath(MTConstants.MOD_ID, "well_rested_hud"),
+                (graphics, _) -> {
+                    Minecraft mc = Minecraft.getInstance();
+                    if (mc.player == null || mc.options.hideGui) return;
+
+                    WellRestedHud.render(graphics,
+                            mc.getWindow().getGuiScaledWidth(), mc.getWindow().getGuiScaledHeight());
+                });
+
+        event.registerAbove(VanillaGuiLayers.SLEEP_OVERLAY,
+                Identifier.fromNamespaceAndPath(MTConstants.MOD_ID, "sleep_overlay"),
+                (graphics, _) -> {
+                    SleepOverlayRenderer overlay = MTClient.overlay();
+                    if (overlay == null) return;
+
+                    Minecraft mc = Minecraft.getInstance();
+                    if (mc.player == null) return;
+
+                    int width = mc.getWindow().getGuiScaledWidth();
+                    int height = mc.getWindow().getGuiScaledHeight();
+                    overlay.renderOverlayOnly(graphics, width, height);
+                    overlay.renderContentOnly(graphics, width, height);
+                });
+
+        event.registerBelow(VanillaGuiLayers.CHAT,
+                Identifier.fromNamespaceAndPath(MTConstants.MOD_ID, "sleeping_players_hud"),
+                (graphics, _) -> {
+                    Minecraft mc = Minecraft.getInstance();
+                    if (mc.player == null || mc.options.hideGui) return;
+
+                    SleepingPlayersHud.render(graphics,
+                            mc.getWindow().getGuiScaledWidth(), mc.getWindow().getGuiScaledHeight());
+                });
     }
 
     private void onRegisterClientPayloadHandlers(RegisterClientPayloadHandlersEvent event) {
