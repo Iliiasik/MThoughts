@@ -237,15 +237,15 @@ class MidnightThoughtsConfigTest {
     }
 
     @Test
-    void unknownHudPositionIsResetToPrimary() throws IOException {
+    void unknownHudPositionIsResetToLeft() throws IOException {
         writeConfig("{\"ui\":{\"wellRestedHudPosition\":\"floating\"}}");
 
-        assertEquals("primary", MidnightThoughtsConfig.load().getUi().wellRestedHudPosition);
+        assertEquals("left", MidnightThoughtsConfig.load().getUi().wellRestedHudPosition);
     }
 
     @Test
-    void bothHudPositionsArePreserved() throws IOException {
-        for (String position : new String[]{"primary", "secondary"}) {
+    void allHudPositionsArePreserved() throws IOException {
+        for (String position : new String[]{"left", "bar", "right"}) {
             writeConfig("{\"ui\":{\"wellRestedHudPosition\":\"" + position + "\"}}");
             assertEquals(position, MidnightThoughtsConfig.load().getUi().wellRestedHudPosition);
         }

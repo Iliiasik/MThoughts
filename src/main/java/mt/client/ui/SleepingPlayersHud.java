@@ -35,7 +35,7 @@ public class SleepingPlayersHud {
 
     static float fadeStep(long now, long previous) {
         if (previous <= 0L) return 1.0f / FADE_DURATION_MS * 16.0f;
-        float delta = Math.min(MAX_FRAME_DELTA_MS, Math.max(0.0f, now - previous));
+        float delta = Math.clamp((float) (now - previous), 0.0f, MAX_FRAME_DELTA_MS);
         return delta / FADE_DURATION_MS;
     }
 
@@ -66,7 +66,7 @@ public class SleepingPlayersHud {
 
         Font textRenderer = client.font;
 
-        float scale = Math.max(0.8f, Math.min(1.5f, Math.min(screenWidth / 1920.0f, screenHeight / 1080.0f)));
+        float scale = Math.clamp(Math.min(screenWidth / 1920.0f, screenHeight / 1080.0f), 0.8f, 1.5f);
 
         int hudHeight = (int)(55 * scale);
         int hudWidth = (int)(hudHeight * (TEXTURE_WIDTH / (float)TEXTURE_HEIGHT));

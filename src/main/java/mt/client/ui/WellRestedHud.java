@@ -27,7 +27,7 @@ public class WellRestedHud {
     private static final int GAP = 1;
     private static final int FILL_INSET = 2;
 
-    private static final int MARGIN_LEFT = 4;
+    private static final int MARGIN_SIDE = 4;
     private static final int MARGIN_BOTTOM = 4;
 
     private static final String[] ROMAN = {"", "I", "II", "III", "IV", "V"};
@@ -37,8 +37,9 @@ public class WellRestedHud {
         return WellRestedClientState.isActive();
     }
 
-    public static boolean isPrimaryPosition() {
-        return "primary".equals(MidnightThoughtsConfig.getInstance().getWellRestedHudPosition());
+    public static boolean isBarPosition() {
+        return MidnightThoughtsConfig.HUD_POSITION_BAR
+                .equals(MidnightThoughtsConfig.getInstance().getWellRestedHudPosition());
     }
 
     public static void render(GuiGraphics graphics, int screenWidth, int screenHeight) {
@@ -53,7 +54,7 @@ public class WellRestedHud {
         int totalTicks = WellRestedClientState.getTotalTicks();
 
         float progress = totalTicks > 0
-                ? Math.max(0f, Math.min(1f, (float) ticksRemaining / totalTicks))
+                ? Math.clamp((float) ticksRemaining / totalTicks, 0f, 1f)
                 : 0f;
 
         boolean isMvp = WellRestedClientState.isMvp();
@@ -71,29 +72,26 @@ public class WellRestedHud {
         int white = ARGB.colorFromFloat(1.0f, 1.0f, 1.0f, 1.0f);
         int scaleColor = ARGB.colorFromFloat(scaleAlpha, 1.0f, 1.0f, 1.0f);
 
+        String position = MidnightThoughtsConfig.getInstance().getWellRestedHudPosition();
+        boolean bar = MidnightThoughtsConfig.HUD_POSITION_BAR.equals(position);
+        int romanSpace = roman.isEmpty() ? 0 : romanWidth + GAP;
+        int totalRight = screenWidth / 2 + 91;
+
         int iconX;
         int barY;
-
-        if (isPrimaryPosition()) {
-            int totalRight = screenWidth / 2 + 91;
-            int totalLeft = totalRight - TOTAL_GUI_W;
+        if (bar) {
+            iconX = totalRight - TOTAL_GUI_W;
             barY = screenHeight - 32 - BAR_GUI_H - 10;
-            iconX = totalLeft;
         } else {
             barY = screenHeight - MARGIN_BOTTOM - BAR_GUI_H;
-            iconX = MARGIN_LEFT;
+            iconX = MidnightThoughtsConfig.HUD_POSITION_RIGHT.equals(position)
+                    ? screenWidth - MARGIN_SIDE - (ICON_GUI_SIZE + GAP + romanSpace + TEX_SCALE_W)
+                    : MARGIN_SIDE;
         }
 
         int romanX = iconX + ICON_GUI_SIZE + GAP;
-        int barX = romanX + (roman.isEmpty() ? 0 : romanWidth + GAP);
-
-        int barGuiW;
-        if (isPrimaryPosition()) {
-            int totalRight = screenWidth / 2 + 91;
-            barGuiW = totalRight - barX;
-        } else {
-            barGuiW = TEX_SCALE_W;
-        }
+        int barX = romanX + romanSpace;
+        int barGuiW = bar ? totalRight - barX : TEX_SCALE_W;
 
         blitScaled(graphics, activeIcon, iconX, barY, ICON_GUI_SIZE, ICON_GUI_SIZE, TEX_ICON_SIZE, TEX_ICON_SIZE, white);
 

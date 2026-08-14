@@ -19,7 +19,7 @@ public record SleepingPlayersPacket(int sleepingCount, int totalPlayers) impleme
     );
 
     @Override
-    public @NotNull Type<@NotNull ? extends CustomPacketPayload> type() {
+    public @NotNull Type<? extends @NotNull CustomPacketPayload> type() {
         return TYPE;
     }
 }
