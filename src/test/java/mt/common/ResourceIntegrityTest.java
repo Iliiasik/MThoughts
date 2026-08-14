@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ResourceIntegrityTest {
@@ -156,7 +157,7 @@ class ResourceIntegrityTest {
     }
 
     @Test
-    void theModVersionMatchesTheBuildScript() throws IOException {
+    void theModVersionComesFromTheBuildScript() throws IOException {
         String properties = Files.readString(projectDir().resolve("gradle.properties"), StandardCharsets.UTF_8);
         String toml = Files.readString(
                 projectDir().resolve(Paths.get("src", "main", "templates", "META-INF", "neoforge.mods.toml")), StandardCharsets.UTF_8);
@@ -166,9 +167,9 @@ class ResourceIntegrityTest {
                 .map(line -> line.substring("mod_version=".length()).trim())
                 .findFirst()
                 .orElseThrow();
-        String shortVersion = declared.split("\\+")[0];
 
-        assertTrue(toml.contains("version = \"" + shortVersion + "\""),
-                "neoforge.mods.toml shows a different version than gradle.properties (" + shortVersion + ")");
+        assertTrue(toml.contains("version = \"${mod_version}\""),
+                "neoforge.mods.toml must take the version from gradle.properties, found a hardcoded one");
+        assertFalse(declared.isBlank(), "mod_version is missing from gradle.properties");
     }
 }

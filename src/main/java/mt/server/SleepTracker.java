@@ -27,7 +27,6 @@ public class SleepTracker {
         this.server = server;
     }
 
-    @SuppressWarnings("resource")
     public void tick() {
         ServerLevel overworld = server.getLevel(Level.OVERWORLD);
         if (overworld == null) return;
@@ -81,7 +80,6 @@ public class SleepTracker {
         wakeVoluntarily.remove(uuid);
     }
 
-    @SuppressWarnings("resource")
     public void markPlayerWoke(UUID uuid) {
         ServerLevel overworld = server.getLevel(Level.OVERWORLD);
         if (overworld == null) return;

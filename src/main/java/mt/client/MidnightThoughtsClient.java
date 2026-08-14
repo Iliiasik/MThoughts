@@ -13,6 +13,7 @@ import mt.client.service.UserContentLoader;
 import mt.client.ui.SleepingPlayersHud;
 import mt.client.ui.WellRestedHud;
 import net.minecraft.client.Minecraft;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
@@ -20,7 +21,8 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
-import net.neoforged.neoforge.client.event.RenderGuiEvent;
+import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
+import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import net.neoforged.neoforge.common.NeoForge;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,11 +40,15 @@ public class MidnightThoughtsClient {
     private SleepOverlayRenderer overlayRenderer;
     private UserContentLoader userContentLoader;
 
-    public static void init(IEventBus modEventBus) {
+    public static void registerModBusListeners(IEventBus modEventBus) {
+        modEventBus.addListener(MidnightThoughtsClient::onRegisterReloadListeners);
+        modEventBus.addListener(MidnightThoughtsClient::onRegisterGuiLayers);
+    }
+
+    public static void init() {
         if (instance == null) {
             instance = new MidnightThoughtsClient();
             NeoForge.EVENT_BUS.register(new NeoForgeClientEvents());
-            modEventBus.addListener(instance::onRegisterReloadListeners);
             LOGGER.info("[MidnightThoughtsClient] Midnight Thoughts initialized successfully!");
         }
     }
@@ -66,7 +72,7 @@ public class MidnightThoughtsClient {
         overlayRenderer = new SleepOverlayRenderer(sleepStateManager, slideService, config);
     }
 
-    public void onRegisterReloadListeners(RegisterClientReloadListenersEvent event) {
+    private static void onRegisterReloadListeners(RegisterClientReloadListenersEvent event) {
         event.registerReloadListener(new SimplePreparableReloadListener<ResourceManager>() {
             @Nonnull
             @Override
@@ -96,19 +102,44 @@ public class MidnightThoughtsClient {
         return userContentLoader;
     }
 
+    private static void onRegisterGuiLayers(RegisterGuiLayersEvent event) {
+        event.registerBelow(VanillaGuiLayers.SELECTED_ITEM_NAME,
+                ResourceLocation.fromNamespaceAndPath(MOD_ID, "well_rested_hud"),
+                (graphics, deltaTracker) -> {
+                    Minecraft mc = Minecraft.getInstance();
+                    if (mc.player == null || mc.options.hideGui) return;
+
+                    WellRestedHud.render(graphics,
+                            mc.getWindow().getGuiScaledWidth(), mc.getWindow().getGuiScaledHeight());
+                });
+
+        event.registerAbove(VanillaGuiLayers.SLEEP_OVERLAY,
+                ResourceLocation.fromNamespaceAndPath(MOD_ID, "sleep_overlay"),
+                (graphics, deltaTracker) -> {
+                    MidnightThoughtsClient inst = getInstance();
+                    if (inst == null) return;
+
+                    Minecraft mc = Minecraft.getInstance();
+                    if (mc.player == null) return;
+
+                    int width = mc.getWindow().getGuiScaledWidth();
+                    int height = mc.getWindow().getGuiScaledHeight();
+                    inst.overlayRenderer.renderOverlayOnly(graphics, width, height);
+                    inst.overlayRenderer.renderContentOnly(graphics, width, height);
+                });
+
+        event.registerBelow(VanillaGuiLayers.CHAT,
+                ResourceLocation.fromNamespaceAndPath(MOD_ID, "sleeping_players_hud"),
+                (graphics, deltaTracker) -> {
+                    Minecraft mc = Minecraft.getInstance();
+                    if (mc.player == null || mc.options.hideGui) return;
+
+                    SleepingPlayersHud.render(graphics,
+                            mc.getWindow().getGuiScaledWidth(), mc.getWindow().getGuiScaledHeight());
+                });
+    }
+
     private static class NeoForgeClientEvents {
-
-        private record RenderContext(MidnightThoughtsClient inst, Minecraft mc, int w, int h) {}
-
-        private static RenderContext getRenderContext() {
-            MidnightThoughtsClient inst = MidnightThoughtsClient.getInstance();
-            if (inst == null) return null;
-            Minecraft mc = Minecraft.getInstance();
-            if (mc.player == null) return null;
-            int w = mc.getWindow().getGuiScaledWidth();
-            int h = mc.getWindow().getGuiScaledHeight();
-            return new RenderContext(inst, mc, w, h);
-        }
 
         @SubscribeEvent
         public void onClientTick(ClientTickEvent.Post event) {
@@ -119,27 +150,6 @@ public class MidnightThoughtsClient {
                     inst.sleepStateManager.tick(client.player);
                     inst.overlayRenderer.tick();
                 }
-            }
-        }
-
-        @SubscribeEvent
-        public void onRenderGuiPre(RenderGuiEvent.Pre event) {
-            RenderContext ctx = getRenderContext();
-            if (ctx == null) return;
-            ctx.inst().overlayRenderer.renderOverlayOnly(event.getGuiGraphics(), ctx.w(), ctx.h());
-            if (WellRestedHud.isPrimaryPosition()) {
-                WellRestedHud.render(event.getGuiGraphics(), ctx.w(), ctx.h());
-            }
-        }
-
-        @SubscribeEvent
-        public void onRenderGuiPost(RenderGuiEvent.Post event) {
-            RenderContext ctx = getRenderContext();
-            if (ctx == null) return;
-            ctx.inst().overlayRenderer.renderContentOnly(event.getGuiGraphics(), ctx.w(), ctx.h());
-            SleepingPlayersHud.render(event.getGuiGraphics(), ctx.w(), ctx.h());
-            if (!WellRestedHud.isPrimaryPosition()) {
-                WellRestedHud.render(event.getGuiGraphics(), ctx.w(), ctx.h());
             }
         }
 

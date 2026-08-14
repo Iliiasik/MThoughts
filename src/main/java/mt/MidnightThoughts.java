@@ -20,6 +20,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
@@ -39,13 +40,13 @@ public class MidnightThoughts {
     public static final String MOD_ID = "midnightthoughts";
     public static final Logger LOGGER = LoggerFactory.getLogger("MidnightThoughts");
 
-    private final IEventBus modEventBus;
-
     public MidnightThoughts(IEventBus modEventBus) {
-        this.modEventBus = modEventBus;
         modEventBus.addListener(this::setup);
         modEventBus.addListener(this::onClientSetup);
         modEventBus.addListener(this::onRegisterPayloads);
+        if (FMLEnvironment.dist.isClient()) {
+            mt.client.MidnightThoughtsClient.registerModBusListeners(modEventBus);
+        }
         NeoForge.EVENT_BUS.register(this);
         LOGGER.info("Midnight Thoughts initialized successfully!");
     }
@@ -62,7 +63,7 @@ public class MidnightThoughts {
     }
 
     private void onClientSetup(final FMLClientSetupEvent event) {
-        mt.client.MidnightThoughtsClient.init(modEventBus);
+        mt.client.MidnightThoughtsClient.init();
         LOGGER.info("Midnight Thoughts client setup complete");
     }
 

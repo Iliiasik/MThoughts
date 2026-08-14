@@ -18,7 +18,7 @@ class SyncConfigPacketTest {
             0.1f, 0.2f, 0.3f, 0.4f,
             true, false, true, false, true, false,
             "magic",
-            "primary",
+            "bar",
             true, true, false, true, false
     );
 
@@ -54,7 +54,7 @@ class SyncConfigPacketTest {
                 1, 2, 3, 4,
                 0.0f, 0.5f, 1.0f, 0.25f,
                 value, value, value, value, value, value,
-                "magic", "primary",
+                "magic", "bar",
                 value, value, value, value, value
         );
     }
@@ -64,7 +64,7 @@ class SyncConfigPacketTest {
                 1000, 2000, 300, 400,
                 0.1f, 0.2f, 0.3f, 0.4f,
                 true, false, true, false, true, false,
-                theme, "primary",
+                theme, "bar",
                 true, true, false, true, false
         );
     }
@@ -136,7 +136,7 @@ class SyncConfigPacketTest {
         int fourFloats = 4 * 4;
         int elevenBooleans = 11;
         int theme = 1 + "magic".getBytes(StandardCharsets.UTF_8).length;
-        int hudPosition = 1 + "primary".getBytes(StandardCharsets.UTF_8).length;
+        int hudPosition = 1 + "bar".getBytes(StandardCharsets.UTF_8).length;
 
         assertEquals(fourVarInts + fourFloats + elevenBooleans + theme + hudPosition,
                 buf.readableBytes(),
@@ -159,7 +159,7 @@ class SyncConfigPacketTest {
                 Integer.MIN_VALUE, Integer.MAX_VALUE, 0, -1,
                 Float.MIN_VALUE, Float.MAX_VALUE, -0.0f, 1.0E-10f,
                 true, false, true, false, true, false,
-                "classic", "secondary",
+                "classic", "left",
                 true, true, false, true, false
         );
 
@@ -174,8 +174,8 @@ class SyncConfigPacketTest {
     }
 
     @Test
-    void bothHudPositionsSurviveTheRoundTrip() {
-        for (String position : new String[]{"primary", "secondary"}) {
+    void allHudPositionsSurviveTheRoundTrip() {
+        for (String position : new String[]{"left", "bar", "right"}) {
             assertEquals(position, roundTrip(withHudPosition(position)).wellRestedHudPosition());
         }
     }
@@ -202,7 +202,7 @@ class SyncConfigPacketTest {
 
         assertEquals(1000, BASE.minSlideDisplayTimeMs());
         assertEquals("magic", BASE.theme());
-        assertEquals("primary", BASE.wellRestedHudPosition());
+        assertEquals("bar", BASE.wellRestedHudPosition());
         assertTrue(BASE.enableOverlay());
     }
 }

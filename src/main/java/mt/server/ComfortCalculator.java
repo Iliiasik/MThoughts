@@ -54,7 +54,7 @@ public class ComfortCalculator {
 
     @SuppressWarnings("resource")
     private static boolean[] scanFound(ServerPlayer player) {
-        int scanRadius = Math.max(0, Math.min(CONFIG.getComfort().scanRadius, MAX_SCAN_RADIUS));
+        int scanRadius = Math.clamp(CONFIG.getComfort().scanRadius, 0, MAX_SCAN_RADIUS);
         BlockPos bedPos = player.getSleepingPos().orElse(player.blockPosition());
         Level world = player.level();
 
@@ -114,7 +114,7 @@ public class ComfortCalculator {
 
     public static ComfortDebug debug(ServerPlayer player) {
         MidnightThoughtsConfig.ComfortSettings c = CONFIG.getComfort();
-        int scanRadius = Math.max(0, Math.min(c.scanRadius, MAX_SCAN_RADIUS));
+        int scanRadius = Math.clamp(c.scanRadius, 0, MAX_SCAN_RADIUS);
         int[] weights = currentWeights();
         boolean[] found = c.enabled ? scanFound(player) : new boolean[ALL_TAGS.length];
         int total = 0;
