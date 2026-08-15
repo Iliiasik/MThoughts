@@ -80,6 +80,11 @@ public class WellRestedEffect {
 
         int ticksRemaining = getNbtInt(player, "mt_well_rested_ticks_remaining", 0);
         int level = getNbtInt(player, "mt_well_rested_level", 1);
+        int totalTicks = getTotalDurationTicksForPlayer(player);
+
+        if (ticksRemaining > totalTicks) {
+            ticksRemaining = totalTicks;
+        }
 
         if (ticksRemaining <= 0) {
             removeFromPlayer(player);
@@ -91,7 +96,6 @@ public class WellRestedEffect {
         ticksRemaining--;
         player.getPersistentData().putInt("mt_well_rested_ticks_remaining", ticksRemaining);
 
-        int totalTicks = getTotalDurationTicksForPlayer(player);
         int phaseTicks = totalTicks / 3;
         MidnightThoughtsConfig.WellRestedLevel lvl = CONFIG.getWellRested().getLevel(level);
 
