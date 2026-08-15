@@ -70,6 +70,12 @@ public class WellRestedEffect {
         removeAttributes(player);
     }
 
+    public static void onPlayerJoin(ServerPlayer player) {
+        if (entry(player) != null) return;
+        removeAttributes(player);
+        syncAttributes(player);
+    }
+
     public static void tick(ServerPlayer player) {
         WellRestedData.Entry current = entry(player);
 

@@ -91,6 +91,7 @@ public class MidnightThoughts implements ModInitializer {
 
         ServerPlayConnectionEvents.JOIN.register((handler, _, _) -> {
             DailyStatsManager.onPlayerJoin(handler.player);
+            WellRestedEffect.onPlayerJoin(handler.player);
             MTNetwork.sendToPlayer(handler.player, UserContentInitializer.buildPacket());
             MTNetwork.sendToPlayer(handler.player, new SyncAchievementsPacket(AchievementLoader.load()));
             MTNetwork.sendToPlayer(handler.player, SyncConfigPacket.of(MidnightThoughtsConfig.getInstance()));

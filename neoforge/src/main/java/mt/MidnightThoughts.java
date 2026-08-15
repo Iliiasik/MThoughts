@@ -113,6 +113,7 @@ public class MidnightThoughts {
     public void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer serverPlayer)) return;
         DailyStatsManager.onPlayerJoin(serverPlayer);
+        WellRestedEffect.onPlayerJoin(serverPlayer);
         MTNetwork.sendToPlayer(serverPlayer, UserContentInitializer.buildPacket());
         MTNetwork.sendToPlayer(serverPlayer, new SyncAchievementsPacket(AchievementLoader.load()));
         MTNetwork.sendToPlayer(serverPlayer, SyncConfigPacket.of(MidnightThoughtsConfig.getInstance()));
