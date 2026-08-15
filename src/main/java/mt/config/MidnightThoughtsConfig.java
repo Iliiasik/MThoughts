@@ -232,11 +232,11 @@ public final class MidnightThoughtsConfig {
         public Map<String, WellRestedLevel> levels = new HashMap<>();
 
         public WellRestedSettings() {
-            levels.put("level1", new WellRestedLevel(3,  0.16f, 0.08f, 0.04f,  0.08f, 0.04f, 0.02f,  0.04f, 0.02f, 0.01f,  2.0f, 0.02f));
-            levels.put("level2", new WellRestedLevel(5,  0.24f, 0.12f, 0.06f,  0.12f, 0.06f, 0.03f,  0.06f, 0.03f, 0.01f,  4.0f, 0.04f));
-            levels.put("level3", new WellRestedLevel(7,  0.32f, 0.18f, 0.08f,  0.16f, 0.08f, 0.04f,  0.08f, 0.04f, 0.02f,  6.0f, 0.06f));
-            levels.put("level4", new WellRestedLevel(10, 0.40f, 0.24f, 0.12f,  0.20f, 0.12f, 0.06f,  0.10f, 0.05f, 0.02f,  8.0f, 0.08f));
-            levels.put("level5", new WellRestedLevel(15, 0.50f, 0.30f, 0.16f,  0.24f, 0.16f, 0.08f,  0.12f, 0.06f, 0.03f, 10.0f, 0.10f));
+            levels.put("level1", new WellRestedLevel(3,  0.08f, 0.04f, 0.02f,  0.25f, 0.25f, 0.25f,  0.02f, 0.01f, 0.01f,  2.0f, 0.01f));
+            levels.put("level2", new WellRestedLevel(5,  0.12f, 0.06f, 0.03f,  0.50f, 0.25f, 0.25f,  0.04f, 0.02f, 0.01f,  4.0f, 0.02f));
+            levels.put("level3", new WellRestedLevel(7,  0.16f, 0.09f, 0.04f,  0.75f, 0.50f, 0.25f,  0.05f, 0.03f, 0.01f,  6.0f, 0.03f));
+            levels.put("level4", new WellRestedLevel(10, 0.20f, 0.12f, 0.06f,  1.00f, 0.75f, 0.50f,  0.06f, 0.03f, 0.02f,  8.0f, 0.04f));
+            levels.put("level5", new WellRestedLevel(15, 0.25f, 0.15f, 0.08f,  1.50f, 1.00f, 0.50f,  0.07f, 0.04f, 0.02f, 10.0f, 0.05f));
         }
 
         public WellRestedLevel getLevel(int level) {

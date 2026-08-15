@@ -102,11 +102,13 @@ public class WellRestedEffect {
         int currentPhaseIndex = phaseTicks > 0 ? (totalTicks - ticksRemaining) / phaseTicks : 0;
         if (currentPhaseIndex > 2) currentPhaseIndex = 2;
 
-        float speed, strength, attackSpeed, regen;
+        float regen = lvl.regenBonus;
+
+        float speed, strength, attackSpeed;
         switch (currentPhaseIndex) {
-            case 0 -> { speed = lvl.speedPhase1; strength = lvl.strengthPhase1; attackSpeed = lvl.attackSpeedPhase1; regen = lvl.regenBonus; }
-            case 1 -> { speed = lvl.speedPhase2; strength = lvl.strengthPhase2; attackSpeed = lvl.attackSpeedPhase2; regen = lvl.regenBonus; }
-            default -> { speed = lvl.speedPhase3; strength = lvl.strengthPhase3; attackSpeed = lvl.attackSpeedPhase3; regen = lvl.regenBonus; }
+            case 0 -> { speed = lvl.speedPhase1; strength = lvl.strengthPhase1; attackSpeed = lvl.attackSpeedPhase1; }
+            case 1 -> { speed = lvl.speedPhase2; strength = lvl.strengthPhase2; attackSpeed = lvl.attackSpeedPhase2; }
+            default -> { speed = lvl.speedPhase3; strength = lvl.strengthPhase3; attackSpeed = lvl.attackSpeedPhase3; }
         }
 
         int previousPhase = getNbtInt(player, "mt_well_rested_phase", -1);
@@ -150,7 +152,7 @@ public class WellRestedEffect {
         if (speedAttr != null && speedAttr.getModifier(SPEED_UUID) == null)
             speedAttr.addPermanentModifier(new AttributeModifier(SPEED_UUID, "well_rested_speed", speed, AttributeModifier.Operation.MULTIPLY_BASE));
         if (strengthAttr != null && strengthAttr.getModifier(STRENGTH_UUID) == null)
-            strengthAttr.addPermanentModifier(new AttributeModifier(STRENGTH_UUID, "well_rested_strength", strength, AttributeModifier.Operation.MULTIPLY_BASE));
+            strengthAttr.addPermanentModifier(new AttributeModifier(STRENGTH_UUID, "well_rested_strength", strength, AttributeModifier.Operation.ADDITION));
         if (attackSpeedAttr != null && attackSpeedAttr.getModifier(ATTACK_SPEED_UUID) == null)
             attackSpeedAttr.addPermanentModifier(new AttributeModifier(ATTACK_SPEED_UUID, "well_rested_attack_speed", attackSpeed, AttributeModifier.Operation.MULTIPLY_BASE));
     }
