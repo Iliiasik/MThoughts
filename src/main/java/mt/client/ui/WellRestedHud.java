@@ -1,5 +1,6 @@
 package mt.client.ui;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import mt.client.MidnightThoughtsClient;
 import mt.client.manager.WellRestedClientState;
 import mt.config.MidnightThoughtsConfig;
@@ -32,7 +33,8 @@ public class WellRestedHud {
     private static final int BLINK_THRESHOLD_TICKS = 200;
 
     public static boolean isActive() {
-        return WellRestedClientState.isActive();
+        return WellRestedClientState.isActive()
+                && !MidnightThoughtsConfig.getInstance().isHideWellRestedHud();
     }
 
     public static boolean isBarPosition() {
@@ -41,7 +43,7 @@ public class WellRestedHud {
     }
 
     public static void render(GuiGraphics graphics, int screenWidth, int screenHeight) {
-        if (!WellRestedClientState.isActive() || MidnightThoughtsConfig.getInstance().isHideWellRestedHud()) return;
+        if (!isActive()) return;
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
 
@@ -88,18 +90,18 @@ public class WellRestedHud {
         int barX = romanX + romanSpace;
         int barGuiW = bar ? totalRight - barX : TEX_SCALE_W;
 
-        graphics.setColor(1f, 1f, 1f, 1f);
-        blitScaled(graphics, activeIcon, iconX, barY, ICON_GUI_SIZE, ICON_GUI_SIZE, TEX_ICON_SIZE, TEX_ICON_SIZE);
-        graphics.setColor(1f, 1f, 1f, scaleAlpha);
+        blitTinted(graphics, activeIcon, iconX, barY, ICON_GUI_SIZE, ICON_GUI_SIZE,
+                TEX_ICON_SIZE, TEX_ICON_SIZE, TEX_ICON_SIZE, TEX_ICON_SIZE, scaleAlpha);
 
         if (!roman.isEmpty()) {
             int romanY = barY + (BAR_GUI_H - font.lineHeight) / 2;
-            graphics.drawString(font, roman, romanX, romanY, 0xFFFFD966, true);
+            int textColor = (Math.round(scaleAlpha * 255f) << 24) | 0x00FFD966;
+            graphics.drawString(font, roman, romanX, romanY, textColor, true);
         }
 
         if (barGuiW > 0) {
-            graphics.setColor(1f, 1f, 1f, scaleAlpha);
-            blitScaled(graphics, SCALE_TEXTURE, barX, barY, barGuiW, BAR_GUI_H, TEX_SCALE_W, TEX_SCALE_H);
+            blitTinted(graphics, SCALE_TEXTURE, barX, barY, barGuiW, BAR_GUI_H,
+                    TEX_SCALE_W, TEX_SCALE_H, TEX_SCALE_W, TEX_SCALE_H, scaleAlpha);
 
             if (progress > 0f) {
                 int fillGuiW = barGuiW - FILL_INSET * 2;
@@ -107,25 +109,22 @@ public class WellRestedHud {
                 int fillGuiY = barY + (BAR_GUI_H - TEX_FILL_H) / 2;
                 int visibleFillGuiW = Math.round(fillGuiW * progress);
                 if (visibleFillGuiW > 0) {
-                    float texFillW = visibleFillGuiW * ((float) TEX_FILL_W / fillGuiW);
-                    graphics.setColor(1f, 1f, 1f, 1f);
-                    graphics.pose().pushPose();
-                    graphics.pose().translate((float) fillGuiX, (float) fillGuiY, 0f);
-                    graphics.pose().scale((float) fillGuiW / TEX_FILL_W, 1f, 1f);
-                    graphics.blit(FILL_TEXTURE, 0, 0, 0.0f, 0.0f, Math.round(texFillW), TEX_FILL_H, TEX_FILL_W, TEX_FILL_H);
-                    graphics.pose().popPose();
+                    int texFillW = Math.round(visibleFillGuiW * ((float) TEX_FILL_W / fillGuiW));
+                    blitTinted(graphics, FILL_TEXTURE, fillGuiX, fillGuiY, visibleFillGuiW, TEX_FILL_H,
+                            texFillW, TEX_FILL_H, TEX_FILL_W, TEX_FILL_H, scaleAlpha);
                 }
             }
         }
 
-        graphics.setColor(1f, 1f, 1f, 1f);
+        RenderSystem.disableBlend();
     }
 
-    private static void blitScaled(GuiGraphics graphics, ResourceLocation texture, int x, int y, int guiW, int guiH, int texW, int texH) {
-        graphics.pose().pushPose();
-        graphics.pose().translate((float) x, (float) y, 0f);
-        graphics.pose().scale((float) guiW / texW, (float) guiH / texH, 1f);
-        graphics.blit(texture, 0, 0, 0.0f, 0.0f, texW, texH, texW, texH);
-        graphics.pose().popPose();
+    private static void blitTinted(GuiGraphics graphics, ResourceLocation texture, int x, int y,
+                                   int guiW, int guiH, int srcW, int srcH, int texW, int texH, float alpha) {
+        RenderSystem.setShaderColor(1f, 1f, 1f, alpha);
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        graphics.blit(texture, x, y, guiW, guiH, 0.0f, 0.0f, srcW, srcH, texW, texH);
+        RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
     }
 }

@@ -7,7 +7,6 @@ import mt.client.ui.summary.ThemeColors;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 
 public class SleepingPlayersHud {
@@ -73,8 +72,6 @@ public class SleepingPlayersHud {
         int hudX = (int)(10 * scale);
         int hudY = (int)(10 * scale);
 
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        RenderSystem.setShaderTexture(0, SummaryConstants.getSleepingHudTexture());
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, displayAlpha);
         RenderSystem.enableBlend();
 
