@@ -1,10 +1,11 @@
 modLoader = "javafml"
 loaderVersion = "${loader_version_range}"
 license = "${mod_license}"
+issueTrackerURL = "https://github.com/Iliiasik/MThoughts/issues"
 
 [[mods]]
 modId = "${mod_id}"
-version = "1.5.2"
+version = "${mod_version}"
 displayName = "${mod_name}"
 displayURL="https://iliiasik.github.io/MThoughts-Wiki/"
 logoFile= "${mod_id}_banner.png"
@@ -13,6 +14,7 @@ description = "${mod_description}"
 
 [modproperties."${mod_id}"]
 catalogueImageIcon = "${mod_id}_icon.png"
+catalogueBackground = "${mod_id}_background.png"
 
 [[dependencies."${mod_id}"]]
 modId = "forge"

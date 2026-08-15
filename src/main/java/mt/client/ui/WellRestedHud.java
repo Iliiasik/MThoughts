@@ -1,5 +1,6 @@
 package mt.client.ui;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import mt.client.MidnightThoughtsClient;
 import mt.client.manager.WellRestedClientState;
 import mt.config.MidnightThoughtsConfig;
@@ -25,12 +26,26 @@ public class WellRestedHud {
     private static final int FILL_INSET = 2;
 
     private static final String[] ROMAN = {"", "I", "II", "III", "IV", "V"};
+    private static final int BLINK_THRESHOLD_TICKS = 200;
+    private static final int ROMAN_COLOR = 0xFFFFD966;
+    private static final int ROMAN_SHADOW_COLOR = (ROMAN_COLOR & 0xFCFCFC) >> 2 | 0xFF000000;
 
-    private static final int MARGIN_LEFT = 4;
+    private static final int MARGIN_SIDE = 4;
     private static final int MARGIN_BOTTOM = 4;
+    private static final int TOTAL_GUI_W = 81;
 
-    public static void render(GuiGraphics graphics, int screenHeight) {
-        if (!WellRestedClientState.isActive() || MidnightThoughtsConfig.getInstance().isHideWellRestedHud()) return;
+    public static boolean isActive() {
+        return WellRestedClientState.isActive()
+                && !MidnightThoughtsConfig.getInstance().isHideWellRestedHud();
+    }
+
+    public static boolean isBarPosition() {
+        return MidnightThoughtsConfig.HUD_POSITION_BAR
+                .equals(MidnightThoughtsConfig.getInstance().getWellRestedHudPosition());
+    }
+
+    public static void render(GuiGraphics graphics, int screenWidth, int screenHeight) {
+        if (!isActive()) return;
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
 
@@ -44,31 +59,53 @@ public class WellRestedHud {
                 ? Math.max(0f, Math.min(1f, (float) ticksRemaining / totalTicks))
                 : 0f;
 
-        int barY = screenHeight - MARGIN_BOTTOM - BAR_GUI_H;
-
         boolean isMvp = WellRestedClientState.isMvp();
         ResourceLocation activeIcon = isMvp ? MVP_ICON_TEXTURE : ICON_TEXTURE;
 
         String roman = (!isMvp && level >= 1 && level <= 5) ? ROMAN[level] : "";
         int romanWidth = roman.isEmpty() ? 0 : font.width(roman);
 
-        int iconX = MARGIN_LEFT;
-        int romanX = iconX + ICON_GUI_SIZE + GAP;
-        int barX = romanX + (roman.isEmpty() ? 0 : romanWidth + GAP);
-        int barEndX = barX + TEX_SCALE_W;
-        int barGuiW = barEndX - barX;
+        float scaleAlpha = 1.0f;
+        if (ticksRemaining <= BLINK_THRESHOLD_TICKS && ticksRemaining > 0) {
+            float sin = (float) Math.sin(System.currentTimeMillis() / 1000.0 * Math.PI * 3.0f);
+            scaleAlpha = 0.4f + 0.6f * (sin * 0.5f + 0.5f);
+        }
 
-        graphics.setColor(1f, 1f, 1f, 1f);
-        blitScaled(graphics, activeIcon, iconX, barY, ICON_GUI_SIZE, ICON_GUI_SIZE, TEX_ICON_SIZE, TEX_ICON_SIZE);
-        graphics.setColor(1f, 1f, 1f, 1f);
+        String position = MidnightThoughtsConfig.getInstance().getWellRestedHudPosition();
+        boolean bar = MidnightThoughtsConfig.HUD_POSITION_BAR.equals(position);
+        int romanSpace = roman.isEmpty() ? 0 : romanWidth + GAP;
+        int totalRight = screenWidth / 2 + 91;
+
+        int iconX;
+        int barY;
+        if (bar) {
+            iconX = totalRight - TOTAL_GUI_W;
+            barY = screenHeight - 32 - BAR_GUI_H - 10;
+        } else {
+            barY = screenHeight - MARGIN_BOTTOM - BAR_GUI_H;
+            iconX = MidnightThoughtsConfig.HUD_POSITION_RIGHT.equals(position)
+                    ? screenWidth - MARGIN_SIDE - (ICON_GUI_SIZE + GAP + romanSpace + TEX_SCALE_W)
+                    : MARGIN_SIDE;
+        }
+
+        int romanX = iconX + ICON_GUI_SIZE + GAP;
+        int barX = romanX + romanSpace;
+        int barGuiW = bar ? totalRight - barX : TEX_SCALE_W;
+
+        blitTinted(graphics, activeIcon, iconX, barY, ICON_GUI_SIZE, ICON_GUI_SIZE,
+                TEX_ICON_SIZE, TEX_ICON_SIZE, TEX_ICON_SIZE, TEX_ICON_SIZE, scaleAlpha);
 
         if (!roman.isEmpty()) {
             int romanY = barY + (BAR_GUI_H - font.lineHeight) / 2;
-            graphics.drawString(font, roman, romanX, romanY, 0xFFFFD966, true);
+            int textAlpha = Math.round(scaleAlpha * 255f) << 24;
+            // Forge 1.20.1 specific
+            graphics.drawString(font, roman, romanX + 1, romanY + 1, (ROMAN_SHADOW_COLOR & 0xFFFFFF) | textAlpha, false);
+            graphics.drawString(font, roman, romanX, romanY, (ROMAN_COLOR & 0xFFFFFF) | textAlpha, false);
         }
 
         if (barGuiW > 0) {
-            blitScaled(graphics, SCALE_TEXTURE, barX, barY, barGuiW, BAR_GUI_H, TEX_SCALE_W, TEX_SCALE_H);
+            blitTinted(graphics, SCALE_TEXTURE, barX, barY, barGuiW, BAR_GUI_H,
+                    TEX_SCALE_W, TEX_SCALE_H, TEX_SCALE_W, TEX_SCALE_H, scaleAlpha);
 
             if (progress > 0f) {
                 int fillGuiW = barGuiW - FILL_INSET * 2;
@@ -76,24 +113,22 @@ public class WellRestedHud {
                 int fillGuiY = barY + (BAR_GUI_H - TEX_FILL_H) / 2;
                 int visibleFillGuiW = Math.round(fillGuiW * progress);
                 if (visibleFillGuiW > 0) {
-                    float texFillW = visibleFillGuiW * ((float) TEX_FILL_W / fillGuiW);
-                    graphics.pose().pushPose();
-                    graphics.pose().translate((float) fillGuiX, (float) fillGuiY, 0f);
-                    graphics.pose().scale((float) fillGuiW / TEX_FILL_W, 1f, 1f);
-                    graphics.blit(FILL_TEXTURE, 0, 0, 0.0f, 0.0f, Math.round(texFillW), TEX_FILL_H, TEX_FILL_W, TEX_FILL_H);
-                    graphics.pose().popPose();
+                    int texFillW = Math.round(visibleFillGuiW * ((float) TEX_FILL_W / fillGuiW));
+                    blitTinted(graphics, FILL_TEXTURE, fillGuiX, fillGuiY, visibleFillGuiW, TEX_FILL_H,
+                            texFillW, TEX_FILL_H, TEX_FILL_W, TEX_FILL_H, scaleAlpha);
                 }
             }
         }
 
-        graphics.setColor(1f, 1f, 1f, 1f);
+        RenderSystem.disableBlend();
     }
 
-    private static void blitScaled(GuiGraphics graphics, ResourceLocation texture, int x, int y, int guiW, int guiH, int texW, int texH) {
-        graphics.pose().pushPose();
-        graphics.pose().translate((float) x, (float) y, 0f);
-        graphics.pose().scale((float) guiW / texW, (float) guiH / texH, 1f);
-        graphics.blit(texture, 0, 0, 0.0f, 0.0f, texW, texH, texW, texH);
-        graphics.pose().popPose();
+    private static void blitTinted(GuiGraphics graphics, ResourceLocation texture, int x, int y,
+                                   int guiW, int guiH, int srcW, int srcH, int texW, int texH, float alpha) {
+        RenderSystem.setShaderColor(1f, 1f, 1f, alpha);
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        graphics.blit(texture, x, y, guiW, guiH, 0.0f, 0.0f, srcW, srcH, texW, texH);
+        RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
     }
 }

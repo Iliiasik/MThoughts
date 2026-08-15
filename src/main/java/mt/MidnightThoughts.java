@@ -29,6 +29,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import mt.command.MidnightThoughtsCommand;
 import org.slf4j.Logger;
@@ -39,13 +40,14 @@ public class MidnightThoughts {
     public static final String MOD_ID = "midnightthoughts";
     public static final Logger LOGGER = LoggerFactory.getLogger("MidnightThoughts");
 
-    private final IEventBus modEventBus;
-
     @SuppressWarnings("removal")
     public MidnightThoughts() {
-        this.modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+        IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         modEventBus.addListener(this::setup);
         modEventBus.addListener(this::onClientSetup);
+        if (FMLEnvironment.dist.isClient()) {
+            mt.client.MidnightThoughtsClient.registerModBusListeners(modEventBus);
+        }
         MinecraftForge.EVENT_BUS.register(this);
         LOGGER.info("Midnight Thoughts initialized successfully!");
     }
@@ -59,7 +61,7 @@ public class MidnightThoughts {
     }
 
     private void onClientSetup(final FMLClientSetupEvent event) {
-        mt.client.MidnightThoughtsClient.init(modEventBus);
+        mt.client.MidnightThoughtsClient.init();
         LOGGER.info("Midnight Thoughts client setup complete");
     }
 

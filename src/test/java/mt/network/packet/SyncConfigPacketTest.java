@@ -5,6 +5,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.RecordComponent;
+import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -17,6 +18,7 @@ class SyncConfigPacketTest {
             0.1f, 0.2f, 0.3f, 0.4f,
             true, false, true, false, true, false,
             "magic",
+            "bar",
             true, true, false, true, false
     );
 
@@ -47,12 +49,48 @@ class SyncConfigPacketTest {
         return SyncConfigPacket.class.getDeclaredConstructor(types).newInstance(values);
     }
 
+    private static SyncConfigPacket withFlags(boolean value) {
+        return new SyncConfigPacket(
+                1, 2, 3, 4,
+                0.0f, 0.5f, 1.0f, 0.25f,
+                value, value, value, value, value, value,
+                "magic", "bar",
+                value, value, value, value, value
+        );
+    }
+
+    private static SyncConfigPacket withTheme(String theme) {
+        return new SyncConfigPacket(
+                1000, 2000, 300, 400,
+                0.1f, 0.2f, 0.3f, 0.4f,
+                true, false, true, false, true, false,
+                theme, "bar",
+                true, true, false, true, false
+        );
+    }
+
+    private static SyncConfigPacket withHudPosition(String position) {
+        return new SyncConfigPacket(
+                1000, 2000, 300, 400,
+                0.1f, 0.2f, 0.3f, 0.4f,
+                true, false, true, false, true, false,
+                "magic", position,
+                true, true, false, true, false
+        );
+    }
+
     private static Object mutate(Object value) {
         if (value instanceof Boolean flag) return !flag;
         if (value instanceof Integer number) return number + 12345;
         if (value instanceof Float number) return number + 0.125f;
         if (value instanceof String text) return text + "_mutated";
         throw new IllegalStateException("unhandled component type " + value.getClass());
+    }
+
+    @Test
+    void theRecordStillCarriesEveryConfiguredValue() {
+        assertEquals(21, SyncConfigPacket.class.getRecordComponents().length,
+                "a config field was added or removed without updating the wire format");
     }
 
     @Test
@@ -97,38 +135,22 @@ class SyncConfigPacketTest {
         int fourInts = 4 * 4;
         int fourFloats = 4 * 4;
         int elevenBooleans = 11;
-        int themeLengthPrefix = 1;
-        int themeBytes = "magic".getBytes(java.nio.charset.StandardCharsets.UTF_8).length;
+        int theme = 1 + "magic".getBytes(StandardCharsets.UTF_8).length;
+        int hudPosition = 1 + "bar".getBytes(StandardCharsets.UTF_8).length;
 
-        assertEquals(fourInts + fourFloats + elevenBooleans + themeLengthPrefix + themeBytes,
+        assertEquals(fourInts + fourFloats + elevenBooleans + theme + hudPosition,
                 buf.readableBytes(),
                 "wire format changed, bump the protocol version before shipping this");
     }
 
     @Test
     void allFlagsOffSurviveTheRoundTrip() {
-        SyncConfigPacket packet = new SyncConfigPacket(
-                1, 2, 3, 4,
-                0.0f, 0.0f, 0.0f, 0.0f,
-                false, false, false, false, false, false,
-                "vanilla",
-                false, false, false, false, false
-        );
-
-        assertEquals(packet, roundTrip(packet));
+        assertEquals(withFlags(false), roundTrip(withFlags(false)));
     }
 
     @Test
     void allFlagsOnSurviveTheRoundTrip() {
-        SyncConfigPacket packet = new SyncConfigPacket(
-                1, 2, 3, 4,
-                1.0f, 1.0f, 1.0f, 1.0f,
-                true, true, true, true, true, true,
-                "tech",
-                true, true, true, true, true
-        );
-
-        assertEquals(packet, roundTrip(packet));
+        assertEquals(withFlags(true), roundTrip(withFlags(true)));
     }
 
     @Test
@@ -137,7 +159,7 @@ class SyncConfigPacketTest {
                 Integer.MIN_VALUE, Integer.MAX_VALUE, 0, -1,
                 Float.MIN_VALUE, Float.MAX_VALUE, -0.0f, 1.0E-10f,
                 true, false, true, false, true, false,
-                "classic",
+                "classic", "left",
                 true, true, false, true, false
         );
 
@@ -147,29 +169,21 @@ class SyncConfigPacketTest {
     @Test
     void everyThemeNameSurvivesTheRoundTrip() {
         for (String theme : new String[]{"classic", "magic", "tech", "vanilla"}) {
-            SyncConfigPacket packet = new SyncConfigPacket(
-                    1000, 2000, 300, 400,
-                    0.1f, 0.2f, 0.3f, 0.4f,
-                    true, false, true, false, true, false,
-                    theme,
-                    true, true, false, true, false
-            );
-
-            assertEquals(theme, roundTrip(packet).theme());
+            assertEquals(theme, roundTrip(withTheme(theme)).theme());
         }
     }
 
     @Test
-    void anEmptyThemeStringSurvivesTheRoundTrip() {
-        SyncConfigPacket packet = new SyncConfigPacket(
-                1000, 2000, 300, 400,
-                0.1f, 0.2f, 0.3f, 0.4f,
-                true, false, true, false, true, false,
-                "",
-                true, true, false, true, false
-        );
+    void allHudPositionsSurviveTheRoundTrip() {
+        for (String position : new String[]{"left", "bar", "right"}) {
+            assertEquals(position, roundTrip(withHudPosition(position)).wellRestedHudPosition());
+        }
+    }
 
-        assertEquals("", roundTrip(packet).theme());
+    @Test
+    void emptyStringsSurviveTheRoundTrip() {
+        assertEquals("", roundTrip(withTheme("")).theme());
+        assertEquals("", roundTrip(withHudPosition("")).wellRestedHudPosition());
     }
 
     @Test
@@ -188,6 +202,7 @@ class SyncConfigPacketTest {
 
         assertEquals(1000, BASE.minSlideDisplayTimeMs());
         assertEquals("magic", BASE.theme());
+        assertEquals("bar", BASE.wellRestedHudPosition());
         assertTrue(BASE.enableOverlay());
     }
 }

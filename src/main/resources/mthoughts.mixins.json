@@ -9,6 +9,7 @@
     "StatsCounterAccessor"
   ],
   "client": [
+    "GuiAirBubblesMixin",
     "InGameHudMixin",
     "ChatComponentMixin"
   ],

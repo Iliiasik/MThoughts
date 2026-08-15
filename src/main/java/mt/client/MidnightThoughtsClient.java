@@ -13,12 +13,12 @@ import mt.client.service.UserContentLoader;
 import mt.client.ui.SleepingPlayersHud;
 import mt.client.ui.WellRestedHud;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
-import net.minecraftforge.client.event.RenderGuiEvent;
+import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
+import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -38,11 +38,43 @@ public class MidnightThoughtsClient {
     private SleepOverlayRenderer overlayRenderer;
     private UserContentLoader userContentLoader;
 
-    public static void init(IEventBus modEventBus) {
+    public static void registerModBusListeners(IEventBus modEventBus) {
+        modEventBus.addListener(MidnightThoughtsClient::onRegisterReloadListeners);
+        modEventBus.addListener(MidnightThoughtsClient::onRegisterGuiOverlays);
+    }
+
+    private static void onRegisterGuiOverlays(RegisterGuiOverlaysEvent event) {
+        event.registerBelow(VanillaGuiOverlay.ITEM_NAME.id(), "well_rested_hud",
+                (gui, graphics, partialTick, screenWidth, screenHeight) -> {
+                    if (gui.getMinecraft().options.hideGui) return;
+                    WellRestedHud.render(graphics, screenWidth, screenHeight);
+                });
+
+        event.registerAbove(VanillaGuiOverlay.SLEEP_FADE.id(), "sleep_overlay",
+                (gui, graphics, partialTick, screenWidth, screenHeight) -> {
+                    MidnightThoughtsClient inst = getInstance();
+                    if (inst == null) return;
+
+                    SleepOverlayRenderer renderer = inst.overlayRenderer;
+                    if (!renderer.shouldHideCrosshair()) return;
+
+                    renderer.renderOverlayOnly(graphics, screenWidth, screenHeight);
+                    graphics.flush();
+                    renderer.renderContentOnly(graphics, screenWidth, screenHeight);
+                    graphics.flush();
+                });
+
+        event.registerBelow(VanillaGuiOverlay.CHAT_PANEL.id(), "sleeping_players_hud",
+                (gui, graphics, partialTick, screenWidth, screenHeight) -> {
+                    if (gui.getMinecraft().options.hideGui) return;
+                    SleepingPlayersHud.render(graphics, screenWidth, screenHeight);
+                });
+    }
+
+    public static void init() {
         if (instance == null) {
             instance = new MidnightThoughtsClient();
             MinecraftForge.EVENT_BUS.register(new ForgeClientEvents());
-            modEventBus.addListener(MidnightThoughtsClient::onRegisterReloadListeners);
             LOGGER.info("[MidnightThoughtsClient] Midnight Thoughts initialized successfully!");
         }
     }
@@ -98,18 +130,6 @@ public class MidnightThoughtsClient {
 
     private static class ForgeClientEvents {
 
-        private record RenderContext(MidnightThoughtsClient inst, Minecraft mc, int w, int h) {}
-
-        private static RenderContext getRenderContext() {
-            MidnightThoughtsClient inst = MidnightThoughtsClient.getInstance();
-            if (inst == null) return null;
-            Minecraft mc = Minecraft.getInstance();
-            if (mc.player == null) return null;
-            int w = mc.getWindow().getGuiScaledWidth();
-            int h = mc.getWindow().getGuiScaledHeight();
-            return new RenderContext(inst, mc, w, h);
-        }
-
         @SubscribeEvent
         public void onClientTick(TickEvent.ClientTickEvent event) {
             if (event.phase == TickEvent.Phase.END) {
@@ -122,22 +142,6 @@ public class MidnightThoughtsClient {
                     }
                 }
             }
-        }
-
-        @SubscribeEvent
-        public void onRenderGui(RenderGuiEvent.Post event) {
-            RenderContext ctx = getRenderContext();
-            if (ctx == null) return;
-            SleepOverlayRenderer r = ctx.inst().overlayRenderer;
-            GuiGraphics g = event.getGuiGraphics();
-            if (r.shouldHideCrosshair()) {
-                r.renderOverlayOnly(g, ctx.w(), ctx.h());
-                g.flush();
-                r.renderContentOnly(g, ctx.w(), ctx.h());
-                g.flush();
-            }
-            SleepingPlayersHud.render(g, ctx.w(), ctx.h());
-            WellRestedHud.render(g, ctx.h());
         }
 
         @SubscribeEvent

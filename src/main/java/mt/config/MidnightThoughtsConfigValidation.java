@@ -11,6 +11,11 @@ public final class MidnightThoughtsConfigValidation {
 
     private static final Set<String> VALID_THEMES = Set.of("classic", "magic", "tech", "vanilla");
 
+    private static final Set<String> VALID_HUD_POSITIONS = Set.of(
+            MidnightThoughtsConfig.HUD_POSITION_LEFT,
+            MidnightThoughtsConfig.HUD_POSITION_BAR,
+            MidnightThoughtsConfig.HUD_POSITION_RIGHT);
+
     private static final String CLAMPED_TO_MINIMUM = "Config value {} was {}, clamped to minimum {}";
     private static final String CLAMPED_TO_MAXIMUM = "Config value {} was {}, clamped to maximum {}";
     private static final String NOT_A_NUMBER = "Config value {} was not a valid number, reset to {}";
@@ -19,6 +24,10 @@ public final class MidnightThoughtsConfigValidation {
 
     public static boolean isValidTheme(String theme) {
         return theme != null && VALID_THEMES.contains(theme);
+    }
+
+    public static boolean isValidHudPosition(String position) {
+        return position != null && VALID_HUD_POSITIONS.contains(position);
     }
 
     public static void apply(MidnightThoughtsConfig config) {
@@ -129,6 +138,12 @@ public final class MidnightThoughtsConfigValidation {
     }
 
     private static void validateUi(MidnightThoughtsConfig.UISettings ui) {
+        if (!isValidHudPosition(ui.wellRestedHudPosition)) {
+            LOGGER.warn("Config value ui.wellRestedHudPosition was '{}', reset to '{}'",
+                    ui.wellRestedHudPosition, MidnightThoughtsConfig.HUD_POSITION_LEFT);
+            ui.wellRestedHudPosition = MidnightThoughtsConfig.HUD_POSITION_LEFT;
+        }
+
         if (!isValidTheme(ui.theme)) {
             LOGGER.warn("Config value ui.theme was '{}', reset to 'classic'", ui.theme);
             ui.theme = "classic";

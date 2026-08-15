@@ -6,7 +6,8 @@ public record SyncConfigPacket(int minSlideDisplayTimeMs, int maxSlideDisplayTim
                                int fadeOutDurationMs, float overlayOpacity, float textOpacity, float imageOpacity,
                                float specialSlideChance, boolean enableOverlay, boolean enableImage,
                                boolean enableDailySummaryScreen, boolean useFactsApi, boolean userContentReplaces,
-                               boolean hideChatWhenSleeping, String theme, boolean hideWellRestedHud,
+                               boolean hideChatWhenSleeping, String theme, String wellRestedHudPosition,
+                               boolean hideWellRestedHud,
                                boolean hideSleepingPlayersHud, boolean hideThemeSwitchButton,
                                boolean enableStarDust, boolean showSlideProgress) {
 
@@ -29,6 +30,7 @@ public record SyncConfigPacket(int minSlideDisplayTimeMs, int maxSlideDisplayTim
                 o.userContentReplaces,
                 o.hideChatWhenSleeping,
                 ui.theme,
+                ui.wellRestedHudPosition,
                 ui.hideWellRestedHud,
                 ui.hideSleepingPlayersHud,
                 ui.hideThemeSwitchButton,
@@ -53,6 +55,7 @@ public record SyncConfigPacket(int minSlideDisplayTimeMs, int maxSlideDisplayTim
         buf.writeBoolean(packet.userContentReplaces);
         buf.writeBoolean(packet.hideChatWhenSleeping);
         buf.writeUtf(packet.theme);
+        buf.writeUtf(packet.wellRestedHudPosition);
         buf.writeBoolean(packet.hideWellRestedHud);
         buf.writeBoolean(packet.hideSleepingPlayersHud);
         buf.writeBoolean(packet.hideThemeSwitchButton);
@@ -67,7 +70,7 @@ public record SyncConfigPacket(int minSlideDisplayTimeMs, int maxSlideDisplayTim
                 buf.readBoolean(), buf.readBoolean(),
                 buf.readBoolean(), buf.readBoolean(),
                 buf.readBoolean(), buf.readBoolean(),
-                buf.readUtf(),
+                buf.readUtf(), buf.readUtf(),
                 buf.readBoolean(), buf.readBoolean(), buf.readBoolean(),
                 buf.readBoolean(), buf.readBoolean()
         );

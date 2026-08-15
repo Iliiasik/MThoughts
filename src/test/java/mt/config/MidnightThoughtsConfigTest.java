@@ -211,6 +211,21 @@ class MidnightThoughtsConfigTest {
     }
 
     @Test
+    void unknownHudPositionIsResetToLeft() throws IOException {
+        writeConfig("{\"ui\":{\"wellRestedHudPosition\":\"floating\"}}");
+
+        assertEquals("left", MidnightThoughtsConfig.load().getUi().wellRestedHudPosition);
+    }
+
+    @Test
+    void allHudPositionsArePreserved() throws IOException {
+        for (String position : new String[]{"left", "bar", "right"}) {
+            writeConfig("{\"ui\":{\"wellRestedHudPosition\":\"" + position + "\"}}");
+            assertEquals(position, MidnightThoughtsConfig.load().getUi().wellRestedHudPosition);
+        }
+    }
+
+    @Test
     void unknownThemeIsResetToClassic() throws IOException {
         writeConfig("{\"ui\":{\"theme\":\"holographic\"}}");
 
