@@ -73,15 +73,16 @@ public class SleepingPlayersHud {
         int hudX = (int) (10 * scale);
         int hudY = (int) (10 * scale);
 
+        int textAlpha = (int) (displayAlpha * 255);
+
         context.blit(RenderPipelines.GUI_TEXTURED, SummaryConstants.getSleepingHudTexture(), hudX, hudY,
                 0.0f, 0.0f, hudWidth, hudHeight, TEXTURE_WIDTH, TEXTURE_HEIGHT,
                 TEXTURE_WIDTH, TEXTURE_HEIGHT,
-                0xFFFFFFFF);
+                (textAlpha << 24) | 0x00FFFFFF);
 
         String sleepText = sleepingCount + " / " + totalPlayers;
         Component titleText = Component.translatable("midnightthoughts.hud.sleeping");
 
-        int textAlpha = (int) (displayAlpha * 255);
         int titleColor = (textAlpha << 24) | colors.sleepingHudTitleColor();
 
         float textScale = scale * 1.1f;
