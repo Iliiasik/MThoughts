@@ -34,7 +34,8 @@ public class WellRestedHud {
     private static final int BLINK_THRESHOLD_TICKS = 200;
 
     public static boolean isActive() {
-        return WellRestedClientState.isActive();
+        return WellRestedClientState.isActive()
+                && !MidnightThoughtsConfig.getInstance().isHideWellRestedHud();
     }
 
     public static boolean isBarPosition() {
@@ -43,7 +44,7 @@ public class WellRestedHud {
     }
 
     public static void render(GuiGraphics graphics, int screenWidth, int screenHeight) {
-        if (!WellRestedClientState.isActive() || MidnightThoughtsConfig.getInstance().isHideWellRestedHud()) return;
+        if (!isActive()) return;
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
 
@@ -69,7 +70,6 @@ public class WellRestedHud {
             scaleAlpha = 0.4f + 0.6f * (sin * 0.5f + 0.5f);
         }
 
-        int white = ARGB.colorFromFloat(1.0f, 1.0f, 1.0f, 1.0f);
         int scaleColor = ARGB.colorFromFloat(scaleAlpha, 1.0f, 1.0f, 1.0f);
 
         String position = MidnightThoughtsConfig.getInstance().getWellRestedHudPosition();
@@ -93,11 +93,12 @@ public class WellRestedHud {
         int barX = romanX + romanSpace;
         int barGuiW = bar ? totalRight - barX : TEX_SCALE_W;
 
-        blitScaled(graphics, activeIcon, iconX, barY, ICON_GUI_SIZE, ICON_GUI_SIZE, TEX_ICON_SIZE, TEX_ICON_SIZE, white);
+        blitScaled(graphics, activeIcon, iconX, barY, ICON_GUI_SIZE, ICON_GUI_SIZE, TEX_ICON_SIZE, TEX_ICON_SIZE, scaleColor);
 
         if (!roman.isEmpty()) {
             int romanY = barY + (BAR_GUI_H - font.lineHeight) / 2;
-            graphics.drawString(font, roman, romanX, romanY, 0xFFFFD966, true);
+            int textColor = (Math.round(scaleAlpha * 255f) << 24) | 0x00FFD966;
+            graphics.drawString(font, roman, romanX, romanY, textColor, true);
         }
 
         if (barGuiW > 0) {
@@ -116,7 +117,7 @@ public class WellRestedHud {
                     graphics.blit(RenderPipelines.GUI_TEXTURED, FILL_TEXTURE,
                             0, 0, 0.0f, 0.0f,
                             Math.round(texFillW), TEX_FILL_H,
-                            TEX_FILL_W, TEX_FILL_H, white);
+                            TEX_FILL_W, TEX_FILL_H, scaleColor);
                     graphics.pose().popMatrix();
                 }
             }
