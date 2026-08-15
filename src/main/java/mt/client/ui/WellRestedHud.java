@@ -21,7 +21,6 @@ public class WellRestedHud {
     private static final int TEX_FILL_W = 50;
     private static final int TEX_FILL_H = 5;
     private static final int TEX_ICON_SIZE = 9;
-    private static final int TOTAL_GUI_W = 81;
     public static final int BAR_GUI_H = 9;
     private static final int ICON_GUI_SIZE = 9;
     private static final int GAP = 1;
@@ -77,21 +76,22 @@ public class WellRestedHud {
         int romanSpace = roman.isEmpty() ? 0 : romanWidth + GAP;
         int totalRight = screenWidth / 2 + 91;
 
+        int hudWidth = ICON_GUI_SIZE + GAP + romanSpace + TEX_SCALE_W;
+
         int iconX;
         int barY;
         if (bar) {
-            iconX = totalRight - TOTAL_GUI_W;
+            iconX = totalRight - hudWidth;
             barY = screenHeight - 32 - BAR_GUI_H - 10;
         } else {
             barY = screenHeight - MARGIN_BOTTOM - BAR_GUI_H;
             iconX = MidnightThoughtsConfig.HUD_POSITION_RIGHT.equals(position)
-                    ? screenWidth - MARGIN_SIDE - (ICON_GUI_SIZE + GAP + romanSpace + TEX_SCALE_W)
+                    ? screenWidth - MARGIN_SIDE - hudWidth
                     : MARGIN_SIDE;
         }
 
         int romanX = iconX + ICON_GUI_SIZE + GAP;
         int barX = romanX + romanSpace;
-        int barGuiW = bar ? totalRight - barX : TEX_SCALE_W;
 
         blitScaled(graphics, activeIcon, iconX, barY, ICON_GUI_SIZE, ICON_GUI_SIZE, TEX_ICON_SIZE, TEX_ICON_SIZE, scaleColor);
 
@@ -101,25 +101,18 @@ public class WellRestedHud {
             graphics.drawString(font, roman, romanX, romanY, textColor, true);
         }
 
-        if (barGuiW > 0) {
-            blitScaled(graphics, SCALE_TEXTURE, barX, barY, barGuiW, BAR_GUI_H, TEX_SCALE_W, TEX_SCALE_H, scaleColor);
+        blitScaled(graphics, SCALE_TEXTURE, barX, barY, TEX_SCALE_W, BAR_GUI_H, TEX_SCALE_W, TEX_SCALE_H, scaleColor);
 
-            if (progress > 0f) {
-                int fillGuiW = barGuiW - FILL_INSET * 2;
-                int fillGuiX = barX + FILL_INSET;
-                int fillGuiY = barY + (BAR_GUI_H - TEX_FILL_H) / 2;
-                int visibleFillGuiW = Math.round(fillGuiW * progress);
-                if (visibleFillGuiW > 0) {
-                    float texFillW = visibleFillGuiW * ((float) TEX_FILL_W / fillGuiW);
-                    graphics.pose().pushMatrix();
-                    graphics.pose().translate(fillGuiX, fillGuiY);
-                    graphics.pose().scale((float) fillGuiW / TEX_FILL_W, 1.0f);
-                    graphics.blit(RenderPipelines.GUI_TEXTURED, FILL_TEXTURE,
-                            0, 0, 0.0f, 0.0f,
-                            Math.round(texFillW), TEX_FILL_H,
-                            TEX_FILL_W, TEX_FILL_H, scaleColor);
-                    graphics.pose().popMatrix();
-                }
+        if (progress > 0f) {
+            int fillGuiX = barX + FILL_INSET;
+            int fillGuiY = barY + (BAR_GUI_H - TEX_FILL_H) / 2;
+            int visibleFillW = Math.round(TEX_FILL_W * progress);
+            if (visibleFillW > 0) {
+                graphics.blit(RenderPipelines.GUI_TEXTURED, FILL_TEXTURE,
+                        fillGuiX, fillGuiY, 0.0f, 0.0f,
+                        visibleFillW, TEX_FILL_H,
+                        visibleFillW, TEX_FILL_H,
+                        TEX_FILL_W, TEX_FILL_H, scaleColor);
             }
         }
     }

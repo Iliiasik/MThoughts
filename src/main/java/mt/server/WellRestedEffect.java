@@ -96,11 +96,13 @@ public class WellRestedEffect {
         int currentPhaseIndex = phaseTicks > 0 ? (totalTicks - ticksRemaining) / phaseTicks : 0;
         if (currentPhaseIndex > 2) currentPhaseIndex = 2;
 
-        float speed, strength, haste, attackSpeed, regen;
+        float regen = lvl.regenBonus;
+
+        float speed, strength, haste, attackSpeed;
         switch (currentPhaseIndex) {
-            case 0 -> { speed = lvl.speedPhase1; strength = lvl.strengthPhase1; haste = lvl.hastePhase1; attackSpeed = lvl.attackSpeedPhase1; regen = lvl.regenBonus; }
-            case 1 -> { speed = lvl.speedPhase2; strength = lvl.strengthPhase2; haste = lvl.hastePhase2; attackSpeed = lvl.attackSpeedPhase2; regen = lvl.regenBonus; }
-            default -> { speed = lvl.speedPhase3; strength = lvl.strengthPhase3; haste = lvl.hastePhase3; attackSpeed = lvl.attackSpeedPhase3; regen = lvl.regenBonus; }
+            case 0 -> { speed = lvl.speedPhase1; strength = lvl.strengthPhase1; haste = lvl.hastePhase1; attackSpeed = lvl.attackSpeedPhase1; }
+            case 1 -> { speed = lvl.speedPhase2; strength = lvl.strengthPhase2; haste = lvl.hastePhase2; attackSpeed = lvl.attackSpeedPhase2; }
+            default -> { speed = lvl.speedPhase3; strength = lvl.strengthPhase3; haste = lvl.hastePhase3; attackSpeed = lvl.attackSpeedPhase3; }
         }
 
         int previousPhase = player.getPersistentData().getIntOr("mt_well_rested_phase", -1);
@@ -142,7 +144,7 @@ public class WellRestedEffect {
         var hasteAttr = player.getAttribute(Attributes.BLOCK_BREAK_SPEED);
         var attackSpeedAttr = player.getAttribute(Attributes.ATTACK_SPEED);
         if (speedAttr != null) speedAttr.addOrReplacePermanentModifier(new AttributeModifier(SPEED_ID, speed, AttributeModifier.Operation.ADD_MULTIPLIED_BASE));
-        if (strengthAttr != null) strengthAttr.addOrReplacePermanentModifier(new AttributeModifier(STRENGTH_ID, strength, AttributeModifier.Operation.ADD_MULTIPLIED_BASE));
+        if (strengthAttr != null) strengthAttr.addOrReplacePermanentModifier(new AttributeModifier(STRENGTH_ID, strength, AttributeModifier.Operation.ADD_VALUE));
         if (hasteAttr != null) hasteAttr.addOrReplacePermanentModifier(new AttributeModifier(HASTE_ID, haste, AttributeModifier.Operation.ADD_MULTIPLIED_BASE));
         if (attackSpeedAttr != null) attackSpeedAttr.addOrReplacePermanentModifier(new AttributeModifier(ATTACK_SPEED_ID, attackSpeed, AttributeModifier.Operation.ADD_MULTIPLIED_BASE));
     }
