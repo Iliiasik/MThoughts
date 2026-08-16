@@ -12,7 +12,7 @@
 
 <img  alt="Summary" src="https://github.com/user-attachments/assets/957a6a30-c071-4122-93b4-926bd201aa44" />
 
-<img  alt="Well Rested" src="https://github.com/user-attachments/assets/3e8f9a96-ac4d-4099-b792-050b23ec1b9c" />
+<img alt="Well Rested" src="https://github.com/user-attachments/assets/5b496bc0-faf4-484f-b2a5-746f4450e42a" />
 
 <img  alt="Nightmares" src="https://github.com/user-attachments/assets/d8cacc82-9e86-4618-b1d2-b39318b5539a" />
 
