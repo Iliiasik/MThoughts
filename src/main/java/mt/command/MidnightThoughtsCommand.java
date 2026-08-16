@@ -49,7 +49,11 @@ public final class MidnightThoughtsCommand {
                                                         .executes(MidnightThoughtsCommand::wellRestedGrant))))
                                 .then(Commands.literal("clear")
                                         .then(Commands.argument("targets", EntityArgument.players())
-                                                .executes(MidnightThoughtsCommand::wellRestedClear))))
+                                                .executes(MidnightThoughtsCommand::wellRestedClear)))
+                                .then(Commands.literal("info")
+                                        .executes(MidnightThoughtsCommand::wellRestedInfo)
+                                        .then(Commands.argument("target", EntityArgument.player())
+                                                .executes(MidnightThoughtsCommand::wellRestedInfoTarget))))
         );
     }
 
@@ -191,6 +195,55 @@ public final class MidnightThoughtsCommand {
         int n = targets.size();
         reply(ctx, "Cleared well-rested from " + n + " player(s).");
         return n;
+    }
+
+    private static int wellRestedInfo(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        return reportWellRested(ctx.getSource(), ctx.getSource().getPlayerOrException());
+    }
+
+    private static int wellRestedInfoTarget(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        return reportWellRested(ctx.getSource(), EntityArgument.getPlayer(ctx, "target"));
+    }
+
+    private static int reportWellRested(CommandSourceStack src, ServerPlayer player) {
+        src.sendSuccess(() -> Component.literal("── Well Rested: " + player.getName().getString() + " ──")
+                .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD), false);
+
+        if (!MidnightThoughtsConfig.getInstance().getWellRested().enabled) {
+            src.sendSuccess(() -> Component.literal("Well-rested is disabled in config.").withStyle(ChatFormatting.RED), false);
+            return 1;
+        }
+
+        if (!WellRestedEffect.hasEffect(player)) {
+            src.sendSuccess(() -> Component.literal("No active effect.").withStyle(ChatFormatting.GRAY), false);
+            return 1;
+        }
+
+        int ticksRemaining = WellRestedEffect.getTicksRemaining(player);
+        int totalTicks = WellRestedEffect.getTotalDurationTicksForPlayer(player);
+        int phase = WellRestedEffect.getCurrentPhase(player);
+        boolean mvp = WellRestedEffect.isMvp(player);
+
+        src.sendSuccess(() -> infoLine("Level", mvp ? "MVP" : String.valueOf(WellRestedEffect.getLevel(player))), false);
+        src.sendSuccess(() -> infoLine("Phase", (phase + 1) + " / 3"), false);
+        src.sendSuccess(() -> infoLine("Time left", formatTicks(ticksRemaining) + " (" + ticksRemaining + " ticks)"), false);
+        src.sendSuccess(() -> infoLine("Duration", formatTicks(totalTicks) + " (" + totalTicks + " ticks)"), false);
+
+        if (ticksRemaining > totalTicks) {
+            src.sendSuccess(() -> Component.literal("Remaining exceeds duration, it will be trimmed next tick.")
+                    .withStyle(ChatFormatting.YELLOW), false);
+        }
+        return 1;
+    }
+
+    private static MutableComponent infoLine(String label, String value) {
+        return Component.literal(label + ": ").withStyle(ChatFormatting.GRAY)
+                .append(Component.literal(value).withStyle(ChatFormatting.WHITE));
+    }
+
+    private static String formatTicks(int ticks) {
+        int totalSeconds = ticks / 20;
+        return totalSeconds / 60 + ":" + String.format("%02d", totalSeconds % 60);
     }
 
     private static void doReloadConfig(MinecraftServer server) {
