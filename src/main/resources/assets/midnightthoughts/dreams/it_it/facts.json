@@ -1,0 +1,984 @@
+{
+  "entries": [
+    {
+      "text": "I gatti emettono oltre 20 vocalizzi, tra cui fusa, miagolii e cinguettii.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Un gruppo di gatti si chiama 'clowder'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "I gatti trascorrono il 70% della vita dormendo.",
+      "rarity": 1.0
+    },
+    {
+      "text": "L'udito di un gatto è molto più fine di quello di un uomo o di un cane.",
+      "rarity": 1.0
+    },
+    {
+      "text": "I gatti possono ruotare le orecchie di 180 gradi.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il primo gatto nello spazio fu la francese Félicette, nel 1963.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Una clavicola speciale permette ai gatti di atterrare sempre sulle zampe.",
+      "rarity": 1.0
+    },
+    {
+      "text": "L'impronta del naso di un gatto è unica, come un'impronta digitale.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Un gatto può saltare fino a sei volte la propria lunghezza.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il più antico gatto domestico fu trovato in una tomba a Cipro di 9.500 anni fa.",
+      "rarity": 0.7
+    },
+    {
+      "text": "Il Sole ha circa 4,6 miliardi di anni.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Un giorno su Venere dura più di un anno venusiano.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Nell'universo ci sono più stelle che granelli di sabbia sulla Terra.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Le stelle di neutroni possono ruotare 600 volte al secondo.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Un milione di Terre entrerebbero dentro il Sole.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Le impronte sulla Luna resteranno per 100 milioni di anni.",
+      "rarity": 1.0
+    },
+    {
+      "text": "La densità di Saturno è così bassa che galleggerebbe sull'acqua.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Un cucchiaino di stella di neutroni peserebbe circa 6 miliardi di tonnellate.",
+      "rarity": 0.7
+    },
+    {
+      "text": "Nella più grande stella conosciuta, UY Scuti, entrerebbero 5 miliardi di Soli.",
+      "rarity": 0.6
+    },
+    {
+      "text": "L'Olympus Mons su Marte è il vulcano più grande del sistema solare.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il miele non scade mai. Nelle tombe egizie è stato trovato miele di 3000 anni fa.",
+      "rarity": 1.0
+    },
+    {
+      "text": "I polpi hanno tre cuori e sangue blu.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Le banane sono bacche, le fragole no.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il jiffy è una vera unità di tempo: un centesimo di secondo.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Nei giorni caldi la Torre Eiffel cresce di 15 centimetri.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Gli squali esistono da più tempo degli alberi.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Ci sono più partite di scacchi possibili che atomi nell'universo osservabile.",
+      "rarity": 0.7
+    },
+    {
+      "text": "Le mucche hanno amiche del cuore e soffrono se separate.",
+      "rarity": 1.0
+    },
+    {
+      "text": "L'inventore del tubo Pringles vi è stato sepolto dentro.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Una nuvola può pesare più di 500 tonnellate.",
+      "rarity": 1.0
+    },
+    {
+      "text": "L'animale nazionale della Scozia è l'unicorno.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Gli escrementi del vombato hanno forma cubica.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Il cuore di un gambero si trova nella sua testa.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Un gruppo di fenicotteri si chiama 'flamboyance'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Gli elefanti sono gli unici animali che non sanno saltare.",
+      "rarity": 1.0
+    },
+    {
+      "text": "La pelliccia dell'orso polare non è bianca: è trasparente.",
+      "rarity": 0.9
+    },
+    {
+      "text": "I bradipi trattengono il respiro più a lungo dei delfini.",
+      "rarity": 0.8
+    },
+    {
+      "text": "La guerra più breve della storia durò da 38 a 45 minuti.",
+      "rarity": 0.7
+    },
+    {
+      "text": "Le prime arance non erano arancioni, ma verdi.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Il tuo cervello consuma circa il 20% della tua energia totale.",
+      "rarity": 1.0
+    },
+    {
+      "text": "I delfini dormono con un occhio aperto.",
+      "rarity": 1.0
+    },
+    {
+      "text": "In una vita una persona percorre l'equivalente di tre giri del mondo.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Un fulmine è cinque volte più caldo della superficie del Sole.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Sulla Terra ci sono più alberi che stelle nella Via Lattea.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Gli esseri umani condividono il 60% del DNA con le banane.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il singhiozzo più lungo durò 68 anni.",
+      "rarity": 0.6
+    },
+    {
+      "text": "Venere è l'unico pianeta che ruota in senso orario.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Un solo fulmine potrebbe alimentare 150.000 case per un minuto.",
+      "rarity": 0.8
+    },
+    {
+      "text": "La Grande Muraglia cinese non è visibile dallo spazio a occhio nudo.",
+      "rarity": 1.0
+    },
+    {
+      "text": "I koala dormono fino a 22 ore al giorno.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Un gruppo di rinoceronti si chiama 'crash'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Le lontre si tengono per mano mentre dormono per non allontanarsi.",
+      "rarity": 0.9
+    },
+    {
+      "text": "L'occhio di uno struzzo è più grande del suo cervello.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Le rane bevono acqua attraverso la pelle.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Una lumaca può dormire per tre anni di fila.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Esistono più di 1.000 varietà di banane.",
+      "rarity": 1.0
+    },
+    {
+      "text": "La sola lingua di una balenottera azzurra può pesare come un elefante.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Un polpo passa attraverso qualsiasi fessura più grande del suo occhio.",
+      "rarity": 1.0
+    },
+    {
+      "text": "La Gioconda non ha sopracciglia.",
+      "rarity": 1.0
+    },
+    {
+      "text": "La maggior parte delle persone non riesce a leccarsi il gomito.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Le farfalle assaggiano con le zampe.",
+      "rarity": 1.0
+    },
+    {
+      "text": "I maiali sono fisicamente incapaci di guardare il cielo.",
+      "rarity": 1.0
+    },
+    {
+      "text": "'Sixth sick sheik's sixth sheep's sick' è ritenuto il più difficile scioglilingua inglese.",
+      "rarity": 0.7
+    },
+    {
+      "text": "I ratti si moltiplicano così in fretta che in 18 mesi due di loro avrebbero oltre un milione di discendenti.",
+      "rarity": 0.8
+    },
+    {
+      "text": "La posizione degli occhi permette all'asino di vedere tutti e quattro gli zoccoli insieme.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Alcuni rossetti contengono scaglie di pesce.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Come le impronte digitali, anche quella della lingua è unica per ciascuno.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Una pulce salta 350 volte la lunghezza del proprio corpo.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Un coccodrillo non può muovere la lingua né masticare.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il cuore della balenottera azzurra è così grande che un uomo potrebbe nuotarne nelle arterie.",
+      "rarity": 0.8
+    },
+    {
+      "text": "La gomma da masticare più antica del mondo ha 9.000 anni.",
+      "rarity": 0.7
+    },
+    {
+      "text": "Uno scarafaggio può vivere settimane senza testa.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Le libellule hanno sei zampe ma non sanno camminare.",
+      "rarity": 0.9
+    },
+    {
+      "text": "In inglese i nomi di tutti i continenti finiscono con la lettera con cui iniziano.",
+      "rarity": 0.8
+    },
+    {
+      "text": "La capacità di memoria del cervello umano supera i quattro terabyte.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Si nasce con 300 ossa, ma da adulti se ne hanno 206.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il tuo scheletro è bagnato.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il muscolo più forte del corpo è la lingua.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il nome più diffuso al mondo è Mohammed.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il monossido di carbonio può uccidere una persona in meno di 15 minuti.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Una persona media si addormenta in sette minuti.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Di notte il cervello è più attivo che di giorno.",
+      "rarity": 1.0
+    },
+    {
+      "text": "È impossibile canticchiare tenendosi il naso.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Uno starnuto viaggia a circa 160 chilometri orari.",
+      "rarity": 1.0
+    },
+    {
+      "text": "La Terra ha 4,54 miliardi di anni.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Le 100 pieghe del cappello da chef rappresentano 100 modi di cucinare un uovo.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Le api sanno riconoscere i volti umani.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Un giorno su Plutone dura 6,4 giorni terrestri, ovvero 153,3 ore.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il luogo più arido della Terra è il deserto di Atacama, in Cile.",
+      "rarity": 1.0
+    },
+    {
+      "text": "L'inno nazionale greco ha 158 strofe.",
+      "rarity": 0.7
+    },
+    {
+      "text": "Dal 1924 al 1984 era illegale possedere un cane nella capitale islandese.",
+      "rarity": 0.8
+    },
+    {
+      "text": "In Svizzera è vietato tenere un solo porcellino d'India.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Il primo videoregistratore era grande quanto un pianoforte.",
+      "rarity": 1.0
+    },
+    {
+      "text": "La goccia di dentifricio sullo spazzolino ha un nome: 'nurdle'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "L'insegna di Hollywood a Los Angeles diceva un tempo 'Hollywoodland'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il primo film vietato ai minori di 13 anni fu 'Alba rossa', nel 1984.",
+      "rarity": 0.9
+    },
+    {
+      "text": "I doppiatori di Topolino e Minni erano sposati nella vita reale.",
+      "rarity": 1.0
+    },
+    {
+      "text": "La forma delle Pringles si chiama 'paraboloide iperbolico'.",
+      "rarity": 0.8
+    },
+    {
+      "text": "L'uccellino di Twitter si chiamava ufficialmente Larry.",
+      "rarity": 1.0
+    },
+    {
+      "text": "La paura delle parole lunghe si chiama 'ippopotomonstrosesquipedaliofobia'.",
+      "rarity": 0.7
+    },
+    {
+      "text": "Il simbolo del cancelletto si chiama tecnicamente 'octothorpe'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il puntino sopra le lettere 'i' e 'j' si chiama 'tittle'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Un gruppo di carlini si chiama 'grumble'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Una lumaca può avere migliaia di minuscoli denti sulla lingua.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il termine ufficiale del 'mal di testa da gelato' è 'ganglioneuralgia sfenopalatina'.",
+      "rarity": 0.8
+    },
+    {
+      "text": "I filamenti dentro la banana si chiamano 'fasci floematici'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Le punte di plastica dei lacci si chiamano 'aghetti'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Lo spazio tra le sopracciglia si chiama 'glabella'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "L'odore dell'erba appena tagliata è un richiamo di soccorso della pianta.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Le 'M' di M&M's stanno per 'Mars' e 'Murrie'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il motore di ricerca Google si chiamava originariamente 'Backrub'.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Un bradipo può metterci un mese a digerire un solo pasto.",
+      "rarity": 1.0
+    },
+    {
+      "text": "La prima sveglia poteva suonare a un solo orario: le 4 del mattino.",
+      "rarity": 1.0
+    },
+    {
+      "text": "La parola inglese più lunga ha 189.819 lettere.",
+      "rarity": 0.6
+    },
+    {
+      "text": "Alcuni pinguini corteggiano il partner con un sassolino.",
+      "rarity": 1.0
+    },
+    {
+      "text": "L'incavo sul fondo di una bottiglia di vino si chiama 'punt'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "La Coca-Cola in origine era verde.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il primo condannato per eccesso di velocità andava a 13 km/h.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Sulla Luna avvengono terremoti lunari.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Le teste dell'Isola di Pasqua hanno un corpo.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Esiste una specie di medusa immortale.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Un singolo filo di spaghetti si chiama 'spaghetto'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il cuore di un colibrì può battere oltre 1.200 volte al minuto.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Nel mondo ci sono più fenicotteri finti che veri.",
+      "rarity": 1.0
+    },
+    {
+      "text": "L'opposto del 'déjà vu' è il 'jamais vu'.",
+      "rarity": 0.8
+    },
+    {
+      "text": "La parola 'nerd' fu coniata dal Dr. Seuss in 'If I Ran the Zoo'.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Il deserto più grande del mondo è l'Antartide.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il più lungo intervallo tra la nascita di due gemelli fu di 87 giorni.",
+      "rarity": 0.7
+    },
+    {
+      "text": "La cornea è una delle due sole parti del corpo prive di vasi sanguigni.",
+      "rarity": 1.0
+    },
+    {
+      "text": "La buca delle lettere più profonda al mondo è a 10 metri sott'acqua, nella baia di Susami in Giappone.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Le stelle marine non hanno né cervello né sangue.",
+      "rarity": 1.0
+    },
+    {
+      "text": "In Giappone esistono oltre 200 gusti di Kit Kat.",
+      "rarity": 1.0
+    },
+    {
+      "text": "La Bank of America si chiamava originariamente Bank of Italy.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Il velo da sposa più lungo superava 63 campi da calcio.",
+      "rarity": 0.7
+    },
+    {
+      "text": "Tutti i cigni d'Inghilterra appartengono alla regina.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il re di cuori è l'unico re senza baffi.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Un fulmine contiene energia sufficiente a tostare 100.000 fette di pane.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Il primo prodotto con codice a barre fu la gomma Wrigley's.",
+      "rarity": 1.0
+    },
+    {
+      "text": "L'alfabeto hawaiano ha 13 lettere.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Il naso umano distingue oltre mille miliardi di odori.",
+      "rarity": 1.0
+    },
+    {
+      "text": "In media una persona fa da quattro a sei sogni per notte.",
+      "rarity": 1.0
+    },
+    {
+      "text": "L'inventore del frisbee fu trasformato in un frisbee dopo la morte.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Il primo computer fu inventato negli anni Quaranta.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il primo SMS fu inviato nel 1992.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il primo video su YouTube fu caricato nel 2005.",
+      "rarity": 1.0
+    },
+    {
+      "text": "La prima e-mail fu inviata nel 1971.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il primo sito web andò online nel 1991.",
+      "rarity": 1.0
+    },
+    {
+      "text": "La prima foto su Instagram ritraeva un cane.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il primo tweet fu inviato nel 2006.",
+      "rarity": 1.0
+    },
+    {
+      "text": "La prima canzone trasmessa alla radio fu 'O Holy Night'.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Il primo video trasmesso su MTV fu 'Video Killed the Radio Star'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il primo videogioco fu creato nel 1958.",
+      "rarity": 1.0
+    },
+    {
+      "text": "La prima console fu il Magnavox Odyssey.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il primo videogioco giocato nello spazio fu Tetris.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Il primo personaggio dei videogiochi fu Pac-Man.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il primo videogioco con una trama fu 'Colossal Cave Adventure'.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Il primo videogioco con una protagonista femminile fu 'Metroid'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il primo videogioco con salvataggio fu 'The Legend of Zelda'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il primo videogioco con modalità multigiocatore fu 'Pong'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il primo videogioco con un mondo 3D fu 'Battlezone'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il primo videogioco in prima persona fu 'Maze War'.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Il primo videogioco con sistema di coperture fu 'Kill Switch'.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Il primo videogioco con salute rigenerante fu 'Halo: Combat Evolved'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il primo videogioco con motore fisico fu 'Jurassic Park: Trespasser'.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Il primo videogioco con ciclo giorno/notte fu 'The Legend of Zelda: Ocarina of Time'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il primo videogioco con trama ramificata fu 'Dragon's Lair'.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Il primo videogioco con sistema di scelte morali fu 'Fable'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il primo videogioco con sistema di creazione fu 'Minecraft'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il primo videogioco con modalità battle royale fu 'H1Z1: King of the Kill'.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Il primo videogioco con season pass fu 'L.A. Noire'.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Il primo videogioco con casse premio fu 'FIFA 09'.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Il primo videogioco con microtransazioni fu 'The Elder Scrolls IV: Oblivion'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il primo servizio di cloud gaming fu 'OnLive'.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Il primo videogioco in realtà virtuale fu 'Dactyl Nightmare'.",
+      "rarity": 0.7
+    },
+    {
+      "text": "Il primo videogioco in realtà aumentata fu 'ARQuake'.",
+      "rarity": 0.7
+    },
+    {
+      "text": "Il primo sistema di controllo di movimento fu il Nintendo Wii.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il primo videogioco con comandi vocali fu 'Hey You, Pikachu!'.",
+      "rarity": 0.9
+    },
+    {
+      "text": "La prima console con touch screen fu il Nintendo DS.",
+      "rarity": 1.0
+    },
+    {
+      "text": "La prima console con doppio schermo fu il Nintendo DS.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il primo videogioco con vibrazione fu 'Star Fox 64'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "La prima console con memory card fu il Neo Geo.",
+      "rarity": 0.9
+    },
+    {
+      "text": "La prima console con CD-ROM fu il Sega CD.",
+      "rarity": 1.0
+    },
+    {
+      "text": "La prima console con DVD-ROM fu la PlayStation 2.",
+      "rarity": 1.0
+    },
+    {
+      "text": "La prima console con Blu-ray fu la PlayStation 3.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il primo videogioco con multigiocatore online fu 'Snipes'.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Il primo mondo online persistente fu 'MUD1'.",
+      "rarity": 0.7
+    },
+    {
+      "text": "Il primo videogioco con interfaccia grafica fu 'The Oregon Trail'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il primo videogioco punta e clicca fu 'Maniac Mansion'.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Il primo gioco di strategia in tempo reale fu 'Dune II'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il primo gioco tower defense fu 'Rampart'.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Il primo gioco stealth fu '005'.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Il primo survival horror fu 'Resident Evil'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il primo gioco musicale fu 'PaRappa the Rapper'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il primo party game fu 'Mario Party'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il primo simulatore di vita fu 'Little Computer People'.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Il primo simulatore di animali domestici fu 'Petz'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il primo dating sim fu 'Dōkyūsei'.",
+      "rarity": 0.7
+    },
+    {
+      "text": "La prima visual novel fu 'The Portopia Serial Murder Case'.",
+      "rarity": 0.7
+    },
+    {
+      "text": "Il primo film interattivo fu 'Astron Belt'.",
+      "rarity": 0.7
+    },
+    {
+      "text": "Il primo videogioco con video a schermo intero fu 'Dragon's Lair'.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Il primo videogioco in cel-shading fu 'Jet Set Radio'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il primo videogioco in pixel art fu 'Space Invaders'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il primo videogioco in voxel fu 'Comanche: Maximum Overkill'.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Il primo videogioco con generazione procedurale fu 'Rogue'.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Il primo videogioco con difficoltà dinamica fu 'Zanac'.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Il primo videogioco con modalità New Game Plus fu 'Chrono Trigger'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il primo videogioco con sistema di obiettivi fu 'E-Motion'.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Il primo videogioco con classifica fu 'Star Fire'.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Il primo videogioco con sistema di replay fu 'Replay'.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Il primo videogioco con modalità foto fu 'Gran Turismo 4'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il primo videogioco con creatore di personaggi fu 'The Character Creator'.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Il primo videogioco con editor di livelli fu 'Lode Runner'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il primo videogioco con una comunità di modder fu 'Doom'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il primo torneo di esport furono le 'Intergalactic Spacewar Olympics'.",
+      "rarity": 0.7
+    },
+    {
+      "text": "Il primo videogioco con una comunità di speedrun fu 'Dragster'.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Il primo videogioco con un glitch fu 'Computer Space'.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Il primo videogioco con un easter egg fu 'Adventure'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il primo codice di trucchi fu il 'Konami Code'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il primo videogioco con una demo fu 'Super Mario Bros. 3'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il primo videogioco con un trailer fu 'Super Mario 64'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il primo videogioco a ricevere una recensione fu 'Computer Space'.",
+      "rarity": 0.9
+    },
+    {
+      "text": "La prima rivista di videogiochi fu 'Computer and Video Games'.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Il primo programma TV sui videogiochi fu 'Video Power'.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Il primo film tratto da un videogioco fu 'Super Mario Bros.'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il primo parco a tema sui videogiochi fu 'Nintendo Land'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il primo museo dei videogiochi fu 'The Art of Video Games'.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Il primo videogioco legato a un Premio Nobel fu 'Foldit'.",
+      "rarity": 0.7
+    },
+    {
+      "text": "Il primo videogioco nel Guinness dei primati fu 'Pac-Man'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il primo videogioco con una stella sulla Walk of Fame fu 'Pac-Man'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il primo videogioco su un francobollo fu 'Space Invaders'.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Il primo videogioco su una moneta fu 'Pong'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il primo videogioco diventato giocattolo fu 'Pong'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il primo videogioco su una scatola di cereali fu 'Pac-Man'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il primo videogioco diventato bibita fu 'Donkey Kong'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il primo videogioco diventato caramella fu 'Pac-Man'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il primo videogioco con un fumetto fu 'Pac-Man'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il primo videogioco con un romanzo fu 'Pac-Man'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il primo videogioco con un manga fu 'Pac-Man'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il primo videogioco con un anime fu 'Pac-Man'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il primo videogioco con una colonna sonora fu 'Pac-Man'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il primo videogioco con un concerto fu 'The Legend of Zelda'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il primo videogioco con un musical fu 'Pac-Man'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il primo videogioco con uno spettacolo teatrale fu 'Pac-Man'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il primo videogioco con un balletto fu 'Pac-Man'.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Il primo videogioco con un'opera lirica fu 'Pac-Man'.",
+      "rarity": 1.0
+    }
+  ]
+}

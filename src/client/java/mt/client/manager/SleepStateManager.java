@@ -1,12 +1,12 @@
 package mt.client.manager;
 
-import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.player.LocalPlayer;
 
 public class SleepStateManager {
     private boolean isSleeping = false;
     private boolean wasSleeping = false;
 
-    public void tick(ClientPlayerEntity player) {
+    public void tick(LocalPlayer player) {
         wasSleeping = isSleeping;
         isSleeping = player != null && player.isSleeping();
     }
@@ -23,3 +23,4 @@ public class SleepStateManager {
         return !isSleeping && wasSleeping;
     }
 }
+

@@ -1,0 +1,32 @@
+{
+  "entries": [
+    {
+      "text": "Non puoi dormire in un luogo così spaventoso.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Un brivido ti corre lungo la schiena.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Sei perseguitato dagli incubi.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Rendi il tuo giaciglio più confortevole.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Qualcosa ti osserva dalle ombre.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Stanotte l'oscurità è soffocante.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Riposare è impossibile in questo luogo tetro.",
+      "rarity": 1.0
+    }
+  ]
+}

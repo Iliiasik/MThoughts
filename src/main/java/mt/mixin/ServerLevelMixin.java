@@ -1,9 +1,9 @@
 package mt.mixin;
 
 import mt.config.MidnightThoughtsConfig;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.stat.Stats;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.stats.Stats;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -11,22 +11,21 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.function.BooleanSupplier;
 
-@Mixin(ServerWorld.class)
+@Mixin(ServerLevel.class)
 public class ServerLevelMixin {
     @Inject(
             method = "tick",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/server/world/ServerWorld;wakeSleepingPlayers()V",
+                    target = "Lnet/minecraft/server/level/ServerLevel;wakeUpAllPlayers()V",
                     shift = At.Shift.AFTER
             )
     )
     private void onAfterWakeUpAllPlayers(BooleanSupplier hasTimeLeft, CallbackInfo ci) {
         if (!MidnightThoughtsConfig.getInstance().getServer().resetPhantomTimerForNonSleepers) return;
-        ServerWorld world = (ServerWorld) (Object) this;
-        for (ServerPlayerEntity player : world.getPlayers()) {
+        for (ServerPlayer player : ((ServerLevel) (Object) this).players()) {
             if (!player.isSpectator()) {
-                player.resetStat(Stats.CUSTOM.getOrCreateStat(Stats.TIME_SINCE_REST));
+                player.resetStat(Stats.CUSTOM.get(Stats.TIME_SINCE_REST));
             }
         }
     }

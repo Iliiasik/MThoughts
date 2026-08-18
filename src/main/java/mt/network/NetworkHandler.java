@@ -2,80 +2,93 @@ package mt.network;
 
 import mt.network.packet.DailySummaryPacket;
 import mt.network.packet.MoonPhasePacket;
-import mt.network.packet.RequestMoonPhasePacket;
 import mt.network.packet.SleepingPlayersPacket;
-import mt.network.packet.SummaryAcknowledgePacket;
 import mt.network.packet.SyncAchievementsPacket;
 import mt.network.packet.SyncConfigPacket;
 import mt.network.packet.UserContentPacket;
 import mt.network.packet.WellRestedPacket;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.world.World;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.Level;
 
 import java.util.Objects;
+import java.util.function.BiConsumer;
 
 public class NetworkHandler {
+    private static final String NAMESPACE = "midnightthoughts";
+
+    public static final ResourceLocation DAILY_SUMMARY = id("daily_summary");
+    public static final ResourceLocation WELL_RESTED = id("well_rested");
+    public static final ResourceLocation SLEEPING_PLAYERS = id("sleeping_players");
+    public static final ResourceLocation USER_CONTENT = id("user_content");
+    public static final ResourceLocation SYNC_ACHIEVEMENTS = id("sync_achievements");
+    public static final ResourceLocation SYNC_CONFIG = id("sync_config");
+    public static final ResourceLocation MOON_PHASE = id("moon_phase");
+    public static final ResourceLocation REQUEST_MOON_PHASE = id("request_moon_phase");
+
+    private static MinecraftServer server;
+
+    public static void setServer(MinecraftServer instance) {
+        server = instance;
+    }
+
+    private static ResourceLocation id(String path) {
+        return new ResourceLocation(NAMESPACE, path);
+    }
 
     public static void registerPackets() {
-        ServerPlayNetworking.registerGlobalReceiver(
-                SummaryAcknowledgePacket.ID,
-                (server, player, handler, buf, responseSender) -> {}
-        );
-        ServerPlayNetworking.registerGlobalReceiver(
-                RequestMoonPhasePacket.ID,
-                (server, player, handler, buf, responseSender) -> {
-                    ServerWorld overworld = Objects.requireNonNull(player.getServer()).getWorld(World.OVERWORLD);
-                    int moonPhase = overworld != null ? (int) (overworld.getTimeOfDay() / 24000L % 8L) : 0;
+        ServerPlayNetworking.registerGlobalReceiver(REQUEST_MOON_PHASE,
+                (server, player, handler, buf, responseSender) -> server.execute(() -> {
+                    ServerLevel overworld = Objects.requireNonNull(player.getServer()).getLevel(Level.OVERWORLD);
+                    int moonPhase = overworld != null ? (int) (overworld.getDayTime() / 24000L % 8L) : 0;
                     sendMoonPhase(player, new MoonPhasePacket(moonPhase));
-                }
-        );
+                }));
     }
 
-    public static void sendDailySummary(ServerPlayerEntity player, DailySummaryPacket packet) {
-        PacketByteBuf buf = PacketByteBufs.create();
-        DailySummaryPacket.encode(packet, buf);
-        assert DailySummaryPacket.ID != null;
-        ServerPlayNetworking.send(player, DailySummaryPacket.ID, buf);
+    public static void sendDailySummary(ServerPlayer player, DailySummaryPacket packet) {
+        send(player, DAILY_SUMMARY, packet, DailySummaryPacket::encode);
     }
 
-    public static void sendWellRested(ServerPlayerEntity player, WellRestedPacket packet) {
-        PacketByteBuf buf = PacketByteBufs.create();
-        WellRestedPacket.encode(packet, buf);
-        assert WellRestedPacket.ID != null;
-        ServerPlayNetworking.send(player, WellRestedPacket.ID, buf);
+    public static void sendWellRested(ServerPlayer player, WellRestedPacket packet) {
+        send(player, WELL_RESTED, packet, WellRestedPacket::encode);
     }
 
-    public static void sendSleepingPlayers(ServerPlayerEntity player, SleepingPlayersPacket packet) {
-        PacketByteBuf buf = PacketByteBufs.create();
-        SleepingPlayersPacket.encode(packet, buf);
-        ServerPlayNetworking.send(player, SleepingPlayersPacket.ID, buf);
+    public static void sendSleepingPlayers(ServerPlayer player, SleepingPlayersPacket packet) {
+        send(player, SLEEPING_PLAYERS, packet, SleepingPlayersPacket::encode);
     }
 
-    public static void sendUserContent(ServerPlayerEntity player, UserContentPacket packet) {
-        PacketByteBuf buf = PacketByteBufs.create();
-        UserContentPacket.encode(packet, buf);
-        ServerPlayNetworking.send(player, UserContentPacket.ID, buf);
+    public static void sendUserContent(ServerPlayer player, UserContentPacket packet) {
+        send(player, USER_CONTENT, packet, UserContentPacket::encode);
     }
 
-    public static void sendAchievements(ServerPlayerEntity player, SyncAchievementsPacket packet) {
-        PacketByteBuf buf = PacketByteBufs.create();
-        SyncAchievementsPacket.encode(packet, buf);
-        ServerPlayNetworking.send(player, SyncAchievementsPacket.ID, buf);
+    public static void sendAchievements(ServerPlayer player, SyncAchievementsPacket packet) {
+        send(player, SYNC_ACHIEVEMENTS, packet, SyncAchievementsPacket::encode);
     }
 
-    public static void sendConfig(ServerPlayerEntity player, SyncConfigPacket packet) {
-        PacketByteBuf buf = PacketByteBufs.create();
-        SyncConfigPacket.encode(packet, buf);
-        ServerPlayNetworking.send(player, SyncConfigPacket.ID, buf);
+    public static void sendConfig(ServerPlayer player, SyncConfigPacket packet) {
+        send(player, SYNC_CONFIG, packet, SyncConfigPacket::encode);
     }
 
-    public static void sendMoonPhase(ServerPlayerEntity player, MoonPhasePacket packet) {
-        PacketByteBuf buf = PacketByteBufs.create();
-        MoonPhasePacket.encode(packet, buf);
-        ServerPlayNetworking.send(player, MoonPhasePacket.ID, buf);
+    public static void sendMoonPhase(ServerPlayer player, MoonPhasePacket packet) {
+        send(player, MOON_PHASE, packet, MoonPhasePacket::encode);
+    }
+
+    public static void sendSleepingPlayersToAll(SleepingPlayersPacket packet) {
+        if (server == null) return;
+        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+            sendSleepingPlayers(player, packet);
+        }
+    }
+
+    private static <T> void send(ServerPlayer player, ResourceLocation channel, T packet,
+                                 BiConsumer<T, FriendlyByteBuf> encoder) {
+        FriendlyByteBuf buf = PacketByteBufs.create();
+        encoder.accept(packet, buf);
+        ServerPlayNetworking.send(player, channel, buf);
     }
 }

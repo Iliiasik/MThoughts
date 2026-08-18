@@ -1,9 +1,9 @@
 package mt.client.model;
 
 public record Slide(
-    String text,
-    SlideCategory category,
-    float rarity
+        String text,
+        SlideCategory category,
+        float rarity
 ) {
     public static Slide of(String text, SlideCategory category) {
         return new Slide(text, category, 1.0f);

@@ -1,17 +1,17 @@
 package mt.client.ui.summary;
 
 import mt.network.packet.DailySummaryPacket;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.network.PlayerListEntry;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.multiplayer.PlayerInfo;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
 
 public class PlayerRowRenderer {
 
-    public static void render(DrawContext context, TextRenderer textRenderer, DailySummaryPacket.PlayerDailySummary player,
+    public static void render(GuiGraphics context, Font textRenderer, DailySummaryPacket.PlayerDailySummary player,
                               int x, int y, SummaryDimensions dims, float fadeAlpha, long animationStartTime,
                               List<AchievementTooltipArea> achievementAreas) {
         int contentPaddingSides = dims.s(60);
@@ -43,37 +43,43 @@ public class PlayerRowRenderer {
         }
     }
 
-    private static void renderRowBackground(DrawContext context, DailySummaryPacket.PlayerDailySummary player,
+    private static void renderRowBackground(GuiGraphics context, DailySummaryPacket.PlayerDailySummary player,
                                             int x, int y, int rowWidth, int rowHeight, float fadeAlpha) {
         int texW = SummaryConstants.ROW_TEXTURE_WIDTH;
         int texH = SummaryConstants.ROW_TEXTURE_HEIGHT;
         RenderHelper.ScaledBlit sb = RenderHelper.computeScaledBlit(y, rowWidth, rowHeight, texW, texH);
         int renderX = x + (rowWidth - sb.renderW()) / 2;
 
-        Identifier rowTex = player.isMvp() ? SummaryConstants.getMvpRowTexture() : SummaryConstants.getRowTexture();
+        ResourceLocation rowTex = player.isMvp() ? SummaryConstants.getMvpRowTexture() : SummaryConstants.getRowTexture();
         RenderHelper.blitTexture(context, rowTex, renderX, sb.renderY(), sb.renderW(), sb.renderH(), fadeAlpha);
     }
 
-    private static void renderHead(DrawContext context, DailySummaryPacket.PlayerDailySummary player,
+    private static void renderHead(GuiGraphics context, DailySummaryPacket.PlayerDailySummary player,
                                    int x, int y, int rowHeight, int headSize, int leftPad) {
+        var connection = Minecraft.getInstance().getConnection();
+        if (connection == null) return;
+
+        String name = player.playerName();
+        if (name == null) return;
+
+        PlayerInfo playerEntry = null;
+        for (PlayerInfo info : connection.getOnlinePlayers()) {
+            if (name.equals(info.getProfile().getName())) {
+                playerEntry = info;
+                break;
+            }
+        }
+        if (playerEntry == null) return;
+
         int skinX = x + leftPad;
         int headY = y + (rowHeight - headSize) / 2;
-        try {
-            if (MinecraftClient.getInstance().getNetworkHandler() != null) {
-                PlayerListEntry playerEntry = MinecraftClient.getInstance().getNetworkHandler()
-                        .getPlayerList().stream()
-                        .filter(e -> e.getProfile().getName().equals(player.playerName()))
-                        .findFirst().orElse(null);
-                if (playerEntry != null) {
-                    Identifier skin = playerEntry.getSkinTexture();
-                    context.drawTexture(skin, skinX, headY, headSize, headSize, 8, 8, 8, 8, 64, 64);
-                    context.drawTexture(skin, skinX, headY, headSize, headSize, 40, 8, 8, 8, 64, 64);
-                }
-            }
-        } catch (Exception ignored) {}
+        ResourceLocation skin = playerEntry.getSkinLocation();
+
+        context.blit(skin, skinX, headY, headSize, headSize, 8, 8, 8, 8, 64, 64);
+        context.blit(skin, skinX, headY, headSize, headSize, 40, 8, 8, 8, 64, 64);
     }
 
-    private static void renderNameBadge(DrawContext context, TextRenderer textRenderer,
+    private static void renderNameBadge(GuiGraphics context, Font textRenderer,
                                         DailySummaryPacket.PlayerDailySummary player,
                                         int x, int y, int rowWidth, int rowHeight,
                                         SummaryDimensions dims, float fadeAlpha) {
@@ -97,7 +103,7 @@ public class PlayerRowRenderer {
         int maxTextW = (int) ((renderW - dims.s(6)) / textScale);
         name = RenderUtils.truncateWithEllipsis(textRenderer, name, maxTextW);
 
-        int textW = (int) (textRenderer.getWidth(name) * textScale);
+        int textW = (int) (textRenderer.width(name) * textScale);
         int textX = badgeX + (renderW - textW) / 2;
         int textY = badgeY + (renderH - (int) (8 * textScale)) / 2;
         RenderUtils.renderScaledText(context, textRenderer, name, textX, textY, nameColor, textScale, true);

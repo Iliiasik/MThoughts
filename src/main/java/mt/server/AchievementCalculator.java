@@ -7,7 +7,6 @@ import java.util.List;
 
 public class AchievementCalculator {
     private static final MidnightThoughtsConfig CONFIG = MidnightThoughtsConfig.getInstance();
-    private static final int MAX_SAFE_VALUE = Integer.MAX_VALUE / 2;
 
     public static List<String> calculateAchievements(
             DailyPlayerStats.DailyDelta delta,
@@ -107,26 +106,13 @@ public class AchievementCalculator {
 
     private static int calculateMvpScore(PlayerSummaryData player) {
         MidnightThoughtsConfig.MvpSettings mvp = CONFIG.getMvp();
-        long score = 0;
-
-        score += (long) safeDivide(player.distanceWalked(), 100) / 100 * mvp.pointsPerDistance100;
-        score += (long) player.blocksDestroyed() * mvp.pointsPerBlock;
-        score += (long) player.mobsKilled() * mvp.pointsPerMob;
-        score += (long) safeDivide(player.jumps(), 10) * mvp.pointsPerJump10;
-        score -= (long) player.deaths() * mvp.penaltyPerDeath;
-
-        return clampValue((int) Math.max(0, score));
-    }
-
-    private static int safeDivide(int value, int divisor) {
-        if (divisor == 0) return 0;
-        if (value > MAX_SAFE_VALUE) return MAX_SAFE_VALUE / divisor;
-        return value / divisor;
-    }
-
-    private static int clampValue(int value) {
-        if (value < 0) return 0;
-        return Math.min(value, MAX_SAFE_VALUE);
+        int score = 0;
+        score += (player.distanceWalked() / 100) / 100 * mvp.pointsPerDistance100;
+        score += player.blocksDestroyed() * mvp.pointsPerBlock;
+        score += player.mobsKilled() * mvp.pointsPerMob;
+        score += player.jumps() / 10 * mvp.pointsPerJump10;
+        score -= player.deaths() * mvp.penaltyPerDeath;
+        return Math.max(0, score);
     }
 
     public record PlayerSummaryData(
