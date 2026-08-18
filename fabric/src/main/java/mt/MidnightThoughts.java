@@ -52,17 +52,6 @@ public class MidnightThoughts implements ModInitializer {
             }
         });
 
-        EntitySleepEvents.START_SLEEPING.register((entity, _) -> {
-            if (!(entity instanceof ServerPlayer serverPlayer)) return;
-            SleepTracker tracker = DailyStatsManager.getSleepTracker(serverPlayer.level().getServer());
-            if (tracker != null) {
-                tracker.markPlayerSleeping(serverPlayer.getUUID());
-            }
-            if (ComfortCalculator.isNightmareMode(serverPlayer)) {
-                MTEvents.nightmare(serverPlayer, ComfortCalculator.calculateComfortLevel(serverPlayer));
-            }
-        });
-
         EntitySleepEvents.STOP_SLEEPING.register((entity, _) -> {
             if (!(entity instanceof ServerPlayer serverPlayer)) return;
             SleepTracker tracker = DailyStatsManager.getSleepTracker(serverPlayer.level().getServer());
@@ -79,6 +68,14 @@ public class MidnightThoughts implements ModInitializer {
                         true
                 );
                 return Player.BedSleepingProblem.OTHER_PROBLEM;
+            }
+
+            SleepTracker tracker = DailyStatsManager.getSleepTracker(serverPlayer.level().getServer());
+            if (tracker != null) {
+                tracker.markPlayerSleeping(serverPlayer.getUUID());
+            }
+            if (ComfortCalculator.isNightmareMode(serverPlayer)) {
+                MTEvents.nightmare(serverPlayer, ComfortCalculator.calculateComfortLevel(serverPlayer));
             }
             return null;
         });
