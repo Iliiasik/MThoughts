@@ -1,9 +1,10 @@
 package mt.server;
 
+import mt.config.MidnightThoughtsConfig;
 import mt.network.NetworkHandler;
 import mt.network.packet.DailySummaryPacket;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -29,19 +30,20 @@ public class DailyStatsManager {
     }
 
     public static void resetDailyStats(MinecraftServer server, Set<UUID> sleepingPlayers) {
-        for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
-            if (!sleepingPlayers.contains(player.getUuid())) continue;
-            UUID uuid = player.getUuid();
+        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+            if (!sleepingPlayers.contains(player.getUUID())) continue;
+            UUID uuid = player.getUUID();
             DailyPlayerStats stats = getOrCreateStats(uuid);
             stats.captureCurrentStats(player);
             stats.saveToStorage(server);
         }
+        StatsStorage.flush();
     }
 
     public static void showDailySummary(MinecraftServer server, Set<UUID> sleepingPlayers) {
-        List<ServerPlayerEntity> sleptPlayers = new ArrayList<>();
-        for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
-            if (sleepingPlayers.contains(player.getUuid())) {
+        List<ServerPlayer> sleptPlayers = new ArrayList<>();
+        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+            if (sleepingPlayers.contains(player.getUUID())) {
                 sleptPlayers.add(player);
             }
         }
@@ -51,11 +53,11 @@ public class DailyStatsManager {
         Map<String, DailyPlayerStats.DailyDelta> deltaMap = new HashMap<>();
         Map<String, StatsStorage.SavedPlayerStats> savedStatsMap = new HashMap<>();
 
-        for (ServerPlayerEntity player : sleptPlayers) {
-            UUID uuid = player.getUuid();
+        for (ServerPlayer player : sleptPlayers) {
+            UUID uuid = player.getUUID();
             DailyPlayerStats stats = getOrCreateStats(uuid);
             DailyPlayerStats.DailyDelta delta = stats.calculateDelta(player);
-            String playerName = player.getGameProfile().getName();
+            String playerName = player.getName().getString();
 
             StatsStorage.SavedPlayerStats savedStats = StatsStorage.loadPlayerStats(server, uuid);
             if (savedStats == null) {
@@ -75,18 +77,18 @@ public class DailyStatsManager {
             ));
         }
 
-        String mvpName = AchievementCalculator.determineMvp(playerDataList);
-
+        boolean mvpEnabled = MidnightThoughtsConfig.getInstance().getMvp().enabled;
+        String mvpName = mvpEnabled ? AchievementCalculator.determineMvp(playerDataList) : null;
         List<DailySummaryPacket.PlayerDailySummary> summaries = new ArrayList<>();
 
-        for (ServerPlayerEntity player : sleptPlayers) {
-            String playerName = player.getGameProfile().getName();
+        for (ServerPlayer player : sleptPlayers) {
+            String playerName = player.getName().getString();
             DailyPlayerStats.DailyDelta delta = deltaMap.get(playerName);
             StatsStorage.SavedPlayerStats savedStats = savedStatsMap.get(playerName);
 
             List<String> achievements = AchievementCalculator.calculateAchievements(delta, savedStats);
-            boolean isMvp = playerName.equals(mvpName);
 
+            boolean isMvp = playerName.equals(mvpName);
             summaries.add(new DailySummaryPacket.PlayerDailySummary(
                     playerName,
                     delta.blocksDestroyed(),
@@ -99,15 +101,17 @@ public class DailyStatsManager {
                     achievements
             ));
 
-            StatsStorage.savePlayerStats(server, player.getUuid(), savedStats);
+            StatsStorage.savePlayerStats(server, player.getUUID(), savedStats);
         }
+        StatsStorage.flush();
 
         DailySummaryPacket packet = new DailySummaryPacket(summaries);
-        for (ServerPlayerEntity player : sleptPlayers) {
+        for (ServerPlayer player : sleptPlayers) {
             NetworkHandler.sendDailySummary(player, packet);
-            boolean isMvp = player.getGameProfile().getName().equals(mvpName);
+            boolean isMvp = player.getName().getString().equals(mvpName);
             if (isMvp) {
                 WellRestedEffect.applyMvpToPlayer(player);
+                mt.api.event.MvpDeterminedCallback.EVENT.invoker().onMvpDetermined(player);
             } else {
                 int comfortLevel = ComfortCalculator.calculateComfortLevel(player);
                 WellRestedEffect.applyToPlayer(player, comfortLevel);
@@ -120,41 +124,39 @@ public class DailyStatsManager {
         resetDailyStats(server, sleepingPlayers);
     }
 
-    public static void onPlayerJoin(ServerPlayerEntity player) {
-        MinecraftServer server = player.getEntityWorld().getServer();
-        DailyPlayerStats stats = getOrCreateStats(player.getUuid());
-
-        if (server != null) {
-            stats.loadFromStorage(server);
-        }
-
-        StatsStorage.SavedPlayerStats saved = server != null ?
-                StatsStorage.loadPlayerStats(server, player.getUuid()) : null;
-
-        if (saved == null) {
-            stats.captureCurrentStats(player);
-            if (server != null) {
-                stats.saveToStorage(server);
-            }
-        }
+    public static void onPlayerJoin(ServerPlayer player) {
+        MinecraftServer server = player.server;
+        DailyPlayerStats stats = getOrCreateStats(player.getUUID());
+        stats.loadFromStorage(server);
+        markPlayerListChanged(server);
     }
 
-    public static void onPlayerLeave(ServerPlayerEntity player) {
-        MinecraftServer server = player.getEntityWorld().getServer();
-        DailyPlayerStats stats = dailyStats.get(player.getUuid());
-
-        if (stats != null && server != null) {
+    public static void onPlayerLeave(ServerPlayer player) {
+        MinecraftServer server = player.server;
+        DailyPlayerStats stats = dailyStats.get(player.getUUID());
+        if (stats != null) {
             stats.saveToStorage(server);
+            StatsStorage.flush();
+        }
+        markPlayerListChanged(server);
+    }
+
+    private static void markPlayerListChanged(MinecraftServer server) {
+        SleepTracker tracker = sleepTrackers.get(server);
+        if (tracker != null) {
+            tracker.markPlayerListChanged();
         }
     }
 
     public static void onServerStop(MinecraftServer server) {
-        for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
-            DailyPlayerStats stats = dailyStats.get(player.getUuid());
+        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+            DailyPlayerStats stats = dailyStats.get(player.getUUID());
             if (stats != null) {
                 stats.saveToStorage(server);
             }
         }
+        StatsStorage.unload();
+        ComfortCalculator.clearCache();
         dailyStats.clear();
         sleepTrackers.remove(server);
     }

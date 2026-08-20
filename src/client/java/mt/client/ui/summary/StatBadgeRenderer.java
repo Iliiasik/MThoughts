@@ -1,19 +1,18 @@
 package mt.client.ui.summary;
 
 import mt.client.config.ClientConfig;
-import mt.client.config.ThemeColors;
 import mt.client.util.NumberFormatter;
 import mt.network.packet.DailySummaryPacket;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 
 public class StatBadgeRenderer {
 
-    private record StatEntry(Identifier icon, String labelKey, int value) {}
+    private record StatEntry(ResourceLocation icon, String labelKey, int value) {}
 
-    public static void render(DrawContext context, TextRenderer textRenderer, DailySummaryPacket.PlayerDailySummary player,
+    public static void render(GuiGraphics context, Font textRenderer, DailySummaryPacket.PlayerDailySummary player,
                               int x, int y, int width, int height, SummaryDimensions dims,
                               float fadeAlpha, long animationStartTime) {
         float animProgress = AnimationHelper.getProgress(animationStartTime);
@@ -40,7 +39,7 @@ public class StatBadgeRenderer {
         float textScale = badgeDims.textScale();
 
         String theme = ClientConfig.getInstance().getEffectiveTheme();
-        ThemeColors.ThemeColor colors = ThemeColors.getThemeColors(theme);
+        int textColorFromTheme = ThemeColors.getThemeColors(theme).statTextColor();
 
         int colGap = Math.max(3, dims.s(5));
         int colW = (width - colGap) / 2;
@@ -53,20 +52,20 @@ public class StatBadgeRenderer {
             int rowY = startY + i * (badgeH + rowSpacing);
             if (rowY + badgeH > y + height) break;
             renderBadge(context, textRenderer, x, rowY, colW, badgeH,
-                    stats[i].icon(), stats[i].labelKey(), stats[i].value(), iconSize, textScale, fadeAlpha, colors);
+                    stats[i].icon(), stats[i].labelKey(), stats[i].value(), iconSize, textScale, fadeAlpha, textColorFromTheme);
         }
         for (int i = 0; i < 3; i++) {
             int rowY = startY + i * (badgeH + rowSpacing);
             if (rowY + badgeH > y + height) break;
             renderBadge(context, textRenderer, col2X, rowY, colW, badgeH,
-                    stats[i + 3].icon(), stats[i + 3].labelKey(), stats[i + 3].value(), iconSize, textScale, fadeAlpha, colors);
+                    stats[i + 3].icon(), stats[i + 3].labelKey(), stats[i + 3].value(), iconSize, textScale, fadeAlpha, textColorFromTheme);
         }
     }
 
-    private static void renderBadge(DrawContext context, TextRenderer textRenderer,
+    private static void renderBadge(GuiGraphics context, Font textRenderer,
                                     int x, int y, int width, int height,
-                                    Identifier icon, String labelKey, int value,
-                                    int iconSize, float textScale, float fadeAlpha, ThemeColors.ThemeColor colors) {
+                                    ResourceLocation icon, String labelKey, int value,
+                                    int iconSize, float textScale, float fadeAlpha, int themeTextColor) {
         int texW = SummaryConstants.STAT_BADGE_TEXTURE_WIDTH;
         int texH = SummaryConstants.STAT_BADGE_TEXTURE_HEIGHT;
         RenderHelper.ScaledBlit sb = RenderHelper.computeScaledBlit(y, width, height, texW, texH);
@@ -77,17 +76,17 @@ public class StatBadgeRenderer {
         int padX = Math.max(3, (int) (4 * ((float) sb.renderH() / texH)));
         int iconY = y + (height - iconSize) / 2;
 
-        RenderHelper.blitTextureSimple(context, icon, x + padX, iconY, iconSize, iconSize, iconSize, iconSize, fadeAlpha);
+        RenderHelper.blitTexture(context, icon, x + padX, iconY, iconSize, iconSize, fadeAlpha);
 
         int textY = y + (height - (int) (8 * textScale)) / 2;
         int alpha = (int) (fadeAlpha * 255);
-        int textColor = (alpha << 24) | colors.statTextColor();
+        int textColor = (alpha << 24) | themeTextColor;
 
-        String label = Text.translatable(labelKey).getString();
+        String label = Component.translatable(labelKey).getString();
         RenderUtils.renderScaledText(context, textRenderer, label, x + padX + iconSize + padX, textY, textColor, textScale, true);
 
         String valueStr = NumberFormatter.formatLargeNumber(value);
-        int valueW = (int) (textRenderer.getWidth(valueStr) * textScale);
+        int valueW = (int) (textRenderer.width(valueStr) * textScale);
         int valueX = x + sb.renderW() - padX - valueW;
         RenderUtils.renderScaledText(context, textRenderer, valueStr, valueX, textY, textColor, textScale, true);
     }

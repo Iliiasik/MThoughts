@@ -1,0 +1,84 @@
+{
+  "entries": [
+    {
+      "text": "Wach auf.",
+      "rarity": 0.05
+    },
+    {
+      "text": "Sie beobachten dich.",
+      "rarity": 0.03
+    },
+    {
+      "text": "Das ist kein Traum.",
+      "rarity": 0.04
+    },
+    {
+      "text": "Dreh dich nicht um.",
+      "rarity": 0.03
+    },
+    {
+      "text": "Die Nacht erinnert sich an alles.",
+      "rarity": 0.05
+    },
+    {
+      "text": "Du warst schon einmal hier.",
+      "rarity": 0.04
+    },
+    {
+      "text": "Etwas steht hinter dir.",
+      "rarity": 0.02
+    },
+    {
+      "text": "Die Leere starrt zurück.",
+      "rarity": 0.03
+    },
+    {
+      "text": "Hier existiert keine Zeit.",
+      "rarity": 0.05
+    },
+    {
+      "text": "Du hast die Tür offen gelassen.",
+      "rarity": 0.04
+    },
+    {
+      "text": "Es ist kein Spiel.",
+      "rarity": 0.04
+    },
+    {
+      "text": "Du bist nicht allein.",
+      "rarity": 0.03
+    },
+    {
+      "text": "Die Simulation bricht zusammen.",
+      "rarity": 0.02
+    },
+    {
+      "text": "Schau hinter den Vorhang.",
+      "rarity": 0.03
+    },
+    {
+      "text": "Das Flüstern hat einen Namen.",
+      "rarity": 0.02
+    },
+    {
+      "text": "Traue deinen Augen nicht.",
+      "rarity": 0.04
+    },
+    {
+      "text": "Der Himmel ist eine Lüge.",
+      "rarity": 0.03
+    },
+    {
+      "text": "Du bist das Monster.",
+      "rarity": 0.01
+    },
+    {
+      "text": "Die Wände atmen.",
+      "rarity": 0.02
+    },
+    {
+      "text": "Es kennt deinen Namen.",
+      "rarity": 0.01
+    }
+  ]
+}

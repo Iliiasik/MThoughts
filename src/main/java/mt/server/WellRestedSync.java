@@ -2,7 +2,7 @@ package mt.server;
 
 import mt.network.NetworkHandler;
 import mt.network.packet.WellRestedPacket;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
 
 import java.util.Map;
 import java.util.UUID;
@@ -22,7 +22,8 @@ public final class WellRestedSync {
 
     private WellRestedSync() {}
 
-    public static void sync(ServerPlayerEntity player) {
+    @SuppressWarnings("resource")
+    public static void sync(ServerPlayer player) {
         boolean active = WellRestedEffect.hasEffect(player);
         int level = WellRestedEffect.getLevel(player);
         int ticksRemaining = WellRestedEffect.getTicksRemaining(player);
@@ -31,8 +32,8 @@ public final class WellRestedSync {
         boolean nightmare = player.isSleeping() && ComfortCalculator.isNightmareMode(player);
         boolean mvp = WellRestedEffect.isMvp(player);
 
-        long now = player.getEntityWorld().getTime();
-        UUID uuid = player.getUuid();
+        long now = player.level().getGameTime();
+        UUID uuid = player.getUUID();
         Snapshot prev = lastSent.get(uuid);
 
         boolean stateChanged = prev == null || !prev.sameState(active, level, totalTicks, phase, nightmare, mvp);
@@ -40,7 +41,7 @@ public final class WellRestedSync {
 
         if (stateChanged || (active && resyncDue)) {
             NetworkHandler.sendWellRested(player,
-                    new WellRestedPacket(active, level, ticksRemaining, totalTicks, phase, nightmare, mvp));
+                    new WellRestedPacket(active, level, ticksRemaining, totalTicks, nightmare, mvp));
             lastSent.put(uuid, new Snapshot(active, level, totalTicks, phase, nightmare, mvp, now));
         }
     }

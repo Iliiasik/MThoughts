@@ -4,7 +4,6 @@ public enum SlideCategory {
     FACT,
     LORE,
     SURREAL,
-    PLAYER_STATS,
     SPECIAL,
     NIGHTMARE
 }

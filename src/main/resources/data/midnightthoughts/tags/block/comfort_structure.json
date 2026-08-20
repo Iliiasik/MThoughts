@@ -48,14 +48,6 @@
     "minecraft:crimson_door",
     "minecraft:warped_door",
     "minecraft:iron_door",
-    "minecraft:copper_door",
-    "minecraft:exposed_copper_door",
-    "minecraft:weathered_copper_door",
-    "minecraft:oxidized_copper_door",
-    "minecraft:waxed_copper_door",
-    "minecraft:waxed_exposed_copper_door",
-    "minecraft:waxed_weathered_copper_door",
-    "minecraft:waxed_oxidized_copper_door",
     "minecraft:oak_trapdoor",
     "minecraft:spruce_trapdoor",
     "minecraft:birch_trapdoor",
@@ -67,14 +59,6 @@
     "minecraft:bamboo_trapdoor",
     "minecraft:crimson_trapdoor",
     "minecraft:warped_trapdoor",
-    "minecraft:iron_trapdoor",
-    "minecraft:copper_trapdoor",
-    "minecraft:exposed_copper_trapdoor",
-    "minecraft:weathered_copper_trapdoor",
-    "minecraft:oxidized_copper_trapdoor",
-    "minecraft:waxed_copper_trapdoor",
-    "minecraft:waxed_exposed_copper_trapdoor",
-    "minecraft:waxed_weathered_copper_trapdoor",
-    "minecraft:waxed_oxidized_copper_trapdoor"
+    "minecraft:iron_trapdoor"
   ]
 }

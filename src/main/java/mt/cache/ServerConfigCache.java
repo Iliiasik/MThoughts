@@ -3,15 +3,10 @@ package mt.cache;
 import mt.network.packet.SyncConfigPacket;
 
 public class ServerConfigCache {
-
     private static SyncConfigPacket cached = null;
 
     public static void apply(SyncConfigPacket packet) {
         cached = packet;
-    }
-
-    public static boolean has() {
-        return cached != null;
     }
 
     public static SyncConfigPacket get() {

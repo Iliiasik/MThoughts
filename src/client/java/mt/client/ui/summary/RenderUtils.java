@@ -1,40 +1,37 @@
 package mt.client.ui.summary;
 
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 
 public class RenderUtils {
 
-    public static void renderScaledText(DrawContext context, TextRenderer textRenderer, String text,
+    public static void renderScaledText(GuiGraphics context, Font textRenderer, String text,
                                         int x, int y, int color, float scale, boolean shadow) {
-        context.getMatrices().push();
-        context.getMatrices().translate(x, y, 0);
-        context.getMatrices().scale(scale, scale, 1.0f);
-        context.drawText(textRenderer, text, 0, 0, color, shadow);
-        context.getMatrices().pop();
+        context.pose().pushPose();
+        context.pose().translate(x, y, 0);
+        context.pose().scale(scale, scale, 1.0f);
+        context.drawString(textRenderer, text, 0, 0, color, shadow);
+        context.pose().popPose();
     }
 
-    public static void renderCenteredScaledText(DrawContext context, TextRenderer textRenderer, Text text,
-                                                int areaX, int areaY, int areaWidth, int areaHeight,
-                                                int color, float scale, boolean shadow) {
-        int scaledTextWidth = (int) (textRenderer.getWidth(text) * scale);
-        int x = areaX + (areaWidth - scaledTextWidth) / 2;
-        int y = areaY + (areaHeight - (int) (textRenderer.fontHeight * scale)) / 2;
-        context.getMatrices().push();
-        context.getMatrices().translate(x, y, 0);
-        context.getMatrices().scale(scale, scale, 1.0f);
-        context.drawText(textRenderer, text, 0, 0, color, shadow);
-        context.getMatrices().pop();
-    }
+    public static String truncateWithEllipsis(Font font, String text, int maxWidth) {
+        if (text == null || text.isEmpty()) return text;
+        if (font.width(text) <= maxWidth) return text;
 
-    public static String truncateWithEllipsis(TextRenderer font, String text, int maxWidth) {
         String ellipsis = "...";
-        int ellipsisW = font.getWidth(ellipsis);
-        if (font.getWidth(text) <= maxWidth) return text;
-        while (!text.isEmpty() && font.getWidth(text) + ellipsisW > maxWidth) {
-            text = text.substring(0, text.length() - 1);
+        int budget = maxWidth - font.width(ellipsis);
+        if (budget <= 0) return ellipsis;
+
+        int lo = 0;
+        int hi = text.length();
+        while (lo < hi) {
+            int mid = (lo + hi + 1) >>> 1;
+            if (font.width(text.substring(0, mid)) <= budget) {
+                lo = mid;
+            } else {
+                hi = mid - 1;
+            }
         }
-        return text + ellipsis;
+        return text.substring(0, lo) + ellipsis;
     }
 }

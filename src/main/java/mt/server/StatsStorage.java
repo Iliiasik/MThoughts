@@ -3,14 +3,16 @@ package mt.server;
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.WorldSavePath;
+import net.minecraft.world.level.storage.LevelResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.Reader;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -20,45 +22,67 @@ import java.util.UUID;
 public class StatsStorage {
     private static final Logger LOGGER = LoggerFactory.getLogger("MidnightThoughts");
     private static final String STATS_FILE = "midnightthoughts_stats.json";
-    private static final int MAX_SAFE_VALUE = Integer.MAX_VALUE / 2;
-
+    private static final Type STATS_TYPE = new TypeToken<Map<String, SavedPlayerStats>>() {}.getType();
     private static final Gson GSON = new GsonBuilder()
             .setPrettyPrinting()
             .registerTypeAdapter(SavedPlayerStats.class, new StatsAdapter())
             .create();
 
-    public static void savePlayerStats(MinecraftServer server, UUID playerUuid, SavedPlayerStats stats) {
+    private static Path loadedFrom;
+    private static Map<String, SavedPlayerStats> stats = new HashMap<>();
+    private static boolean dirty;
+
+    public static void savePlayerStats(MinecraftServer server, UUID playerUuid, SavedPlayerStats playerStats) {
         Path savePath = getStatsFilePath(server);
         if (savePath == null) {
             LOGGER.error("[StatsStorage] Save path is null, cannot save stats for UUID {}.", playerUuid);
             return;
         }
-
-        Map<String, SavedPlayerStats> allStats = loadAllStats(savePath);
-        allStats.put(playerUuid.toString(), stats);
-
-        try {
-            Files.createDirectories(savePath.getParent());
-            try (Writer writer = Files.newBufferedWriter(savePath)) {
-                GSON.toJson(allStats, writer);
-            }
-        } catch (IOException e) {
-            LOGGER.error("[StatsStorage] Failed to save stats", e);
-        }
+        ensureLoaded(savePath);
+        stats.put(playerUuid.toString(), playerStats);
+        dirty = true;
     }
 
     public static SavedPlayerStats loadPlayerStats(MinecraftServer server, UUID playerUuid) {
         Path savePath = getStatsFilePath(server);
         if (savePath == null) return null;
+        ensureLoaded(savePath);
+        return stats.get(playerUuid.toString());
+    }
 
-        Map<String, SavedPlayerStats> allStats = loadAllStats(savePath);
-        return allStats.get(playerUuid.toString());
+    public static void flush() {
+        if (!dirty || loadedFrom == null) return;
+        writeAtomically(loadedFrom);
+    }
+
+    public static void unload() {
+        flush();
+        loadedFrom = null;
+        stats = new HashMap<>();
+        dirty = false;
+    }
+
+    private static void ensureLoaded(Path savePath) {
+        if (savePath.equals(loadedFrom)) return;
+        if (dirty && loadedFrom != null) writeAtomically(loadedFrom);
+        stats = readAll(savePath);
+        loadedFrom = savePath;
+        dirty = false;
+    }
+
+    private static void writeAtomically(Path savePath) {
+        try {
+            mt.common.AtomicFiles.writeString(savePath, GSON.toJson(stats, STATS_TYPE));
+            dirty = false;
+        } catch (IOException e) {
+            LOGGER.error("[StatsStorage] Failed to save stats", e);
+        }
     }
 
     private static Path getStatsFilePath(MinecraftServer server) {
         if (server == null) return null;
         try {
-            Path worldDir = server.getSavePath(WorldSavePath.ROOT);
+            Path worldDir = server.getWorldPath(LevelResource.ROOT);
             return worldDir.resolve(STATS_FILE);
         } catch (Exception e) {
             LOGGER.error("[StatsStorage] Failed to get save path", e);
@@ -66,16 +90,28 @@ public class StatsStorage {
         }
     }
 
-    private static Map<String, SavedPlayerStats> loadAllStats(Path savePath) {
+    private static Map<String, SavedPlayerStats> readAll(Path savePath) {
         if (savePath == null || !Files.exists(savePath)) return new HashMap<>();
 
         try (Reader reader = Files.newBufferedReader(savePath)) {
-            Type type = new TypeToken<Map<String, SavedPlayerStats>>() {}.getType();
-            Map<String, SavedPlayerStats> result = GSON.fromJson(reader, type);
+            Map<String, SavedPlayerStats> result = GSON.fromJson(reader, STATS_TYPE);
             return result != null ? result : new HashMap<>();
         } catch (IOException e) {
             LOGGER.error("[StatsStorage] Failed to load stats", e);
-            return new HashMap<>();
+        } catch (RuntimeException e) {
+            LOGGER.error("[StatsStorage] Stats file is malformed and will be regenerated: {}", e.getMessage());
+            backupBrokenFile(savePath);
+        }
+        return new HashMap<>();
+    }
+
+    private static void backupBrokenFile(Path savePath) {
+        try {
+            Path backup = savePath.resolveSibling(STATS_FILE + ".broken");
+            Files.move(savePath, backup, StandardCopyOption.REPLACE_EXISTING);
+            LOGGER.warn("[StatsStorage] Previous stats file saved as {}", backup.getFileName());
+        } catch (IOException e) {
+            LOGGER.error("[StatsStorage] Failed to back up the broken stats file: {}", e.getMessage());
         }
     }
 
@@ -96,15 +132,6 @@ public class StatsStorage {
 
         public SavedPlayerStats() {}
 
-        public SavedPlayerStats(int baseBlocksDestroyed, int baseDistanceWalked, int baseMobsKilled,
-                                int baseDeaths, int baseJumps, int baseDamageDealt) {
-            this.baseBlocksDestroyed = baseBlocksDestroyed;
-            this.baseDistanceWalked = baseDistanceWalked;
-            this.baseMobsKilled = baseMobsKilled;
-            this.baseDeaths = baseDeaths;
-            this.baseJumps = baseJumps;
-            this.baseDamageDealt = baseDamageDealt;
-        }
     }
 
     private static class StatsAdapter implements JsonSerializer<SavedPlayerStats>, JsonDeserializer<SavedPlayerStats> {
@@ -129,6 +156,7 @@ public class StatsStorage {
         public SavedPlayerStats deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
             JsonObject obj = json.getAsJsonObject();
             SavedPlayerStats stats = new SavedPlayerStats();
+
             stats.baseBlocksDestroyed = safeGetInt(obj, "baseBlocksDestroyed");
             stats.baseDistanceWalked = safeGetInt(obj, "baseDistanceWalked");
             stats.baseMobsKilled = safeGetInt(obj, "baseMobsKilled");
@@ -140,18 +168,39 @@ public class StatsStorage {
             stats.recordMobs = safeGetInt(obj, "recordMobs");
             stats.totalSleeps = safeGetInt(obj, "totalSleeps");
             stats.unlockedAchievements = safeGetStringSet(obj);
+
             return stats;
         }
 
         private int safeGetInt(JsonObject obj, String field) {
-            if (obj.has(field)) {
-                JsonElement element = obj.get(field);
-                if (element.isJsonPrimitive() && element.getAsJsonPrimitive().isNumber()) {
-                    long value = element.getAsJsonPrimitive().getAsLong();
-                    return value < 0 ? 0 : (int) Math.min(value, MAX_SAFE_VALUE);
-                }
+            if (!obj.has(field)) {
+                return 0;
             }
-            return 0;
+
+            try {
+                JsonElement element = obj.get(field);
+                if (element.isJsonPrimitive()) {
+                    JsonPrimitive primitive = element.getAsJsonPrimitive();
+                    if (primitive.isNumber()) {
+                        long value = primitive.getAsLong();
+                        return clampToSafeInt(value);
+                    }
+                }
+                return 0;
+            } catch (Exception e) {
+                LOGGER.warn("[StatsStorage] Failed to parse field {}, defaulting to 0", field);
+                return 0;
+            }
+        }
+
+        private int clampToSafeInt(long value) {
+            if (value < 0) {
+                return 0;
+            }
+            if (value > Integer.MAX_VALUE / 2) {
+                return Integer.MAX_VALUE / 2;
+            }
+            return (int) value;
         }
 
         private Set<String> safeGetStringSet(JsonObject obj) {
