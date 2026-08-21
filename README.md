@@ -1,4 +1,5 @@
-<img alt="Logo" src="https://github.com/user-attachments/assets/c5d68a38-9be0-430d-836a-7fa696256151" />
+<img alt="Logo GIF" src="https://github.com/user-attachments/assets/4ebd484c-c471-4658-ba69-31f14104e182" />
+
 
 <div align="center">
   <a href="https://iliiasik.github.io/MThoughts-Wiki/">
