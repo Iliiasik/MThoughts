@@ -1,20 +1,19 @@
 package mt.client.ui.summary;
 
 import mt.client.config.ClientConfig;
-import mt.client.config.ThemeColors;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
 
 public class FrameRenderer {
 
-    public static void render(DrawContext context, SummaryDimensions dims, float fadeAlpha) {
+    public static void render(GuiGraphics context, SummaryDimensions dims, float fadeAlpha) {
         RenderHelper.blitTexture(context, SummaryConstants.getFrameTexture(),
                 dims.panelX, dims.panelY, dims.panelWidth, dims.panelHeight, fadeAlpha);
     }
 
-    public static void renderBadge(DrawContext context, TextRenderer textRenderer, SummaryDimensions dims, float fadeAlpha) {
-        Text title = Text.translatable("midnightthoughts.summary.title");
+    public static void renderBadge(GuiGraphics context, Font textRenderer, SummaryDimensions dims, float fadeAlpha) {
+        Component title = Component.translatable("midnightthoughts.summary.title");
 
         int badgeWidth = dims.s(180);
         int badgeHeight = dims.s(60);
@@ -37,11 +36,11 @@ public class FrameRenderer {
                 badgeX, badgeY, badgeWidth, badgeHeight, titleColor, textScale, false);
     }
 
-    public static void renderPagesHolder(DrawContext context, TextRenderer textRenderer, SummaryDimensions dims,
+    public static void renderPagesHolder(GuiGraphics context, Font textRenderer, SummaryDimensions dims,
                                          int currentPage, int totalPages, float fadeAlpha) {
         if (totalPages <= 1) return;
 
-        Text pageInfo = Text.translatable("midnightthoughts.summary.page", currentPage + 1, totalPages);
+        Component pageInfo = Component.translatable("midnightthoughts.summary.page", currentPage + 1, totalPages);
 
         int pagesHolderHeight = dims.s(45);
         int pagesHolderWidth = (int) (pagesHolderHeight * (SummaryConstants.PAGES_HOLDER_TEXTURE_WIDTH / (float) SummaryConstants.PAGES_HOLDER_TEXTURE_HEIGHT));

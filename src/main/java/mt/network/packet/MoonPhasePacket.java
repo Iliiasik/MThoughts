@@ -1,22 +1,21 @@
 package mt.network.packet;
 
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.util.Identifier;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.Identifier;
+import org.jetbrains.annotations.NotNull;
 
-public record MoonPhasePacket(int moonPhase) implements CustomPayload {
-    public static final CustomPayload.Id<MoonPhasePacket> ID =
-            new CustomPayload.Id<>(Identifier.of("midnightthoughts", "moon_phase"));
-
-    public static final PacketCodec<RegistryByteBuf, MoonPhasePacket> CODEC =
-            PacketCodec.of(
-                    (value, buf) -> buf.writeVarInt(value.moonPhase()),
-                    buf -> new MoonPhasePacket(buf.readVarInt())
-            );
+public record MoonPhasePacket(int moonPhase) implements CustomPacketPayload {
+    public static final Identifier ID_LOC = Identifier.fromNamespaceAndPath("midnightthoughts", "moon_phase");
+    public static final CustomPacketPayload.Type<@NotNull MoonPhasePacket> TYPE = new CustomPacketPayload.Type<>(ID_LOC);
+    public static final StreamCodec<FriendlyByteBuf, MoonPhasePacket> CODEC = StreamCodec.of(
+            (buf, packet) -> buf.writeVarInt(packet.moonPhase()),
+            buf -> new MoonPhasePacket(buf.readVarInt())
+    );
 
     @Override
-    public Id<? extends CustomPayload> getId() {
-        return ID;
+    public @NotNull Type<? extends @NotNull CustomPacketPayload> type() {
+        return TYPE;
     }
 }

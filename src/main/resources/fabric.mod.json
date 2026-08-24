@@ -4,9 +4,13 @@
   "version": "${version}",
   "name": "Midnight Thoughts",
   "description": "Diversify your gameplay and sleep mechanics with a comfort system, bedtime facts, nightmares, and general statistics since your last sleep. With full server support and convenient tools for building your world's lore through sleep facts and achievements",
-  "icon": "assets/midnightthoughts/icon.png",
-  "authors": ["MidnightThoughts Team"],
-  "contact": {},
+  "icon": "midnightthoughts_icon.png",
+  "authors": ["Iliiasik"],
+  "contact": {
+    "homepage": "https://iliiasik.github.io/MThoughts-Wiki/",
+    "sources": "https://github.com/Iliiasik/MThoughts",
+    "issues": "https://github.com/Iliiasik/MThoughts/issues"
+  },
   "license": "MIT",
   "environment": "*",
   "entrypoints": {
@@ -26,7 +30,14 @@
   ],
   "depends": {
     "fabricloader": ">=${loader_version}",
-    "fabric": "*",
-    "minecraft": "~1.21.11"
+    "fabric-api": "*",
+    "minecraft": "~1.21.11",
+    "java": ">=21"
+  },
+  "custom": {
+    "catalogue": {
+      "banner": "midnightthoughts_banner.png",
+      "background": "midnightthoughts_background.png"
+    }
   }
 }

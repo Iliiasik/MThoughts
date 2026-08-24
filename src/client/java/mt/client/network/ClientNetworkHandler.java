@@ -1,90 +1,40 @@
 package mt.client.network;
 
-import mt.cache.ClientAchievementCache;
-import mt.cache.ServerConfigCache;
-import mt.client.MidnightThoughtsClient;
-import mt.client.manager.WellRestedClientState;
-import mt.client.ui.DailySummaryScreen;
-import mt.client.ui.SleepingPlayersHud;
 import mt.network.packet.DailySummaryPacket;
 import mt.network.packet.MoonPhasePacket;
+import mt.network.packet.RequestMoonPhasePacket;
 import mt.network.packet.SleepingPlayersPacket;
-import mt.network.packet.SummaryAcknowledgePacket;
 import mt.network.packet.SyncAchievementsPacket;
 import mt.network.packet.SyncConfigPacket;
 import mt.network.packet.UserContentPacket;
 import mt.network.packet.WellRestedPacket;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+
+import java.util.function.Consumer;
 
 public class ClientNetworkHandler {
 
-    public static void registerPacketHandlers() {
-        ClientPlayNetworking.registerGlobalReceiver(
-                WellRestedPacket.ID,
-                (packet, context) -> context.client().execute(() ->
-                        WellRestedClientState.update(
-                                packet.active(), packet.level(), packet.ticksRemaining(),
-                                packet.totalTicks(), packet.nightmareMode(), packet.mvp()
-                        )
-                )
-        );
+    private ClientNetworkHandler() {}
 
-        ClientPlayNetworking.registerGlobalReceiver(
-                DailySummaryPacket.ID,
-                (packet, context) -> context.client().execute(() -> {
-                    if (ServerConfigCache.has() ? ServerConfigCache.get().enableDailySummaryScreen()
-                            : mt.config.MidnightThoughtsConfig.getInstance().isEnableDailySummaryScreen()) {
-                        MinecraftClient.getInstance().setScreen(new DailySummaryScreen(packet.summaries()));
-                    } else {
-                        sendSummaryAcknowledge();
-                    }
-                })
-        );
-
-        ClientPlayNetworking.registerGlobalReceiver(
-                SleepingPlayersPacket.ID,
-                (packet, context) -> context.client().execute(() ->
-                        SleepingPlayersHud.updateSleepingCount(packet.sleepingCount(), packet.totalPlayers())
-                )
-        );
-
-        ClientPlayNetworking.registerGlobalReceiver(
-                UserContentPacket.ID,
-                (packet, context) -> context.client().execute(() -> {
-                    MidnightThoughtsClient client = MidnightThoughtsClient.getInstance();
-                    if (client != null) {
-                        client.getUserContentLoader().applyServerContent(packet.content());
-                    }
-                })
-        );
-
-        ClientPlayNetworking.registerGlobalReceiver(
-                SyncAchievementsPacket.ID,
-                (packet, context) -> context.client().execute(() ->
-                        ClientAchievementCache.apply(packet.achievements())
-                )
-        );
-
-        ClientPlayNetworking.registerGlobalReceiver(
-                SyncConfigPacket.ID,
-                (packet, context) -> context.client().execute(() ->
-                        ServerConfigCache.apply(packet)
-                )
-        );
-
-        ClientPlayNetworking.registerGlobalReceiver(
-                MoonPhasePacket.ID,
-                (packet, context) -> context.client().execute(() -> {
-                    MidnightThoughtsClient client = MidnightThoughtsClient.getInstance();
-                    if (client != null) {
-                        client.getOverlayRenderer().setMoonPhase(packet.moonPhase());
-                    }
-                })
-        );
+    public static void register() {
+        receive(DailySummaryPacket.TYPE, ClientPacketHandlers::handleDailySummary);
+        receive(WellRestedPacket.TYPE, ClientPacketHandlers::handleWellRested);
+        receive(SleepingPlayersPacket.TYPE, ClientPacketHandlers::handleSleepingPlayers);
+        receive(UserContentPacket.TYPE, ClientPacketHandlers::handleUserContent);
+        receive(SyncAchievementsPacket.TYPE, ClientPacketHandlers::handleSyncAchievements);
+        receive(SyncConfigPacket.TYPE, ClientPacketHandlers::handleSyncConfig);
+        receive(MoonPhasePacket.TYPE, ClientPacketHandlers::handleMoonPhase);
     }
 
-    public static void sendSummaryAcknowledge() {
-        ClientPlayNetworking.send(new SummaryAcknowledgePacket());
+    public static void requestMoonPhase() {
+        ClientPlayNetworking.send(new RequestMoonPhasePacket());
+    }
+
+    @SuppressWarnings("resource")
+    private static <T extends CustomPacketPayload> void receive(CustomPacketPayload.Type<T> type,
+                                                                Consumer<T> handler) {
+        ClientPlayNetworking.registerGlobalReceiver(type,
+                (packet, context) -> context.client().execute(() -> handler.accept(packet)));
     }
 }

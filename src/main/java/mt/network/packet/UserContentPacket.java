@@ -1,39 +1,39 @@
 package mt.network.packet;
 
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.util.Identifier;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.Identifier;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public record UserContentPacket(Map<String, List<String>> content) implements CustomPayload {
-    public static final CustomPayload.Id<UserContentPacket> ID =
-            new CustomPayload.Id<>(Identifier.of("midnightthoughts", "user_content"));
-
-    public static final PacketCodec<RegistryByteBuf, UserContentPacket> CODEC = PacketCodec.of(
-            (value, buf) -> {
-                buf.writeInt(value.content().size());
-                for (Map.Entry<String, List<String>> entry : value.content().entrySet()) {
-                    buf.writeString(entry.getKey());
-                    buf.writeInt(entry.getValue().size());
+public record UserContentPacket(Map<String, List<String>> content) implements CustomPacketPayload {
+    public static final Identifier ID_LOC = Identifier.fromNamespaceAndPath("midnightthoughts", "user_content");
+    public static final CustomPacketPayload.Type<@NotNull UserContentPacket> TYPE = new CustomPacketPayload.Type<>(ID_LOC);
+    public static final StreamCodec<FriendlyByteBuf, UserContentPacket> CODEC = StreamCodec.of(
+            (buf, packet) -> {
+                buf.writeVarInt(packet.content().size());
+                for (Map.Entry<String, List<String>> entry : packet.content().entrySet()) {
+                    buf.writeUtf(entry.getKey());
+                    buf.writeVarInt(entry.getValue().size());
                     for (String s : entry.getValue()) {
-                        buf.writeString(s);
+                        buf.writeUtf(s);
                     }
                 }
             },
             buf -> {
-                int mapSize = buf.readInt();
+                int mapSize = buf.readVarInt();
                 Map<String, List<String>> map = new HashMap<>();
                 for (int i = 0; i < mapSize; i++) {
-                    String key = buf.readString();
-                    int listSize = buf.readInt();
+                    String key = buf.readUtf();
+                    int listSize = buf.readVarInt();
                     List<String> list = new ArrayList<>();
                     for (int j = 0; j < listSize; j++) {
-                        list.add(buf.readString());
+                        list.add(buf.readUtf());
                     }
                     map.put(key, list);
                 }
@@ -42,7 +42,7 @@ public record UserContentPacket(Map<String, List<String>> content) implements Cu
     );
 
     @Override
-    public Id<? extends CustomPayload> getId() {
-        return ID;
+    public @NotNull Type<? extends @NotNull CustomPacketPayload> type() {
+        return TYPE;
     }
 }

@@ -4,7 +4,9 @@
   "package": "mt.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "ServerLevelMixin"
+    "PlayerPersistentDataMixin",
+    "ServerLevelMixin",
+    "StatsCounterAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

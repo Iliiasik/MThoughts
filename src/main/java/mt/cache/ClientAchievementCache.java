@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.List;
 
 public class ClientAchievementCache {
-
     private static List<AchievementDefinition> cached = Collections.emptyList();
 
     public static void apply(List<AchievementDefinition> achievements) {

@@ -4,11 +4,11 @@
   "package": "mt.client.mixin",
   "compatibilityLevel": "JAVA_21",
   "client": [
-    "InGameHudMixin",
-    "ChatHudMixin"
+    "ChatComponentMixin",
+    "GuiAirBubblesMixin",
+    "InGameHudMixin"
   ],
   "injectors": {
     "defaultRequire": 1
   }
 }
-

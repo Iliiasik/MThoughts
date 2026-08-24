@@ -1,0 +1,32 @@
+{
+  "entries": [
+    {
+      "text": "Nie możesz zasnąć w tak przerażającym miejscu.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Dreszcz przebiega ci po plecach.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Prześladują cię koszmary.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Uczyń swoje legowisko wygodniejszym.",
+      "rarity": 1.0
+    },
+    {
+      "text": "Coś obserwuje cię z cieni.",
+      "rarity": 0.8
+    },
+    {
+      "text": "Tej nocy ciemność dusi.",
+      "rarity": 0.9
+    },
+    {
+      "text": "Odpoczynek jest niemożliwy w tym ponurym miejscu.",
+      "rarity": 1.0
+    }
+  ]
+}

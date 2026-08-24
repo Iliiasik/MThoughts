@@ -3,18 +3,18 @@ package mt.client.ui;
 import mt.client.MidnightThoughtsClient;
 import mt.client.manager.WellRestedClientState;
 import mt.config.MidnightThoughtsConfig;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gl.RenderPipelines;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.util.Identifier;
-import org.joml.Matrix3x2fStack;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.ARGB;
 
 public class WellRestedHud {
-    private static final Identifier SCALE_TEXTURE = Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/hud/scale.png");
-    private static final Identifier FILL_TEXTURE = Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/hud/fill.png");
-    private static final Identifier ICON_TEXTURE = Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/hud/well_rested.png");
-    private static final Identifier MVP_ICON_TEXTURE = Identifier.of(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/hud/mvp.png");
+    private static final Identifier SCALE_TEXTURE = Identifier.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/hud/scale.png");
+    private static final Identifier FILL_TEXTURE = Identifier.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/hud/fill.png");
+    private static final Identifier ICON_TEXTURE = Identifier.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/hud/well_rested.png");
+    private static final Identifier MVP_ICON_TEXTURE = Identifier.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/hud/mvp.png");
 
     private static final int TEX_SCALE_W = 54;
     private static final int TEX_SCALE_H = 9;
@@ -26,71 +26,104 @@ public class WellRestedHud {
     private static final int GAP = 1;
     private static final int FILL_INSET = 2;
 
-    private static final String[] ROMAN = {"", "I", "II", "III", "IV", "V"};
-
-    private static final int MARGIN_LEFT = 4;
+    private static final int MARGIN_SIDE = 4;
     private static final int MARGIN_BOTTOM = 4;
 
-    public static void render(DrawContext context, int screenHeight) {
-        if (!WellRestedClientState.isActive() || MidnightThoughtsConfig.getInstance().isHideWellRestedHud()) return;
-        MinecraftClient mc = MinecraftClient.getInstance();
+    private static final String[] ROMAN = {"", "I", "II", "III", "IV", "V"};
+    private static final int BLINK_THRESHOLD_TICKS = 200;
+
+    public static boolean isActive() {
+        return WellRestedClientState.isActive()
+                && !MidnightThoughtsConfig.getInstance().isHideWellRestedHud();
+    }
+
+    public static boolean isBarPosition() {
+        return MidnightThoughtsConfig.HUD_POSITION_BAR
+                .equals(MidnightThoughtsConfig.getInstance().getWellRestedHudPosition());
+    }
+
+    public static void render(GuiGraphics graphics, int screenWidth, int screenHeight) {
+        if (!isActive()) return;
+        Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
 
-        TextRenderer font = mc.textRenderer;
-        Matrix3x2fStack matrices = context.getMatrices();
+        Font font = mc.font;
 
         int level = WellRestedClientState.getLevel();
         int ticksRemaining = WellRestedClientState.getTicksRemaining();
         int totalTicks = WellRestedClientState.getTotalTicks();
 
-        float progress = totalTicks > 0 ? (float) ticksRemaining / totalTicks : 0f;
-
-        int barY = screenHeight - MARGIN_BOTTOM - BAR_GUI_H;
+        float progress = totalTicks > 0
+                ? Math.clamp((float) ticksRemaining / totalTicks, 0f, 1f)
+                : 0f;
 
         boolean isMvp = WellRestedClientState.isMvp();
         Identifier activeIcon = isMvp ? MVP_ICON_TEXTURE : ICON_TEXTURE;
 
         String roman = (!isMvp && level >= 1 && level <= 5) ? ROMAN[level] : "";
-        int romanWidth = roman.isEmpty() ? 0 : font.getWidth(roman);
+        int romanWidth = roman.isEmpty() ? 0 : font.width(roman);
 
-        int iconX = MARGIN_LEFT;
+        float scaleAlpha = 1.0f;
+        if (ticksRemaining <= BLINK_THRESHOLD_TICKS && ticksRemaining > 0) {
+            float sin = (float) Math.sin(System.currentTimeMillis() / 1000.0 * Math.PI * 3.0f);
+            scaleAlpha = 0.4f + 0.6f * (sin * 0.5f + 0.5f);
+        }
+
+        int scaleColor = ARGB.colorFromFloat(scaleAlpha, 1.0f, 1.0f, 1.0f);
+
+        String position = MidnightThoughtsConfig.getInstance().getWellRestedHudPosition();
+        boolean bar = MidnightThoughtsConfig.HUD_POSITION_BAR.equals(position);
+        int romanSpace = roman.isEmpty() ? 0 : romanWidth + GAP;
+        int totalRight = screenWidth / 2 + 91;
+
+        int hudWidth = ICON_GUI_SIZE + GAP + romanSpace + TEX_SCALE_W;
+
+        int iconX;
+        int barY;
+        if (bar) {
+            iconX = totalRight - hudWidth;
+            barY = screenHeight - 32 - BAR_GUI_H - 10;
+        } else {
+            barY = screenHeight - MARGIN_BOTTOM - BAR_GUI_H;
+            iconX = MidnightThoughtsConfig.HUD_POSITION_RIGHT.equals(position)
+                    ? screenWidth - MARGIN_SIDE - hudWidth
+                    : MARGIN_SIDE;
+        }
+
         int romanX = iconX + ICON_GUI_SIZE + GAP;
-        int barX = romanX + (roman.isEmpty() ? 0 : romanWidth + GAP);
-        int barEndX = barX + TEX_SCALE_W;
-        int barGuiW = barEndX - barX;
+        int barX = romanX + romanSpace;
 
-        matrices.pushMatrix();
-        matrices.translate(iconX, barY);
-        matrices.scale((float) ICON_GUI_SIZE / TEX_ICON_SIZE, (float) ICON_GUI_SIZE / TEX_ICON_SIZE);
-        context.drawTexture(RenderPipelines.GUI_TEXTURED, activeIcon, 0, 0, 0.0f, 0.0f, TEX_ICON_SIZE, TEX_ICON_SIZE, TEX_ICON_SIZE, TEX_ICON_SIZE);
-        matrices.popMatrix();
+        blitScaled(graphics, activeIcon, iconX, barY, ICON_GUI_SIZE, ICON_GUI_SIZE, TEX_ICON_SIZE, TEX_ICON_SIZE, scaleColor);
 
         if (!roman.isEmpty()) {
-            int romanY = barY + (BAR_GUI_H - font.fontHeight) / 2;
-            context.drawText(font, roman, romanX, romanY, 0xFFFFD966, true);
+            int romanY = barY + (BAR_GUI_H - font.lineHeight) / 2;
+            int textColor = (Math.round(scaleAlpha * 255f) << 24) | 0x00FFD966;
+            graphics.drawString(font, roman, romanX, romanY, textColor, true);
         }
 
-        if (barGuiW > 0) {
-            matrices.pushMatrix();
-            matrices.translate(barX, barY);
-            matrices.scale((float) barGuiW / TEX_SCALE_W, (float) BAR_GUI_H / TEX_SCALE_H);
-            context.drawTexture(RenderPipelines.GUI_TEXTURED, SCALE_TEXTURE, 0, 0, 0.0f, 0.0f, TEX_SCALE_W, TEX_SCALE_H, TEX_SCALE_W, TEX_SCALE_H);
-            matrices.popMatrix();
+        blitScaled(graphics, SCALE_TEXTURE, barX, barY, TEX_SCALE_W, BAR_GUI_H, TEX_SCALE_W, TEX_SCALE_H, scaleColor);
 
-            if (progress > 0f) {
-                int fillGuiW = barGuiW - FILL_INSET * 2;
-                int fillGuiX = barX + FILL_INSET;
-                int fillGuiY = barY + (BAR_GUI_H - TEX_FILL_H) / 2;
-                int visibleFillGuiW = Math.round(fillGuiW * progress);
-                if (visibleFillGuiW > 0) {
-                    float texFillW = visibleFillGuiW * ((float) TEX_FILL_W / fillGuiW);
-                    matrices.pushMatrix();
-                    matrices.translate(fillGuiX, fillGuiY);
-                    matrices.scale((float) fillGuiW / TEX_FILL_W, 1f);
-                    context.drawTexture(RenderPipelines.GUI_TEXTURED, FILL_TEXTURE, 0, 0, 0.0f, 0.0f, Math.round(texFillW), TEX_FILL_H, TEX_FILL_W, TEX_FILL_H);
-                    matrices.popMatrix();
-                }
+        if (progress > 0f) {
+            int fillGuiX = barX + FILL_INSET;
+            int fillGuiY = barY + (BAR_GUI_H - TEX_FILL_H) / 2;
+            int visibleFillW = Math.round(TEX_FILL_W * progress);
+            if (visibleFillW > 0) {
+                graphics.blit(RenderPipelines.GUI_TEXTURED, FILL_TEXTURE,
+                        fillGuiX, fillGuiY, 0.0f, 0.0f,
+                        visibleFillW, TEX_FILL_H,
+                        visibleFillW, TEX_FILL_H,
+                        TEX_FILL_W, TEX_FILL_H, scaleColor);
             }
         }
+    }
+
+    private static void blitScaled(GuiGraphics graphics, Identifier texture, int x, int y,
+                                   int guiW, int guiH, int texW, int texH, int color) {
+        graphics.pose().pushMatrix();
+        graphics.pose().translate(x, y);
+        graphics.pose().scale((float) guiW / texW, (float) guiH / texH);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, texture, 0, 0, 0.0f, 0.0f,
+                texW, texH, texW, texH, color);
+        graphics.pose().popMatrix();
     }
 }

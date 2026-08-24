@@ -1,11 +1,11 @@
 package mt.client.ui.summary;
 
-import net.minecraft.client.gl.RenderPipelines;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.ARGB;
 
 public class RenderHelper {
-
     public record ScaledBlit(int renderW, int renderH, int renderY) {}
 
     public static ScaledBlit computeScaledBlit(int y, int width, int height, int texW, int texH) {
@@ -16,20 +16,12 @@ public class RenderHelper {
         return new ScaledBlit(renderW, renderH, renderY);
     }
 
-    public static void blitTexture(DrawContext context, Identifier texture,
+    public static void blitTexture(GuiGraphics context, Identifier texture,
                                    int x, int y, int width, int height, float alpha) {
-        int color = ((int) (alpha * 255) << 24) | 0xFFFFFF;
-        context.getMatrices().pushMatrix();
-        context.getMatrices().translate(x, y);
-        context.getMatrices().scale(1.0f, 1.0f);
-        context.drawTexture(RenderPipelines.GUI_TEXTURED, texture, 0, 0, 0.0f, 0.0f, width, height, width, height, width, height, color);
-        context.getMatrices().popMatrix();
-    }
+        if (width <= 0 || height <= 0) return;
 
-    public static void blitTextureSimple(DrawContext context, Identifier texture,
-                                         int x, int y, int width, int height,
-                                         int texW, int texH, float alpha) {
-        int color = ((int) (alpha * 255) << 24) | 0xFFFFFF;
-        context.drawTexture(RenderPipelines.GUI_TEXTURED, texture, x, y, 0.0f, 0.0f, width, height, texW, texH, texW, texH, color);
+        int color = ARGB.colorFromFloat(alpha, 1.0f, 1.0f, 1.0f);
+        context.blit(RenderPipelines.GUI_TEXTURED, texture, x, y, 0.0f, 0.0f,
+                width, height, width, height, color);
     }
 }
