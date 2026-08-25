@@ -6,6 +6,7 @@
   "client": [
     "ChatComponentMixin",
     "GuiAirBubblesMixin",
+    "GuiOverlayMessageMixin",
     "GuiRenderMixin",
     "InGameHudMixin"
   ],

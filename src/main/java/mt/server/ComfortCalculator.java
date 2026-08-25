@@ -51,10 +51,13 @@ public class ComfortCalculator {
         return new int[]{ w.lighting, w.carpet, w.furniture, w.decoration, w.structure, w.macabre, w.hostile, w.dark };
     }
 
+    public static BlockPos defaultOrigin(ServerPlayer player) {
+        return player.getSleepingPos().orElse(player.blockPosition());
+    }
+
     @SuppressWarnings("resource")
-    private static boolean[] scanFound(ServerPlayer player) {
+    private static boolean[] scanFound(ServerPlayer player, BlockPos origin) {
         int scanRadius = Math.max(0, Math.min(CONFIG.getComfort().scanRadius, MAX_SCAN_RADIUS));
-        BlockPos bedPos = player.getSleepingPos().orElse(player.blockPosition());
         Level world = player.level();
 
         boolean[] found = new boolean[ALL_TAGS.length];
@@ -63,7 +66,7 @@ public class ComfortCalculator {
         for (int x = -scanRadius; x <= scanRadius; x++) {
             for (int y = -scanRadius; y <= scanRadius; y++) {
                 for (int z = -scanRadius; z <= scanRadius; z++) {
-                    cursor.setWithOffset(bedPos, x, y, z);
+                    cursor.setWithOffset(origin, x, y, z);
                     BlockState state = world.getBlockState(cursor);
                     boolean allFound = true;
                     for (int i = 0; i < ALL_TAGS.length; i++) {
@@ -77,36 +80,39 @@ public class ComfortCalculator {
         return found;
     }
 
-    @SuppressWarnings("resource")
     public static int calculateComfortLevel(ServerPlayer player) {
+        return calculateComfortLevel(player, defaultOrigin(player));
+    }
+
+    @SuppressWarnings("resource")
+    public static int calculateComfortLevel(ServerPlayer player, BlockPos origin) {
         if (!CONFIG.getComfort().enabled) {
             return 0;
         }
 
         long currentTick = player.level().getGameTime();
-        BlockPos currentPos = player.blockPosition();
         UUID uuid = player.getUUID();
 
         CachedComfort cached = cache.get(uuid);
         if (cached != null
                 && (currentTick - cached.calculatedAtTick()) < RECALCULATE_INTERVAL
-                && cached.pos().equals(currentPos)) {
+                && cached.pos().equals(origin)) {
             return cached.comfortLevel();
         }
 
-        boolean[] found = scanFound(player);
+        boolean[] found = scanFound(player, origin);
         int[] weights = currentWeights();
         int comfortLevel = 0;
         for (int i = 0; i < ALL_TAGS.length; i++) {
             if (found[i]) comfortLevel += weights[i];
         }
 
-        cache.put(uuid, new CachedComfort(comfortLevel, currentTick, currentPos));
+        cache.put(uuid, new CachedComfort(comfortLevel, currentTick, origin));
 
         comfortLevel = mt.api.event.ComfortCalculatedCallback.EVENT.invoker()
                 .onComfortCalculated(player, comfortLevel);
 
-        cache.put(uuid, new CachedComfort(comfortLevel, currentTick, currentPos));
+        cache.put(uuid, new CachedComfort(comfortLevel, currentTick, origin));
         return comfortLevel;
     }
 
@@ -114,7 +120,7 @@ public class ComfortCalculator {
         MidnightThoughtsConfig.ComfortSettings c = CONFIG.getComfort();
         int scanRadius = Math.max(0, Math.min(c.scanRadius, MAX_SCAN_RADIUS));
         int[] weights = currentWeights();
-        boolean[] found = c.enabled ? scanFound(player) : new boolean[ALL_TAGS.length];
+        boolean[] found = c.enabled ? scanFound(player, defaultOrigin(player)) : new boolean[ALL_TAGS.length];
         int total = 0;
         if (c.enabled) {
             for (int i = 0; i < found.length; i++) {
@@ -128,14 +134,14 @@ public class ComfortCalculator {
                 nightmare, sleepBlocked);
     }
 
-    public static boolean isNightmareMode(ServerPlayer player) {
-        if (!CONFIG.getComfort().nightmareEnabled) return false;
-        return calculateComfortLevel(player) <= CONFIG.getComfort().nightmareThreshold;
+    public static boolean isSleepBlocked(ServerPlayer player, BlockPos origin) {
+        if (!CONFIG.getComfort().sleepBlockEnabled) return false;
+        return calculateComfortLevel(player, origin) <= CONFIG.getComfort().sleepBlockThreshold;
     }
 
-    public static boolean isSleepBlocked(ServerPlayer player) {
-        if (!CONFIG.getComfort().sleepBlockEnabled) return false;
-        return calculateComfortLevel(player) <= CONFIG.getComfort().sleepBlockThreshold;
+    public static boolean isNightmare(int comfortLevel) {
+        if (!CONFIG.getComfort().nightmareEnabled) return false;
+        return comfortLevel <= CONFIG.getComfort().nightmareThreshold;
     }
 
     public static void invalidateCache(ServerPlayer player) {

@@ -52,7 +52,10 @@ public class MidnightThoughts implements ModInitializer {
 
         EntitySleepEvents.ALLOW_SLEEPING.register((player, sleepingPos) -> {
             if (!(player instanceof ServerPlayer serverPlayer)) return null;
-            if (ComfortCalculator.isSleepBlocked(serverPlayer)) {
+
+            int comfortLevel = ComfortCalculator.calculateComfortLevel(serverPlayer, sleepingPos);
+
+            if (ComfortCalculator.isSleepBlocked(serverPlayer, sleepingPos)) {
                 serverPlayer.displayClientMessage(
                         Component.translatable("midnightthoughts.sleep.nightmare_blocked"), true);
                 return Player.BedSleepingProblem.OTHER_PROBLEM;
@@ -60,11 +63,7 @@ public class MidnightThoughts implements ModInitializer {
 
             MinecraftServer srv = serverPlayer.server;
             SleepTracker tracker = DailyStatsManager.getSleepTracker(srv);
-            if (tracker != null) tracker.markPlayerSleeping(serverPlayer.getUUID());
-            if (ComfortCalculator.isNightmareMode(serverPlayer)) {
-                mt.api.event.NightmareCallback.EVENT.invoker().onNightmare(
-                        serverPlayer, ComfortCalculator.calculateComfortLevel(serverPlayer));
-            }
+            if (tracker != null) tracker.markSleepAttempt(serverPlayer.getUUID(), comfortLevel);
             return null;
         });
 

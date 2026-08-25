@@ -57,7 +57,7 @@ public class AchievementLoader {
     private static void writeEmpty(Path file) {
         try {
             String json = GSON.toJson(new AchievementsFile());
-            Files.writeString(file, json);
+            mt.common.AtomicFiles.writeString(file, json);
             LOGGER.info("Created achievements file at {}", file);
         } catch (IOException e) {
             LOGGER.warn("Failed to write achievements file: {}", e.getMessage());

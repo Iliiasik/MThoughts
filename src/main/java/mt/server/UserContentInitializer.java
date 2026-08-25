@@ -42,7 +42,7 @@ public class UserContentInitializer {
                 Path file = dir.resolve(category + ".json");
                 if (!Files.exists(file)) {
                     try {
-                        Files.writeString(file, EMPTY_CONTENT);
+                        mt.common.AtomicFiles.writeString(file, EMPTY_CONTENT);
                         LOGGER.info("Created content file at {}", file);
                     } catch (IOException e) {
                         LOGGER.warn("Failed to write file {}: {}", file, e.getMessage());

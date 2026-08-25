@@ -176,6 +176,11 @@ class MidnightThoughtsConfigTest {
             assertTrue(Float.isFinite(value), "opacity is not finite");
             assertTrue(value >= 0.0f && value <= 1.0f, "opacity out of range: " + value);
         }
+
+        for (float value : new float[]{overlay.textScale, overlay.imageScale}) {
+            assertTrue(Float.isFinite(value), "overlay scale is not finite");
+            assertTrue(value >= 0.5f && value <= 1.5f, "overlay scale out of range: " + value);
+        }
     }
 
     @Test

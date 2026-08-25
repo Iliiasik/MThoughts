@@ -135,6 +135,21 @@ public final class MidnightThoughtsConfig {
         return s != null ? s.imageOpacity() : sleepOverlay.imageOpacity;
     }
 
+    public float getOverlayTextScale() {
+        SyncConfigPacket s = ServerConfigCache.get();
+        return s != null ? s.textScale() : sleepOverlay.textScale;
+    }
+
+    public float getOverlayImageScale() {
+        SyncConfigPacket s = ServerConfigCache.get();
+        return s != null ? s.imageScale() : sleepOverlay.imageScale;
+    }
+
+    public boolean isHideHudMessagesWhenSleeping() {
+        SyncConfigPacket s = ServerConfigCache.get();
+        return s != null ? s.hideHudMessagesWhenSleeping() : sleepOverlay.hideHudMessagesWhenSleeping;
+    }
+
     public float getSpecialSlideChance() {
         SyncConfigPacket s = ServerConfigCache.get();
         return s != null ? s.specialSlideChance() : sleepOverlay.specialSlideChance;
@@ -225,6 +240,9 @@ public final class MidnightThoughtsConfig {
         public boolean useFactsApi = false;
         public boolean userContentReplaces = false;
         public boolean hideChatWhenSleeping = true;
+        public boolean hideHudMessagesWhenSleeping = true;
+        public float textScale = 1.0f;
+        public float imageScale = 1.0f;
     }
 
     public static class WellRestedSettings {
@@ -300,6 +318,7 @@ public final class MidnightThoughtsConfig {
 
     public static class ServerSettings {
         public boolean resetPhantomTimerForNonSleepers = true;
+        public boolean suppressVanillaSleepMessages = true;
     }
 
     public static class UISettings {

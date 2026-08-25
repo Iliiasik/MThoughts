@@ -37,6 +37,7 @@ public class SleepOverlayRenderer {
     private static final int VIRTUAL_TEXT_WIDTH = 1040;
     private static final float VIRTUAL_TEXT_SCALE = 3.4f;
     private static final int VIRTUAL_LINE_SPACING = 6;
+    private static final int VIRTUAL_TEXT_BLOCK = 200;
     private static final int VIRTUAL_PROGRESS_WIDTH = 220;
     private static final float GROUP_TOP_PERCENT = 0.30f;
     private static final int MAX_TEXT_LINES = 6;
@@ -117,11 +118,33 @@ public class SleepOverlayRenderer {
         }
 
         if (sleepStateManager.isSleeping() && isOverlayVisible) {
+            syncNightmareState(now);
             updateOverlayAlpha();
             updateSlideState();
             if (config.isEnableStarDust() && !isNightmareOverlay) {
                 starField.tick(now);
             }
+        }
+    }
+
+    private void syncNightmareState(long now) {
+        boolean nightmare = WellRestedClientState.isNightmareMode();
+        if (nightmare == isNightmareOverlay) return;
+
+        isNightmareOverlay = nightmare;
+        currentSlide = getNightmareAwareSlide();
+        nextSlide = getNightmareAwareSlide();
+        outgoingSlide = null;
+        outgoingAlpha = 0f;
+        incomingAlpha = 1f;
+        currentSlideDuration = config.getRandomSlideDisplayTime();
+        visibleStartTime = now;
+        slideState = SlideState.VISIBLE;
+
+        if (nightmare) {
+            nightmareField.reset(now);
+        } else {
+            starField.reset(now);
         }
     }
 
@@ -265,14 +288,22 @@ public class SleepOverlayRenderer {
         Minecraft mc = Minecraft.getInstance();
         Font font = mc.font;
 
-        float uiScale = Math.min(w / BASE_W, h / BASE_H);
-        int imageSize = Math.max(1, Math.round(VIRTUAL_IMAGE_SIZE * uiScale));
-        int gap = Math.round(VIRTUAL_GAP * uiScale);
-        int textAreaWidth = Math.round(VIRTUAL_TEXT_WIDTH * uiScale);
+        float baseScale = Math.min(w / BASE_W, h / BASE_H);
+        float imageScale = baseScale * config.getOverlayImageScale();
+        float textScale = baseScale * config.getOverlayTextScale();
+        int imageSize = Math.max(1, Math.round(VIRTUAL_IMAGE_SIZE * imageScale));
+        int gap = Math.round(VIRTUAL_GAP * imageScale);
+        int textAreaWidth = Math.round(VIRTUAL_TEXT_WIDTH * textScale);
         int lineHeight = font.lineHeight + VIRTUAL_LINE_SPACING;
         int centerX = w / 2;
         boolean showImage = config.isEnableImage();
-        int imageTop = Math.round(h * GROUP_TOP_PERCENT);
+
+        float imageBlockShift = showImage
+                ? (VIRTUAL_IMAGE_SIZE + VIRTUAL_GAP) * (1.0f - config.getOverlayImageScale())
+                : 0.0f;
+        float textBlockShift = VIRTUAL_TEXT_BLOCK * (1.0f - config.getOverlayTextScale());
+        int groupShift = Math.round((imageBlockShift + textBlockShift) * baseScale / 2.0f);
+        int imageTop = Math.round(h * GROUP_TOP_PERCENT) + groupShift;
 
         if (config.isEnableStarDust()) {
             if (isNightmareOverlay) {
@@ -288,19 +319,19 @@ public class SleepOverlayRenderer {
         int textTop = imageTop + (showImage ? imageSize + gap : 0);
 
         if (outgoingSlide != null && outgoingAlpha > 0.01f) {
-            TextLayout outgoing = outgoingCache.get(outgoingSlide, font, textAreaWidth, uiScale);
+            TextLayout outgoing = outgoingCache.get(outgoingSlide, font, textAreaWidth, textScale);
             drawLayout(context, font, outgoing, centerX, textTop, lineHeight, outgoingAlpha);
         }
 
         TextLayout currentLayout = null;
         if (currentSlide != null && incomingAlpha > 0.01f) {
-            currentLayout = currentCache.get(currentSlide, font, textAreaWidth, uiScale);
+            currentLayout = currentCache.get(currentSlide, font, textAreaWidth, textScale);
             drawLayout(context, font, currentLayout, centerX, textTop, lineHeight, incomingAlpha);
         }
 
         if (config.isShowSlideProgress() && slideState == SlideState.VISIBLE && currentLayout != null) {
             int textBottom = textTop + Math.round(currentLayout.lines().size() * lineHeight * currentLayout.scale());
-            drawProgress(context, centerX, textBottom + Math.round(18 * uiScale), uiScale, slideProgress());
+            drawProgress(context, centerX, textBottom + Math.round(18 * textScale), textScale, slideProgress());
         }
     }
 
@@ -423,6 +454,10 @@ public class SleepOverlayRenderer {
 
     public boolean shouldHideCrosshair() {
         return sleepStateManager.isSleeping() && isOverlayVisible;
+    }
+
+    public boolean shouldHideHudMessages() {
+        return config.isHideHudMessagesWhenSleeping() && sleepStateManager.isSleeping() && isOverlayVisible;
     }
 
     public boolean shouldHideChat() {

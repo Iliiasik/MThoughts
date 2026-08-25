@@ -74,6 +74,8 @@ public final class MidnightThoughtsConfigValidation {
         o.overlayOpacity = clampFloat(o.overlayOpacity, 0f, 1f, 0.4f, "sleepOverlay.overlayOpacity");
         o.textOpacity = clampFloat(o.textOpacity, 0f, 1f, 1.0f, "sleepOverlay.textOpacity");
         o.imageOpacity = clampFloat(o.imageOpacity, 0f, 1f, 0.6f, "sleepOverlay.imageOpacity");
+        o.textScale = clampFloat(o.textScale, 0.5f, 1.5f, 1.0f, "sleepOverlay.textScale");
+        o.imageScale = clampFloat(o.imageScale, 0.5f, 1.5f, 1.0f, "sleepOverlay.imageScale");
         o.specialSlideChance = clampFloat(o.specialSlideChance, 0f, 1f, 0.05f, "sleepOverlay.specialSlideChance");
     }
 
