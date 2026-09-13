@@ -15,6 +15,7 @@ import java.nio.file.Path;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class MidnightThoughtsConfigTest {
@@ -252,7 +253,7 @@ class MidnightThoughtsConfigTest {
     }
 
     @Test
-    void hastePhasesAreClamped() throws IOException {
+    void legacyHastePhasesAreMigratedAndClamped() throws IOException {
         writeConfig("""
                 {
                   "wellRested": {
@@ -264,10 +265,22 @@ class MidnightThoughtsConfigTest {
                 """);
 
         MidnightThoughtsConfig.WellRestedLevel level = MidnightThoughtsConfig.load().getWellRested().getLevel(1);
+        MidnightThoughtsConfig.AttributeBonus haste =
+                findBonus(level, MidnightThoughtsConfig.ATTRIBUTE_BLOCK_BREAK_SPEED);
 
-        assertEquals(5.0f, level.hastePhase1);
-        assertEquals(-5.0f, level.hastePhase2);
-        assertEquals(0.25f, level.hastePhase3);
+        assertEquals(5.0f, haste.phase1);
+        assertEquals(-5.0f, haste.phase2);
+        assertEquals(0.25f, haste.phase3);
+        assertEquals(MidnightThoughtsConfig.OPERATION_MULTIPLIED_BASE, haste.operation);
+        assertNull(level.hastePhase1, "legacy field must not survive the migration");
+    }
+
+    private static MidnightThoughtsConfig.AttributeBonus findBonus(
+            MidnightThoughtsConfig.WellRestedLevel level, String id) {
+        for (MidnightThoughtsConfig.AttributeBonus bonus : level.attributes) {
+            if (id.equals(bonus.id)) return bonus;
+        }
+        throw new AssertionError("no attribute bonus for " + id);
     }
 
     @Test
@@ -398,10 +411,28 @@ class MidnightThoughtsConfigTest {
         MidnightThoughtsConfig.WellRestedLevel level = MidnightThoughtsConfig.load().getWellRested().getLevel(1);
 
         assertEquals(1, level.durationMinutes);
-        assertEquals(5.0f, level.speedPhase1);
-        assertEquals(-5.0f, level.strengthPhase1);
-        assertEquals(0.0f, level.healthBonus);
         assertEquals(1.0f, level.regenBonus);
+        assertEquals(5.0f, findBonus(level, MidnightThoughtsConfig.ATTRIBUTE_MOVEMENT_SPEED).phase1);
+        assertEquals(-5.0f, findBonus(level, MidnightThoughtsConfig.ATTRIBUTE_ATTACK_DAMAGE).phase1);
+        assertEquals(0.0f, findBonus(level, MidnightThoughtsConfig.ATTRIBUTE_MAX_HEALTH).phase1);
+    }
+
+    @Test
+    void anEmptyAttributeListIsLeftAlone() throws IOException {
+        writeConfig("""
+                {
+                  "wellRested": {
+                    "levels": {
+                      "level1": { "durationMinutes": 5, "speedPhase1": 0.5, "attributes": [] }
+                    }
+                  }
+                }
+                """);
+
+        MidnightThoughtsConfig.WellRestedLevel level = MidnightThoughtsConfig.load().getWellRested().getLevel(1);
+
+        assertTrue(level.attributes.isEmpty(), "an explicitly emptied list must not be repopulated");
+        assertNull(level.speedPhase1);
     }
 
     @Test

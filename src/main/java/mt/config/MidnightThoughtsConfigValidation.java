@@ -106,23 +106,52 @@ public final class MidnightThoughtsConfigValidation {
 
     private static void validateLevel(MidnightThoughtsConfig.WellRestedLevel l, String key) {
         String p = "wellRested.levels." + key + ".";
+        migrateLegacyBonuses(l, p);
         l.durationMinutes = clampInt(l.durationMinutes, 1, 1440, p + "durationMinutes");
-        l.speedPhase1 = clampFloat(l.speedPhase1, -5f, 5f, 0f, p + "speedPhase1");
-        l.speedPhase2 = clampFloat(l.speedPhase2, -5f, 5f, 0f, p + "speedPhase2");
-        l.speedPhase3 = clampFloat(l.speedPhase3, -5f, 5f, 0f, p + "speedPhase3");
-        l.strengthPhase1 = clampFloat(l.strengthPhase1, -5f, 5f, 0f, p + "strengthPhase1");
-        l.strengthPhase2 = clampFloat(l.strengthPhase2, -5f, 5f, 0f, p + "strengthPhase2");
-        l.strengthPhase3 = clampFloat(l.strengthPhase3, -5f, 5f, 0f, p + "strengthPhase3");
-        l.hastePhase1 = clampFloat(l.hastePhase1, -5f, 5f, 0f, p + "hastePhase1");
-        l.hastePhase2 = clampFloat(l.hastePhase2, -5f, 5f, 0f, p + "hastePhase2");
-        l.hastePhase3 = clampFloat(l.hastePhase3, -5f, 5f, 0f, p + "hastePhase3");
-        l.attackSpeedPhase1 = clampFloat(l.attackSpeedPhase1, -5f, 5f, 0f, p + "attackSpeedPhase1");
-        l.attackSpeedPhase2 = clampFloat(l.attackSpeedPhase2, -5f, 5f, 0f, p + "attackSpeedPhase2");
-        l.attackSpeedPhase3 = clampFloat(l.attackSpeedPhase3, -5f, 5f, 0f, p + "attackSpeedPhase3");
-        l.healthBonus = clampFloat(l.healthBonus, 0f, 200f, 0f, p + "healthBonus");
         l.regenBonus = clampFloat(l.regenBonus, 0f, 1f, 0f, p + "regenBonus");
         l.attributes = validateAttributeBonuses(l.attributes, p);
         l.effects = validateEffectBonuses(l.effects, p);
+    }
+
+    private static void migrateLegacyBonuses(MidnightThoughtsConfig.WellRestedLevel l, String p) {
+        boolean hasLegacy = l.speedPhase1 != null || l.speedPhase2 != null || l.speedPhase3 != null
+                || l.strengthPhase1 != null || l.strengthPhase2 != null || l.strengthPhase3 != null
+                || l.hastePhase1 != null || l.hastePhase2 != null || l.hastePhase3 != null
+                || l.attackSpeedPhase1 != null || l.attackSpeedPhase2 != null || l.attackSpeedPhase3 != null
+                || l.healthBonus != null;
+
+        if (hasLegacy && l.attributes == null) {
+            List<MidnightThoughtsConfig.AttributeBonus> migrated = new ArrayList<>();
+            migrated.add(MidnightThoughtsConfig.attributeBonus(
+                    MidnightThoughtsConfig.ATTRIBUTE_MOVEMENT_SPEED, MidnightThoughtsConfig.OPERATION_MULTIPLIED_BASE,
+                    legacy(l.speedPhase1, -5f, 5f), legacy(l.speedPhase2, -5f, 5f), legacy(l.speedPhase3, -5f, 5f)));
+            migrated.add(MidnightThoughtsConfig.attributeBonus(
+                    MidnightThoughtsConfig.ATTRIBUTE_ATTACK_DAMAGE, MidnightThoughtsConfig.OPERATION_ADD_VALUE,
+                    legacy(l.strengthPhase1, -5f, 5f), legacy(l.strengthPhase2, -5f, 5f), legacy(l.strengthPhase3, -5f, 5f)));
+            migrated.add(MidnightThoughtsConfig.attributeBonus(
+                    MidnightThoughtsConfig.ATTRIBUTE_BLOCK_BREAK_SPEED, MidnightThoughtsConfig.OPERATION_MULTIPLIED_BASE,
+                    legacy(l.hastePhase1, -5f, 5f), legacy(l.hastePhase2, -5f, 5f), legacy(l.hastePhase3, -5f, 5f)));
+            migrated.add(MidnightThoughtsConfig.attributeBonus(
+                    MidnightThoughtsConfig.ATTRIBUTE_ATTACK_SPEED, MidnightThoughtsConfig.OPERATION_MULTIPLIED_BASE,
+                    legacy(l.attackSpeedPhase1, -5f, 5f), legacy(l.attackSpeedPhase2, -5f, 5f), legacy(l.attackSpeedPhase3, -5f, 5f)));
+            float health = legacy(l.healthBonus, 0f, 200f);
+            migrated.add(MidnightThoughtsConfig.attributeBonus(
+                    MidnightThoughtsConfig.ATTRIBUTE_MAX_HEALTH, MidnightThoughtsConfig.OPERATION_ADD_VALUE,
+                    health, health, health));
+            l.attributes = migrated;
+            LOGGER.info("Config section {} was migrated to the attribute list", p);
+        }
+
+        l.speedPhase1 = null; l.speedPhase2 = null; l.speedPhase3 = null;
+        l.strengthPhase1 = null; l.strengthPhase2 = null; l.strengthPhase3 = null;
+        l.hastePhase1 = null; l.hastePhase2 = null; l.hastePhase3 = null;
+        l.attackSpeedPhase1 = null; l.attackSpeedPhase2 = null; l.attackSpeedPhase3 = null;
+        l.healthBonus = null;
+    }
+
+    private static float legacy(Float value, float min, float max) {
+        if (value == null || !Float.isFinite(value)) return 0f;
+        return Math.clamp(value, min, max);
     }
 
     private static List<MidnightThoughtsConfig.AttributeBonus> validateAttributeBonuses(

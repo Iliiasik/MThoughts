@@ -23,6 +23,15 @@ public final class MidnightThoughtsConfig {
     public static final String HUD_POSITION_BAR = "bar";
     public static final String HUD_POSITION_RIGHT = "right";
 
+    public static final String ATTRIBUTE_MOVEMENT_SPEED = "minecraft:generic.movement_speed";
+    public static final String ATTRIBUTE_ATTACK_DAMAGE = "minecraft:generic.attack_damage";
+    public static final String ATTRIBUTE_ATTACK_SPEED = "minecraft:generic.attack_speed";
+    public static final String ATTRIBUTE_MAX_HEALTH = "minecraft:generic.max_health";
+    public static final String ATTRIBUTE_BLOCK_BREAK_SPEED = "minecraft:player.block_break_speed";
+
+    public static final String OPERATION_ADD_VALUE = "add_value";
+    public static final String OPERATION_MULTIPLIED_BASE = "add_multiplied_base";
+
     private static final Logger LOGGER = LoggerFactory.getLogger("MidnightThoughts");
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
@@ -252,11 +261,26 @@ public final class MidnightThoughtsConfig {
         public Map<String, WellRestedLevel> levels = new HashMap<>();
 
         public WellRestedSettings() {
-            levels.put("level1", new WellRestedLevel(3,  0.08f, 0.04f, 0.02f,  0.25f, 0.25f, 0.25f,  0.07f, 0.04f, 0.02f,  0.02f, 0.01f, 0.01f,  2.0f, 0.01f));
-            levels.put("level2", new WellRestedLevel(5,  0.12f, 0.06f, 0.03f,  0.50f, 0.25f, 0.25f,  0.11f, 0.06f, 0.03f,  0.04f, 0.02f, 0.01f,  4.0f, 0.02f));
-            levels.put("level3", new WellRestedLevel(7,  0.16f, 0.09f, 0.04f,  0.75f, 0.50f, 0.25f,  0.15f, 0.08f, 0.04f,  0.05f, 0.03f, 0.01f,  6.0f, 0.03f));
-            levels.put("level4", new WellRestedLevel(10, 0.20f, 0.12f, 0.06f,  1.00f, 0.75f, 0.50f,  0.20f, 0.11f, 0.06f,  0.06f, 0.03f, 0.02f,  8.0f, 0.04f));
-            levels.put("level5", new WellRestedLevel(15, 0.25f, 0.15f, 0.08f,  1.50f, 1.00f, 0.50f,  0.25f, 0.14f, 0.07f,  0.07f, 0.04f, 0.02f, 10.0f, 0.05f));
+            levels.put("level1", defaultLevel(3,  0.01f, 0.08f, 0.04f, 0.02f, 0.25f, 0.25f, 0.25f, 0.07f, 0.04f, 0.02f, 0.02f, 0.01f, 0.01f,  2.0f));
+            levels.put("level2", defaultLevel(5,  0.02f, 0.12f, 0.06f, 0.03f, 0.50f, 0.25f, 0.25f, 0.11f, 0.06f, 0.03f, 0.04f, 0.02f, 0.01f,  4.0f));
+            levels.put("level3", defaultLevel(7,  0.03f, 0.16f, 0.09f, 0.04f, 0.75f, 0.50f, 0.25f, 0.15f, 0.08f, 0.04f, 0.05f, 0.03f, 0.01f,  6.0f));
+            levels.put("level4", defaultLevel(10, 0.04f, 0.20f, 0.12f, 0.06f, 1.00f, 0.75f, 0.50f, 0.20f, 0.11f, 0.06f, 0.06f, 0.03f, 0.02f,  8.0f));
+            levels.put("level5", defaultLevel(15, 0.05f, 0.25f, 0.15f, 0.08f, 1.50f, 1.00f, 0.50f, 0.25f, 0.14f, 0.07f, 0.07f, 0.04f, 0.02f, 10.0f));
+        }
+
+        private static WellRestedLevel defaultLevel(int durationMinutes, float regenBonus,
+                                                    float speed1, float speed2, float speed3,
+                                                    float strength1, float strength2, float strength3,
+                                                    float haste1, float haste2, float haste3,
+                                                    float attackSpeed1, float attackSpeed2, float attackSpeed3,
+                                                    float health) {
+            WellRestedLevel level = new WellRestedLevel(durationMinutes, regenBonus);
+            level.attributes.add(attributeBonus(ATTRIBUTE_MOVEMENT_SPEED, OPERATION_MULTIPLIED_BASE, speed1, speed2, speed3));
+            level.attributes.add(attributeBonus(ATTRIBUTE_ATTACK_DAMAGE, OPERATION_ADD_VALUE, strength1, strength2, strength3));
+            level.attributes.add(attributeBonus(ATTRIBUTE_BLOCK_BREAK_SPEED, OPERATION_MULTIPLIED_BASE, haste1, haste2, haste3));
+            level.attributes.add(attributeBonus(ATTRIBUTE_ATTACK_SPEED, OPERATION_MULTIPLIED_BASE, attackSpeed1, attackSpeed2, attackSpeed3));
+            level.attributes.add(attributeBonus(ATTRIBUTE_MAX_HEALTH, OPERATION_ADD_VALUE, health, health, health));
+            return level;
         }
 
         public WellRestedLevel getLevel(int level) {
@@ -264,30 +288,33 @@ public final class MidnightThoughtsConfig {
         }
     }
 
+    public static AttributeBonus attributeBonus(String id, String operation, float phase1, float phase2, float phase3) {
+        AttributeBonus bonus = new AttributeBonus();
+        bonus.id = id;
+        bonus.operation = operation;
+        bonus.phase1 = phase1;
+        bonus.phase2 = phase2;
+        bonus.phase3 = phase3;
+        return bonus;
+    }
+
     public static class WellRestedLevel {
         public int durationMinutes;
-        public float speedPhase1, speedPhase2, speedPhase3;
-        public float strengthPhase1, strengthPhase2, strengthPhase3;
-        public float hastePhase1, hastePhase2, hastePhase3;
-        public float attackSpeedPhase1, attackSpeedPhase2, attackSpeedPhase3;
-        public float healthBonus;
         public float regenBonus;
-        public List<AttributeBonus> attributes = new ArrayList<>();
-        public List<EffectBonus> effects = new ArrayList<>();
+        public List<AttributeBonus> attributes;
+        public List<EffectBonus> effects;
 
-        public WellRestedLevel(int durationMinutes,
-                               float speedPhase1, float speedPhase2, float speedPhase3,
-                               float strengthPhase1, float strengthPhase2, float strengthPhase3,
-                               float hastePhase1, float hastePhase2, float hastePhase3,
-                               float attackSpeedPhase1, float attackSpeedPhase2, float attackSpeedPhase3,
-                               float healthBonus, float regenBonus) {
+        public Float speedPhase1, speedPhase2, speedPhase3;
+        public Float strengthPhase1, strengthPhase2, strengthPhase3;
+        public Float hastePhase1, hastePhase2, hastePhase3;
+        public Float attackSpeedPhase1, attackSpeedPhase2, attackSpeedPhase3;
+        public Float healthBonus;
+
+        public WellRestedLevel(int durationMinutes, float regenBonus) {
             this.durationMinutes = durationMinutes;
-            this.speedPhase1 = speedPhase1; this.speedPhase2 = speedPhase2; this.speedPhase3 = speedPhase3;
-            this.strengthPhase1 = strengthPhase1; this.strengthPhase2 = strengthPhase2; this.strengthPhase3 = strengthPhase3;
-            this.hastePhase1 = hastePhase1; this.hastePhase2 = hastePhase2; this.hastePhase3 = hastePhase3;
-            this.attackSpeedPhase1 = attackSpeedPhase1; this.attackSpeedPhase2 = attackSpeedPhase2; this.attackSpeedPhase3 = attackSpeedPhase3;
-            this.healthBonus = healthBonus;
             this.regenBonus = regenBonus;
+            this.attributes = new ArrayList<>();
+            this.effects = new ArrayList<>();
         }
     }
 

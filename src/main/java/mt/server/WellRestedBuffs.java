@@ -29,7 +29,6 @@ public final class WellRestedBuffs {
     private static final String ATTRIBUTES_KEY = "mt_well_rested_attributes";
     private static final String EFFECTS_KEY = "mt_well_rested_effects";
     private static final String SEPARATOR = ";";
-    private static final String GENERIC_PREFIX = "generic.";
     private static final Set<String> REPORTED_MISSING = new HashSet<>();
 
     private WellRestedBuffs() {}
@@ -42,11 +41,13 @@ public final class WellRestedBuffs {
 
     public static void removeAll(ServerPlayer player) {
         for (String id : storedIds(player, ATTRIBUTES_KEY)) {
-            AttributeInstance instance = attributeInstance(player, id);
+            Holder.Reference<Attribute> attribute = resolveAttribute(id);
+            if (attribute == null) continue;
+            AttributeInstance instance = player.getAttribute(attribute);
             if (instance != null) instance.removeModifier(modifierId(id));
         }
         for (String id : storedIds(player, EFFECTS_KEY)) {
-            Holder<MobEffect> effect = resolveEffect(id);
+            Holder.Reference<MobEffect> effect = resolveEffect(id);
             if (effect != null) player.removeEffect(effect);
         }
         player.getPersistentData().remove(ATTRIBUTES_KEY);
@@ -63,16 +64,22 @@ public final class WellRestedBuffs {
         Set<String> current = new LinkedHashSet<>();
 
         for (MidnightThoughtsConfig.AttributeBonus bonus : bonuses) {
-            AttributeInstance instance = attributeInstance(player, bonus.id);
+            Holder.Reference<Attribute> attribute = resolveAttribute(bonus.id);
+            if (attribute == null) continue;
+            String canonical = attribute.key().location().toString();
+            if (current.contains(canonical)) continue;
+            AttributeInstance instance = player.getAttribute(attribute);
             if (instance == null) continue;
             instance.addOrReplacePermanentModifier(new AttributeModifier(
-                    modifierId(bonus.id), phaseValue(bonus, phaseIndex), operationOf(bonus.operation)));
-            current.add(bonus.id);
+                    modifierId(canonical), phaseValue(bonus, phaseIndex), operationOf(bonus.operation)));
+            current.add(canonical);
         }
 
         for (String id : previous) {
             if (current.contains(id)) continue;
-            AttributeInstance instance = attributeInstance(player, id);
+            Holder.Reference<Attribute> attribute = resolveAttribute(id);
+            if (attribute == null) continue;
+            AttributeInstance instance = player.getAttribute(attribute);
             if (instance != null) instance.removeModifier(modifierId(id));
         }
 
@@ -89,15 +96,17 @@ public final class WellRestedBuffs {
         for (MidnightThoughtsConfig.EffectBonus bonus : bonuses) {
             int amplifier = phaseAmplifier(bonus, phaseIndex);
             if (amplifier < 0) continue;
-            Holder<MobEffect> effect = resolveEffect(bonus.id);
+            Holder.Reference<MobEffect> effect = resolveEffect(bonus.id);
             if (effect == null) continue;
+            String canonical = effect.key().location().toString();
+            if (current.contains(canonical)) continue;
             player.addEffect(new MobEffectInstance(effect, duration, amplifier, true, false, true));
-            current.add(bonus.id);
+            current.add(canonical);
         }
 
         for (String id : previous) {
             if (current.contains(id)) continue;
-            Holder<MobEffect> effect = resolveEffect(id);
+            Holder.Reference<MobEffect> effect = resolveEffect(id);
             if (effect != null) player.removeEffect(effect);
         }
 
@@ -129,41 +138,22 @@ public final class WellRestedBuffs {
         };
     }
 
-    private static AttributeInstance attributeInstance(ServerPlayer player, String rawId) {
-        Holder<Attribute> attribute = resolveAttribute(rawId);
-        return attribute == null ? null : player.getAttribute(attribute);
-    }
-
-    private static Holder<Attribute> resolveAttribute(String rawId) {
+    private static Holder.Reference<Attribute> resolveAttribute(String rawId) {
         ResourceLocation location = ResourceLocation.tryParse(rawId);
         if (location == null) {
             warnMissing(rawId);
             return null;
         }
-        Holder<Attribute> direct = lookupAttribute(location);
-        if (direct != null) return direct;
-        Holder<Attribute> alias = lookupAttribute(withGenericToggled(location));
-        if (alias != null) return alias;
-        warnMissing(rawId);
-        return null;
-    }
-
-    private static Holder<Attribute> lookupAttribute(ResourceLocation location) {
-        if (location == null) return null;
         Optional<Holder.Reference<Attribute>> holder =
                 BuiltInRegistries.ATTRIBUTE.getHolder(ResourceKey.create(Registries.ATTRIBUTE, location));
-        return holder.orElse(null);
+        if (holder.isEmpty()) {
+            warnMissing(rawId);
+            return null;
+        }
+        return holder.get();
     }
 
-    private static ResourceLocation withGenericToggled(ResourceLocation location) {
-        String path = location.getPath();
-        String toggled = path.startsWith(GENERIC_PREFIX)
-                ? path.substring(GENERIC_PREFIX.length())
-                : GENERIC_PREFIX + path;
-        return ResourceLocation.tryBuild(location.getNamespace(), toggled);
-    }
-
-    private static Holder<MobEffect> resolveEffect(String rawId) {
+    private static Holder.Reference<MobEffect> resolveEffect(String rawId) {
         ResourceLocation location = ResourceLocation.tryParse(rawId);
         if (location == null) {
             warnMissing(rawId);
