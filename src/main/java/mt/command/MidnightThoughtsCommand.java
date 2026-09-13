@@ -38,6 +38,8 @@ public final class MidnightThoughtsCommand {
                                 .then(Commands.literal("achievements").executes(MidnightThoughtsCommand::reloadAchievements))
                                 .then(Commands.literal("content").executes(MidnightThoughtsCommand::reloadContent))
                                 .then(Commands.literal("all").executes(MidnightThoughtsCommand::reloadAll)))
+                        .then(Commands.literal("config")
+                                .then(Commands.literal("recreate").executes(MidnightThoughtsCommand::recreateConfig)))
                         .then(Commands.literal("comfort")
                                 .executes(MidnightThoughtsCommand::comfortDebug)
                                 .then(Commands.argument("target", EntityArgument.player())
@@ -60,6 +62,23 @@ public final class MidnightThoughtsCommand {
     private static int reloadConfig(CommandContext<CommandSourceStack> ctx) {
         doReloadConfig(ctx.getSource().getServer());
         reply(ctx, "Config reloaded and synced.");
+        return 1;
+    }
+
+    private static int recreateConfig(CommandContext<CommandSourceStack> ctx) {
+        String backup = MidnightThoughtsConfig.recreate();
+        if (backup == null) {
+            replyFailure(ctx, "Could not back up the current config, nothing was changed.");
+            return 0;
+        }
+        ComfortCalculator.clearCache();
+        SyncConfigPacket packet = SyncConfigPacket.of(MidnightThoughtsConfig.getInstance());
+        for (ServerPlayer player : ctx.getSource().getServer().getPlayerList().getPlayers()) {
+            NetworkHandler.sendConfig(player, packet);
+        }
+        reply(ctx, backup.isEmpty()
+                ? "Config recreated with defaults and synced."
+                : "Config recreated with defaults and synced. Previous file saved as " + backup + ".");
         return 1;
     }
 

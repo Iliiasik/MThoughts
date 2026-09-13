@@ -15,7 +15,6 @@ import java.nio.file.Path;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class MidnightThoughtsConfigTest {
@@ -253,26 +252,50 @@ class MidnightThoughtsConfigTest {
     }
 
     @Test
-    void legacyHastePhasesAreMigratedAndClamped() throws IOException {
+    void aLevelWithoutAnAttributeListFallsBackToDefaults() throws IOException {
         writeConfig("""
                 {
                   "wellRested": {
                     "levels": {
-                      "level1": { "hastePhase1": 900.0, "hastePhase2": -900.0, "hastePhase3": 0.25 }
+                      "level1": { "durationMinutes": 4 }
                     }
                   }
                 }
                 """);
 
         MidnightThoughtsConfig.WellRestedLevel level = MidnightThoughtsConfig.load().getWellRested().getLevel(1);
-        MidnightThoughtsConfig.AttributeBonus haste =
-                findBonus(level, MidnightThoughtsConfig.ATTRIBUTE_BLOCK_BREAK_SPEED);
 
-        assertEquals(5.0f, haste.phase1);
-        assertEquals(-5.0f, haste.phase2);
-        assertEquals(0.25f, haste.phase3);
-        assertEquals(MidnightThoughtsConfig.OPERATION_MULTIPLIED_BASE, haste.operation);
-        assertNull(level.hastePhase1, "legacy field must not survive the migration");
+        assertEquals(4, level.durationMinutes, "an explicit value must survive the fallback");
+        assertFalse(level.attributes.isEmpty(), "a missing list must not leave the level without bonuses");
+        assertNotNull(findBonus(level, MidnightThoughtsConfig.ATTRIBUTE_MOVEMENT_SPEED));
+        assertNotNull(findBonus(level, MidnightThoughtsConfig.ATTRIBUTE_MAX_HEALTH));
+    }
+
+    @Test
+    void attributeBonusValuesAreClamped() throws IOException {
+        writeConfig("""
+                {
+                  "wellRested": {
+                    "levels": {
+                      "level1": {
+                        "attributes": [
+                          { "id": "minecraft:generic.luck", "operation": "nonsense",
+                            "phase1": 99999.0, "phase2": -99999.0, "phase3": 2.0 }
+                        ]
+                      }
+                    }
+                  }
+                }
+                """);
+
+        MidnightThoughtsConfig.WellRestedLevel level = MidnightThoughtsConfig.load().getWellRested().getLevel(1);
+        MidnightThoughtsConfig.AttributeBonus luck = findBonus(level, "minecraft:generic.luck");
+
+        assertEquals(10000.0f, luck.phase1);
+        assertEquals(-10000.0f, luck.phase2);
+        assertEquals(2.0f, luck.phase3);
+        assertEquals(MidnightThoughtsConfig.OPERATION_ADD_VALUE, luck.operation,
+                "an unknown operation must fall back to add_value");
     }
 
     private static MidnightThoughtsConfig.AttributeBonus findBonus(
@@ -398,9 +421,6 @@ class MidnightThoughtsConfigTest {
                     "levels": {
                       "level1": {
                         "durationMinutes": 0,
-                        "speedPhase1": 900.0,
-                        "strengthPhase1": -900.0,
-                        "healthBonus": -5.0,
                         "regenBonus": 55.0
                       }
                     }
@@ -412,9 +432,6 @@ class MidnightThoughtsConfigTest {
 
         assertEquals(1, level.durationMinutes);
         assertEquals(1.0f, level.regenBonus);
-        assertEquals(5.0f, findBonus(level, MidnightThoughtsConfig.ATTRIBUTE_MOVEMENT_SPEED).phase1);
-        assertEquals(-5.0f, findBonus(level, MidnightThoughtsConfig.ATTRIBUTE_ATTACK_DAMAGE).phase1);
-        assertEquals(0.0f, findBonus(level, MidnightThoughtsConfig.ATTRIBUTE_MAX_HEALTH).phase1);
     }
 
     @Test
@@ -423,7 +440,7 @@ class MidnightThoughtsConfigTest {
                 {
                   "wellRested": {
                     "levels": {
-                      "level1": { "durationMinutes": 5, "speedPhase1": 0.5, "attributes": [] }
+                      "level1": { "durationMinutes": 5, "attributes": [] }
                     }
                   }
                 }
@@ -432,7 +449,6 @@ class MidnightThoughtsConfigTest {
         MidnightThoughtsConfig.WellRestedLevel level = MidnightThoughtsConfig.load().getWellRested().getLevel(1);
 
         assertTrue(level.attributes.isEmpty(), "an explicitly emptied list must not be repopulated");
-        assertNull(level.speedPhase1);
     }
 
     @Test

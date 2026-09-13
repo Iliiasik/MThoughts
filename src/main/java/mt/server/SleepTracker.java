@@ -15,14 +15,10 @@ import java.util.Set;
 import java.util.UUID;
 
 public class SleepTracker {
-    private static final long NIGHT_START = 12542;
-    private static final long MORNING_TIME = 1000;
-
     private final MinecraftServer server;
     private int lastSleepingCount = -1;
     private int lastTotalPlayers = -1;
     private boolean wasNight = false;
-    private long lastTimeOfDay = -1;
     private final Set<UUID> playersWhoSlept = new HashSet<>();
     private final Set<UUID> wakeVoluntarily = new HashSet<>();
     private final Map<UUID, Integer> pinnedComfort = new HashMap<>();
@@ -36,17 +32,17 @@ public class SleepTracker {
         ServerLevel overworld = server.getLevel(Level.OVERWORLD);
         if (overworld == null) return;
 
-        long timeOfDay = overworld.getDayTime() % 24000;
-        boolean currentlyNight = isNightTime(timeOfDay);
+        boolean isDay = overworld.isDay();
 
+        boolean hasPendingSleep = !pendingSleep.isEmpty();
         int sleepingCount = 0;
         int totalPlayers = 0;
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             boolean sleeping = player.isSleeping();
-            confirmSleepAttempt(player, sleeping);
+            if (hasPendingSleep) confirmSleepAttempt(player, sleeping);
             if (sleeping) sleepingCount++;
             if (!player.isSpectator()) totalPlayers++;
-            if (currentlyNight && sleeping) {
+            if (!isDay && sleeping) {
                 playersWhoSlept.add(player.getUUID());
             }
         }
@@ -57,26 +53,18 @@ public class SleepTracker {
             lastTotalPlayers = totalPlayers;
         }
 
-        if (currentlyNight) {
+        if (!isDay) {
             wasNight = true;
+        } else if (wasNight) {
+            wasNight = false;
+            Set<UUID> slept = new HashSet<>(playersWhoSlept);
+            slept.removeAll(wakeVoluntarily);
+            playersWhoSlept.clear();
+            wakeVoluntarily.clear();
+            DailyStatsManager.showDailySummaryAndReset(server, slept);
+            pinnedComfort.clear();
+            pendingSleep.clear();
         }
-
-        if (wasNight && !currentlyNight) {
-            boolean timeJumped = lastTimeOfDay >= 0 && lastTimeOfDay > timeOfDay;
-            boolean morningTransition = lastTimeOfDay >= 0 && isNightTime(lastTimeOfDay) && isMorningTime(timeOfDay);
-            if (timeJumped || morningTransition) {
-                wasNight = false;
-                Set<UUID> slept = new HashSet<>(playersWhoSlept);
-                slept.removeAll(wakeVoluntarily);
-                playersWhoSlept.clear();
-                wakeVoluntarily.clear();
-                DailyStatsManager.showDailySummaryAndReset(server, slept);
-                pinnedComfort.clear();
-                pendingSleep.clear();
-            }
-        }
-
-        lastTimeOfDay = timeOfDay;
     }
 
     public void markPlayerListChanged() {
@@ -84,13 +72,10 @@ public class SleepTracker {
         lastTotalPlayers = -1;
     }
 
-    public void markPlayerWoke(UUID uuid) {
-        ServerLevel overworld = server.getLevel(Level.OVERWORLD);
-        if (overworld == null) return;
-        long timeOfDay = overworld.getDayTime() % 24000;
-        if (isNightTime(timeOfDay)) {
-            wakeVoluntarily.add(uuid);
-        }
+    @SuppressWarnings("resource")
+    public void markPlayerWoke(ServerPlayer player) {
+        if (player.level().isDay()) return;
+        wakeVoluntarily.add(player.getUUID());
     }
 
     public void markSleepAttempt(UUID uuid, int comfortLevel) {
@@ -122,14 +107,6 @@ public class SleepTracker {
         pendingSleep.remove(uuid);
         wakeVoluntarily.remove(uuid);
         playersWhoSlept.remove(uuid);
-    }
-
-    private boolean isNightTime(long time) {
-        return time >= NIGHT_START || time < 0;
-    }
-
-    private boolean isMorningTime(long time) {
-        return time >= 0 && time <= MORNING_TIME + 500;
     }
 
     private void sendSleepingCountToAllPlayers(int sleeping, int total) {

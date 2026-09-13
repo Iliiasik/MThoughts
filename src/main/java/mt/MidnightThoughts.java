@@ -82,7 +82,7 @@ public class MidnightThoughts {
         if (event.wakeImmediately()) return;
         if (!event.updateLevel()) return;
         SleepTracker tracker = DailyStatsManager.getSleepTracker(serverPlayer.server);
-        if (tracker != null) tracker.markPlayerWoke(serverPlayer.getUUID());
+        if (tracker != null) tracker.markPlayerWoke(serverPlayer);
     }
 
     @SubscribeEvent

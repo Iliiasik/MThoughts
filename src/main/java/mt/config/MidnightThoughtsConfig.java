@@ -85,6 +85,30 @@ public final class MidnightThoughtsConfig {
         }
     }
 
+    public static String recreate() {
+        Path configPath = getConfigPath();
+        String backupName = null;
+        if (Files.exists(configPath)) {
+            Path backup = configPath.resolveSibling("midnightthoughts.json.backup");
+            try {
+                Files.move(configPath, backup, StandardCopyOption.REPLACE_EXISTING);
+                backupName = backup.getFileName().toString();
+                LOGGER.warn("Previous configuration saved as {}", backupName);
+            } catch (IOException e) {
+                LOGGER.error("Failed to back up configuration: {}", e.getMessage());
+                return null;
+            }
+        }
+        MidnightThoughtsConfig fresh = new MidnightThoughtsConfig();
+        fresh.save();
+        if (instance == null) {
+            instance = fresh;
+        } else {
+            instance.copyFrom(fresh);
+        }
+        return backupName == null ? "" : backupName;
+    }
+
     public void save() {
         Path configPath = getConfigPath();
         try {
@@ -303,12 +327,6 @@ public final class MidnightThoughtsConfig {
         public float regenBonus;
         public List<AttributeBonus> attributes;
         public List<EffectBonus> effects;
-
-        public Float speedPhase1, speedPhase2, speedPhase3;
-        public Float strengthPhase1, strengthPhase2, strengthPhase3;
-        public Float hastePhase1, hastePhase2, hastePhase3;
-        public Float attackSpeedPhase1, attackSpeedPhase2, attackSpeedPhase3;
-        public Float healthBonus;
 
         public WellRestedLevel(int durationMinutes, float regenBonus) {
             this.durationMinutes = durationMinutes;
