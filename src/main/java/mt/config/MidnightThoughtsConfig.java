@@ -12,7 +12,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -175,6 +177,21 @@ public final class MidnightThoughtsConfig {
         return s != null ? s.hideChatWhenSleeping() : sleepOverlay.hideChatWhenSleeping;
     }
 
+    public boolean isHideHudMessagesWhenSleeping() {
+        SyncConfigPacket s = ServerConfigCache.get();
+        return s != null ? s.hideHudMessagesWhenSleeping() : sleepOverlay.hideHudMessagesWhenSleeping;
+    }
+
+    public float getOverlayTextScale() {
+        SyncConfigPacket s = ServerConfigCache.get();
+        return s != null ? s.overlayTextScale() : sleepOverlay.textScale;
+    }
+
+    public float getOverlayImageScale() {
+        SyncConfigPacket s = ServerConfigCache.get();
+        return s != null ? s.overlayImageScale() : sleepOverlay.imageScale;
+    }
+
     public boolean isHideWellRestedHud() {
         SyncConfigPacket s = ServerConfigCache.get();
         return s != null ? s.hideWellRestedHud() : ui.hideWellRestedHud;
@@ -225,6 +242,9 @@ public final class MidnightThoughtsConfig {
         public boolean useFactsApi = false;
         public boolean userContentReplaces = false;
         public boolean hideChatWhenSleeping = true;
+        public boolean hideHudMessagesWhenSleeping = true;
+        public float textScale = 1.0f;
+        public float imageScale = 1.0f;
     }
 
     public static class WellRestedSettings {
@@ -252,6 +272,8 @@ public final class MidnightThoughtsConfig {
         public float attackSpeedPhase1, attackSpeedPhase2, attackSpeedPhase3;
         public float healthBonus;
         public float regenBonus;
+        public List<AttributeBonus> attributes = new ArrayList<>();
+        public List<EffectBonus> effects = new ArrayList<>();
 
         public WellRestedLevel(int durationMinutes,
                                float speedPhase1, float speedPhase2, float speedPhase3,
@@ -267,6 +289,21 @@ public final class MidnightThoughtsConfig {
             this.healthBonus = healthBonus;
             this.regenBonus = regenBonus;
         }
+    }
+
+    public static class AttributeBonus {
+        public String id = "";
+        public String operation = "add_value";
+        public float phase1 = 0.0f;
+        public float phase2 = 0.0f;
+        public float phase3 = 0.0f;
+    }
+
+    public static class EffectBonus {
+        public String id = "";
+        public int phase1 = -1;
+        public int phase2 = -1;
+        public int phase3 = -1;
     }
 
     public static class MvpSettings {
@@ -303,6 +340,7 @@ public final class MidnightThoughtsConfig {
 
     public static class ServerSettings {
         public boolean resetPhantomTimerForNonSleepers = true;
+        public boolean suppressVanillaSleepMessages = true;
     }
 
     public static class UISettings {

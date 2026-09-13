@@ -5,9 +5,12 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.network.PacketDistributor;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -22,6 +25,8 @@ public class SleepTracker {
     private long lastTimeOfDay = -1;
     private final Set<UUID> playersWhoSlept = new HashSet<>();
     private final Set<UUID> wakeVoluntarily = new HashSet<>();
+    private final Map<UUID, Integer> pinnedComfort = new HashMap<>();
+    private final Map<UUID, Integer> pendingSleep = new HashMap<>();
 
     public SleepTracker(MinecraftServer server) {
         this.server = server;
@@ -38,6 +43,7 @@ public class SleepTracker {
         int totalPlayers = 0;
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             boolean sleeping = player.isSleeping();
+            confirmSleepAttempt(player, sleeping);
             if (sleeping) sleepingCount++;
             if (!player.isSpectator()) totalPlayers++;
             if (currentlyNight && sleeping) {
@@ -65,6 +71,8 @@ public class SleepTracker {
                 playersWhoSlept.clear();
                 wakeVoluntarily.clear();
                 DailyStatsManager.showDailySummaryAndReset(server, slept);
+                pinnedComfort.clear();
+                pendingSleep.clear();
             }
         }
 
@@ -76,10 +84,6 @@ public class SleepTracker {
         lastTotalPlayers = -1;
     }
 
-    public void markPlayerSleeping(UUID uuid) {
-        wakeVoluntarily.remove(uuid);
-    }
-
     public void markPlayerWoke(UUID uuid) {
         ServerLevel overworld = server.getLevel(Level.OVERWORLD);
         if (overworld == null) return;
@@ -87,6 +91,37 @@ public class SleepTracker {
         if (isNightTime(timeOfDay)) {
             wakeVoluntarily.add(uuid);
         }
+    }
+
+    public void markSleepAttempt(UUID uuid, int comfortLevel) {
+        pendingSleep.put(uuid, comfortLevel);
+    }
+
+    private void confirmSleepAttempt(ServerPlayer player, boolean sleeping) {
+        Integer comfortLevel = pendingSleep.remove(player.getUUID());
+        if (comfortLevel == null || !sleeping) return;
+
+        wakeVoluntarily.remove(player.getUUID());
+        pinnedComfort.put(player.getUUID(), comfortLevel);
+        if (ComfortCalculator.isNightmare(comfortLevel)) {
+            NeoForge.EVENT_BUS.post(new mt.api.event.NightmareEvent(player, comfortLevel));
+        }
+    }
+
+    public Integer getPinnedComfort(UUID uuid) {
+        return pinnedComfort.get(uuid);
+    }
+
+    public Integer getSessionComfort(UUID uuid) {
+        Integer pinned = pinnedComfort.get(uuid);
+        return pinned != null ? pinned : pendingSleep.get(uuid);
+    }
+
+    public void forgetPlayer(UUID uuid) {
+        pinnedComfort.remove(uuid);
+        pendingSleep.remove(uuid);
+        wakeVoluntarily.remove(uuid);
+        playersWhoSlept.remove(uuid);
     }
 
     private boolean isNightTime(long time) {

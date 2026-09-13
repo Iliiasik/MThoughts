@@ -29,7 +29,8 @@ public final class WellRestedSync {
         int ticksRemaining = WellRestedEffect.getTicksRemaining(player);
         int totalTicks = active ? WellRestedEffect.getTotalDurationTicksForPlayer(player) : 0;
         int phase = WellRestedEffect.getCurrentPhase(player);
-        boolean nightmare = player.isSleeping() && ComfortCalculator.isNightmareMode(player);
+        Integer sessionComfort = DailyStatsManager.sessionComfort(player);
+        boolean nightmare = sessionComfort != null && ComfortCalculator.isNightmare(sessionComfort);
         boolean mvp = WellRestedEffect.isMvp(player);
 
         long now = player.level().getGameTime();

@@ -12,8 +12,8 @@ import mt.server.UserContentInitializer;
 import mt.server.WellRestedEffect;
 import mt.server.WellRestedSync;
 import mt.config.MidnightThoughtsConfig;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.IEventBus;
@@ -80,29 +80,29 @@ public class MidnightThoughts {
     public void onPlayerWakeUp(PlayerWakeUpEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer serverPlayer)) return;
         if (event.wakeImmediately()) return;
-        MinecraftServer srv = serverPlayer.server;
-        SleepTracker tracker = DailyStatsManager.getSleepTracker(srv);
+        if (!event.updateLevel()) return;
+        SleepTracker tracker = DailyStatsManager.getSleepTracker(serverPlayer.server);
         if (tracker != null) tracker.markPlayerWoke(serverPlayer.getUUID());
     }
 
     @SubscribeEvent
     public void onCanPlayerSleep(CanPlayerSleepEvent event) {
         ServerPlayer serverPlayer = event.getEntity();
-        if (ComfortCalculator.isSleepBlocked(serverPlayer)) {
+        BlockPos bedPos = event.getPos();
+
+        int comfortLevel = ComfortCalculator.calculateComfortLevel(serverPlayer, bedPos);
+
+        if (ComfortCalculator.isSleepBlocked(serverPlayer, bedPos)) {
             event.setProblem(Player.BedSleepingProblem.OTHER_PROBLEM);
             serverPlayer.displayClientMessage(
                     Component.translatable("midnightthoughts.sleep.nightmare_blocked"),
                     true
             );
-        } else {
-            MinecraftServer srv = serverPlayer.server;
-            SleepTracker tracker = DailyStatsManager.getSleepTracker(srv);
-            if (tracker != null) tracker.markPlayerSleeping(serverPlayer.getUUID());
-            if (ComfortCalculator.isNightmareMode(serverPlayer)) {
-                NeoForge.EVENT_BUS.post(new mt.api.event.NightmareEvent(
-                        serverPlayer, ComfortCalculator.calculateComfortLevel(serverPlayer)));
-            }
+            return;
         }
+
+        SleepTracker tracker = DailyStatsManager.getSleepTracker(serverPlayer.server);
+        if (tracker != null) tracker.markSleepAttempt(serverPlayer.getUUID(), comfortLevel);
     }
 
     @SubscribeEvent

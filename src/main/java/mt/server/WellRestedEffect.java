@@ -45,6 +45,7 @@ public class WellRestedEffect {
 
         applyHealthBonus(player, lvl.healthBonus);
         applyPhaseAttributes(player, lvl.speedPhase1, lvl.strengthPhase1, lvl.hastePhase1, lvl.attackSpeedPhase1);
+        WellRestedBuffs.apply(player, lvl, 0, getTotalDurationTicks(lvlIdx));
 
         player.setHealth(player.getMaxHealth());
 
@@ -65,6 +66,7 @@ public class WellRestedEffect {
         player.getPersistentData().remove("mt_well_rested_phase");
         player.getPersistentData().remove("mt_well_rested_mvp_flag");
         removeAttributes(player);
+        WellRestedBuffs.removeAll(player);
     }
 
     public static void tick(ServerPlayer player) {
@@ -116,6 +118,7 @@ public class WellRestedEffect {
         if (previousPhase != currentPhaseIndex) {
             player.getPersistentData().putInt("mt_well_rested_phase", currentPhaseIndex);
             applyPhaseAttributes(player, speed, strength, haste, attackSpeed);
+            WellRestedBuffs.apply(player, lvl, currentPhaseIndex, ticksRemaining);
             syncAttributes(player);
         }
 
@@ -185,6 +188,7 @@ public class WellRestedEffect {
 
         applyHealthBonus(player, lvl.healthBonus);
         applyPhaseAttributes(player, lvl.speedPhase1, lvl.strengthPhase1, lvl.hastePhase1, lvl.attackSpeedPhase1);
+        WellRestedBuffs.apply(player, lvl, 0, durationTicks);
 
         player.setHealth(player.getMaxHealth());
 

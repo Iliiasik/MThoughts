@@ -27,7 +27,10 @@ public record SyncConfigPacket(
         boolean hideSleepingPlayersHud,
         boolean hideThemeSwitchButton,
         boolean enableStarDust,
-        boolean showSlideProgress
+        boolean showSlideProgress,
+        boolean hideHudMessagesWhenSleeping,
+        float overlayTextScale,
+        float overlayImageScale
 ) implements CustomPacketPayload {
     public static SyncConfigPacket of(mt.config.MidnightThoughtsConfig cfg) {
         mt.config.MidnightThoughtsConfig.SleepOverlaySettings o = cfg.getSleepOverlay();
@@ -53,7 +56,10 @@ public record SyncConfigPacket(
                 ui.hideSleepingPlayersHud,
                 ui.hideThemeSwitchButton,
                 o.enableStarDust,
-                o.showSlideProgress
+                o.showSlideProgress,
+                o.hideHudMessagesWhenSleeping,
+                o.textScale,
+                o.imageScale
         );
     }
 
@@ -83,6 +89,9 @@ public record SyncConfigPacket(
                 buf.writeBoolean(p.hideThemeSwitchButton());
                 buf.writeBoolean(p.enableStarDust());
                 buf.writeBoolean(p.showSlideProgress());
+                buf.writeBoolean(p.hideHudMessagesWhenSleeping());
+                buf.writeFloat(p.overlayTextScale());
+                buf.writeFloat(p.overlayImageScale());
             },
             buf -> new SyncConfigPacket(
                     buf.readVarInt(),
@@ -105,7 +114,10 @@ public record SyncConfigPacket(
                     buf.readBoolean(),
                     buf.readBoolean(),
                     buf.readBoolean(),
-                    buf.readBoolean()
+                    buf.readBoolean(),
+                    buf.readBoolean(),
+                    buf.readFloat(),
+                    buf.readFloat()
             )
     );
 

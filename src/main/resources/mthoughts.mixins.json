@@ -5,10 +5,12 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "ServerLevelMixin",
+    "SleepStatusMessageMixin",
     "StatsCounterAccessor"
   ],
   "client": [
     "GuiAirBubblesMixin",
+    "GuiOverlayMessageMixin",
     "InGameHudMixin",
     "ChatComponentMixin"
   ],

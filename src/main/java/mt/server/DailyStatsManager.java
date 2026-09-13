@@ -22,6 +22,19 @@ public class DailyStatsManager {
         tracker.tick();
     }
 
+    @SuppressWarnings("resource")
+    public static Integer sessionComfort(ServerPlayer player) {
+        SleepTracker tracker = getSleepTracker(player.level().getServer());
+        return tracker != null ? tracker.getSessionComfort(player.getUUID()) : null;
+    }
+
+    @SuppressWarnings("resource")
+    public static int sleepComfort(ServerPlayer player) {
+        SleepTracker tracker = getSleepTracker(player.level().getServer());
+        Integer pinned = tracker != null ? tracker.getPinnedComfort(player.getUUID()) : null;
+        return pinned != null ? pinned : ComfortCalculator.calculateComfortLevel(player);
+    }
+
     public static SleepTracker getSleepTracker(MinecraftServer server) {
         return sleepTrackers.get(server);
     }
@@ -114,8 +127,7 @@ public class DailyStatsManager {
                 WellRestedEffect.applyMvpToPlayer(player);
                 NeoForge.EVENT_BUS.post(new mt.api.event.MvpDeterminedEvent(player));
             } else {
-                int comfortLevel = ComfortCalculator.calculateComfortLevel(player);
-                WellRestedEffect.applyToPlayer(player, comfortLevel);
+                WellRestedEffect.applyToPlayer(player, sleepComfort(player));
             }
         }
     }
@@ -139,6 +151,8 @@ public class DailyStatsManager {
             stats.saveToStorage(server);
             StatsStorage.flush();
         }
+        SleepTracker tracker = getSleepTracker(server);
+        if (tracker != null) tracker.forgetPlayer(player.getUUID());
         markPlayerListChanged(server);
     }
 
@@ -158,6 +172,7 @@ public class DailyStatsManager {
         }
         StatsStorage.unload();
         ComfortCalculator.clearCache();
+        WellRestedBuffs.clearCache();
         dailyStats.clear();
         sleepTrackers.remove(server);
     }
