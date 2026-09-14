@@ -90,16 +90,19 @@ public final class WellRestedBuffs {
                                      List<MidnightThoughtsConfig.EffectBonus> bonuses,
                                      int phaseIndex, int ticksRemaining) {
         Set<String> previous = storedIds(player, EFFECTS_KEY);
+        Set<String> seen = new LinkedHashSet<>();
         Set<String> current = new LinkedHashSet<>();
         int duration = Math.max(1, ticksRemaining);
 
         for (MidnightThoughtsConfig.EffectBonus bonus : bonuses) {
-            int amplifier = phaseAmplifier(bonus, phaseIndex);
-            if (amplifier < 0) continue;
             Holder.Reference<MobEffect> effect = resolveEffect(bonus.id);
             if (effect == null) continue;
             String canonical = effect.key().location().toString();
-            if (current.contains(canonical)) continue;
+            if (!seen.add(canonical)) continue;
+
+            int amplifier = phaseAmplifier(bonus, phaseIndex);
+            if (amplifier < 0) continue;
+            if (previous.contains(canonical)) player.removeEffect(effect);
             player.addEffect(new MobEffectInstance(effect, duration, amplifier, true, false, true));
             current.add(canonical);
         }
