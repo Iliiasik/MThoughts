@@ -1,5 +1,6 @@
 package mt.client.ui.summary;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import mt.client.MidnightThoughtsClient;
 import mt.client.config.ClientConfig;
 import net.minecraft.client.Minecraft;
@@ -37,12 +38,18 @@ public class StyledButton extends Button {
         context.pose().pushPose();
         context.pose().translate(renderX, renderY, 0);
         context.pose().scale(scale, scale, 1.0f);
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, this.alpha);
         context.blit(texture, 0, 0, 0, 0, TEX_W, TEX_H, TEX_W, TEX_H);
+        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+        RenderSystem.disableBlend();
         context.pose().popPose();
 
         Font font = Minecraft.getInstance().font;
         ThemeColors.ThemeColor colors = ThemeColors.getThemeColors(theme);
-        int textColor = hovered ? (0xFF000000 | colors.buttonTextHoverColor()) : (0xFF000000 | colors.buttonTextColor());
+        int textAlpha = Math.round(this.alpha * 255.0f) << 24;
+        int textColor = hovered ? (textAlpha | colors.buttonTextHoverColor()) : (textAlpha | colors.buttonTextColor());
 
         float textScale = Math.min(scale * 1.5f, (float) getHeight() / font.lineHeight * 0.6f);
         int scaledTextW = (int)(font.width(getMessage()) * textScale);

@@ -1,5 +1,6 @@
 package mt.client.ui.summary;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import mt.network.packet.DailySummaryPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -24,7 +25,7 @@ public class PlayerRowRenderer {
         int leftPad = dims.s(24);
         int headColumnWidth = leftPad + headSize + dims.s(19);
 
-        renderHead(context, player, x, y, rowHeight, headSize, leftPad);
+        renderHead(context, player, x, y, rowHeight, headSize, leftPad, fadeAlpha);
         renderNameBadge(context, textRenderer, player, x, y, rowWidth, rowHeight, dims, fadeAlpha);
 
         int pad = dims.s(8);
@@ -55,7 +56,7 @@ public class PlayerRowRenderer {
     }
 
     private static void renderHead(GuiGraphics context, DailySummaryPacket.PlayerDailySummary player,
-                                   int x, int y, int rowHeight, int headSize, int leftPad) {
+                                   int x, int y, int rowHeight, int headSize, int leftPad, float fadeAlpha) {
         var connection = Minecraft.getInstance().getConnection();
         if (connection == null) return;
 
@@ -75,8 +76,13 @@ public class PlayerRowRenderer {
         int headY = y + (rowHeight - headSize) / 2;
         ResourceLocation skin = playerEntry.getSkin().texture();
 
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, fadeAlpha);
         context.blit(skin, skinX, headY, headSize, headSize, 8, 8, 8, 8, 64, 64);
         context.blit(skin, skinX, headY, headSize, headSize, 40, 8, 8, 8, 64, 64);
+        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+        RenderSystem.disableBlend();
     }
 
     private static void renderNameBadge(GuiGraphics context, Font textRenderer,

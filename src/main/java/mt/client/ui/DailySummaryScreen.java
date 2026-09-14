@@ -3,6 +3,8 @@ package mt.client.ui;
 import mt.client.ui.summary.*;
 import mt.network.packet.DailySummaryPacket;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
@@ -108,6 +110,10 @@ public class DailySummaryScreen extends Screen {
 
         renderPanel(context);
         renderPlayerList(context);
+
+        for (GuiEventListener child : this.children()) {
+            if (child instanceof AbstractWidget widget) widget.setAlpha(fadeAlpha);
+        }
 
         super.render(context, mouseX, mouseY, delta);
 

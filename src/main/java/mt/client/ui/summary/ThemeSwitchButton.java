@@ -25,7 +25,7 @@ public class ThemeSwitchButton extends AbstractWidget {
         boolean isHovered = mouseX >= this.getX() && mouseY >= this.getY() &&
                 mouseX < this.getX() + this.width && mouseY < this.getY() + this.height;
 
-        float alpha = isHovered ? 1.0f : 0.7f;
+        float alpha = (isHovered ? 1.0f : 0.7f) * this.alpha;
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, alpha);
         RenderSystem.enableBlend();
         context.blit(GEAR_ICON, this.getX(), this.getY(), 0, 0, this.width, this.height, this.width, this.height);
