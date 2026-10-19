@@ -10,7 +10,6 @@ final class ConfigScreenAssets {
             ResourceLocation.fromNamespaceAndPath(MidnightThoughtsClient.MOD_ID, "textures/gui/shared/icon.png");
 
     static final String TITLE_KEY = "screen.midnightthoughts.config";
-    static final String NOTE_KEY = "screen.midnightthoughts.config.server_controlled";
     static final String NOTE_WELL_RESTED_KEY = "screen.midnightthoughts.config.note.well_rested";
     static final String NOTE_SERVER_FILE_KEY = "screen.midnightthoughts.config.note.server_file";
 

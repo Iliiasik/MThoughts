@@ -58,27 +58,16 @@ public class MidnightThoughtsConfigScreen extends Screen {
         graphics.drawCenteredString(this.font, Component.translatable(ConfigScreenAssets.NOTE_SERVER_FILE_KEY),
                 this.width / 2, secondNote, NOTE_COLOR);
 
-        if (ConfigScreenAssets.editable()) {
-            renderIconAboveNotes(graphics, firstNote);
-        } else {
-            renderIconWithNotice(graphics);
-        }
+        renderIconAboveNotes(graphics, firstNote);
     }
 
     private void renderIconAboveNotes(GuiGraphics graphics, int firstNote) {
-        int buttonsBottom = FIRST_BUTTON_TOP
-                + (ConfigSection.values().length - 1) * BUTTON_SPACING + BUTTON_HEIGHT;
+        int contentBottom = ConfigScreenAssets.editable()
+                ? FIRST_BUTTON_TOP + (ConfigSection.values().length - 1) * BUTTON_SPACING + BUTTON_HEIGHT
+                : TITLE_TOP + this.font.lineHeight;
         int y = firstNote - ICON_GAP - ConfigScreenAssets.ICON_SIZE;
-        if (y < buttonsBottom + ICON_GAP) return;
+        if (y < contentBottom + ICON_GAP) return;
         ConfigScreenAssets.drawIcon(graphics, this.width / 2 - ConfigScreenAssets.ICON_SIZE / 2, y);
-    }
-
-    private void renderIconWithNotice(GuiGraphics graphics) {
-        int blockHeight = ConfigScreenAssets.ICON_SIZE + ICON_GAP + this.font.lineHeight;
-        int top = this.height / 2 - blockHeight / 2;
-        ConfigScreenAssets.drawIcon(graphics, this.width / 2 - ConfigScreenAssets.ICON_SIZE / 2, top);
-        graphics.drawCenteredString(this.font, Component.translatable(ConfigScreenAssets.NOTE_KEY),
-                this.width / 2, top + ConfigScreenAssets.ICON_SIZE + ICON_GAP, NOTE_COLOR);
     }
 
     @Override

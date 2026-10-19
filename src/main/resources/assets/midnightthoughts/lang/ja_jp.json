@@ -23,7 +23,6 @@
   "midnightthoughts.theme.vanilla": "バニラ",
   "midnightthoughts.theme.current": "テーマ: %s",
   "screen.midnightthoughts.config": "Midnight Thoughts",
-  "screen.midnightthoughts.config.server_controlled": "これらの設定はサーバーが管理します",
   "screen.midnightthoughts.config.sleep_overlay": "睡眠オーバーレイ",
   "screen.midnightthoughts.config.interface": "インターフェース",
   "screen.midnightthoughts.config.mvp": "MVP スコア",

@@ -23,7 +23,6 @@
   "midnightthoughts.theme.vanilla": "原版",
   "midnightthoughts.theme.current": "主题：%s",
   "screen.midnightthoughts.config": "Midnight Thoughts",
-  "screen.midnightthoughts.config.server_controlled": "这些设置由服务器控制",
   "screen.midnightthoughts.config.sleep_overlay": "睡眠覆盖层",
   "screen.midnightthoughts.config.interface": "界面",
   "screen.midnightthoughts.config.mvp": "MVP 计分",

@@ -23,7 +23,6 @@
   "midnightthoughts.theme.vanilla": "바닐라",
   "midnightthoughts.theme.current": "테마: %s",
   "screen.midnightthoughts.config": "Midnight Thoughts",
-  "screen.midnightthoughts.config.server_controlled": "이 설정은 서버가 관리합니다",
   "screen.midnightthoughts.config.sleep_overlay": "수면 오버레이",
   "screen.midnightthoughts.config.interface": "인터페이스",
   "screen.midnightthoughts.config.mvp": "MVP 점수",

@@ -23,7 +23,6 @@
   "midnightthoughts.theme.vanilla": "Vanilla",
   "midnightthoughts.theme.current": "Tema: %s",
   "screen.midnightthoughts.config": "Midnight Thoughts",
-  "screen.midnightthoughts.config.server_controlled": "El servidor controla estos ajustes",
   "screen.midnightthoughts.config.sleep_overlay": "Superposición de sueño",
   "screen.midnightthoughts.config.interface": "Interfaz",
   "screen.midnightthoughts.config.mvp": "Puntuación MVP",

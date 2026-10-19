@@ -23,7 +23,6 @@
   "midnightthoughts.theme.vanilla": "Ваніль",
   "midnightthoughts.theme.current": "Тема: %s",
   "screen.midnightthoughts.config": "Midnight Thoughts",
-  "screen.midnightthoughts.config.server_controlled": "Цими налаштуваннями керує сервер",
   "screen.midnightthoughts.config.sleep_overlay": "Оверлей сну",
   "screen.midnightthoughts.config.interface": "Інтерфейс",
   "screen.midnightthoughts.config.mvp": "Очки MVP",
