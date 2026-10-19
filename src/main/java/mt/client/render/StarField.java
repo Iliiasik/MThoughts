@@ -7,6 +7,7 @@ import java.util.Random;
 
 public class StarField {
     private static final int STAR_COUNT = 70;
+    private static final int CONTENT_MARGIN_VIRTUAL = 10;
     private static final int SHUFFLE_MIN_MS = 700;
     private static final int SHUFFLE_MAX_MS = 2200;
 
@@ -40,18 +41,27 @@ public class StarField {
     }
 
     public void render(GuiGraphics context, int w, int h, float overlayAlpha,
-                       List<OverlayRect> content, int contentMargin, SpaceField space) {
+                       List<OverlayRect> content, float baseScale, SpaceField space) {
+        int contentMargin = Math.round(CONTENT_MARGIN_VIRTUAL * baseScale);
+        int edgeMargin = Math.round(SpaceField.EDGE_MARGIN_VIRTUAL * baseScale);
         float elapsed = System.currentTimeMillis() - origin;
+
         for (int i = 0; i < STAR_COUNT; i++) {
             float twinkle = 0.35f + 0.65f * (float) Math.sin(elapsed * speed[i] + phase[i]);
             int a = clampAlpha(alpha[i] * twinkle * overlayAlpha);
             if (a <= 1) continue;
+
+            int size = big[i] ? 2 : 1;
+            int usableWidth = w - edgeMargin * 2 - size;
+            int usableHeight = h - edgeMargin * 2 - size;
+            if (usableWidth <= 0 || usableHeight <= 0) continue;
+
             float dy = y[i] + elapsed * drift[i];
             dy = dy - (float) Math.floor(dy);
-            int px = Math.round(x[i] * w);
-            int py = Math.round(dy * h);
+            int px = edgeMargin + Math.round(x[i] * usableWidth);
+            int py = edgeMargin + Math.round(dy * usableHeight);
             if (isBlocked(content, contentMargin, space, px, py)) continue;
-            int size = big[i] ? 2 : 1;
+
             context.fill(px, py, px + size, py + size, (a << 24) | 0xFFFFFF);
         }
     }

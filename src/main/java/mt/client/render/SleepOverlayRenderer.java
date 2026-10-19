@@ -44,7 +44,6 @@ public class SleepOverlayRenderer {
     private static final int VIRTUAL_LINE_SPACING = 6;
     private static final int VIRTUAL_PROGRESS_WIDTH = 220;
     private static final float GROUP_TOP_PERCENT = 0.30f;
-    private static final int STAR_CONTENT_MARGIN = 10;
     private static final int MAX_TEXT_LINES = 6;
     private static final int SHORT_TEXT_LINES = 2;
     private static final long SLEEP_DEBOUNCE_MS = 200;
@@ -337,8 +336,7 @@ public class SleepOverlayRenderer {
                 spaceField.render(context, overlayAlpha);
             }
             if (config.isEnableStarDust()) {
-                int starMargin = Math.round(STAR_CONTENT_MARGIN * baseScale);
-                starField.render(context, w, h, overlayAlpha, contentZones, starMargin, space ? spaceField : null);
+                starField.render(context, w, h, overlayAlpha, contentZones, baseScale, space ? spaceField : null);
             }
         }
 

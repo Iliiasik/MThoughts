@@ -45,7 +45,7 @@ public class SpaceField {
     private static final float SMALL_SPACING = 1.8f;
 
     private static final int CONTENT_MARGIN_VIRTUAL = 28;
-    private static final int EDGE_MARGIN_VIRTUAL = 40;
+    static final int EDGE_MARGIN_VIRTUAL = 40;
     private static final int PLACEMENT_ATTEMPTS = 120;
 
     private final ResourceLocation[] texture = new ResourceLocation[TOTAL_COUNT];
