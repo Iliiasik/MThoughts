@@ -70,9 +70,6 @@ public class MidnightThoughtsClient {
         slideRepository = new SlideRepository();
         userContentLoader = new UserContentLoader();
 
-        Minecraft mc = Minecraft.getInstance();
-        slideRepository.loadAllSlides(mc.getResourceManager());
-
         UselessFactsApiClient apiClient = new UselessFactsApiClient();
         FactProvider factProvider = new FactProvider(apiClient, slideRepository, userContentLoader);
         SlideService slideService = new SlideService(slideRepository, config, factProvider);

@@ -29,12 +29,19 @@ public class SlideRepository {
     private final Map<String, Map<SlideCategory, List<Slide>>> slideCache = new HashMap<>();
 
     public void loadAllSlides(ResourceManager manager) {
-        for (String language : mt.common.SupportedLanguages.codes()) {
-            loadSlidesForLanguage(manager, language);
+        List<String> languages = mt.common.SupportedLanguages.codes();
+        int total = 0;
+        for (String language : languages) {
+            int loaded = loadSlidesForLanguage(manager, language);
+            if (loaded == 0) {
+                LOGGER.warn("No slides were loaded for language: {}", language);
+            }
+            total += loaded;
         }
+        LOGGER.info("Loaded {} slides for {} languages", total, languages.size());
     }
 
-    private void loadSlidesForLanguage(ResourceManager manager, String language) {
+    private int loadSlidesForLanguage(ResourceManager manager, String language) {
         Map<SlideCategory, List<Slide>> categoryMap = new EnumMap<>(SlideCategory.class);
 
         categoryMap.put(SlideCategory.FACT, loadCategory(manager, language, "facts", SlideCategory.FACT));
@@ -45,8 +52,7 @@ public class SlideRepository {
 
         slideCache.put(language, categoryMap);
 
-        int total = categoryMap.values().stream().mapToInt(List::size).sum();
-        LOGGER.info("Loaded {} slides for language: {}", total, language);
+        return categoryMap.values().stream().mapToInt(List::size).sum();
     }
 
     private List<Slide> loadCategory(ResourceManager manager, String language, String fileName, SlideCategory category) {
@@ -75,6 +81,7 @@ public class SlideRepository {
     }
 
     public List<Slide> getSlidesByCategory(String language, SlideCategory category) {
+        ensureLoaded();
         List<Slide> slides = slidesFrom(slideCache.get(language), category);
         if (!slides.isEmpty()) {
             return slides;
@@ -119,6 +126,12 @@ public class SlideRepository {
             }
         }
         return slides.getLast();
+    }
+
+    private void ensureLoaded() {
+        if (!slideCache.isEmpty()) return;
+        LOGGER.warn("Slides were requested before the resource reload finished, loading them now");
+        loadAllSlides(net.minecraft.client.Minecraft.getInstance().getResourceManager());
     }
 
     public void clearCache() {
