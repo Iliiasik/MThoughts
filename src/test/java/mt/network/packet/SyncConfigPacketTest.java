@@ -20,7 +20,7 @@ class SyncConfigPacketTest {
             "magic",
             "bar",
             true, true, false, true, false,
-            true, 0.75f, 1.25f
+            true, 0.75f, 1.25f, true
     );
 
     private static SyncConfigPacket roundTrip(SyncConfigPacket packet) {
@@ -57,7 +57,7 @@ class SyncConfigPacketTest {
                 value, value, value, value, value, value,
                 "magic", "bar",
                 value, value, value, value, value,
-                value, 0.75f, 1.25f
+                value, 0.75f, 1.25f, value
         );
     }
 
@@ -68,7 +68,7 @@ class SyncConfigPacketTest {
                 true, false, true, false, true, false,
                 theme, "bar",
                 true, true, false, true, false,
-                true, 0.75f, 1.25f
+                true, 0.75f, 1.25f, true
         );
     }
 
@@ -79,7 +79,7 @@ class SyncConfigPacketTest {
                 true, false, true, false, true, false,
                 "magic", position,
                 true, true, false, true, false,
-                true, 0.75f, 1.25f
+                true, 0.75f, 1.25f, true
         );
     }
 
@@ -93,7 +93,7 @@ class SyncConfigPacketTest {
 
     @Test
     void theRecordStillCarriesEveryConfiguredValue() {
-        assertEquals(24, SyncConfigPacket.class.getRecordComponents().length,
+        assertEquals(25, SyncConfigPacket.class.getRecordComponents().length,
                 "a config field was added or removed without updating the wire format");
     }
 
@@ -138,11 +138,11 @@ class SyncConfigPacketTest {
 
         int fourVarInts = 2 + 2 + 2 + 2;
         int sixFloats = 6 * 4;
-        int twelveBooleans = 12;
+        int thirteenBooleans = 13;
         int theme = 1 + "magic".getBytes(StandardCharsets.UTF_8).length;
         int hudPosition = 1 + "bar".getBytes(StandardCharsets.UTF_8).length;
 
-        assertEquals(fourVarInts + sixFloats + twelveBooleans + theme + hudPosition,
+        assertEquals(fourVarInts + sixFloats + thirteenBooleans + theme + hudPosition,
                 buf.readableBytes(),
                 "wire format changed, bump the protocol version before shipping this");
     }
@@ -165,7 +165,7 @@ class SyncConfigPacketTest {
                 true, false, true, false, true, false,
                 "classic", "left",
                 true, true, false, true, false,
-                true, -0.0f, 1.0E-10f
+                true, -0.0f, 1.0E-10f, false
         );
 
         assertEquals(packet, roundTrip(packet));

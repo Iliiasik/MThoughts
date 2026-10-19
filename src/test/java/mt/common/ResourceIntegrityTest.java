@@ -35,7 +35,12 @@ class ResourceIntegrityTest {
             "icons/icon_blocks", "icons/icon_distance", "icons/icon_sword",
             "icons/icon_death", "icons/icon_jump", "icons/icon_axe",
             "overlay/skull", "hud/scale", "hud/fill", "hud/well_rested",
-            "hud/mvp", "summary/gear");
+            "hud/mvp", "summary/gear", "icon");
+
+    private static final List<String> SPACE_TEXTURES = List.of(
+            "blue_giant", "orange_dwarf", "quasi_star",
+            "rounded_blue", "rounded_pink", "rounded_white",
+            "blue", "orange", "white", "yellow", "red", "purple", "pink");
 
     private static final List<String> MOON_PHASES = List.of(
             "full_moon", "waning_gibbous", "last_quarter", "waning_crescent",
@@ -105,6 +110,15 @@ class ResourceIntegrityTest {
             assertTrue(Files.isRegularFile(file), "missing texture " + file);
         }
         assertEquals(8, MOON_PHASES.size(), "minecraft has exactly eight moon phases");
+    }
+
+    @Test
+    void everySpaceTextureExists() {
+        for (String name : SPACE_TEXTURES) {
+            Path file = assets().resolve("textures/gui/shared/overlay/space/" + name + ".png");
+            assertTrue(Files.isRegularFile(file), "missing texture " + file);
+            assertTrue(file.toFile().length() > 0, "empty texture " + file);
+        }
     }
 
     @Test

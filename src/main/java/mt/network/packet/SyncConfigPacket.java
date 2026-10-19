@@ -30,7 +30,8 @@ public record SyncConfigPacket(
         boolean showSlideProgress,
         boolean hideHudMessagesWhenSleeping,
         float overlayTextScale,
-        float overlayImageScale
+        float overlayImageScale,
+        boolean enableSpaceObjects
 ) implements CustomPacketPayload {
     public static SyncConfigPacket of(mt.config.MidnightThoughtsConfig cfg) {
         mt.config.MidnightThoughtsConfig.SleepOverlaySettings o = cfg.getSleepOverlay();
@@ -59,7 +60,8 @@ public record SyncConfigPacket(
                 o.showSlideProgress,
                 o.hideHudMessagesWhenSleeping,
                 o.textScale,
-                o.imageScale
+                o.imageScale,
+                o.enableSpaceObjects
         );
     }
 
@@ -92,6 +94,7 @@ public record SyncConfigPacket(
                 buf.writeBoolean(p.hideHudMessagesWhenSleeping());
                 buf.writeFloat(p.overlayTextScale());
                 buf.writeFloat(p.overlayImageScale());
+                buf.writeBoolean(p.enableSpaceObjects());
             },
             buf -> new SyncConfigPacket(
                     buf.readVarInt(),
@@ -117,7 +120,8 @@ public record SyncConfigPacket(
                     buf.readBoolean(),
                     buf.readBoolean(),
                     buf.readFloat(),
-                    buf.readFloat()
+                    buf.readFloat(),
+                    buf.readBoolean()
             )
     );
 

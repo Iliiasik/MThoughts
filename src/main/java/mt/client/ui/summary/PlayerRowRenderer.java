@@ -1,6 +1,7 @@
 package mt.client.ui.summary;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import mt.integration.mca.McaCompat;
 import mt.network.packet.DailySummaryPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -74,7 +75,8 @@ public class PlayerRowRenderer {
 
         int skinX = x + leftPad;
         int headY = y + (rowHeight - headSize) / 2;
-        ResourceLocation skin = playerEntry.getSkin().texture();
+        ResourceLocation skin = McaCompat.headTexture(playerEntry.getProfile().getId());
+        if (skin == null) skin = playerEntry.getSkin().texture();
 
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();

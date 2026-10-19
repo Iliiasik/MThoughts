@@ -32,6 +32,9 @@ public final class MidnightThoughtsConfig {
     public static final String OPERATION_ADD_VALUE = "add_value";
     public static final String OPERATION_MULTIPLIED_BASE = "add_multiplied_base";
 
+    private static final String BROKEN_CONFIG_FILE = "midnightthoughts.json.broken";
+    private static final String BACKUP_CONFIG_FILE = "midnightthoughts.json.backup";
+
     private static final Logger LOGGER = LoggerFactory.getLogger("MidnightThoughts");
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
@@ -75,11 +78,16 @@ public final class MidnightThoughtsConfig {
         return config;
     }
 
+    private static Path moveToBackup(Path configPath, String fileName) throws IOException {
+        Path backup = configPath.resolveSibling(fileName);
+        Files.move(configPath, backup, StandardCopyOption.REPLACE_EXISTING);
+        LOGGER.warn("Previous configuration saved as {}", backup.getFileName());
+        return backup;
+    }
+
     private static void backupBrokenConfig(Path configPath) {
         try {
-            Path backup = configPath.resolveSibling("midnightthoughts.json.broken");
-            Files.move(configPath, backup, StandardCopyOption.REPLACE_EXISTING);
-            LOGGER.warn("Previous configuration saved as {}", backup.getFileName());
+            moveToBackup(configPath, BROKEN_CONFIG_FILE);
         } catch (IOException e) {
             LOGGER.error("Failed to back up broken configuration: {}", e.getMessage());
         }
@@ -89,11 +97,8 @@ public final class MidnightThoughtsConfig {
         Path configPath = getConfigPath();
         String backupName = null;
         if (Files.exists(configPath)) {
-            Path backup = configPath.resolveSibling("midnightthoughts.json.backup");
             try {
-                Files.move(configPath, backup, StandardCopyOption.REPLACE_EXISTING);
-                backupName = backup.getFileName().toString();
-                LOGGER.warn("Previous configuration saved as {}", backupName);
+                backupName = moveToBackup(configPath, BACKUP_CONFIG_FILE).getFileName().toString();
             } catch (IOException e) {
                 LOGGER.error("Failed to back up configuration: {}", e.getMessage());
                 return null;
@@ -245,6 +250,11 @@ public final class MidnightThoughtsConfig {
         return s != null ? s.enableStarDust() : sleepOverlay.enableStarDust;
     }
 
+    public boolean isEnableSpaceObjects() {
+        SyncConfigPacket s = ServerConfigCache.get();
+        return s != null ? s.enableSpaceObjects() : sleepOverlay.enableSpaceObjects;
+    }
+
     public boolean isShowSlideProgress() {
         SyncConfigPacket s = ServerConfigCache.get();
         return s != null ? s.showSlideProgress() : sleepOverlay.showSlideProgress;
@@ -268,6 +278,7 @@ public final class MidnightThoughtsConfig {
         public float imageOpacity = 0.6f;
         public float specialSlideChance = 0.05f;
         public boolean enableStarDust = true;
+        public boolean enableSpaceObjects = true;
         public boolean showSlideProgress = true;
         public boolean enableOverlay = true;
         public boolean enableImage = true;

@@ -12,6 +12,7 @@ import mt.client.service.SlideService;
 import mt.client.service.UserContentLoader;
 import mt.client.ui.SleepingPlayersHud;
 import mt.client.ui.WellRestedHud;
+import mt.client.ui.config.MidnightThoughtsConfigScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -19,9 +20,11 @@ import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModContainer;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
+import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import net.neoforged.neoforge.common.NeoForge;
 import org.slf4j.Logger;
@@ -43,6 +46,11 @@ public class MidnightThoughtsClient {
     public static void registerModBusListeners(IEventBus modEventBus) {
         modEventBus.addListener(MidnightThoughtsClient::onRegisterReloadListeners);
         modEventBus.addListener(MidnightThoughtsClient::onRegisterGuiLayers);
+    }
+
+    public static void registerConfigScreen(ModContainer container) {
+        container.registerExtensionPoint(IConfigScreenFactory.class,
+                (owner, parent) -> new MidnightThoughtsConfigScreen(parent));
     }
 
     public static void init() {

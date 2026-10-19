@@ -382,6 +382,7 @@ class MidnightThoughtsConfigTest {
         JsonObject overlay = onDisk.getAsJsonObject("sleepOverlay");
 
         assertTrue(overlay.has("enableStarDust"), "new key missing after migration");
+        assertTrue(overlay.has("enableSpaceObjects"), "new key missing after migration");
         assertTrue(overlay.has("showSlideProgress"), "new key missing after migration");
         assertTrue(onDisk.getAsJsonObject("ui").has("hideWellRestedHud"));
         assertTrue(onDisk.getAsJsonObject("ui").has("hideSleepingPlayersHud"));

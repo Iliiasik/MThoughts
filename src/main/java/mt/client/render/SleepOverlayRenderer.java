@@ -7,10 +7,13 @@ import mt.client.manager.WellRestedClientState;
 import mt.client.model.Slide;
 import mt.client.model.SlideCategory;
 import mt.client.service.SlideService;
+import mt.integration.mca.McaCompat;
 import mt.network.packet.RequestMoonPhasePacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.network.PacketDistributor;
 
@@ -41,6 +44,7 @@ public class SleepOverlayRenderer {
     private static final int VIRTUAL_LINE_SPACING = 6;
     private static final int VIRTUAL_PROGRESS_WIDTH = 220;
     private static final float GROUP_TOP_PERCENT = 0.30f;
+    private static final int STAR_CONTENT_MARGIN = 10;
     private static final int MAX_TEXT_LINES = 6;
     private static final int SHORT_TEXT_LINES = 2;
     private static final long SLEEP_DEBOUNCE_MS = 200;
@@ -49,6 +53,7 @@ public class SleepOverlayRenderer {
     private final SlideService slideService;
     private final MidnightThoughtsConfig config;
     private final StarField starField = new StarField();
+    private final SpaceField spaceField = new SpaceField();
     private final NightmareField nightmareField = new NightmareField();
 
     private Slide currentSlide;
@@ -146,11 +151,13 @@ public class SleepOverlayRenderer {
             nightmareField.reset(now);
         } else {
             starField.reset(now);
+            spaceField.reset(now);
         }
     }
 
     private void onSleepStart() {
         PacketDistributor.sendToServer(new RequestMoonPhasePacket());
+        prewarmSummaryHeads();
         isNightmareOverlay = WellRestedClientState.isNightmareMode();
         isOverlayVisible = true;
         overlayAlpha = 1f;
@@ -166,6 +173,7 @@ public class SleepOverlayRenderer {
             nightmareField.reset(System.currentTimeMillis());
         } else {
             starField.reset(System.currentTimeMillis());
+            spaceField.reset(System.currentTimeMillis());
         }
     }
 
@@ -179,6 +187,14 @@ public class SleepOverlayRenderer {
         overlayAlpha = 0f;
         isOverlayVisible = false;
         isNightmareOverlay = false;
+    }
+
+    private static void prewarmSummaryHeads() {
+        ClientPacketListener connection = Minecraft.getInstance().getConnection();
+        if (connection == null) return;
+        for (PlayerInfo info : connection.getOnlinePlayers()) {
+            McaCompat.prewarm(info.getProfile().getId());
+        }
     }
 
     private Slide getNightmareAwareSlide() {
@@ -306,18 +322,29 @@ public class SleepOverlayRenderer {
         int groupShift = Math.round((imageBlockShift + textBlockShift) * baseScale / 2.0f);
         int imageTop = Math.round(h * GROUP_TOP_PERCENT) + groupShift;
 
-        if (config.isEnableStarDust()) {
-            if (isNightmareOverlay) {
+        int textTop = imageTop + (showImage ? imageSize + gap : 0);
+        List<OverlayRect> contentZones = contentZones(centerX, imageTop, imageSize, showImage,
+                textTop, textAreaWidth, lineHeight, textScale, baseScale);
+
+        if (isNightmareOverlay) {
+            if (config.isEnableStarDust()) {
                 nightmareField.render(context, w, h, overlayAlpha);
-            } else {
-                starField.render(context, w, h, overlayAlpha);
+            }
+        } else {
+            boolean space = config.isEnableSpaceObjects();
+            if (space) {
+                spaceField.layout(w, h, baseScale, contentZones);
+                spaceField.render(context, overlayAlpha);
+            }
+            if (config.isEnableStarDust()) {
+                int starMargin = Math.round(STAR_CONTENT_MARGIN * baseScale);
+                starField.render(context, w, h, overlayAlpha, contentZones, starMargin, space ? spaceField : null);
             }
         }
 
         if (showImage) {
             renderImage(context, centerX - imageSize / 2, imageTop, imageSize);
         }
-        int textTop = imageTop + (showImage ? imageSize + gap : 0);
 
         if (outgoingSlide != null && outgoingAlpha > 0.01f) {
             TextLayout outgoing = outgoingCache.get(outgoingSlide, font, textAreaWidth, textScale);
@@ -334,6 +361,23 @@ public class SleepOverlayRenderer {
             int textBottom = textTop + Math.round(currentLayout.lines().size() * lineHeight * currentLayout.scale());
             drawProgress(context, centerX, textBottom + Math.round(18 * baseScale), baseScale, slideProgress());
         }
+    }
+
+    private static List<OverlayRect> contentZones(int centerX, int imageTop, int imageSize, boolean showImage,
+                                                  int textTop, int textAreaWidth, int lineHeight,
+                                                  float textScale, float baseScale) {
+        List<OverlayRect> zones = new ArrayList<>(2);
+        if (showImage) {
+            zones.add(new OverlayRect(centerX - imageSize / 2, imageTop,
+                    centerX + imageSize / 2, imageTop + imageSize));
+        }
+        float nominalTextScale = VIRTUAL_TEXT_SCALE * textScale;
+        int textBlockHeight = Math.round(MAX_TEXT_LINES * lineHeight * nominalTextScale);
+        int progressWidth = Math.max(20, Math.round(VIRTUAL_PROGRESS_WIDTH * baseScale));
+        int halfWidth = Math.max(textAreaWidth, progressWidth) / 2;
+        int bottom = textTop + textBlockHeight + Math.round(18 * baseScale) + Math.max(1, Math.round(2 * baseScale));
+        zones.add(new OverlayRect(centerX - halfWidth, textTop, centerX + halfWidth, bottom));
+        return zones;
     }
 
     private void renderImage(GuiGraphics context, int x, int y, int size) {

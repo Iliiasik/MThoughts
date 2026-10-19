@@ -23,7 +23,7 @@ public class NetworkHandler {
 
     @SuppressWarnings("resource")
     public static void registerPackets(RegisterPayloadHandlersEvent event) {
-        PayloadRegistrar registrar = event.registrar("3");
+        PayloadRegistrar registrar = event.registrar("4");
 
         registrar.playToServer(
                 RequestMoonPhasePacket.TYPE,
@@ -115,5 +115,12 @@ public class NetworkHandler {
 
     public static void sendConfig(ServerPlayer player, SyncConfigPacket packet) {
         PacketDistributor.sendToPlayer(player, packet);
+    }
+
+    public static void broadcastConfig(net.minecraft.server.MinecraftServer server) {
+        SyncConfigPacket packet = SyncConfigPacket.of(mt.config.MidnightThoughtsConfig.getInstance());
+        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+            sendConfig(player, packet);
+        }
     }
 }

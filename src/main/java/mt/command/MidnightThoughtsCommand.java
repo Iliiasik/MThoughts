@@ -7,7 +7,6 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import mt.config.MidnightThoughtsConfig;
 import mt.network.NetworkHandler;
 import mt.network.packet.SyncAchievementsPacket;
-import mt.network.packet.SyncConfigPacket;
 import mt.network.packet.UserContentPacket;
 import mt.server.AchievementLoader;
 import mt.server.ComfortCalculator;
@@ -72,10 +71,7 @@ public final class MidnightThoughtsCommand {
             return 0;
         }
         ComfortCalculator.clearCache();
-        SyncConfigPacket packet = SyncConfigPacket.of(MidnightThoughtsConfig.getInstance());
-        for (ServerPlayer player : ctx.getSource().getServer().getPlayerList().getPlayers()) {
-            NetworkHandler.sendConfig(player, packet);
-        }
+        NetworkHandler.broadcastConfig(ctx.getSource().getServer());
         reply(ctx, backup.isEmpty()
                 ? "Config recreated with defaults and synced."
                 : "Config recreated with defaults and synced. Previous file saved as " + backup + ".");
@@ -160,7 +156,7 @@ public final class MidnightThoughtsCommand {
             ChatFormatting c = weight > 0 ? ChatFormatting.GREEN : (weight < 0 ? ChatFormatting.RED : ChatFormatting.GRAY);
             value = Component.literal("  " + (weight > 0 ? "+" : "") + weight).withStyle(c);
         } else {
-            value = Component.literal("  —").withStyle(ChatFormatting.DARK_GRAY);
+            value = Component.literal("  -").withStyle(ChatFormatting.DARK_GRAY);
         }
         return Component.literal("  ").append(icon).append(label).append(value);
     }
@@ -268,10 +264,7 @@ public final class MidnightThoughtsCommand {
     private static void doReloadConfig(MinecraftServer server) {
         MidnightThoughtsConfig.reload();
         ComfortCalculator.clearCache();
-        SyncConfigPacket packet = SyncConfigPacket.of(MidnightThoughtsConfig.getInstance());
-        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
-            NetworkHandler.sendConfig(player, packet);
-        }
+        NetworkHandler.broadcastConfig(server);
     }
 
     private static int doReloadAchievements(MinecraftServer server) {

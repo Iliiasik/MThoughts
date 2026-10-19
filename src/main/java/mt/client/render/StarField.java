@@ -2,6 +2,7 @@ package mt.client.render;
 
 import net.minecraft.client.gui.GuiGraphics;
 
+import java.util.List;
 import java.util.Random;
 
 public class StarField {
@@ -38,7 +39,8 @@ public class StarField {
         }
     }
 
-    public void render(GuiGraphics context, int w, int h, float overlayAlpha) {
+    public void render(GuiGraphics context, int w, int h, float overlayAlpha,
+                       List<OverlayRect> content, int contentMargin, SpaceField space) {
         float elapsed = System.currentTimeMillis() - origin;
         for (int i = 0; i < STAR_COUNT; i++) {
             float twinkle = 0.35f + 0.65f * (float) Math.sin(elapsed * speed[i] + phase[i]);
@@ -48,9 +50,17 @@ public class StarField {
             dy = dy - (float) Math.floor(dy);
             int px = Math.round(x[i] * w);
             int py = Math.round(dy * h);
+            if (isBlocked(content, contentMargin, space, px, py)) continue;
             int size = big[i] ? 2 : 1;
             context.fill(px, py, px + size, py + size, (a << 24) | 0xFFFFFF);
         }
+    }
+
+    private static boolean isBlocked(List<OverlayRect> content, int contentMargin, SpaceField space, int px, int py) {
+        for (OverlayRect rect : content) {
+            if (rect.contains(px, py, contentMargin)) return true;
+        }
+        return space != null && space.occupies(px, py);
     }
 
     private void regenerate() {
