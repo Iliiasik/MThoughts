@@ -27,6 +27,7 @@ import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import net.neoforged.neoforge.event.RegisterGameTestsEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.player.CanPlayerSleepEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
@@ -48,6 +49,9 @@ public class MidnightThoughts {
         modEventBus.addListener(this::setup);
         modEventBus.addListener(this::onClientSetup);
         modEventBus.addListener(this::onRegisterPayloads);
+        if (!FMLEnvironment.production) {
+            modEventBus.addListener(RegisterGameTestsEvent.class, mt.gametest.NeoForgeGameTestHooks::register);
+        }
         if (FMLEnvironment.dist.isClient()) {
             mt.client.MidnightThoughtsClient.registerModBusListeners(modEventBus);
             mt.client.MidnightThoughtsClient.registerConfigScreen(container);

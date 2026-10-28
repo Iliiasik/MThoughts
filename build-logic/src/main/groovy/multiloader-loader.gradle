@@ -32,6 +32,11 @@ processResources {
     from(configurations.commonResources)
 }
 
+tasks.named('jar', Jar) {
+    exclude('mt/gametest/**')
+    exclude('data/midnightthoughts/structure/gametest/**')
+}
+
 tasks.named('sourcesJar', Jar) {
     dependsOn(configurations.commonJava)
     from(configurations.commonJava)

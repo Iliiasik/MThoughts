@@ -22,6 +22,11 @@ neoForge {
             server()
             gameDirectory = this.mkdir(this.file('runs/server'))
         }
+        gameTestServer {
+            type = 'gameTestServer'
+            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+            gameDirectory = this.mkdir(this.file('runs/gametest'))
+        }
     }
 
     mods {

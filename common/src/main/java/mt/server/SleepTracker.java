@@ -28,6 +28,7 @@ public class SleepTracker {
         this.server = server;
     }
 
+    @SuppressWarnings("resource")
     public void tick() {
         ServerLevel overworld = server.getLevel(Level.OVERWORLD);
         if (overworld == null) return;
@@ -40,11 +41,12 @@ public class SleepTracker {
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             boolean sleeping = player.isSleeping();
             if (hasPendingSleep) confirmSleepAttempt(player, sleeping);
-            if (sleeping) sleepingCount++;
-            if (!player.isSpectator()) totalPlayers++;
             if (!isDay && sleeping) {
                 playersWhoSlept.add(player.getUUID());
             }
+            if (player.level() != overworld) continue;
+            if (sleeping) sleepingCount++;
+            if (!player.isSpectator()) totalPlayers++;
         }
 
         if (sleepingCount != lastSleepingCount || totalPlayers != lastTotalPlayers) {

@@ -23,6 +23,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class LanguageAssetsTest {
 
     private static final Gson GSON = new Gson();
+    private static final String UNIT_PREFIX = "midnightthoughts.summary.unit.";
+    private static final List<String> UNITS = List.of("blocks", "mobs", "times", "damage");
     private static final List<String> CATEGORIES =
             List.of("facts", "lore", "nightmares", "special", "surreal");
 
@@ -41,6 +43,23 @@ class LanguageAssetsTest {
 
     private static Path langFile(String language) {
         return assetsRoot().resolve("lang").resolve(language + ".json");
+    }
+
+    private static JsonObject lang(String language) throws IOException {
+        return GSON.fromJson(Files.readString(langFile(language), StandardCharsets.UTF_8), JsonObject.class);
+    }
+
+    private static boolean isPluralForm(String key) {
+        return key.startsWith(UNIT_PREFIX);
+    }
+
+    private static Set<String> pluralFormsFor(String language) {
+        String family = language.substring(0, 2);
+        return switch (family) {
+            case "ru", "uk", "be", "pl" -> Set.of("one", "few", "many");
+            case "ja", "ko", "zh", "tr" -> Set.of("other");
+            default -> Set.of("one", "other");
+        };
     }
 
     private static List<JsonObject> entries(Path file) throws IOException {
@@ -138,18 +157,15 @@ class LanguageAssetsTest {
 
     @Test
     void translationKeysMatchEnglish() throws IOException {
-        JsonObject reference = GSON.fromJson(
-                Files.readString(langFile(SupportedLanguages.DEFAULT), StandardCharsets.UTF_8),
-                JsonObject.class);
-        Set<String> expected = new TreeSet<>(reference.keySet());
+        Set<String> expected = new TreeSet<>(lang(SupportedLanguages.DEFAULT).keySet());
+        expected.removeIf(LanguageAssetsTest::isPluralForm);
         assertFalse(expected.isEmpty(), "english lang file is empty");
 
         for (String language : SupportedLanguages.codes()) {
-            JsonObject actual = GSON.fromJson(
-                    Files.readString(langFile(language), StandardCharsets.UTF_8),
-                    JsonObject.class);
-            assertEquals(expected, new TreeSet<>(actual.keySet()),
-                    "translation key drift in lang/" + language + ".json");
+            JsonObject actual = lang(language);
+            Set<String> keys = new TreeSet<>(actual.keySet());
+            keys.removeIf(LanguageAssetsTest::isPluralForm);
+            assertEquals(expected, keys, "translation key drift in lang/" + language + ".json");
             for (Map.Entry<String, JsonElement> entry : actual.entrySet()) {
                 assertFalse(entry.getValue().getAsString().isBlank(),
                         "blank translation for " + entry.getKey() + " in lang/" + language + ".json");
@@ -158,10 +174,23 @@ class LanguageAssetsTest {
     }
 
     @Test
+    void pluralFormsFollowEachLanguageRule() throws IOException {
+        for (String language : SupportedLanguages.codes()) {
+            JsonObject actual = lang(language);
+            for (String unit : UNITS) {
+                Set<String> forms = new TreeSet<>();
+                for (String key : actual.keySet()) {
+                    if (key.startsWith(UNIT_PREFIX + unit + ".")) forms.add(key.substring((UNIT_PREFIX + unit + ".").length()));
+                }
+                assertEquals(new TreeSet<>(pluralFormsFor(language)), forms,
+                        "plural forms of " + unit + " in lang/" + language + ".json");
+            }
+        }
+    }
+
+    @Test
     void translationsStayWithinTheEnglishWidthBudget() throws IOException {
-        JsonObject reference = GSON.fromJson(
-                Files.readString(langFile(SupportedLanguages.DEFAULT), StandardCharsets.UTF_8),
-                JsonObject.class);
+        JsonObject reference = lang(SupportedLanguages.DEFAULT);
 
         List<String> violations = new ArrayList<>();
         for (String language : SupportedLanguages.codes()) {
@@ -169,7 +198,11 @@ class LanguageAssetsTest {
                     Files.readString(langFile(language), StandardCharsets.UTF_8),
                     JsonObject.class);
             for (Map.Entry<String, JsonElement> entry : actual.entrySet()) {
-                int englishLength = reference.get(entry.getKey()).getAsString().length();
+                String key = entry.getKey();
+                String englishKey = reference.has(key) || !isPluralForm(key)
+                        ? key
+                        : key.substring(0, key.lastIndexOf('.')) + ".other";
+                int englishLength = reference.get(englishKey).getAsString().length();
                 int length = entry.getValue().getAsString().length();
                 int budget = Math.max(englishLength * 2, englishLength + 8);
                 if (length > budget) {

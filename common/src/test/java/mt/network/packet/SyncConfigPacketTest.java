@@ -129,11 +129,11 @@ class SyncConfigPacketTest {
 
         int fourVarInts = 2 + 2 + 2 + 2;
         int sixFloats = 6 * 4;
-        int thirteenBooleans = 13;
+        int twelveBooleans = 12;
         int theme = 1 + "magic".getBytes(StandardCharsets.UTF_8).length;
         int hudPosition = 1 + "bar".getBytes(StandardCharsets.UTF_8).length;
 
-        assertEquals(fourVarInts + sixFloats + thirteenBooleans + theme + hudPosition,
+        assertEquals(fourVarInts + sixFloats + twelveBooleans + theme + hudPosition,
                 buf.readableBytes(),
                 "wire format changed, bump the protocol version before shipping this");
     }

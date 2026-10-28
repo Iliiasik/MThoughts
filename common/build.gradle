@@ -53,11 +53,20 @@ dependencies {
 test {
     useJUnitPlatform()
     maxHeapSize = '2g'
+    workingDir = layout.buildDirectory.dir('test-run').get().asFile
+    doFirst { workingDir.mkdirs() }
     systemProperty 'midnightthoughts.projectDir', projectDir.absolutePath
     testLogging {
         events 'passed', 'skipped', 'failed'
         exceptionFormat 'full'
         showStandardStreams = false
+    }
+    afterSuite { descriptor, result ->
+        if (descriptor.parent == null) {
+            println ''
+            println "Unit tests: ${result.resultType}, ${result.testCount} run, ${result.successfulTestCount} passed, " +
+                    "${result.failedTestCount} failed, ${result.skippedTestCount} skipped"
+        }
     }
 }
 

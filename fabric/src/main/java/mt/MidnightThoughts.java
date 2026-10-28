@@ -39,6 +39,10 @@ public class MidnightThoughts implements ModInitializer {
         AchievementLoader.load();
         UserContentInitializer.writeDefaultFiles();
 
+        if (System.getProperty("fabric-api.gametest") != null) {
+            mt.gametest.FabricGameTestHooks.register();
+        }
+
         ServerLifecycleEvents.SERVER_STARTED.register(server -> {
             DailyStatsManager.initialize();
             LOGGER.info("Midnight Thoughts server started");
