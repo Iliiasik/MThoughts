@@ -127,9 +127,19 @@ public class DailySummaryScreen extends Screen {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (this.minecraft != null && this.minecraft.options.keyInventory.matches(keyCode, scanCode)) {
-            onClose();
-            return true;
+        if (this.minecraft != null) {
+            if (this.minecraft.options.keyInventory.matches(keyCode, scanCode)) {
+                onClose();
+                return true;
+            }
+            if (this.minecraft.options.keyLeft.matches(keyCode, scanCode)) {
+                turnPage(-1);
+                return true;
+            }
+            if (this.minecraft.options.keyRight.matches(keyCode, scanCode)) {
+                turnPage(1);
+                return true;
+            }
         }
         return super.keyPressed(keyCode, scanCode, modifiers);
     }

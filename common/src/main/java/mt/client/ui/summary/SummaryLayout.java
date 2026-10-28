@@ -9,7 +9,7 @@ public final class SummaryLayout {
     public static final int HEAD = 64;
     public static final int ACHIEVEMENT_GAP = 10;
     public static final int ACHIEVEMENT_COUNT = 3;
-    public static final int BUTTON_GAP = 6;
+    public static final int BUTTON_GAP = 2;
     public static final int SCREEN_MARGIN = 20;
 
     public static final int CONTROL_ROW = SummaryConstants.BUTTON_TEXTURE_SIZE;
