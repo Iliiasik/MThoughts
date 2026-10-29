@@ -16,6 +16,7 @@ public final class ApiEventLog {
     private ApiEventLog() {}
 
     public static void record(String event, ServerPlayer player, int value, boolean flag, int extra) {
+        if (!TestHarness.isInstalled()) return;
         ENTRIES.add(new Entry(event, player.getUUID(), value, flag, extra));
     }
 

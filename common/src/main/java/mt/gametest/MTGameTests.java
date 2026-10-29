@@ -17,7 +17,6 @@ public final class MTGameTests {
     @SuppressWarnings("unused")
     @GameTestGenerator
     public static Collection<TestFunction> generate() {
-        TestHarness.install();
         List<TestFunction> functions = new ArrayList<>();
         for (GameTestCase testCase : TestCatalog.selected()) {
             functions.add(new TestFunction(

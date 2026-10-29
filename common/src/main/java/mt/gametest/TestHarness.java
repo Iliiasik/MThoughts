@@ -29,6 +29,7 @@ public final class TestHarness {
     private static String loaderName = "unknown loader";
     private static TestContext current;
     private static Map<Path, String> savedFiles = Map.of();
+    private static boolean installed;
 
     private TestHarness() {}
 
@@ -40,12 +41,16 @@ public final class TestHarness {
         return loaderName;
     }
 
-    static void install() {
-        PacketLog.install();
-        GlobalTestReporter.replaceWith(new MTTestReporter());
+    static boolean isInstalled() {
+        return installed;
     }
 
     static void run(GameTestHelper helper, GameTestCase testCase) {
+        if (!installed) {
+            installed = true;
+            PacketLog.install();
+            GlobalTestReporter.replaceWith(new MTTestReporter());
+        }
         finishCurrent();
         savedFiles = snapshotFiles();
         TestContext context = new TestContext(helper);
