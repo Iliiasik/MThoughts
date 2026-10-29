@@ -8,14 +8,12 @@ public final class MTClientNetwork {
         void sendToServer(CustomPacketPayload payload);
     }
 
-    private static final Bridge NOOP = payload -> {};
-
-    private static Bridge bridge = NOOP;
+    private static Bridge bridge = payload -> {};
 
     private MTClientNetwork() {}
 
     public static void setBridge(Bridge value) {
-        bridge = value != null ? value : NOOP;
+        bridge = value;
     }
 
     public static void sendToServer(CustomPacketPayload payload) {

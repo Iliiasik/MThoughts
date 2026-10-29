@@ -28,7 +28,7 @@ public final class MTPlatform {
     private MTPlatform() {}
 
     public static void setBridge(Bridge value) {
-        bridge = value != null ? value : NOOP;
+        bridge = value;
     }
 
     public static boolean isModLoaded(String modId) {

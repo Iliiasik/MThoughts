@@ -149,14 +149,14 @@ public class SpaceField {
         return false;
     }
 
-    public void render(GuiGraphics context, float overlayAlpha) {
+    public void render(GuiGraphics context) {
         if (placed == 0) return;
         float elapsed = System.currentTimeMillis() - origin;
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         for (int i = 0; i < placed; i++) {
             float wave = 0.5f + 0.5f * (float) Math.sin(elapsed * fadeSpeed[i] + phase[i]);
-            float alpha = peakAlpha[i] * wave * overlayAlpha;
+            float alpha = peakAlpha[i] * wave;
             if (alpha <= 0.01f) continue;
             RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, alpha);
             context.blit(texture[i], x[i], y[i], size[i], size[i], 0.0f, 0.0f, size[i], size[i], size[i], size[i]);

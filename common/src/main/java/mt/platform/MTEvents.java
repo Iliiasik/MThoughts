@@ -40,7 +40,7 @@ public final class MTEvents {
     private MTEvents() {}
 
     public static void setBridge(Bridge value) {
-        bridge = value != null ? value : NOOP;
+        bridge = value;
     }
 
     public static int comfortCalculated(ServerPlayer player, int level) {

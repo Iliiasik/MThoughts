@@ -1,5 +1,6 @@
 package mt.client.render;
 
+import mt.client.ui.engine.RenderUtils;
 import net.minecraft.client.gui.GuiGraphics;
 
 public class NightmareField {
@@ -24,17 +25,12 @@ public class NightmareField {
         origin = now;
     }
 
-    public void render(GuiGraphics context, int w, int h, float overlayAlpha) {
-        if (overlayAlpha <= 0f) return;
+    public void render(GuiGraphics context, int w, int h) {
         float elapsed = Math.max(0f, System.currentTimeMillis() - origin);
 
-        int wash = clampAlpha(WASH_ALPHA * overlayAlpha);
-        if (wash > 2) {
-            context.fill(0, 0, w, h, (wash << 24) | WASH_RGB);
-        }
+        context.fill(0, 0, w, h, (RenderUtils.alphaByte(WASH_ALPHA) << 24) | WASH_RGB);
 
-        int edge = clampAlpha(EDGE_ALPHA * overlayAlpha);
-        if (edge <= 2) return;
+        int edge = RenderUtils.alphaByte(EDGE_ALPHA);
 
         int bandHeight = Math.round(h * lerp(EDGE_HEIGHT_MIN, EDGE_HEIGHT_MAX, verticalClosure(elapsed)));
         int bandWidth = Math.round(w * lerp(EDGE_WIDTH_MIN, EDGE_WIDTH_MAX, horizontalClosure(elapsed)));
@@ -61,11 +57,5 @@ public class NightmareField {
     private static float wave(float elapsed, float periodMs, float phase) {
         double angle = elapsed * (2.0 * Math.PI / periodMs) + phase * 2.0 * Math.PI;
         return 0.5f + 0.5f * (float) Math.sin(angle);
-    }
-
-    private static int clampAlpha(float a) {
-        if (Float.isNaN(a)) return 0;
-        int v = Math.round(a * 255f);
-        return v < 0 ? 0 : Math.min(v, 255);
     }
 }

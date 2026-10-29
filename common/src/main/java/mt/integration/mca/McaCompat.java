@@ -88,9 +88,6 @@ public final class McaCompat {
 
     private static void disable(String message, Throwable error) {
         available = false;
-        useVillagerRenderer = null;
-        getPlayerData = null;
-        stitchedSkin = null;
         LOGGER.warn("Midnight Thoughts {}: {}", message, error.toString());
     }
 }

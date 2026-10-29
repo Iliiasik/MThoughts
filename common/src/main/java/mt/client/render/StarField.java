@@ -1,5 +1,6 @@
 package mt.client.render;
 
+import mt.client.ui.engine.RenderUtils;
 import net.minecraft.client.gui.GuiGraphics;
 
 import java.util.List;
@@ -40,15 +41,14 @@ public class StarField {
         }
     }
 
-    public void render(GuiGraphics context, int w, int h, float overlayAlpha,
-                       List<OverlayRect> content, float baseScale, SpaceField space) {
+    public void render(GuiGraphics context, int w, int h, List<OverlayRect> content, float baseScale, SpaceField space) {
         int contentMargin = Math.round(CONTENT_MARGIN_VIRTUAL * baseScale);
         int edgeMargin = Math.round(SpaceField.EDGE_MARGIN_VIRTUAL * baseScale);
         float elapsed = System.currentTimeMillis() - origin;
 
         for (int i = 0; i < STAR_COUNT; i++) {
             float twinkle = 0.35f + 0.65f * (float) Math.sin(elapsed * speed[i] + phase[i]);
-            int a = clampAlpha(alpha[i] * twinkle * overlayAlpha);
+            int a = RenderUtils.alphaByte(alpha[i] * twinkle);
             if (a <= 1) continue;
 
             int size = big[i] ? 2 : 1;
@@ -89,10 +89,5 @@ public class StarField {
 
     private void scheduleShuffle(long now) {
         nextShuffle = now + SHUFFLE_MIN_MS + rng.nextInt(SHUFFLE_MAX_MS - SHUFFLE_MIN_MS);
-    }
-
-    private int clampAlpha(float a) {
-        int v = Math.round(a * 255f);
-        return v < 0 ? 0 : Math.min(v, 255);
     }
 }

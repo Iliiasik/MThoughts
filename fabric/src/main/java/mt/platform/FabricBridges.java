@@ -9,8 +9,6 @@ import mt.fabric.PersistentDataHolder;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 
@@ -46,19 +44,7 @@ public final class FabricBridges {
             }
         });
 
-        MTNetwork.setBridge(new MTNetwork.Bridge() {
-            @Override
-            public void sendToPlayer(ServerPlayer player, CustomPacketPayload payload) {
-                ServerPlayNetworking.send(player, payload);
-            }
-
-            @Override
-            public void sendToAll(MinecraftServer server, CustomPacketPayload payload) {
-                for (ServerPlayer player : server.getPlayerList().getPlayers()) {
-                    ServerPlayNetworking.send(player, payload);
-                }
-            }
-        });
+        MTNetwork.setBridge(ServerPlayNetworking::send);
 
         MTPlatform.setBridge(new MTPlatform.Bridge() {
             @Override

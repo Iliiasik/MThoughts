@@ -70,21 +70,7 @@ public final class CardRenderer {
         int y = layout.chipY();
         int width = layout.chipColumnWidth();
         int height = layout.s(SummaryConstants.CHIP_TEXTURE_HEIGHT);
-
-        drawChip(context, font, layout, y, text, fadeAlpha);
-
-        List<String> season = SeasonChip.tooltipLines();
-        if (!season.isEmpty()) {
-            areas.add(new HoverArea(x, y, width, height, season));
-        }
-    }
-
-    private static void drawChip(GuiGraphics context, Font font, SummaryLayout layout,
-                                 int y, String text, float fadeAlpha) {
-        int width = layout.chipColumnWidth();
-        int height = layout.s(SummaryConstants.CHIP_TEXTURE_HEIGHT);
         int inset = layout.s(SummaryConstants.CHIP_INSET);
-        int x = layout.contentX();
         float textScale = layout.textScale();
 
         RenderHelper.blitTexture(context, SummaryConstants.getChipTexture(), x, y, width, height, fadeAlpha);
@@ -98,5 +84,10 @@ public final class CardRenderer {
                 RenderUtils.centeredX(x, width, textWidth),
                 RenderUtils.centeredTextY(y, height, textScale, style.shadow()),
                 style.argb(fadeAlpha), textScale, style.shadow());
+
+        List<String> season = SeasonChip.tooltipLines();
+        if (!season.isEmpty()) {
+            areas.add(new HoverArea(x, y, width, height, season));
+        }
     }
 }

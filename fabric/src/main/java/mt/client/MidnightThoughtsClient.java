@@ -2,16 +2,11 @@ package mt.client;
 
 import mt.MTConstants;
 import mt.client.network.ClientNetworkHandler;
-import mt.client.render.SleepOverlayRenderer;
-import mt.client.ui.SleepingPlayersHud;
-import mt.client.ui.WellRestedHud;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -43,25 +38,5 @@ public class MidnightThoughtsClient implements ClientModInitializer {
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> MTClient.onDisconnect());
 
         LOGGER.info("[MidnightThoughtsClient] Midnight Thoughts client setup complete");
-    }
-
-    public static void renderWellRestedHud(GuiGraphics graphics) {
-        if (Minecraft.getInstance().player == null) return;
-        WellRestedHud.render(graphics, graphics.guiWidth(), graphics.guiHeight());
-    }
-
-    public static void renderSleepOverlay(GuiGraphics graphics) {
-        SleepOverlayRenderer overlay = MTClient.overlay();
-        if (overlay == null || Minecraft.getInstance().player == null) return;
-
-        int width = graphics.guiWidth();
-        int height = graphics.guiHeight();
-        overlay.renderOverlayOnly(graphics, width, height);
-        overlay.renderContentOnly(graphics, width, height);
-    }
-
-    public static void renderSleepingPlayersHud(GuiGraphics graphics) {
-        if (Minecraft.getInstance().player == null) return;
-        SleepingPlayersHud.render(graphics, graphics.guiWidth(), graphics.guiHeight());
     }
 }

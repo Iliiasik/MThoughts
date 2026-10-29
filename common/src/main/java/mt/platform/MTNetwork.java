@@ -8,24 +8,14 @@ public final class MTNetwork {
 
     public interface Bridge {
         void sendToPlayer(ServerPlayer player, CustomPacketPayload payload);
-
-        void sendToAll(MinecraftServer server, CustomPacketPayload payload);
     }
 
-    private static final Bridge NOOP = new Bridge() {
-        @Override
-        public void sendToPlayer(ServerPlayer player, CustomPacketPayload payload) {}
-
-        @Override
-        public void sendToAll(MinecraftServer server, CustomPacketPayload payload) {}
-    };
-
-    private static Bridge bridge = NOOP;
+    private static Bridge bridge = (player, payload) -> {};
 
     private MTNetwork() {}
 
     public static void setBridge(Bridge value) {
-        bridge = value != null ? value : NOOP;
+        bridge = value;
     }
 
     public static void sendToPlayer(ServerPlayer player, CustomPacketPayload payload) {
@@ -33,6 +23,8 @@ public final class MTNetwork {
     }
 
     public static void sendToAll(MinecraftServer server, CustomPacketPayload payload) {
-        bridge.sendToAll(server, payload);
+        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+            bridge.sendToPlayer(player, payload);
+        }
     }
 }

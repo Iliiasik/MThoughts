@@ -1,5 +1,6 @@
 package mt.server;
 
+import mt.MTConstants;
 import mt.config.MidnightThoughtsConfig;
 import mt.platform.MTEvents;
 import net.minecraft.core.BlockPos;
@@ -20,14 +21,14 @@ public class ComfortCalculator {
     private static final int RECALCULATE_INTERVAL = 100;
     private static final int MAX_SCAN_RADIUS = 8;
 
-    private static final TagKey<Block> LIGHTING_TAG = TagKey.create(Registries.BLOCK, ResourceLocation.fromNamespaceAndPath("midnightthoughts", "comfort_lighting"));
-    private static final TagKey<Block> CARPET_TAG = TagKey.create(Registries.BLOCK, ResourceLocation.fromNamespaceAndPath("midnightthoughts", "comfort_carpet"));
-    private static final TagKey<Block> FURNITURE_TAG = TagKey.create(Registries.BLOCK, ResourceLocation.fromNamespaceAndPath("midnightthoughts", "comfort_furniture"));
-    private static final TagKey<Block> DECOR_TAG = TagKey.create(Registries.BLOCK, ResourceLocation.fromNamespaceAndPath("midnightthoughts", "comfort_decoration"));
-    private static final TagKey<Block> STRUCTURE_TAG = TagKey.create(Registries.BLOCK, ResourceLocation.fromNamespaceAndPath("midnightthoughts", "comfort_structure"));
-    private static final TagKey<Block> NEGATIVE_MACABRE_TAG = TagKey.create(Registries.BLOCK, ResourceLocation.fromNamespaceAndPath("midnightthoughts", "comfort_negative_macabre"));
-    private static final TagKey<Block> NEGATIVE_HOSTILE_TAG = TagKey.create(Registries.BLOCK, ResourceLocation.fromNamespaceAndPath("midnightthoughts", "comfort_negative_hostile"));
-    private static final TagKey<Block> NEGATIVE_DARK_TAG = TagKey.create(Registries.BLOCK, ResourceLocation.fromNamespaceAndPath("midnightthoughts", "comfort_negative_dark"));
+    private static final TagKey<Block> LIGHTING_TAG = tag("comfort_lighting");
+    private static final TagKey<Block> CARPET_TAG = tag("comfort_carpet");
+    private static final TagKey<Block> FURNITURE_TAG = tag("comfort_furniture");
+    private static final TagKey<Block> DECOR_TAG = tag("comfort_decoration");
+    private static final TagKey<Block> STRUCTURE_TAG = tag("comfort_structure");
+    private static final TagKey<Block> NEGATIVE_MACABRE_TAG = tag("comfort_negative_macabre");
+    private static final TagKey<Block> NEGATIVE_HOSTILE_TAG = tag("comfort_negative_hostile");
+    private static final TagKey<Block> NEGATIVE_DARK_TAG = tag("comfort_negative_dark");
 
     @SuppressWarnings("unchecked")
     private static final TagKey<Block>[] ALL_TAGS = (TagKey<Block>[]) new TagKey[]{
@@ -46,6 +47,10 @@ public class ComfortCalculator {
                                int nightmareThreshold, int sleepBlockThreshold,
                                boolean nightmareEnabled, boolean sleepBlockEnabled,
                                boolean nightmare, boolean sleepBlocked) {}
+
+    private static TagKey<Block> tag(String name) {
+        return TagKey.create(Registries.BLOCK, ResourceLocation.fromNamespaceAndPath(MTConstants.MOD_ID, name));
+    }
 
     private static int[] currentWeights() {
         MidnightThoughtsConfig.ComfortWeights w = CONFIG.getComfort().weights;
@@ -101,13 +106,7 @@ public class ComfortCalculator {
             return cached.comfortLevel();
         }
 
-        boolean[] found = scanFound(player, origin);
-        int[] weights = currentWeights();
-        int comfortLevel = 0;
-        for (int i = 0; i < ALL_TAGS.length; i++) {
-            if (found[i]) comfortLevel += weights[i];
-        }
-
+        int comfortLevel = sum(scanFound(player, origin), currentWeights());
         cache.put(uuid, new CachedComfort(comfortLevel, currentTick, origin));
 
         comfortLevel = MTEvents.comfortCalculated(player, comfortLevel);
@@ -121,27 +120,28 @@ public class ComfortCalculator {
         int scanRadius = Math.clamp(c.scanRadius, 0, MAX_SCAN_RADIUS);
         int[] weights = currentWeights();
         boolean[] found = c.enabled ? scanFound(player, defaultOrigin(player)) : new boolean[ALL_TAGS.length];
-        int total = 0;
-        if (c.enabled) {
-            for (int i = 0; i < found.length; i++) {
-                if (found[i]) total += weights[i];
-            }
-        }
-        boolean nightmare = c.enabled && c.nightmareEnabled && total <= c.nightmareThreshold;
-        boolean sleepBlocked = c.enabled && c.sleepBlockEnabled && total <= c.sleepBlockThreshold;
+        int total = c.enabled ? sum(found, weights) : 0;
         return new ComfortDebug(c.enabled, scanRadius, found, weights, total,
                 c.nightmareThreshold, c.sleepBlockThreshold, c.nightmareEnabled, c.sleepBlockEnabled,
-                nightmare, sleepBlocked);
+                isNightmare(total), blocksSleep(total));
+    }
+
+    private static int sum(boolean[] found, int[] weights) {
+        int total = 0;
+        for (int i = 0; i < found.length; i++) {
+            if (found[i]) total += weights[i];
+        }
+        return total;
     }
 
     public static boolean isNightmare(int comfortLevel) {
-        if (!CONFIG.getComfort().nightmareEnabled) return false;
-        return comfortLevel <= CONFIG.getComfort().nightmareThreshold;
+        MidnightThoughtsConfig.ComfortSettings c = CONFIG.getComfort();
+        return c.enabled && c.nightmareEnabled && comfortLevel <= c.nightmareThreshold;
     }
 
-    public static boolean isSleepBlocked(ServerPlayer player, BlockPos origin) {
-        if (!CONFIG.getComfort().sleepBlockEnabled) return false;
-        return calculateComfortLevel(player, origin) <= CONFIG.getComfort().sleepBlockThreshold;
+    public static boolean blocksSleep(int comfortLevel) {
+        MidnightThoughtsConfig.ComfortSettings c = CONFIG.getComfort();
+        return c.enabled && c.sleepBlockEnabled && comfortLevel <= c.sleepBlockThreshold;
     }
 
     public static void invalidateCache(ServerPlayer player) {

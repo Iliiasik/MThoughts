@@ -16,7 +16,7 @@ public final class SeasonChip {
 
         List<String> lines = new ArrayList<>(2);
         lines.add(Component.translatable(info.nameKey()).getString());
-        lines.add(Component.translatable(SeasonsCompat.dayKey(), info.day(), info.totalDays()).getString());
+        lines.add(Component.translatable(SeasonsCompat.DAY_KEY, info.day(), info.totalDays()).getString());
         return lines;
     }
 }

@@ -19,7 +19,7 @@ public final class SeasonsCompat {
     private static final String MOD_ID = "sereneseasons";
     private static final String HELPER_CLASS = "sereneseasons.api.season.SeasonHelper";
     private static final String NAME_KEY_PREFIX = "desc.sereneseasons.";
-    private static final String DAY_KEY = "desc.sereneseasons.day_counter";
+    public static final String DAY_KEY = "desc.sereneseasons.day_counter";
 
     private static boolean resolved;
     private static boolean available;
@@ -32,10 +32,6 @@ public final class SeasonsCompat {
     private static Method getSubSeasonDuration;
 
     private SeasonsCompat() {}
-
-    public static String dayKey() {
-        return DAY_KEY;
-    }
 
     public static SeasonInfo current() {
         if (!resolved) resolve();
@@ -101,13 +97,6 @@ public final class SeasonsCompat {
 
     private static void disable(Throwable error) {
         available = false;
-        getSeasonState = null;
-        usesTropicalSeasons = null;
-        getSubSeason = null;
-        getTropicalSeason = null;
-        getSeasonCycleTicks = null;
-        getDayDuration = null;
-        getSubSeasonDuration = null;
         LOGGER.warn("Serene Seasons is installed but its season API changed, the season badge is hidden: {}",
                 error.toString());
     }

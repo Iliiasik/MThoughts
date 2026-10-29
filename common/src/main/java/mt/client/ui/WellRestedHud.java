@@ -3,6 +3,7 @@ package mt.client.ui;
 import com.mojang.blaze3d.systems.RenderSystem;
 import mt.MTConstants;
 import mt.client.manager.WellRestedClientState;
+import mt.client.ui.engine.RenderUtils;
 import mt.config.MidnightThoughtsConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -20,7 +21,7 @@ public class WellRestedHud {
     private static final int TEX_FILL_W = 50;
     private static final int TEX_FILL_H = 5;
     private static final int TEX_ICON_SIZE = 9;
-    public static final int BAR_GUI_H = 9;
+    private static final int BAR_GUI_H = 9;
     private static final int ICON_GUI_SIZE = 9;
     private static final int GAP = 1;
     private static final int FILL_INSET = 2;
@@ -36,7 +37,11 @@ public class WellRestedHud {
                 && !MidnightThoughtsConfig.getInstance().isHideWellRestedHud();
     }
 
-    public static boolean isBarPosition() {
+    public static int airBubbleShift() {
+        return isActive() && isBarPosition() ? BAR_GUI_H + 3 : 0;
+    }
+
+    private static boolean isBarPosition() {
         return MidnightThoughtsConfig.HUD_POSITION_BAR
                 .equals(MidnightThoughtsConfig.getInstance().getWellRestedHudPosition());
     }
@@ -69,7 +74,6 @@ public class WellRestedHud {
         }
 
         String position = MidnightThoughtsConfig.getInstance().getWellRestedHudPosition();
-        boolean bar = MidnightThoughtsConfig.HUD_POSITION_BAR.equals(position);
         int romanSpace = roman.isEmpty() ? 0 : romanWidth + GAP;
         int totalRight = screenWidth / 2 + 91;
 
@@ -77,7 +81,7 @@ public class WellRestedHud {
 
         int iconX;
         int barY;
-        if (bar) {
+        if (isBarPosition()) {
             iconX = totalRight - hudWidth;
             barY = screenHeight - 32 - BAR_GUI_H - 10;
         } else {
@@ -95,7 +99,7 @@ public class WellRestedHud {
 
         if (!roman.isEmpty()) {
             int romanY = barY + (BAR_GUI_H - font.lineHeight) / 2;
-            int textColor = (Math.round(scaleAlpha * 255f) << 24) | 0x00FFD966;
+            int textColor = (RenderUtils.alphaByte(scaleAlpha) << 24) | 0x00FFD966;
             graphics.drawString(font, roman, romanX, romanY, textColor, true);
         }
 

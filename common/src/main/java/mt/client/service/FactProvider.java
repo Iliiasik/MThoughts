@@ -27,9 +27,9 @@ public class FactProvider {
     private final UselessFactsApiClient apiClient;
     private final SlideRepository slideRepository;
     private final UserContentLoader userContentLoader;
-    private final Queue<Slide> factQueue;
-    private final AtomicLong nextApiAttempt;
-    private final AtomicBoolean fetchInProgress;
+    private final Queue<Slide> factQueue = new ConcurrentLinkedQueue<>();
+    private final AtomicLong nextApiAttempt = new AtomicLong(0L);
+    private final AtomicBoolean fetchInProgress = new AtomicBoolean(false);
 
     private String currentLanguage = mt.common.SupportedLanguages.DEFAULT;
 
@@ -37,26 +37,15 @@ public class FactProvider {
         this.apiClient = apiClient;
         this.slideRepository = slideRepository;
         this.userContentLoader = userContentLoader;
-        this.factQueue = new ConcurrentLinkedQueue<>();
-        this.nextApiAttempt = new AtomicLong(0L);
-        this.fetchInProgress = new AtomicBoolean(false);
     }
 
     public Slide getNextFact(String language) {
-        updateLanguageIfChanged(language);
-
-        MidnightThoughtsConfig config = MidnightThoughtsConfig.getInstance();
-        List<String> userFacts = userContentLoader.loadEntries(language, "facts");
-
-        if (!userFacts.isEmpty() && config.isUserContentReplaces()) {
-            return randomUserSlide(userFacts, SlideCategory.FACT);
+        Slide userFact = getNextForCategory(language, SlideCategory.FACT);
+        if (userFact != null) {
+            return userFact;
         }
 
-        if (!userFacts.isEmpty() && ThreadLocalRandom.current().nextBoolean()) {
-            return randomUserSlide(userFacts, SlideCategory.FACT);
-        }
-
-        if (!config.isUseFactsApi() || !API_SUPPORTED_LANGUAGES.contains(language)) {
+        if (!MidnightThoughtsConfig.getInstance().isUseFactsApi() || !API_SUPPORTED_LANGUAGES.contains(language)) {
             return getFallbackFact(language);
         }
 
@@ -73,24 +62,13 @@ public class FactProvider {
     public Slide getNextForCategory(String language, SlideCategory category) {
         updateLanguageIfChanged(language);
 
-        String categoryName = category.name().toLowerCase();
-
-        if (category == SlideCategory.NIGHTMARE) {
-            categoryName = "nightmares";
+        List<String> entries = userContentLoader.loadEntries(language, category.fileName());
+        if (entries.isEmpty()) return null;
+        if (!MidnightThoughtsConfig.getInstance().isUserContentReplaces() && ThreadLocalRandom.current().nextBoolean()) {
+            return null;
         }
-
-        List<String> userEntries = userContentLoader.loadEntries(language, categoryName);
-        MidnightThoughtsConfig config = MidnightThoughtsConfig.getInstance();
-
-        if (!userEntries.isEmpty() && config.isUserContentReplaces()) {
-            return randomUserSlide(userEntries, category);
-        }
-
-        if (!userEntries.isEmpty() && ThreadLocalRandom.current().nextBoolean()) {
-            return randomUserSlide(userEntries, category);
-        }
-
-        return null;
+        String text = entries.get(ThreadLocalRandom.current().nextInt(entries.size()));
+        return Slide.of(text, category);
     }
 
     private void updateLanguageIfChanged(String language) {
@@ -100,16 +78,8 @@ public class FactProvider {
         }
     }
 
-    private Slide randomUserSlide(List<String> entries, SlideCategory category) {
-        String text = entries.get(ThreadLocalRandom.current().nextInt(entries.size()));
-        return Slide.of(text, category);
-    }
-
     private void prefetchIfNeeded() {
-        if (factQueue.size() >= PREFETCH_THRESHOLD || fetchInProgress.get()) {
-            return;
-        }
-        if (System.currentTimeMillis() < nextApiAttempt.get()) {
+        if (factQueue.size() >= PREFETCH_THRESHOLD || System.currentTimeMillis() < nextApiAttempt.get()) {
             return;
         }
         fetchFromApi();

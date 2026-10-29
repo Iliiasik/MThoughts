@@ -75,25 +75,6 @@ class NumberFormatterTest {
         assertEquals(2, NumberFormatter.formatLargeNumber(1_000_000_000L).length());
     }
 
-    @ParameterizedTest
-    @CsvSource({
-            "10, 2, 5",
-            "10, 0, 0",
-            "0, 5, 0",
-            "-10, 2, -5",
-            "7, 2, 3"
-    })
-    void dividesSafely(int value, int divisor, int expected) {
-        assertEquals(expected, NumberFormatter.safeDivide(value, divisor));
-    }
-
-    @Test
-    void divisionByZeroNeverThrows() {
-        for (int value = -1000; value <= 1000; value++) {
-            assertEquals(0, NumberFormatter.safeDivide(value, 0));
-        }
-    }
-
     @Test
     void formattingUnderLoadStaysCorrect() {
         for (int i = 0; i < 500_000; i++) {

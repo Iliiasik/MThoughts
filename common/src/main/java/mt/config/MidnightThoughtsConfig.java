@@ -17,11 +17,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Function;
 
 public final class MidnightThoughtsConfig {
     public static final String HUD_POSITION_LEFT = "left";
     public static final String HUD_POSITION_BAR = "bar";
     public static final String HUD_POSITION_RIGHT = "right";
+    public static final List<String> HUD_POSITIONS = List.of(HUD_POSITION_LEFT, HUD_POSITION_BAR, HUD_POSITION_RIGHT);
+    public static final List<String> THEMES = List.of("vanilla", "magic", "classic", "tech");
 
     public static final String ATTRIBUTE_MOVEMENT_SPEED = "minecraft:generic.movement_speed";
     public static final String ATTRIBUTE_ATTACK_DAMAGE = "minecraft:generic.attack_damage";
@@ -106,12 +109,25 @@ public final class MidnightThoughtsConfig {
         }
         MidnightThoughtsConfig fresh = new MidnightThoughtsConfig();
         fresh.save();
+        adopt(fresh);
+        return backupName == null ? "" : backupName;
+    }
+
+    public static void reload() {
+        adopt(load());
+    }
+
+    private static void adopt(MidnightThoughtsConfig fresh) {
         if (instance == null) {
             instance = fresh;
-        } else {
-            instance.copyFrom(fresh);
+            return;
         }
-        return backupName == null ? "" : backupName;
+        instance.sleepOverlay = fresh.sleepOverlay;
+        instance.wellRested = fresh.wellRested;
+        instance.mvp = fresh.mvp;
+        instance.comfort = fresh.comfort;
+        instance.server = fresh.server;
+        instance.ui = fresh.ui;
     }
 
     public void save() {
@@ -139,6 +155,10 @@ public final class MidnightThoughtsConfig {
         return Paths.get(System.getProperty("user.dir"), "config", "midnightthoughts");
     }
 
+    public static Path getDreamsDir() {
+        return getConfigDir().resolve("dreams");
+    }
+
     private static Path getConfigPath() {
         return getConfigDir().resolve("midnightthoughts.json");
     }
@@ -151,117 +171,99 @@ public final class MidnightThoughtsConfig {
     public UISettings getUi() { return ui; }
 
     public String getWellRestedHudPosition() {
-        SyncConfigPacket s = ServerConfigCache.get();
-        return s != null ? s.wellRestedHudPosition() : ui.wellRestedHudPosition;
+        return synced(SyncConfigPacket::wellRestedHudPosition, ui.wellRestedHudPosition);
     }
 
     public int getFadeInDurationMs() {
-        SyncConfigPacket s = ServerConfigCache.get();
-        return s != null ? s.fadeInDurationMs() : sleepOverlay.fadeInDurationMs;
+        return synced(SyncConfigPacket::fadeInDurationMs, sleepOverlay.fadeInDurationMs);
     }
 
     public int getFadeOutDurationMs() {
-        SyncConfigPacket s = ServerConfigCache.get();
-        return s != null ? s.fadeOutDurationMs() : sleepOverlay.fadeOutDurationMs;
+        return synced(SyncConfigPacket::fadeOutDurationMs, sleepOverlay.fadeOutDurationMs);
     }
 
     public float getOverlayOpacity() {
-        SyncConfigPacket s = ServerConfigCache.get();
-        return s != null ? s.overlayOpacity() : sleepOverlay.overlayOpacity;
+        return synced(SyncConfigPacket::overlayOpacity, sleepOverlay.overlayOpacity);
     }
 
     public float getTextOpacity() {
-        SyncConfigPacket s = ServerConfigCache.get();
-        return s != null ? s.textOpacity() : sleepOverlay.textOpacity;
+        return synced(SyncConfigPacket::textOpacity, sleepOverlay.textOpacity);
     }
 
     public float getImageOpacity() {
-        SyncConfigPacket s = ServerConfigCache.get();
-        return s != null ? s.imageOpacity() : sleepOverlay.imageOpacity;
+        return synced(SyncConfigPacket::imageOpacity, sleepOverlay.imageOpacity);
     }
 
     public float getSpecialSlideChance() {
-        SyncConfigPacket s = ServerConfigCache.get();
-        return s != null ? s.specialSlideChance() : sleepOverlay.specialSlideChance;
+        return synced(SyncConfigPacket::specialSlideChance, sleepOverlay.specialSlideChance);
     }
 
     public boolean isEnableOverlay() {
-        SyncConfigPacket s = ServerConfigCache.get();
-        return s != null ? s.enableOverlay() : sleepOverlay.enableOverlay;
+        return synced(SyncConfigPacket::enableOverlay, sleepOverlay.enableOverlay);
     }
 
     public boolean isEnableImage() {
-        SyncConfigPacket s = ServerConfigCache.get();
-        return s != null ? s.enableImage() : sleepOverlay.enableImage;
+        return synced(SyncConfigPacket::enableImage, sleepOverlay.enableImage);
     }
 
     public boolean isEnableDailySummaryScreen() {
-        SyncConfigPacket s = ServerConfigCache.get();
-        return s != null ? s.enableDailySummaryScreen() : sleepOverlay.enableDailySummaryScreen;
+        return synced(SyncConfigPacket::enableDailySummaryScreen, sleepOverlay.enableDailySummaryScreen);
     }
 
     public boolean isUseFactsApi() {
-        SyncConfigPacket s = ServerConfigCache.get();
-        return s != null ? s.useFactsApi() : sleepOverlay.useFactsApi;
+        return synced(SyncConfigPacket::useFactsApi, sleepOverlay.useFactsApi);
     }
 
     public boolean isUserContentReplaces() {
-        SyncConfigPacket s = ServerConfigCache.get();
-        return s != null ? s.userContentReplaces() : sleepOverlay.userContentReplaces;
+        return synced(SyncConfigPacket::userContentReplaces, sleepOverlay.userContentReplaces);
     }
 
     public boolean isHideChatWhenSleeping() {
-        SyncConfigPacket s = ServerConfigCache.get();
-        return s != null ? s.hideChatWhenSleeping() : sleepOverlay.hideChatWhenSleeping;
+        return synced(SyncConfigPacket::hideChatWhenSleeping, sleepOverlay.hideChatWhenSleeping);
     }
 
     public boolean isHideHudMessagesWhenSleeping() {
-        SyncConfigPacket s = ServerConfigCache.get();
-        return s != null ? s.hideHudMessagesWhenSleeping() : sleepOverlay.hideHudMessagesWhenSleeping;
+        return synced(SyncConfigPacket::hideHudMessagesWhenSleeping, sleepOverlay.hideHudMessagesWhenSleeping);
     }
 
     public float getOverlayTextScale() {
-        SyncConfigPacket s = ServerConfigCache.get();
-        return s != null ? s.overlayTextScale() : sleepOverlay.textScale;
+        return synced(SyncConfigPacket::overlayTextScale, sleepOverlay.textScale);
     }
 
     public float getOverlayImageScale() {
-        SyncConfigPacket s = ServerConfigCache.get();
-        return s != null ? s.overlayImageScale() : sleepOverlay.imageScale;
+        return synced(SyncConfigPacket::overlayImageScale, sleepOverlay.imageScale);
     }
 
     public boolean isHideWellRestedHud() {
-        SyncConfigPacket s = ServerConfigCache.get();
-        return s != null ? s.hideWellRestedHud() : ui.hideWellRestedHud;
+        return synced(SyncConfigPacket::hideWellRestedHud, ui.hideWellRestedHud);
     }
 
     public boolean isHideSleepingPlayersHud() {
-        SyncConfigPacket s = ServerConfigCache.get();
-        return s != null ? s.hideSleepingPlayersHud() : ui.hideSleepingPlayersHud;
+        return synced(SyncConfigPacket::hideSleepingPlayersHud, ui.hideSleepingPlayersHud);
     }
 
-
     public boolean isEnableStarDust() {
-        SyncConfigPacket s = ServerConfigCache.get();
-        return s != null ? s.enableStarDust() : sleepOverlay.enableStarDust;
+        return synced(SyncConfigPacket::enableStarDust, sleepOverlay.enableStarDust);
     }
 
     public boolean isEnableSpaceObjects() {
-        SyncConfigPacket s = ServerConfigCache.get();
-        return s != null ? s.enableSpaceObjects() : sleepOverlay.enableSpaceObjects;
+        return synced(SyncConfigPacket::enableSpaceObjects, sleepOverlay.enableSpaceObjects);
     }
 
     public boolean isShowSlideProgress() {
-        SyncConfigPacket s = ServerConfigCache.get();
-        return s != null ? s.showSlideProgress() : sleepOverlay.showSlideProgress;
+        return synced(SyncConfigPacket::showSlideProgress, sleepOverlay.showSlideProgress);
     }
 
     public int getRandomSlideDisplayTime() {
-        SyncConfigPacket s = ServerConfigCache.get();
-        int min = s != null ? s.minSlideDisplayTimeMs() : sleepOverlay.minSlideDisplayTimeMs;
-        int max = s != null ? s.maxSlideDisplayTimeMs() : sleepOverlay.maxSlideDisplayTimeMs;
+        int min = synced(SyncConfigPacket::minSlideDisplayTimeMs, sleepOverlay.minSlideDisplayTimeMs);
+        int max = synced(SyncConfigPacket::maxSlideDisplayTimeMs, sleepOverlay.maxSlideDisplayTimeMs);
         if (min >= max) return min;
         return ThreadLocalRandom.current().nextInt(min, max);
+    }
+
+    private static <T> T synced(Function<SyncConfigPacket, T> fromServer, T local) {
+        SyncConfigPacket server = ServerConfigCache.get();
+        return server != null ? fromServer.apply(server) : local;
     }
 
     public static class SleepOverlaySettings {
@@ -400,23 +402,5 @@ public final class MidnightThoughtsConfig {
         public String wellRestedHudPosition = HUD_POSITION_LEFT;
         public boolean hideWellRestedHud = false;
         public boolean hideSleepingPlayersHud = false;
-    }
-
-    public static void reload() {
-        MidnightThoughtsConfig fresh = load();
-        if (instance == null) {
-            instance = fresh;
-        } else {
-            instance.copyFrom(fresh);
-        }
-    }
-
-    private void copyFrom(MidnightThoughtsConfig other) {
-        this.sleepOverlay = other.sleepOverlay;
-        this.wellRested = other.wellRested;
-        this.mvp = other.mvp;
-        this.comfort = other.comfort;
-        this.server = other.server;
-        this.ui = other.ui;
     }
 }

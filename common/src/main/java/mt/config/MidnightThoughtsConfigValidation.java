@@ -12,15 +12,10 @@ import java.util.Set;
 public final class MidnightThoughtsConfigValidation {
     private static final Logger LOGGER = LoggerFactory.getLogger("MidnightThoughts");
 
-    private static final Set<String> VALID_THEMES = Set.of("classic", "magic", "tech", "vanilla");
     private static final Set<String> VALID_OPERATIONS = Set.of(
             "add_value", "addition",
             "add_multiplied_base", "multiply_base",
             "add_multiplied_total", "multiply_total");
-    private static final Set<String> VALID_HUD_POSITIONS = Set.of(
-            MidnightThoughtsConfig.HUD_POSITION_LEFT,
-            MidnightThoughtsConfig.HUD_POSITION_BAR,
-            MidnightThoughtsConfig.HUD_POSITION_RIGHT);
 
     private static final String CLAMPED_TO_MINIMUM = "Config value {} was {}, clamped to minimum {}";
     private static final String CLAMPED_TO_MAXIMUM = "Config value {} was {}, clamped to maximum {}";
@@ -29,11 +24,11 @@ public final class MidnightThoughtsConfigValidation {
     private MidnightThoughtsConfigValidation() {}
 
     public static boolean isValidTheme(String theme) {
-        return theme != null && VALID_THEMES.contains(theme);
+        return theme != null && MidnightThoughtsConfig.THEMES.contains(theme);
     }
 
     public static boolean isValidHudPosition(String position) {
-        return position != null && VALID_HUD_POSITIONS.contains(position);
+        return position != null && MidnightThoughtsConfig.HUD_POSITIONS.contains(position);
     }
 
     public static void apply(MidnightThoughtsConfig config) {

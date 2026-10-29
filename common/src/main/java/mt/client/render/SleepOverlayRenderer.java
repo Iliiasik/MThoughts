@@ -7,6 +7,8 @@ import mt.client.manager.WellRestedClientState;
 import mt.client.model.Slide;
 import mt.client.model.SlideCategory;
 import mt.client.service.SlideService;
+import mt.client.ui.engine.RenderHelper;
+import mt.client.ui.engine.RenderUtils;
 import mt.integration.mca.McaCompat;
 import mt.network.packet.RequestMoonPhasePacket;
 import mt.platform.MTClientNetwork;
@@ -64,7 +66,6 @@ public class SleepOverlayRenderer {
     private int currentSlideDuration;
     private float incomingAlpha = 0f;
     private float outgoingAlpha = 0f;
-    private float overlayAlpha = 0f;
     private SlideState slideState = SlideState.HIDDEN;
     private boolean isOverlayVisible = false;
     private int moonPhase = 0;
@@ -124,7 +125,6 @@ public class SleepOverlayRenderer {
 
         if (sleepStateManager.isSleeping() && isOverlayVisible) {
             syncNightmareState(now);
-            updateOverlayAlpha();
             updateSlideState();
             if (config.isEnableStarDust() && !isNightmareOverlay) {
                 starField.tick(now);
@@ -159,7 +159,6 @@ public class SleepOverlayRenderer {
         prewarmSummaryHeads();
         isNightmareOverlay = WellRestedClientState.isNightmareMode();
         isOverlayVisible = true;
-        overlayAlpha = 1f;
         outgoingSlide = null;
         outgoingAlpha = 0f;
         incomingAlpha = 1f;
@@ -183,7 +182,6 @@ public class SleepOverlayRenderer {
         slideState = SlideState.HIDDEN;
         incomingAlpha = 0f;
         outgoingAlpha = 0f;
-        overlayAlpha = 0f;
         isOverlayVisible = false;
         isNightmareOverlay = false;
     }
@@ -202,10 +200,6 @@ public class SleepOverlayRenderer {
             if (s != null) return s;
         }
         return slideService.getNextSlide();
-    }
-
-    private void updateOverlayAlpha() {
-        if (isOverlayVisible && overlayAlpha < 1f) overlayAlpha = Math.min(1f, overlayAlpha + 0.02f);
     }
 
     private void updateSlideState() {
@@ -255,31 +249,24 @@ public class SleepOverlayRenderer {
         return t < 0.5f ? 2 * t * t : 1 - (float) Math.pow(-2 * t + 2, 2) / 2;
     }
 
-    private int clampAlpha(float a) {
-        int v = Math.round(a * 255f);
-        return v < 0 ? 0 : Math.min(v, 255);
-    }
-
-    public void renderOverlayOnly(GuiGraphics context, int screenWidth, int screenHeight) {
-        if (!sleepStateManager.isSleeping() || !config.isEnableOverlay()) return;
-        if (overlayAlpha <= 0 && !isOverlayVisible) return;
+    public void render(GuiGraphics context, int screenWidth, int screenHeight) {
+        if (!isShowing() || !config.isEnableOverlay()) return;
         renderOverlay(context, screenWidth, screenHeight);
+        renderContent(context, screenWidth, screenHeight);
     }
 
-    public void renderContentOnly(GuiGraphics context, int screenWidth, int screenHeight) {
-        if (!sleepStateManager.isSleeping() || !config.isEnableOverlay()) return;
-        if (overlayAlpha <= 0 && !isOverlayVisible) return;
-        renderContent(context, screenWidth, screenHeight);
+    private boolean isShowing() {
+        return sleepStateManager.isSleeping() && isOverlayVisible;
     }
 
     private void renderOverlay(GuiGraphics context, int w, int h) {
         int rgb = isNightmareOverlay ? 0x1A0000 : 0x000000;
-        float strength = config.getOverlayOpacity() * overlayAlpha;
+        float strength = config.getOverlayOpacity();
 
-        int baseA = clampAlpha(strength * 0.6f);
+        int baseA = RenderUtils.alphaByte(strength * 0.6f);
         context.fill(0, 0, w, h, (baseA << 24) | rgb);
 
-        int edgeA = clampAlpha(strength);
+        int edgeA = RenderUtils.alphaByte(strength);
         int bandH = Math.round(h * 0.42f);
         int bandW = Math.round(w * 0.30f);
         context.fillGradient(0, 0, w, bandH, (edgeA << 24) | rgb, rgb);
@@ -327,16 +314,16 @@ public class SleepOverlayRenderer {
 
         if (isNightmareOverlay) {
             if (config.isEnableStarDust()) {
-                nightmareField.render(context, w, h, overlayAlpha);
+                nightmareField.render(context, w, h);
             }
         } else {
             boolean space = config.isEnableSpaceObjects();
             if (space) {
                 spaceField.layout(w, h, baseScale, contentZones);
-                spaceField.render(context, overlayAlpha);
+                spaceField.render(context);
             }
             if (config.isEnableStarDust()) {
-                starField.render(context, w, h, overlayAlpha, contentZones, baseScale, space ? spaceField : null);
+                starField.render(context, w, h, contentZones, baseScale, space ? spaceField : null);
             }
         }
 
@@ -383,8 +370,7 @@ public class SleepOverlayRenderer {
                 ? SKULL_TEXTURE
                 : MOON_PHASE_TEXTURES[Math.floorMod(moonPhase, MOON_PHASE_TEXTURES.length)];
 
-        mt.client.ui.engine.RenderHelper.blitTexture(context, texture, x, y, size, size,
-                overlayAlpha * config.getImageOpacity());
+        RenderHelper.blitTexture(context, texture, x, y, size, size, config.getImageOpacity());
     }
 
     private static TextLayout layoutText(String text, Font font, int textAreaWidth, float uiScale) {
@@ -411,7 +397,7 @@ public class SleepOverlayRenderer {
     }
 
     private void drawLayout(GuiGraphics context, Font font, TextLayout layout, int centerX, int top, int lineHeight, float alpha01) {
-        int a = clampAlpha(config.getTextOpacity() * alpha01);
+        int a = RenderUtils.alphaByte(config.getTextOpacity() * alpha01);
         if (a <= 0) return;
         int textColor = (a << 24) | 0xFFFFFF;
 
@@ -432,8 +418,8 @@ public class SleepOverlayRenderer {
         int barHeight = Math.max(1, Math.round(2 * uiScale));
         int x = centerX - barWidth / 2;
 
-        int trackA = clampAlpha(overlayAlpha * 0.18f);
-        int fillA = clampAlpha(overlayAlpha * 0.65f);
+        int trackA = RenderUtils.alphaByte(0.18f);
+        int fillA = RenderUtils.alphaByte(0.65f);
         context.fill(x, y, x + barWidth, y + barHeight, (trackA << 24) | 0xFFFFFF);
         int fw = Math.round(barWidth * (1f - frac));
         if (fw > 0) context.fill(x, y, x + fw, y + barHeight, (fillA << 24) | 0xFFFFFF);
@@ -496,14 +482,14 @@ public class SleepOverlayRenderer {
     }
 
     public boolean shouldHideCrosshair() {
-        return sleepStateManager.isSleeping() && isOverlayVisible;
+        return isShowing();
     }
 
     public boolean shouldHideChat() {
-        return config.isHideChatWhenSleeping() && sleepStateManager.isSleeping() && isOverlayVisible;
+        return config.isHideChatWhenSleeping() && isShowing();
     }
 
     public boolean shouldHideHudMessages() {
-        return config.isHideHudMessagesWhenSleeping() && sleepStateManager.isSleeping() && isOverlayVisible;
+        return config.isHideHudMessagesWhenSleeping() && isShowing();
     }
 }

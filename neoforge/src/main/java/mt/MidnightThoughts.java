@@ -2,29 +2,16 @@ package mt;
 
 import mt.command.MidnightThoughtsCommand;
 import mt.network.NetworkHandler;
-import mt.network.packet.SyncAchievementsPacket;
-import mt.network.packet.SyncConfigPacket;
-import mt.platform.MTNetwork;
 import mt.platform.NeoForgeBridges;
-import mt.server.AchievementLoader;
-import mt.server.ComfortCalculator;
-import mt.server.DailyStatsManager;
-import mt.server.SleepTracker;
-import mt.server.UserContentInitializer;
-import mt.server.WellRestedEffect;
-import mt.server.WellRestedSync;
-import mt.config.MidnightThoughtsConfig;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
+import mt.server.MTServer;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
-import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.RegisterGameTestsEvent;
@@ -35,7 +22,6 @@ import net.neoforged.neoforge.event.entity.player.PlayerWakeUpEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
-import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +34,7 @@ public class MidnightThoughts {
 
         modEventBus.addListener(this::setup);
         modEventBus.addListener(this::onClientSetup);
-        modEventBus.addListener(this::onRegisterPayloads);
+        modEventBus.addListener(NetworkHandler::registerPackets);
         if (!FMLEnvironment.production) {
             modEventBus.addListener(RegisterGameTestsEvent.class, mt.gametest.NeoForgeGameTestHooks::register);
         }
@@ -61,14 +47,8 @@ public class MidnightThoughts {
     }
 
     private void setup(final FMLCommonSetupEvent event) {
-        MidnightThoughtsConfig.getInstance();
-        AchievementLoader.load();
-        UserContentInitializer.writeDefaultFiles();
+        MTServer.init();
         LOGGER.info("Midnight Thoughts common setup complete");
-    }
-
-    private void onRegisterPayloads(final RegisterPayloadHandlersEvent event) {
-        NetworkHandler.registerPackets(event);
     }
 
     private void onClientSetup(final FMLClientSetupEvent event) {
@@ -78,52 +58,28 @@ public class MidnightThoughts {
 
     @SubscribeEvent
     public void onServerTick(ServerTickEvent.Post event) {
-        DailyStatsManager.tick(event.getServer());
-        for (ServerPlayer player : event.getServer().getPlayerList().getPlayers()) {
-            WellRestedEffect.tick(player);
-            WellRestedSync.sync(player);
-        }
-    }
-
-    @SubscribeEvent
-    public void onPlayerWakeUp(PlayerWakeUpEvent event) {
-        if (!(event.getEntity() instanceof ServerPlayer serverPlayer)) return;
-        if (event.wakeImmediately()) return;
-        if (!event.updateLevel()) return;
-        SleepTracker tracker = DailyStatsManager.getSleepTracker(serverPlayer.server);
-        if (tracker != null) tracker.markPlayerWoke(serverPlayer);
+        MTServer.tick(event.getServer());
     }
 
     @SubscribeEvent
     public void onCanPlayerSleep(CanPlayerSleepEvent event) {
-        ServerPlayer serverPlayer = event.getEntity();
-        BlockPos bedPos = event.getPos();
+        var problem = MTServer.trySleep(event.getEntity(), event.getPos());
+        if (problem != null) event.setProblem(problem);
+    }
 
-        int comfortLevel = ComfortCalculator.calculateComfortLevel(serverPlayer, bedPos);
-
-        if (ComfortCalculator.isSleepBlocked(serverPlayer, bedPos)) {
-            event.setProblem(Player.BedSleepingProblem.OTHER_PROBLEM);
-            serverPlayer.displayClientMessage(
-                    Component.translatable("midnightthoughts.sleep.nightmare_blocked"),
-                    true
-            );
-            return;
-        }
-
-        SleepTracker tracker = DailyStatsManager.getSleepTracker(serverPlayer.server);
-        if (tracker != null) tracker.markSleepAttempt(serverPlayer.getUUID(), comfortLevel);
+    @SubscribeEvent
+    public void onPlayerWakeUp(PlayerWakeUpEvent event) {
+        if (event.wakeImmediately() || !event.updateLevel()) return;
+        if (event.getEntity() instanceof ServerPlayer player) MTServer.onWokeUp(player);
     }
 
     @SubscribeEvent
     public void onLivingDeath(LivingDeathEvent event) {
-        if (event.getEntity() instanceof ServerPlayer player) {
-            WellRestedEffect.clear(player);
-        }
+        if (event.getEntity() instanceof ServerPlayer player) MTServer.onDeath(player);
     }
 
     @SubscribeEvent
     public void onServerStarted(ServerStartedEvent event) {
-        DailyStatsManager.initialize();
         LOGGER.info("Midnight Thoughts server started");
     }
 
@@ -134,26 +90,17 @@ public class MidnightThoughts {
 
     @SubscribeEvent
     public void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
-        if (!(event.getEntity() instanceof ServerPlayer serverPlayer)) return;
-        DailyStatsManager.onPlayerJoin(serverPlayer);
-        MTNetwork.sendToPlayer(serverPlayer, UserContentInitializer.buildPacket());
-        MTNetwork.sendToPlayer(serverPlayer, new SyncAchievementsPacket(AchievementLoader.load()));
-        MTNetwork.sendToPlayer(serverPlayer, SyncConfigPacket.of(MidnightThoughtsConfig.getInstance()));
+        if (event.getEntity() instanceof ServerPlayer player) MTServer.onJoin(player);
     }
 
     @SubscribeEvent
     public void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
-        if (event.getEntity() instanceof ServerPlayer serverPlayer) {
-            ComfortCalculator.invalidateCache(serverPlayer);
-            DailyStatsManager.onPlayerLeave(serverPlayer);
-            WellRestedSync.clear(serverPlayer.getUUID());
-        }
+        if (event.getEntity() instanceof ServerPlayer player) MTServer.onLeave(player);
     }
 
     @SubscribeEvent
     public void onServerStopping(ServerStoppingEvent event) {
-        DailyStatsManager.onServerStop(event.getServer());
-        UserContentInitializer.invalidateCache();
+        MTServer.onStopping(event.getServer());
         LOGGER.info("Midnight Thoughts server stopping");
     }
 }

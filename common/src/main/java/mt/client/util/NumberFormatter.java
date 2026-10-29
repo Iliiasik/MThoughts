@@ -37,12 +37,4 @@ public class NumberFormatter {
             return DECIMAL_FORMAT.format(value) + "B";
         }
     }
-
-
-    public static int safeDivide(int value, int divisor) {
-        if (divisor == 0) {
-            return 0;
-        }
-        return value / divisor;
-    }
 }

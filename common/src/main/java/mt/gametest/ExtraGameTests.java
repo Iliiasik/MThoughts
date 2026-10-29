@@ -196,7 +196,6 @@ final class ExtraGameTests {
                         player[0].get().awardStat(Stats.JUMP, 5);
                         player[0].leave();
                         DailyStatsManager.onServerStop(ctx.server());
-                        DailyStatsManager.initialize();
                         player[0] = ctx.rejoin(player[0], bed.standingSpot());
                         ctx.setTime(3000L);
                     })

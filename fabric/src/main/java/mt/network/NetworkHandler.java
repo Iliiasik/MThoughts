@@ -8,11 +8,9 @@ import mt.network.packet.SyncAchievementsPacket;
 import mt.network.packet.SyncConfigPacket;
 import mt.network.packet.UserContentPacket;
 import mt.network.packet.WellRestedPacket;
+import mt.server.MTServer;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.Level;
 
 public class NetworkHandler {
 
@@ -29,11 +27,7 @@ public class NetworkHandler {
 
         PayloadTypeRegistry.playC2S().register(RequestMoonPhasePacket.TYPE, RequestMoonPhasePacket.CODEC);
 
-        ServerPlayNetworking.registerGlobalReceiver(RequestMoonPhasePacket.TYPE, (packet, context) -> {
-            ServerPlayer player = context.player();
-            ServerLevel overworld = player.server.getLevel(Level.OVERWORLD);
-            int moonPhase = overworld != null ? (int) (overworld.getDayTime() / 24000L % 8L) : 0;
-            ServerPlayNetworking.send(player, new MoonPhasePacket(moonPhase));
-        });
+        ServerPlayNetworking.registerGlobalReceiver(RequestMoonPhasePacket.TYPE,
+                (packet, context) -> MTServer.sendMoonPhase(context.player()));
     }
 }

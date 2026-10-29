@@ -2,7 +2,6 @@ package mt.client.service;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.annotations.SerializedName;
 import mt.config.MidnightThoughtsConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,10 +38,10 @@ public class UserContentLoader {
         try {
             String json = Files.readString(file);
             EntriesFile parsed = GSON.fromJson(json, EntriesFile.class);
-            if (parsed != null && parsed.entries != null) {
-                return parsed.entries.stream()
-                        .filter(e -> e != null && e.text != null && !e.text.isBlank())
-                        .map(e -> e.text)
+            if (parsed != null && parsed.entries() != null) {
+                return parsed.entries().stream()
+                        .filter(e -> e != null && e.text() != null && !e.text().isBlank())
+                        .map(Entry::text)
                         .toList();
             }
         } catch (Exception e) {
@@ -53,20 +52,10 @@ public class UserContentLoader {
     }
 
     private Path getFilePath(String language, String category) {
-        return getDreamsDir().resolve(language).resolve(category + ".json");
+        return MidnightThoughtsConfig.getDreamsDir().resolve(language).resolve(category + ".json");
     }
 
-    private Path getDreamsDir() {
-        return MidnightThoughtsConfig.getConfigDir().resolve("dreams");
-    }
+    private record EntriesFile(List<Entry> entries) {}
 
-    private static class EntriesFile {
-        @SerializedName("entries")
-        List<Entry> entries;
-    }
-
-    private static class Entry {
-        @SerializedName("text")
-        String text;
-    }
-}
+    private record Entry(String text) {}
+}

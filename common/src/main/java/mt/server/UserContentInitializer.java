@@ -31,7 +31,7 @@ public class UserContentInitializer {
 
     public static void writeDefaultFiles() {
         for (String language : ALL_LANGUAGES) {
-            Path dir = getDreamsDir().resolve(language);
+            Path dir = MidnightThoughtsConfig.getDreamsDir().resolve(language);
             try {
                 Files.createDirectories(dir);
             } catch (IOException e) {
@@ -53,17 +53,15 @@ public class UserContentInitializer {
     }
 
     public static UserContentPacket buildPacket() {
-        UserContentPacket cached = cachedPacket;
-        if (cached == null) {
+        if (cachedPacket == null) {
             Map<String, List<String>> content = collectContent();
-            cached = new UserContentPacket(content);
-            cachedPacket = cached;
+            cachedPacket = new UserContentPacket(content);
             int entries = content.values().stream().mapToInt(List::size).sum();
             if (entries > 0) {
                 LOGGER.info("Prepared {} user content entries across {} categories", entries, content.size());
             }
         }
-        return cached;
+        return cachedPacket;
     }
 
     public static void invalidateCache() {
@@ -103,7 +101,7 @@ public class UserContentInitializer {
     }
 
     private static List<String> readEntries(String language, String category) {
-        Path file = getDreamsDir().resolve(language).resolve(category + ".json");
+        Path file = MidnightThoughtsConfig.getDreamsDir().resolve(language).resolve(category + ".json");
         if (!Files.exists(file)) return List.of();
         try {
             String json = Files.readString(file);
@@ -136,9 +134,5 @@ public class UserContentInitializer {
 
     private static int utf8Length(String text) {
         return text.getBytes(StandardCharsets.UTF_8).length;
-    }
-
-    private static Path getDreamsDir() {
-        return MidnightThoughtsConfig.getConfigDir().resolve("dreams");
     }
 }

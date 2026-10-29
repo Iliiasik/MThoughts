@@ -48,11 +48,11 @@ public final class StatsPanelRenderer {
     private static List<String> lines(DailySummaryPacket.PlayerDailySummary player) {
         int[] values = {
                 player.blocksDestroyed(),
-                NumberFormatter.safeDivide(player.distanceWalked(), 100),
+                player.distanceWalked() / 100,
                 player.mobsKilled(),
                 player.deaths(),
                 player.jumps(),
-                NumberFormatter.safeDivide(player.damageDealt(), 10)
+                player.damageDealt() / 10
         };
 
         List<String> lines = new ArrayList<>(KEYS.length);

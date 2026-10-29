@@ -9,6 +9,11 @@ public class RenderUtils {
     private static final float GLYPH_HEIGHT = 8.0f;
     private static final float SHADOWED_INK_HEIGHT = 9.0f;
 
+    public static int alphaByte(float alpha) {
+        if (Float.isNaN(alpha)) return 0;
+        return Math.clamp(Math.round(alpha * 255f), 0, 255);
+    }
+
     public static int scaledWidth(Font font, String text, float scale) {
         return Math.round(font.width(text) * scale);
     }
@@ -26,12 +31,17 @@ public class RenderUtils {
         return boxY + Math.round((boxHeight - ink) / 2.0f);
     }
 
-    public static void renderScaledText(GuiGraphics context, Font textRenderer, String text,
+    public static void renderScaledText(GuiGraphics context, Font font, String text,
+                                        int x, int y, int color, float scale, boolean shadow) {
+        renderScaledText(context, font, Component.literal(text), x, y, color, scale, shadow);
+    }
+
+    public static void renderScaledText(GuiGraphics context, Font font, Component text,
                                         int x, int y, int color, float scale, boolean shadow) {
         context.pose().pushPose();
         context.pose().translate(x, y, 0);
         context.pose().scale(scale, scale, 1.0f);
-        context.drawString(textRenderer, text, 0, 0, color, shadow);
+        context.drawString(font, text, 0, 0, color, shadow);
         context.pose().popPose();
     }
 

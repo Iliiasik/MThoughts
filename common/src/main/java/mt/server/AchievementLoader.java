@@ -2,7 +2,6 @@ package mt.server;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.annotations.SerializedName;
 import mt.config.MidnightThoughtsConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,8 +38,8 @@ public class AchievementLoader {
         try {
             String json = Files.readString(file);
             AchievementsFile parsed = GSON.fromJson(json, AchievementsFile.class);
-            if (parsed != null && parsed.achievements != null) {
-                cached = parsed.achievements.stream()
+            if (parsed != null && parsed.achievements() != null) {
+                cached = parsed.achievements().stream()
                         .filter(a -> a != null && a.id != null && !a.id.isBlank() && a.name != null)
                         .toList();
                 LOGGER.info("Loaded {} custom achievements", cached.size());
@@ -56,7 +55,7 @@ public class AchievementLoader {
 
     private static void writeEmpty(Path file) {
         try {
-            String json = GSON.toJson(new AchievementsFile());
+            String json = GSON.toJson(new AchievementsFile(List.of()));
             Files.writeString(file, json);
             LOGGER.info("Created achievements file at {}", file);
         } catch (IOException e) {
@@ -68,10 +67,7 @@ public class AchievementLoader {
         return MidnightThoughtsConfig.getConfigDir().resolve("achievements.json");
     }
 
-    private static class AchievementsFile {
-        @SerializedName("achievements")
-        List<AchievementDefinition> achievements = Collections.emptyList();
-    }
+    private record AchievementsFile(List<AchievementDefinition> achievements) {}
 
     public static List<AchievementDefinition> reload() {
         cached = null;

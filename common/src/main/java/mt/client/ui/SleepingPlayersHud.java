@@ -97,21 +97,13 @@ public class SleepingPlayersHud {
         int titleX = RenderUtils.centeredX(hudX, hudWidth, titleWidth);
         int titleY = hudY + Math.round(hudHeight * (14.0f / 55.0f));
 
-        context.pose().pushPose();
-        context.pose().translate(titleX, titleY, 0);
-        context.pose().scale(textScale, textScale, 1.0f);
-        context.drawString(textRenderer, titleText, 0, 0, textColor, style.shadow());
-        context.pose().popPose();
+        RenderUtils.renderScaledText(context, textRenderer, titleText, titleX, titleY, textColor, textScale, style.shadow());
 
         float sleepTextScale = scale * 1.2f;
         int sleepTextWidth = RenderUtils.scaledWidth(textRenderer, sleepText, sleepTextScale);
         int sleepX = RenderUtils.centeredX(hudX, hudWidth, sleepTextWidth);
         int sleepY = hudY + Math.round(hudHeight * (32.0f / 55.0f));
 
-        context.pose().pushPose();
-        context.pose().translate(sleepX, sleepY, 0);
-        context.pose().scale(sleepTextScale, sleepTextScale, 1.0f);
-        context.drawString(textRenderer, sleepText, 0, 0, textColor, style.shadow());
-        context.pose().popPose();
+        RenderUtils.renderScaledText(context, textRenderer, sleepText, sleepX, sleepY, textColor, sleepTextScale, style.shadow());
     }
 }

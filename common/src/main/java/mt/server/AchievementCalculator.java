@@ -17,9 +17,6 @@ public class AchievementCalculator {
         int distance = delta.distanceWalked();
         int blocks = delta.blocksDestroyed();
         int mobs = delta.mobsKilled();
-        int deaths = delta.deaths();
-        int jumps = delta.jumps();
-        int damage = delta.damageDealt();
 
         if (savedStats.totalSleeps > 0) {
             if (distance > savedStats.recordDistance) {
@@ -36,12 +33,9 @@ public class AchievementCalculator {
             }
         }
 
-        List<AchievementDefinition> customAchievements = AchievementLoader.load();
-        for (AchievementDefinition def : customAchievements) {
-            if (savedStats.unlockedAchievements.contains(def.id)) {
-                continue;
-            }
-            if (checkCustomAchievement(def, deaths, mobs, blocks, distance, jumps, damage)) {
+        for (AchievementDefinition def : AchievementLoader.load()) {
+            if (savedStats.unlockedAchievements.contains(def.id)) continue;
+            if (conditionsHold(def.conditions, delta)) {
                 achievementsToAnnounce.add(def.id);
                 savedStats.unlockedAchievements.add(def.id);
             }
@@ -52,33 +46,18 @@ public class AchievementCalculator {
         return achievementsToAnnounce;
     }
 
-    private static boolean checkCustomAchievement(AchievementDefinition def, int deaths, int mobs, int blocks, int distance, int jumps, int damage) {
-        if (def.conditions == null) return false;
-        AchievementDefinition.Conditions c = def.conditions;
+    private static boolean conditionsHold(AchievementDefinition.Conditions c, DailyPlayerStats.DailyDelta delta) {
+        if (c == null) return false;
+        return matches(delta.deaths(), c.deathsEq, c.deathsMin, c.deathsMax)
+                && matches(delta.mobsKilled(), c.mobsKilledEq, c.mobsKilledMin, c.mobsKilledMax)
+                && matches(delta.blocksDestroyed(), c.blocksDestroyedEq, c.blocksDestroyedMin, c.blocksDestroyedMax)
+                && matches(delta.distanceWalked(), c.distanceWalkedEq, c.distanceWalkedMin, c.distanceWalkedMax)
+                && matches(delta.jumps(), c.jumpsEq, c.jumpsMin, c.jumpsMax)
+                && matches(delta.damageDealt(), c.damageDealtEq, c.damageDealtMin, c.damageDealtMax);
+    }
 
-        if (c.deathsEq != null && deaths != c.deathsEq) return false;
-        if (c.deathsMin != null && deaths < c.deathsMin) return false;
-        if (c.deathsMax != null && deaths > c.deathsMax) return false;
-
-        if (c.mobsKilledEq != null && mobs != c.mobsKilledEq) return false;
-        if (c.mobsKilledMin != null && mobs < c.mobsKilledMin) return false;
-        if (c.mobsKilledMax != null && mobs > c.mobsKilledMax) return false;
-
-        if (c.blocksDestroyedEq != null && blocks != c.blocksDestroyedEq) return false;
-        if (c.blocksDestroyedMin != null && blocks < c.blocksDestroyedMin) return false;
-        if (c.blocksDestroyedMax != null && blocks > c.blocksDestroyedMax) return false;
-
-        if (c.distanceWalkedEq != null && distance != c.distanceWalkedEq) return false;
-        if (c.distanceWalkedMin != null && distance < c.distanceWalkedMin) return false;
-        if (c.distanceWalkedMax != null && distance > c.distanceWalkedMax) return false;
-
-        if (c.jumpsEq != null && jumps != c.jumpsEq) return false;
-        if (c.jumpsMin != null && jumps < c.jumpsMin) return false;
-        if (c.jumpsMax != null && jumps > c.jumpsMax) return false;
-
-        if (c.damageDealtEq != null && damage != c.damageDealtEq) return false;
-        if (c.damageDealtMin != null && damage < c.damageDealtMin) return false;
-        return c.damageDealtMax == null || damage <= c.damageDealtMax;
+    private static boolean matches(int value, Integer eq, Integer min, Integer max) {
+        return (eq == null || value == eq) && (min == null || value >= min) && (max == null || value <= max);
     }
 
     public static String determineMvp(List<PlayerSummaryData> players) {

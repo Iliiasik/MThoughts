@@ -44,20 +44,19 @@ public class SlideRepository {
     private int loadSlidesForLanguage(ResourceManager manager, String language) {
         Map<SlideCategory, List<Slide>> categoryMap = new EnumMap<>(SlideCategory.class);
 
-        categoryMap.put(SlideCategory.FACT, loadCategory(manager, language, "facts", SlideCategory.FACT));
-        categoryMap.put(SlideCategory.LORE, loadCategory(manager, language, "lore", SlideCategory.LORE));
-        categoryMap.put(SlideCategory.SURREAL, loadCategory(manager, language, "surreal", SlideCategory.SURREAL));
-        categoryMap.put(SlideCategory.SPECIAL, loadCategory(manager, language, "special", SlideCategory.SPECIAL));
-        categoryMap.put(SlideCategory.NIGHTMARE, loadCategory(manager, language, "nightmares", SlideCategory.NIGHTMARE));
+        for (SlideCategory category : SlideCategory.values()) {
+            categoryMap.put(category, loadCategory(manager, language, category));
+        }
 
         slideCache.put(language, categoryMap);
 
         return categoryMap.values().stream().mapToInt(List::size).sum();
     }
 
-    private List<Slide> loadCategory(ResourceManager manager, String language, String fileName, SlideCategory category) {
+    private List<Slide> loadCategory(ResourceManager manager, String language, SlideCategory category) {
         List<Slide> slides = new ArrayList<>();
-        ResourceLocation resourceId = ResourceLocation.fromNamespaceAndPath(MTConstants.MOD_ID, "dreams/" + language + "/" + fileName + ".json");
+        ResourceLocation resourceId = ResourceLocation.fromNamespaceAndPath(MTConstants.MOD_ID,
+                "dreams/" + language + "/" + category.fileName() + ".json");
 
         try {
             Optional<Resource> resourceOpt = manager.getResource(resourceId);

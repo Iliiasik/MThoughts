@@ -3,8 +3,8 @@ package mt.server;
 import mt.config.MidnightThoughtsConfig;
 import mt.platform.MTPlatform;
 import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -20,7 +20,6 @@ import org.slf4j.LoggerFactory;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 
@@ -41,16 +40,8 @@ public final class WellRestedBuffs {
     }
 
     public static void removeAll(ServerPlayer player) {
-        for (String id : storedIds(player, ATTRIBUTES_KEY)) {
-            Holder.Reference<Attribute> attribute = resolveAttribute(id);
-            if (attribute == null) continue;
-            AttributeInstance instance = player.getAttribute(attribute);
-            if (instance != null) instance.removeModifier(modifierId(id));
-        }
-        for (String id : storedIds(player, EFFECTS_KEY)) {
-            Holder.Reference<MobEffect> effect = resolveEffect(id);
-            if (effect != null) player.removeEffect(effect);
-        }
+        storedIds(player, ATTRIBUTES_KEY).forEach(id -> removeAttribute(player, id));
+        storedIds(player, EFFECTS_KEY).forEach(id -> removeEffect(player, id));
         MTPlatform.persistentData(player).remove(ATTRIBUTES_KEY);
         MTPlatform.persistentData(player).remove(EFFECTS_KEY);
     }
@@ -65,7 +56,7 @@ public final class WellRestedBuffs {
         Set<String> current = new LinkedHashSet<>();
 
         for (MidnightThoughtsConfig.AttributeBonus bonus : bonuses) {
-            Holder.Reference<Attribute> attribute = resolveAttribute(bonus.id);
+            Holder.Reference<Attribute> attribute = resolve(BuiltInRegistries.ATTRIBUTE, bonus.id);
             if (attribute == null) continue;
             String canonical = attribute.key().location().toString();
             if (current.contains(canonical)) continue;
@@ -77,11 +68,7 @@ public final class WellRestedBuffs {
         }
 
         for (String id : previous) {
-            if (current.contains(id)) continue;
-            Holder.Reference<Attribute> attribute = resolveAttribute(id);
-            if (attribute == null) continue;
-            AttributeInstance instance = player.getAttribute(attribute);
-            if (instance != null) instance.removeModifier(modifierId(id));
+            if (!current.contains(id)) removeAttribute(player, id);
         }
 
         store(player, ATTRIBUTES_KEY, current);
@@ -96,7 +83,7 @@ public final class WellRestedBuffs {
         int duration = Math.max(1, ticksRemaining);
 
         for (MidnightThoughtsConfig.EffectBonus bonus : bonuses) {
-            Holder.Reference<MobEffect> effect = resolveEffect(bonus.id);
+            Holder.Reference<MobEffect> effect = resolve(BuiltInRegistries.MOB_EFFECT, bonus.id);
             if (effect == null) continue;
             String canonical = effect.key().location().toString();
             if (!seen.add(canonical)) continue;
@@ -109,9 +96,7 @@ public final class WellRestedBuffs {
         }
 
         for (String id : previous) {
-            if (current.contains(id)) continue;
-            Holder.Reference<MobEffect> effect = resolveEffect(id);
-            if (effect != null) player.removeEffect(effect);
+            if (!current.contains(id)) removeEffect(player, id);
         }
 
         store(player, EFFECTS_KEY, current);
@@ -133,38 +118,31 @@ public final class WellRestedBuffs {
         };
     }
 
-    private static AttributeModifier.Operation operationOf(String raw) {
-        String key = raw == null ? "" : raw.trim().toLowerCase(Locale.ROOT);
-        return switch (key) {
+    private static void removeAttribute(ServerPlayer player, String id) {
+        Holder.Reference<Attribute> attribute = resolve(BuiltInRegistries.ATTRIBUTE, id);
+        if (attribute == null) return;
+        AttributeInstance instance = player.getAttribute(attribute);
+        if (instance != null) instance.removeModifier(modifierId(id));
+    }
+
+    private static void removeEffect(ServerPlayer player, String id) {
+        Holder.Reference<MobEffect> effect = resolve(BuiltInRegistries.MOB_EFFECT, id);
+        if (effect != null) player.removeEffect(effect);
+    }
+
+    private static AttributeModifier.Operation operationOf(String operation) {
+        return switch (operation) {
             case "add_multiplied_base", "multiply_base" -> AttributeModifier.Operation.ADD_MULTIPLIED_BASE;
             case "add_multiplied_total", "multiply_total" -> AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL;
             default -> AttributeModifier.Operation.ADD_VALUE;
         };
     }
 
-    private static Holder.Reference<Attribute> resolveAttribute(String rawId) {
+    private static <T> Holder.Reference<T> resolve(Registry<T> registry, String rawId) {
         ResourceLocation location = ResourceLocation.tryParse(rawId);
-        if (location == null) {
-            warnMissing(rawId);
-            return null;
-        }
-        Optional<Holder.Reference<Attribute>> holder =
-                BuiltInRegistries.ATTRIBUTE.getHolder(ResourceKey.create(Registries.ATTRIBUTE, location));
-        if (holder.isEmpty()) {
-            warnMissing(rawId);
-            return null;
-        }
-        return holder.get();
-    }
-
-    private static Holder.Reference<MobEffect> resolveEffect(String rawId) {
-        ResourceLocation location = ResourceLocation.tryParse(rawId);
-        if (location == null) {
-            warnMissing(rawId);
-            return null;
-        }
-        Optional<Holder.Reference<MobEffect>> holder =
-                BuiltInRegistries.MOB_EFFECT.getHolder(ResourceKey.create(Registries.MOB_EFFECT, location));
+        Optional<Holder.Reference<T>> holder = location == null
+                ? Optional.empty()
+                : registry.getHolder(ResourceKey.create(registry.key(), location));
         if (holder.isEmpty()) {
             warnMissing(rawId);
             return null;

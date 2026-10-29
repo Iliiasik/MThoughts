@@ -12,17 +12,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class GuiAirBubblesMixin {
 
     @Inject(method = "renderAirLevel", at = @At("HEAD"))
-    private void onRenderAirLevelHead(GuiGraphics guiGraphics, CallbackInfo ci) {
-        if (WellRestedHud.isActive() && WellRestedHud.isBarPosition()) {
-            guiGraphics.pose().pushPose();
-            guiGraphics.pose().translate(0, -(WellRestedHud.BAR_GUI_H + 3), 0);
-        }
+    private void midnightthoughts$shiftAirBubbles(GuiGraphics guiGraphics, CallbackInfo ci) {
+        guiGraphics.pose().pushPose();
+        guiGraphics.pose().translate(0, -WellRestedHud.airBubbleShift(), 0);
     }
 
     @Inject(method = "renderAirLevel", at = @At("TAIL"))
-    private void onRenderAirLevelTail(GuiGraphics guiGraphics, CallbackInfo ci) {
-        if (WellRestedHud.isActive() && WellRestedHud.isBarPosition()) {
-            guiGraphics.pose().popPose();
-        }
+    private void midnightthoughts$restoreAirBubbles(GuiGraphics guiGraphics, CallbackInfo ci) {
+        guiGraphics.pose().popPose();
     }
-}
+}

@@ -10,105 +10,89 @@ import net.minecraft.server.level.ServerPlayer;
 public class WellRestedEffect {
     private static final MidnightThoughtsConfig CONFIG = MidnightThoughtsConfig.getInstance();
 
-    private static int clampLevel(int level) {
-        if (level < 1) return 1;
-        return Math.min(level, 5);
-    }
+    private static final String LEVEL_KEY = "mt_well_rested_level";
+    private static final String TICKS_KEY = "mt_well_rested_ticks_remaining";
+    private static final String PHASE_KEY = "mt_well_rested_phase";
+    private static final String MVP_KEY = "mt_well_rested_mvp_flag";
 
-    private static int getNbtInt(ServerPlayer player, String key, int def) {
-        CompoundTag data = MTPlatform.persistentData(player);
-        return data.contains(key) ? data.getInt(key) : def;
-    }
-
-    public static int getTotalDurationTicks(int comfortLevel) {
-        return CONFIG.getWellRested().getLevel(clampLevel(comfortLevel)).durationMinutes * 60 * 20;
-    }
+    private static final int MAX_LEVEL = 5;
+    private static final int PHASES = 3;
+    private static final int REGEN_INTERVAL_TICKS = 100;
 
     public static void applyToPlayer(ServerPlayer player, int comfortLevel) {
-        if (!CONFIG.getWellRested().enabled) return;
         if (comfortLevel <= 0) return;
-        int lvlIdx = clampLevel(comfortLevel);
-        MidnightThoughtsConfig.WellRestedLevel lvl = CONFIG.getWellRested().getLevel(lvlIdx);
+        int level = Math.min(comfortLevel, MAX_LEVEL);
+        start(player, level, durationTicks(level), false);
+    }
 
-        removeFromPlayer(player);
+    public static void applyMvpToPlayer(ServerPlayer player) {
+        start(player, MAX_LEVEL, mvpDurationTicks(), true);
+    }
 
-        MTPlatform.persistentData(player).putInt("mt_well_rested_level", lvlIdx);
-        MTPlatform.persistentData(player).putInt("mt_well_rested_ticks_remaining", getTotalDurationTicks(lvlIdx));
+    private static void start(ServerPlayer player, int level, int durationTicks, boolean mvp) {
+        if (!CONFIG.getWellRested().enabled) return;
+        remove(player);
 
-        WellRestedBuffs.apply(player, lvl, 0, getTotalDurationTicks(lvlIdx));
+        CompoundTag data = MTPlatform.persistentData(player);
+        data.putInt(LEVEL_KEY, level);
+        data.putInt(TICKS_KEY, durationTicks);
+        if (mvp) data.putInt(MVP_KEY, 1);
 
+        WellRestedBuffs.apply(player, CONFIG.getWellRested().getLevel(level), 0, durationTicks);
         player.setHealth(player.getMaxHealth());
-
-        MTEvents.wellRestedApplied(player, lvlIdx, false, getTotalDurationTicks(lvlIdx));
+        MTEvents.wellRestedApplied(player, level, mvp, durationTicks);
     }
 
     public static void clear(ServerPlayer player) {
         boolean had = hasEffect(player);
-        removeFromPlayer(player);
-        if (had) {
-            MTEvents.wellRestedExpired(player);
-        }
-    }
-
-    public static void removeFromPlayer(ServerPlayer player) {
-        MTPlatform.persistentData(player).remove("mt_well_rested_level");
-        MTPlatform.persistentData(player).remove("mt_well_rested_ticks_remaining");
-        MTPlatform.persistentData(player).remove("mt_well_rested_phase");
-        MTPlatform.persistentData(player).remove("mt_well_rested_mvp_flag");
-        WellRestedBuffs.removeAll(player);
+        remove(player);
+        if (had) MTEvents.wellRestedExpired(player);
     }
 
     public static void tick(ServerPlayer player) {
-        if (!CONFIG.getWellRested().enabled) {
-            if (MTPlatform.persistentData(player).contains("mt_well_rested_ticks_remaining")) {
-                removeFromPlayer(player);
-                syncAttributes(player);
-                MTEvents.wellRestedExpired(player);
-            }
-            return;
-        }
-        if (!MTPlatform.persistentData(player).contains("mt_well_rested_ticks_remaining")) return;
+        if (!MTPlatform.persistentData(player).contains(TICKS_KEY)) return;
 
-        int ticksRemaining = getNbtInt(player, "mt_well_rested_ticks_remaining", 0);
-        int level = getNbtInt(player, "mt_well_rested_level", 1);
         int totalTicks = getTotalDurationTicksForPlayer(player);
-
-        if (ticksRemaining > totalTicks) {
-            ticksRemaining = totalTicks;
-        }
-
-        if (ticksRemaining <= 0) {
-            removeFromPlayer(player);
-            syncAttributes(player);
-            MTEvents.wellRestedExpired(player);
+        int ticksRemaining = Math.min(getTicksRemaining(player), totalTicks);
+        if (!CONFIG.getWellRested().enabled || ticksRemaining <= 0) {
+            expire(player);
             return;
         }
 
         ticksRemaining--;
-        MTPlatform.persistentData(player).putInt("mt_well_rested_ticks_remaining", ticksRemaining);
+        MTPlatform.persistentData(player).putInt(TICKS_KEY, ticksRemaining);
 
-        int phaseTicks = totalTicks / 3;
-        MidnightThoughtsConfig.WellRestedLevel lvl = CONFIG.getWellRested().getLevel(level);
+        MidnightThoughtsConfig.WellRestedLevel level = CONFIG.getWellRested().getLevel(getLevel(player));
+        int phaseTicks = totalTicks / PHASES;
+        int phase = phaseTicks > 0 ? Math.min((totalTicks - ticksRemaining) / phaseTicks, PHASES - 1) : 0;
 
-        int currentPhaseIndex = phaseTicks > 0 ? (totalTicks - ticksRemaining) / phaseTicks : 0;
-        if (currentPhaseIndex > 2) currentPhaseIndex = 2;
-
-        float regen = lvl.regenBonus;
-        int previousPhase = getNbtInt(player, "mt_well_rested_phase", -1);
-
-        if (previousPhase != currentPhaseIndex) {
-            MTPlatform.persistentData(player).putInt("mt_well_rested_phase", currentPhaseIndex);
-            WellRestedBuffs.apply(player, lvl, currentPhaseIndex, ticksRemaining);
+        if (getInt(player, PHASE_KEY, -1) != phase) {
+            MTPlatform.persistentData(player).putInt(PHASE_KEY, phase);
+            WellRestedBuffs.apply(player, level, phase, ticksRemaining);
             syncAttributes(player);
         }
 
-        if (regen > 0 && ticksRemaining % 100 == 0) {
+        if (level.regenBonus > 0 && ticksRemaining % REGEN_INTERVAL_TICKS == 0) {
             float maxHealth = player.getMaxHealth();
-            float current = player.getHealth();
-            if (current < maxHealth) {
-                player.setHealth(Math.min(current + maxHealth * regen * 0.5f, maxHealth));
+            if (player.getHealth() < maxHealth) {
+                player.setHealth(Math.min(player.getHealth() + maxHealth * level.regenBonus * 0.5f, maxHealth));
             }
         }
+    }
+
+    private static void expire(ServerPlayer player) {
+        remove(player);
+        syncAttributes(player);
+        MTEvents.wellRestedExpired(player);
+    }
+
+    private static void remove(ServerPlayer player) {
+        CompoundTag data = MTPlatform.persistentData(player);
+        data.remove(LEVEL_KEY);
+        data.remove(TICKS_KEY);
+        data.remove(PHASE_KEY);
+        data.remove(MVP_KEY);
+        WellRestedBuffs.removeAll(player);
     }
 
     private static void syncAttributes(ServerPlayer player) {
@@ -120,49 +104,44 @@ public class WellRestedEffect {
         player.setHealth(Math.min(player.getHealth(), player.getMaxHealth()));
     }
 
-    public static boolean isMvp(ServerPlayer player) {
-        return getNbtInt(player, "mt_well_rested_mvp_flag", 0) == 1;
+    private static int durationTicks(int level) {
+        return minutesToTicks(CONFIG.getWellRested().getLevel(level).durationMinutes);
     }
 
-    public static void applyMvpToPlayer(ServerPlayer player) {
-        if (!CONFIG.getWellRested().enabled) return;
-        MidnightThoughtsConfig.WellRestedLevel lvl = CONFIG.getWellRested().getLevel(5);
-        int durationTicks = CONFIG.getMvp().mvpWellRestedDurationMinutes * 60 * 20;
+    private static int mvpDurationTicks() {
+        return minutesToTicks(CONFIG.getMvp().mvpWellRestedDurationMinutes);
+    }
 
-        removeFromPlayer(player);
+    private static int minutesToTicks(int minutes) {
+        return minutes * 60 * 20;
+    }
 
-        MTPlatform.persistentData(player).putInt("mt_well_rested_level", 5);
-        MTPlatform.persistentData(player).putInt("mt_well_rested_ticks_remaining", durationTicks);
-        MTPlatform.persistentData(player).putInt("mt_well_rested_mvp_flag", 1);
-
-        WellRestedBuffs.apply(player, lvl, 0, durationTicks);
-
-        player.setHealth(player.getMaxHealth());
-
-        MTEvents.wellRestedApplied(player, 5, true, durationTicks);
+    private static int getInt(ServerPlayer player, String key, int fallback) {
+        CompoundTag data = MTPlatform.persistentData(player);
+        return data.contains(key) ? data.getInt(key) : fallback;
     }
 
     public static int getTotalDurationTicksForPlayer(ServerPlayer player) {
-        if (isMvp(player)) {
-            return CONFIG.getMvp().mvpWellRestedDurationMinutes * 60 * 20;
-        }
-        return getTotalDurationTicks(getLevel(player));
+        return isMvp(player) ? mvpDurationTicks() : durationTicks(Math.clamp(getLevel(player), 1, MAX_LEVEL));
     }
 
     public static boolean hasEffect(ServerPlayer player) {
-        return MTPlatform.persistentData(player).contains("mt_well_rested_ticks_remaining")
-                && getNbtInt(player, "mt_well_rested_ticks_remaining", 0) > 0;
+        return getTicksRemaining(player) > 0;
+    }
+
+    public static boolean isMvp(ServerPlayer player) {
+        return getInt(player, MVP_KEY, 0) == 1;
     }
 
     public static int getTicksRemaining(ServerPlayer player) {
-        return getNbtInt(player, "mt_well_rested_ticks_remaining", 0);
+        return getInt(player, TICKS_KEY, 0);
     }
 
     public static int getLevel(ServerPlayer player) {
-        return getNbtInt(player, "mt_well_rested_level", 0);
+        return getInt(player, LEVEL_KEY, 0);
     }
 
     public static int getCurrentPhase(ServerPlayer player) {
-        return getNbtInt(player, "mt_well_rested_phase", 0);
+        return getInt(player, PHASE_KEY, 0);
     }
 }

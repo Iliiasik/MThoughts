@@ -12,7 +12,7 @@
   "client": [
     "ChatComponentMixin",
     "GuiOverlayMessageMixin",
-    "InGameHudMixin"
+    "GuiCrosshairMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -25,9 +25,6 @@ public abstract class GuiAirBubblesMixin {
             index = 2
     )
     private int shiftAirBubbles(int y) {
-        if (WellRestedHud.isActive() && WellRestedHud.isBarPosition()) {
-            return y - (WellRestedHud.BAR_GUI_H + 3);
-        }
-        return y;
+        return y - WellRestedHud.airBubbleShift();
     }
 }
