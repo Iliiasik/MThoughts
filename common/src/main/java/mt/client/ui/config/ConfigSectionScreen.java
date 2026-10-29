@@ -93,7 +93,7 @@ public class ConfigSectionScreen extends OptionsSubScreen {
                 choice("hud_position", MidnightThoughtsConfig.HUD_POSITIONS, HUD_POSITION_PREFIX, ui.wellRestedHudPosition,
                         value -> ui.wellRestedHudPosition = value),
                 flag("hide_well_rested_hud", ui.hideWellRestedHud, value -> ui.hideWellRestedHud = value));
-        options.addSmall(
+        options.addBig(
                 flag("hide_sleeping_players_hud", ui.hideSleepingPlayersHud, value -> ui.hideSleepingPlayersHud = value));
     }
 
@@ -141,11 +141,10 @@ public class ConfigSectionScreen extends OptionsSubScreen {
     }
 
     private static void addServer(OptionsList options, MidnightThoughtsConfig.ServerSettings server) {
-        options.addSmall(
-                flag("reset_phantom_timer", server.resetPhantomTimerForNonSleepers,
-                        value -> server.resetPhantomTimerForNonSleepers = value),
-                flag("suppress_vanilla_messages", server.suppressVanillaSleepMessages,
-                        value -> server.suppressVanillaSleepMessages = value));
+        options.addBig(flag("reset_phantom_timer", server.resetPhantomTimerForNonSleepers,
+                value -> server.resetPhantomTimerForNonSleepers = value));
+        options.addBig(flag("suppress_vanilla_messages", server.suppressVanillaSleepMessages,
+                value -> server.suppressVanillaSleepMessages = value));
     }
 
     private static <T> OptionInstance.TooltipSupplier<T> tooltip(String key) {
