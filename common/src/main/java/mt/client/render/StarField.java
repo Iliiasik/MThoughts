@@ -1,0 +1,93 @@
+package mt.client.render;
+
+import mt.client.ui.engine.RenderUtils;
+import net.minecraft.client.gui.GuiGraphics;
+
+import java.util.List;
+import java.util.Random;
+
+public class StarField {
+    private static final int STAR_COUNT = 70;
+    private static final int CONTENT_MARGIN_VIRTUAL = 10;
+    private static final int SHUFFLE_MIN_MS = 700;
+    private static final int SHUFFLE_MAX_MS = 2200;
+
+    private final float[] x = new float[STAR_COUNT];
+    private final float[] y = new float[STAR_COUNT];
+    private final float[] alpha = new float[STAR_COUNT];
+    private final float[] speed = new float[STAR_COUNT];
+    private final float[] phase = new float[STAR_COUNT];
+    private final float[] drift = new float[STAR_COUNT];
+    private final boolean[] big = new boolean[STAR_COUNT];
+    private final Random rng = new Random();
+    private long nextShuffle;
+    private long origin = System.currentTimeMillis();
+
+    public StarField() {
+        regenerate();
+    }
+
+    public void reset(long now) {
+        regenerate();
+        origin = now;
+        scheduleShuffle(now);
+    }
+
+    public void tick(long now) {
+        if (now >= nextShuffle) {
+            respawn(rng.nextInt(STAR_COUNT));
+            respawn(rng.nextInt(STAR_COUNT));
+            scheduleShuffle(now);
+        }
+    }
+
+    public void render(GuiGraphics context, int w, int h, List<OverlayRect> content, float baseScale, SpaceField space) {
+        int contentMargin = Math.round(CONTENT_MARGIN_VIRTUAL * baseScale);
+        int edgeMargin = Math.round(SpaceField.EDGE_MARGIN_VIRTUAL * baseScale);
+        float elapsed = System.currentTimeMillis() - origin;
+
+        for (int i = 0; i < STAR_COUNT; i++) {
+            float twinkle = 0.35f + 0.65f * (float) Math.sin(elapsed * speed[i] + phase[i]);
+            int a = RenderUtils.alphaByte(alpha[i] * twinkle);
+            if (a <= 1) continue;
+
+            int size = big[i] ? 2 : 1;
+            int usableWidth = w - edgeMargin * 2 - size;
+            int usableHeight = h - edgeMargin * 2 - size;
+            if (usableWidth <= 0 || usableHeight <= 0) continue;
+
+            float dy = y[i] + elapsed * drift[i];
+            dy = dy - (float) Math.floor(dy);
+            int px = edgeMargin + Math.round(x[i] * usableWidth);
+            int py = edgeMargin + Math.round(dy * usableHeight);
+            if (isBlocked(content, contentMargin, space, px, py)) continue;
+
+            context.fill(px, py, px + size, py + size, (a << 24) | 0xFFFFFF);
+        }
+    }
+
+    private static boolean isBlocked(List<OverlayRect> content, int contentMargin, SpaceField space, int px, int py) {
+        for (OverlayRect rect : content) {
+            if (rect.contains(px, py, contentMargin)) return true;
+        }
+        return space != null && space.occupies(px, py);
+    }
+
+    private void regenerate() {
+        for (int i = 0; i < STAR_COUNT; i++) respawn(i);
+    }
+
+    private void respawn(int i) {
+        x[i] = rng.nextFloat();
+        y[i] = rng.nextFloat();
+        alpha[i] = 0.25f + rng.nextFloat() * 0.45f;
+        speed[i] = 0.0015f + rng.nextFloat() * 0.006f;
+        phase[i] = rng.nextFloat() * 6.2832f;
+        drift[i] = 0.5e-6f + rng.nextFloat() * 2.5e-6f;
+        big[i] = rng.nextFloat() < 0.30f;
+    }
+
+    private void scheduleShuffle(long now) {
+        nextShuffle = now + SHUFFLE_MIN_MS + rng.nextInt(SHUFFLE_MAX_MS - SHUFFLE_MIN_MS);
+    }
+}

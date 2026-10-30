@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "mt.forge.mixin",
+  "refmap": "${mod_id}.refmap.json",
+  "compatibilityLevel": "JAVA_17",
+  "client": [
+    "GuiAirBubblesMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
