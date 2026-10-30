@@ -50,6 +50,7 @@ public final class TestHarness {
             installed = true;
             PacketLog.install();
             GlobalTestReporter.replaceWith(new MTTestReporter());
+            TestDataPack.uninstall(helper.getLevel().getServer());
         }
         finishCurrent();
         savedFiles = snapshotFiles();
@@ -76,6 +77,7 @@ public final class TestHarness {
             }
         }
 
+        TestDataPack.uninstall(context.server());
         restoreFiles(savedFiles);
         MidnightThoughtsConfig.reload();
         AchievementLoader.reload();

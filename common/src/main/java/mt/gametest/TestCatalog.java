@@ -52,6 +52,7 @@ public final class TestCatalog {
         List<GameTestCase> builtCases = new ArrayList<>();
         ComfortGameTests.register(builtCategories, builtCases);
         WellRestedGameTests.register(builtCategories, builtCases);
+        MvpGameTests.register(builtCategories, builtCases);
         SleepGameTests.register(builtCategories, builtCases);
         SleepingHudGameTests.register(builtCategories, builtCases);
         FileGameTests.register(builtCategories, builtCases);

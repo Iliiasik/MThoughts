@@ -5,9 +5,11 @@ import mt.gametest.TestContext.Bed;
 import mt.gametest.TestContext.Decor;
 import mt.network.packet.WellRestedPacket;
 import mt.server.ComfortCalculator;
+import mt.server.WellRestedEffect;
 import net.minecraft.world.level.block.Blocks;
 
 import java.util.List;
+import java.util.Map;
 
 final class ComfortGameTests {
 
@@ -23,7 +25,9 @@ final class ComfortGameTests {
                 "cosy and unsettling blocks add up, switching beds always uses the new bed",
                 "a blocked bed refuses sleep, the cached value lives 5 seconds and is dropped on leave or reload",
                 "the comfort, nightmare and sleep block switches and thresholds work on their own",
-                "the comfort event from the API can change the final value")));
+                "the comfort event from the API can change the final value",
+                "the scan reaches up and down as far as it reaches sideways",
+                "comfort is fixed when the player lies down, changing the room during the night changes nothing")));
 
         cases.add(new GameTestCase(ID, "measured_around_the_bed", "Comfort is measured around the bed, not the player", 200, ctx -> {
             ctx.config().getComfort().scanRadius = 2;
@@ -69,6 +73,19 @@ final class ComfortGameTests {
                 ctx.clear(bed.head().offset(8, 0, 0));
                 ctx.place(bed.head().offset(9, 0, 0), Blocks.GLOWSTONE);
                 ctx.equal(0, ctx.comfortAt(player, bed), "comfort with a lamp 9 blocks away");
+            });
+        }));
+
+        cases.add(new GameTestCase(ID, "vertical_radius", "The scan reaches up as far as it reaches sideways", 100, ctx -> {
+            ctx.config().getComfort().scanRadius = 3;
+            Bed bed = ctx.bed(10, 10);
+            MockPlayer player = ctx.joinAt("Measurer", bed);
+            ctx.then(() -> {
+                ctx.place(bed.head().above(3), Blocks.GLOWSTONE);
+                ctx.equal(1, ctx.comfortAt(player, bed), "comfort with a lamp 3 blocks above");
+                ctx.clear(bed.head().above(3));
+                ctx.place(bed.head().above(4), Blocks.GLOWSTONE);
+                ctx.equal(0, ctx.comfortAt(player, bed), "comfort with a lamp 4 blocks above");
             });
         }));
 
@@ -155,6 +172,36 @@ final class ComfortGameTests {
                         ctx.check(!player.get().isSleeping(), "the player is asleep in a blocked bed");
                         ctx.check(player.sawActionBar("midnightthoughts.sleep.nightmare_blocked"), "the player was not told why");
                     });
+        }));
+
+        cases.add(new GameTestCase(ID, "fixed_when_decor_removed", "Removing decor after lying down keeps the comfort of bedtime", 600, ctx -> {
+            Bed bed = ctx.bed(10, 10);
+            ctx.decorate(bed, Decor.LIGHTING, Decor.CARPET, Decor.FURNITURE);
+            MockPlayer player = ctx.joinAt("Sleeper", bed);
+            ctx.night();
+            ctx.idle(2).then(() -> ctx.sleepOrFail(player, bed))
+                    .idle(2)
+                    .then(() -> {
+                        ctx.undecorate(bed);
+                        ctx.equal(0, ctx.comfortAt(player, bed), "comfort of the emptied room");
+                    })
+                    .sleepThroughTheNight("the night to pass", player)
+                    .then(() -> ctx.equal(3, WellRestedEffect.getLevel(player.get()), "Well Rested level in the morning"));
+        }));
+
+        cases.add(new GameTestCase(ID, "fixed_when_decor_added", "Adding decor after lying down does not raise the comfort", 600, ctx -> {
+            Bed bed = ctx.bed(10, 10);
+            ctx.decorate(bed, Decor.LIGHTING);
+            MockPlayer player = ctx.joinAt("Sleeper", bed);
+            ctx.night();
+            ctx.idle(2).then(() -> ctx.sleepOrFail(player, bed))
+                    .idle(2)
+                    .then(() -> {
+                        ctx.decorate(bed, Decor.LIGHTING, Decor.CARPET, Decor.FURNITURE, Decor.DECORATION, Decor.STRUCTURE);
+                        ctx.equal(5, ctx.comfortAt(player, bed), "comfort of the decorated room");
+                    })
+                    .sleepThroughTheNight("the night to pass", player)
+                    .then(() -> ctx.equal(1, WellRestedEffect.getLevel(player.get()), "Well Rested level in the morning"));
         }));
 
         cases.add(new GameTestCase(ID, "cache_lives_five_seconds", "A cached blocked bed stays blocked for 5 seconds", 300, ctx -> {
@@ -257,6 +304,55 @@ final class ComfortGameTests {
                 List<ApiEventLog.Entry> events = ApiEventLog.of("comfort", player.uuid());
                 ctx.equal(1, events.size(), "comfort events fired");
                 ctx.equal(3, events.getFirst().value(), "comfort seen by the listener");
+            });
+        }));
+
+        registerDataPacks(categories, cases);
+    }
+
+    private static void registerDataPacks(List<TestCatalog.Category> categories, List<GameTestCase> cases) {
+        String id = "comfort_tags";
+        categories.add(new TestCatalog.Category(id, "Comfort tags from data packs", List.of(
+                "blocks a data pack adds to the cosy and unsettling tags count with the weight of their tag",
+                "a data pack can replace a comfort tag, so the built-in blocks of that tag stop counting",
+                "removing the data pack restores the built-in tags")));
+
+        cases.add(new GameTestCase(id, "added_blocks_count", "Blocks added by a data pack count for comfort", 100, ctx -> {
+            Bed bed = ctx.bed(10, 10);
+            MockPlayer player = ctx.joinAt("Builder", bed);
+            ctx.then(() -> {
+                ctx.place(bed.head().offset(-1, 0, 1), Blocks.GOLD_BLOCK);
+                ctx.place(bed.head().offset(1, 0, 1), Blocks.DIAMOND_BLOCK);
+                ctx.equal(0, ctx.comfortAt(player, bed), "comfort before the data pack");
+                TestDataPack.install(ctx.server(), Map.of(
+                        "comfort_lighting", TestDataPack.tag(false, "minecraft:gold_block"),
+                        "comfort_negative_dark", TestDataPack.tag(false, "minecraft:diamond_block")));
+                ctx.equal(0, ctx.comfortAt(player, bed), "a cosy and an unsettling block from the data pack");
+                ctx.clear(bed.head().offset(1, 0, 1));
+                ctx.equal(1, ctx.comfortAt(player, bed), "the gold block in the lighting tag");
+                ctx.config().getComfort().weights.lighting = 3;
+                ctx.equal(3, ctx.comfortAt(player, bed), "the gold block with lighting weight 3");
+                ctx.place(bed.head().offset(-2, 0, 1), Blocks.GLOWSTONE);
+                ctx.equal(3, ctx.comfortAt(player, bed), "the built-in lamp next to the added block");
+                TestDataPack.uninstall(ctx.server());
+                ctx.clear(bed.head().offset(-2, 0, 1));
+                ctx.equal(0, ctx.comfortAt(player, bed), "the gold block after the data pack was removed");
+            });
+        }));
+
+        cases.add(new GameTestCase(id, "replaced_tag", "A data pack can replace a comfort tag", 100, ctx -> {
+            Bed bed = ctx.bed(10, 10);
+            MockPlayer player = ctx.joinAt("Builder", bed);
+            ctx.then(() -> {
+                ctx.decorate(bed, Decor.LIGHTING);
+                ctx.equal(1, ctx.comfortAt(player, bed), "the built-in lamp before the data pack");
+                TestDataPack.install(ctx.server(), Map.of(
+                        "comfort_lighting", TestDataPack.tag(true, "minecraft:gold_block")));
+                ctx.equal(0, ctx.comfortAt(player, bed), "the built-in lamp after the tag was replaced");
+                ctx.place(bed.head().offset(1, 0, 1), Blocks.GOLD_BLOCK);
+                ctx.equal(1, ctx.comfortAt(player, bed), "the gold block from the replaced tag");
+                TestDataPack.uninstall(ctx.server());
+                ctx.equal(1, ctx.comfortAt(player, bed), "the built-in lamp after the data pack was removed");
             });
         }));
     }

@@ -22,6 +22,7 @@ final class AchievementGameTests {
     static void register(List<TestCatalog.Category> categories, List<GameTestCase> cases) {
         categories.add(new TestCatalog.Category(ID, "Achievements", List.of(
                 "personal records are announced from the second night on, only when beaten",
+                "a weaker night announces nothing and the next better night beats the stored record",
                 "a custom achievement is given exactly when its conditions hold and only once",
                 "/midnightthoughts reload achievements makes new rules count on the next night")));
 
@@ -105,5 +106,28 @@ final class AchievementGameTests {
                     .sleepThroughTheNight("the night to pass", player)
                     .then(() -> ctx.check(achievements(ctx, player, player).contains("springy"), "the new rule did not count"));
         }));
+
+        cases.add(new GameTestCase(ID, "records_only_when_beaten", "A record is announced only when the stored best is beaten", 2400, ctx -> {
+            Bed bed = SleepGameTests.litBed(ctx, 10);
+            MockPlayer player = ctx.joinAt("Rival", bed);
+            recordNight(ctx, player, bed, "the first night", 1000, 0, List.of());
+            recordNight(ctx, player, bed, "the second night", 3000, 2, List.of("distance_record", "mobs_record"));
+            recordNight(ctx, player, bed, "the third night", 2000, 1, List.of());
+            recordNight(ctx, player, bed, "the fourth night", 3500, 0, List.of("distance_record"));
+        }));
+    }
+
+    private static void recordNight(TestContext ctx, MockPlayer player, Bed bed, String what,
+                                    int centimetres, int kills, List<String> expected) {
+        ctx.then(() -> {
+                    player.get().awardStat(Stats.WALK_ONE_CM, centimetres);
+                    if (kills > 0) player.get().awardStat(Stats.MOB_KILLS, kills);
+                    ctx.night();
+                })
+                .idle(2)
+                .then(() -> ctx.sleepOrFail(player, bed))
+                .sleepThroughTheNight(what, player)
+                .then(() -> ctx.equal(expected, achievements(ctx, player, player).stream()
+                        .filter(id -> id.endsWith("_record")).toList(), "records after " + what));
     }
 }

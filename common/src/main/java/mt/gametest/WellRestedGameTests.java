@@ -7,6 +7,7 @@ import mt.network.packet.DailySummaryPacket;
 import mt.network.packet.WellRestedPacket;
 import mt.platform.MTPlatform;
 import mt.server.WellRestedEffect;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerPlayer;
@@ -22,6 +23,7 @@ import net.minecraft.world.level.block.Blocks;
 
 import java.util.List;
 
+@SuppressWarnings("resource")
 final class WellRestedGameTests {
 
     private static final String ID = "well_rested";
@@ -36,6 +38,16 @@ final class WellRestedGameTests {
             if (modifier.id().getNamespace().equals("midnightthoughts")) return modifier.amount();
         }
         return Double.NaN;
+    }
+
+    static int speedModifiers(ServerPlayer player) {
+        AttributeInstance instance = player.getAttribute(Attributes.MOVEMENT_SPEED);
+        if (instance == null) return 0;
+        int count = 0;
+        for (AttributeModifier modifier : instance.getModifiers()) {
+            if (modifier.id().getNamespace().equals("midnightthoughts")) count++;
+        }
+        return count;
     }
 
     static boolean hasNoBonus(ServerPlayer player) {
@@ -64,6 +76,8 @@ final class WellRestedGameTests {
                 "the effect runs in three phases with weaker bonuses and ends cleanly",
                 "shortening the duration on the fly restarts the HUD at full strength",
                 "the effect survives relogging, ends on death and never leaks between profiles",
+                "the effect keeps running with its bonuses while the player travels to the nether and back",
+                "a new night replaces the running effect instead of stacking a second set of bonuses",
                 "the MVP gets the MVP effect, every on and off mix of MVP and Well Rested behaves",
                 "custom attributes and effects can be added, removed and tuned, unknown ids are skipped",
                 "health is topped up when the effect starts and the regeneration bonus heals")));
@@ -144,6 +158,55 @@ final class WellRestedGameTests {
                         int left = WellRestedEffect.getTicksRemaining(back);
                         ctx.check(left <= before[0] && left >= before[0] - 5, "time left jumped on relog: " + before[0] + " to " + left);
                         ctx.near(0.16F, bonus(back, Attributes.MOVEMENT_SPEED), "speed bonus after relog");
+                    });
+        }));
+
+        cases.add(new GameTestCase(ID, "survives_dimension_travel", "The effect keeps running in the nether and back", 200, ctx -> {
+            MockPlayer player = ctx.join("Traveller");
+            int[] ticks = new int[1];
+            ctx.then(() -> {
+                WellRestedEffect.applyToPlayer(player.get(), 3);
+                ticks[0] = WellRestedEffect.getTicksRemaining(player.get());
+                player.moveTo(ctx.nether(), new BlockPos(0, 100, 0));
+            }).idle(5).then(() -> {
+                ctx.check(player.get().level() == ctx.nether(), "the player did not reach the nether");
+                ctx.check(WellRestedEffect.hasEffect(player.get()), "the effect was lost in the nether");
+                ctx.check(WellRestedEffect.getTicksRemaining(player.get()) < ticks[0], "the effect stopped counting down in the nether");
+                ctx.near(0.16F, bonus(player.get(), Attributes.MOVEMENT_SPEED), "speed bonus in the nether");
+                ctx.check(ctx.lastSent(player, WellRestedPacket.class).active(), "the HUD lost the effect in the nether");
+                player.moveTo(ctx.level(), ctx.at(10, 1, 4));
+            }).idle(2).then(() -> {
+                ctx.check(player.get().level() == ctx.level(), "the player did not come back");
+                ctx.equal(3, WellRestedEffect.getLevel(player.get()), "level after the trip");
+                ctx.near(0.16F, bonus(player.get(), Attributes.MOVEMENT_SPEED), "speed bonus after the trip");
+            });
+        }));
+
+        cases.add(new GameTestCase(ID, "new_night_replaces_effect", "A new night replaces the running effect", 1200, ctx -> {
+            Bed bed = SleepGameTests.litBed(ctx, 10);
+            MockPlayer player = ctx.joinAt("Regular", bed);
+            ctx.night();
+            ctx.idle(2).then(() -> ctx.sleepOrFail(player, bed))
+                    .sleepThroughTheNight("the first night", player)
+                    .then(() -> {
+                        ctx.equal(1, WellRestedEffect.getLevel(player.get()), "level after the first night");
+                        setTicksLeft(player, 300);
+                    })
+                    .idle(3)
+                    .then(() -> {
+                        ctx.equal(2, WellRestedEffect.getCurrentPhase(player.get()), "phase before the second night");
+                        ctx.decorate(bed, Decor.LIGHTING, Decor.CARPET, Decor.FURNITURE, Decor.DECORATION);
+                        ctx.night();
+                    })
+                    .idle(2)
+                    .then(() -> ctx.sleepOrFail(player, bed))
+                    .sleepThroughTheNight("the second night", player)
+                    .then(() -> {
+                        ctx.equal(4, WellRestedEffect.getLevel(player.get()), "level after the second night");
+                        ctx.equal(0, WellRestedEffect.getCurrentPhase(player.get()), "phase after the second night");
+                        ctx.check(WellRestedEffect.getTicksRemaining(player.get()) > 10 * 1200 - 20, "the new effect did not start at full length");
+                        ctx.equal(1, speedModifiers(player.get()), "speed bonuses on the player");
+                        ctx.near(0.20F, bonus(player.get(), Attributes.MOVEMENT_SPEED), "speed bonus of the new night");
                     });
         }));
 

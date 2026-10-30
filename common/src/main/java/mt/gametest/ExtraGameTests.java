@@ -3,16 +3,20 @@ package mt.gametest;
 import mt.gametest.TestContext.Bed;
 import mt.gametest.TestContext.Decor;
 import mt.network.packet.DailySummaryPacket;
+import mt.network.packet.MoonPhasePacket;
 import mt.server.ComfortCalculator;
 import mt.server.DailyStatsManager;
+import mt.server.MTServer;
 import mt.server.StatsStorage;
 import mt.server.WellRestedEffect;
+import net.minecraft.core.BlockPos;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.level.block.Blocks;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings("resource")
 final class ExtraGameTests {
 
     private ExtraGameTests() {}
@@ -23,6 +27,36 @@ final class ExtraGameTests {
         registerApi(categories, cases);
         registerRestart(categories, cases);
         registerLoad(categories, cases);
+        registerMoon(categories, cases);
+    }
+
+    private static void registerMoon(List<TestCatalog.Category> categories, List<GameTestCase> cases) {
+        String id = "moon";
+        categories.add(new TestCatalog.Category(id, "Moon phase", List.of(
+                "the moon phase sent for the sleep overlay walks through all eight phases night after night",
+                "a player in the nether still gets the phase of the overworld moon")));
+
+        cases.add(new GameTestCase(id, "eight_nights", "Each night sends the phase of the overworld moon", 200, ctx -> {
+            MockPlayer player = ctx.join("Stargazer");
+            ctx.then(() -> {
+                long firstDay = ctx.dayStart() / 24000L;
+                List<Integer> phases = new ArrayList<>();
+                for (int night = 0; night < 8; night++) {
+                    ctx.level().setDayTime((firstDay + night) * 24000L + 18000L);
+                    MTServer.sendMoonPhase(player.get());
+                    int sent = ctx.lastSent(player, MoonPhasePacket.class).moonPhase();
+                    ctx.equal((int) ((firstDay + night) % 8L), sent, "phase sent on night " + (night + 1));
+                    phases.add(sent);
+                }
+                ctx.equal(8L, phases.stream().distinct().count(), "different phases over eight nights");
+                player.moveTo(ctx.nether(), new BlockPos(0, 100, 0));
+            }).idle(2).then(() -> {
+                ctx.level().setDayTime(ctx.dayStart() + 24000L + 18000L);
+                MTServer.sendMoonPhase(player.get());
+                ctx.equal(ctx.level().getMoonPhase(), ctx.lastSent(player, MoonPhasePacket.class).moonPhase(),
+                        "phase sent to a player in the nether");
+            });
+        }));
     }
 
     private static void registerStats(List<TestCatalog.Category> categories, List<GameTestCase> cases) {
