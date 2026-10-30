@@ -72,7 +72,7 @@ public class ThemeColors {
 
     public record ThemeColor(
             TextStyle badge,
-            TextStyle nights,
+            TextStyle days,
             TextStyle tooltip,
             TextStyle sleepingHud
     ) {}

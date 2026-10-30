@@ -50,7 +50,7 @@ final class SleepGameTests {
                 "thunderstorms: a skip, getting up during the storm and staying in bed until it ends",
                 "gradual time skips like sleep mods do, and worlds with the daylight cycle switched off",
                 "leaving after sleeping, joining at night, nether beds and daytime attempts change nothing",
-                "several nights in a row reset the stats only for sleepers, the nights counter matches the game",
+                "several nights in a row reset the stats only for sleepers, the summary shows the current day",
                 "a night of sleep counts once, lying in bed after sunrise like sleep mods do counts for nothing",
                 "a nightmare bed still gives a summary and shows the nightmare during the night")));
 
@@ -392,23 +392,24 @@ final class SleepGameTests {
                     });
         }));
 
-        cases.add(new GameTestCase(ID, "nights_counter", "The nights counter matches the game statistic", 1200, ctx -> {
+        cases.add(new GameTestCase(ID, "day_counter", "The summary shows the current day like the F3 screen", 1200, ctx -> {
             Bed bed = litBed(ctx, 10);
             MockPlayer player = ctx.joinAt("Counter", bed);
+            ctx.level().setDayTime(41 * 24000L);
             ctx.night();
             ctx.idle(2).then(() -> ctx.sleepOrFail(player, bed))
                     .sleepThroughTheNight("the first night", player)
                     .then(() -> {
-                        ctx.equal(1, ctx.summaryLine(ctx.lastSummary(player), player).nightsSlept(), "nights after one night");
+                        ctx.equal(42, ctx.summaryLine(ctx.lastSummary(player), player).day(), "day after the first night");
                         ctx.night();
                     })
                     .idle(2)
                     .then(() -> ctx.sleepOrFail(player, bed))
                     .sleepThroughTheNight("the second night", player)
                     .then(() -> {
-                        int counted = player.get().getStats().getValue(Stats.CUSTOM.get(Stats.SLEEP_IN_BED));
-                        ctx.equal(2, counted, "the game statistic");
-                        ctx.equal(counted, ctx.summaryLine(ctx.lastSummary(player), player).nightsSlept(), "nights after two nights");
+                        int shown = (int) (ctx.level().getDayTime() / 24000L);
+                        ctx.equal(43, shown, "day on the F3 screen");
+                        ctx.equal(shown, ctx.summaryLine(ctx.lastSummary(player), player).day(), "day after the second night");
                     });
         }));
 

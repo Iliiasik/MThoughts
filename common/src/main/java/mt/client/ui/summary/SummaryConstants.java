@@ -60,7 +60,7 @@ public class SummaryConstants {
     }
 
     public static ResourceLocation getChipTexture() {
-        return themed("nights");
+        return themed("days");
     }
 
     public static ResourceLocation getTooltipTexture() {

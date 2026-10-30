@@ -22,7 +22,7 @@ public final class CardRenderer {
     public static void render(GuiGraphics context, Font font, DailySummaryPacket.PlayerDailySummary player,
                               SummaryLayout layout, float fadeAlpha, List<HoverArea> areas) {
         renderHead(context, player, layout, fadeAlpha);
-        renderNightsChip(context, font, player, layout, fadeAlpha, areas);
+        renderDaysChip(context, font, player, layout, fadeAlpha, areas);
         StatsPanelRenderer.render(context, player, layout, fadeAlpha, areas);
         AchievementRenderer.render(context, player.achievements(), layout, fadeAlpha, areas);
     }
@@ -60,11 +60,11 @@ public final class CardRenderer {
         RenderSystem.disableBlend();
     }
 
-    private static void renderNightsChip(GuiGraphics context, Font font,
+    private static void renderDaysChip(GuiGraphics context, Font font,
                                          DailySummaryPacket.PlayerDailySummary player,
                                          SummaryLayout layout, float fadeAlpha, List<HoverArea> areas) {
-        String text = Component.translatable("midnightthoughts.summary.nights",
-                NumberFormatter.formatLargeNumber(player.nightsSlept())).getString();
+        String text = Component.translatable("midnightthoughts.summary.days",
+                NumberFormatter.formatLargeNumber(player.day())).getString();
 
         int x = layout.contentX();
         int y = layout.chipY();
@@ -78,7 +78,7 @@ public final class CardRenderer {
         String fitted = RenderUtils.truncateWithEllipsis(font, text,
                 Math.max(1, Math.round((width - inset * 2) / textScale)));
         int textWidth = RenderUtils.scaledWidth(font, fitted, textScale);
-        ThemeColors.TextStyle style = ThemeColors.current().nights();
+        ThemeColors.TextStyle style = ThemeColors.current().days();
 
         RenderUtils.renderScaledText(context, font, fitted,
                 RenderUtils.centeredX(x, width, textWidth),

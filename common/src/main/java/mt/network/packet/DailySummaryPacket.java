@@ -37,7 +37,7 @@ public record DailySummaryPacket(List<PlayerDailySummary> summaries) implements 
 
     public record PlayerDailySummary(String playerName, int blocksDestroyed, int distanceWalked,
                                      int mobsKilled, int deaths, int jumps, int damageDealt,
-                                     int nightsSlept, boolean isMvp,
+                                     int day, boolean isMvp,
                                      List<String> achievements) {
 
         public static PlayerDailySummary decode(FriendlyByteBuf buf) {
@@ -48,7 +48,7 @@ public record DailySummaryPacket(List<PlayerDailySummary> summaries) implements 
             int deaths = clampValue(buf.readVarInt());
             int jumps = clampValue(buf.readVarInt());
             int damageDealt = clampValue(buf.readVarInt());
-            int nightsSlept = clampValue(buf.readVarInt());
+            int day = clampValue(buf.readVarInt());
             boolean isMvp = buf.readBoolean();
             int achievementCount = buf.readVarInt();
             List<String> achievements = new ArrayList<>(achievementCount);
@@ -56,7 +56,7 @@ public record DailySummaryPacket(List<PlayerDailySummary> summaries) implements 
                 achievements.add(buf.readUtf());
             }
             return new PlayerDailySummary(playerName, blocksDestroyed, distanceWalked, mobsKilled,
-                    deaths, jumps, damageDealt, nightsSlept, isMvp, achievements);
+                    deaths, jumps, damageDealt, day, isMvp, achievements);
         }
 
         public static void encode(FriendlyByteBuf buf, PlayerDailySummary summary) {
@@ -67,7 +67,7 @@ public record DailySummaryPacket(List<PlayerDailySummary> summaries) implements 
             buf.writeVarInt(clampValue(summary.deaths()));
             buf.writeVarInt(clampValue(summary.jumps()));
             buf.writeVarInt(clampValue(summary.damageDealt()));
-            buf.writeVarInt(clampValue(summary.nightsSlept()));
+            buf.writeVarInt(clampValue(summary.day()));
             buf.writeBoolean(summary.isMvp());
             buf.writeVarInt(summary.achievements().size());
             for (String achievement : summary.achievements()) {

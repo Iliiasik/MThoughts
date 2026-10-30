@@ -73,7 +73,7 @@ class DailySummaryPacketTest {
         assertEquals(4, decoded.deaths());
         assertEquals(5, decoded.jumps());
         assertEquals(6, decoded.damageDealt());
-        assertEquals(77, decoded.nightsSlept());
+        assertEquals(77, decoded.day());
     }
 
     @Test

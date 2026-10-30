@@ -5,7 +5,6 @@ import mt.platform.MTEvents;
 import mt.platform.MTNetwork;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.stats.Stats;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -14,8 +13,8 @@ public class DailyStatsManager {
     private static final Map<UUID, DailyPlayerStats> dailyStats = new ConcurrentHashMap<>();
     private static final Map<MinecraftServer, SleepTracker> sleepTrackers = new ConcurrentHashMap<>();
 
-    private static int nightsSlept(ServerPlayer player) {
-        return player.getStats().getValue(Stats.CUSTOM.get(Stats.SLEEP_IN_BED));
+    private static int day(MinecraftServer server) {
+        return (int) Math.min(server.overworld().getDayTime() / 24000L, Integer.MAX_VALUE);
     }
 
     public static void tick(MinecraftServer server) {
@@ -52,11 +51,12 @@ public class DailyStatsManager {
 
         String mvpName = AchievementCalculator.determineMvp(sleepers.stream().map(Sleeper::mvpData).toList());
 
+        int day = day(server);
         List<DailySummaryPacket.PlayerDailySummary> summaries = new ArrayList<>();
         for (Sleeper sleeper : sleepers) {
             List<String> achievements = AchievementCalculator.calculateAchievements(sleeper.delta(), sleeper.saved());
             StatsStorage.savePlayerStats(server, sleeper.player().getUUID(), sleeper.saved());
-            summaries.add(sleeper.summary(sleeper.name().equals(mvpName), achievements));
+            summaries.add(sleeper.summary(sleeper.name().equals(mvpName), achievements, day));
         }
 
         DailySummaryPacket packet = new DailySummaryPacket(summaries);
@@ -91,10 +91,10 @@ public class DailyStatsManager {
                     delta.distanceWalked(), delta.mobsKilled(), delta.deaths(), delta.jumps());
         }
 
-        DailySummaryPacket.PlayerDailySummary summary(boolean mvp, List<String> achievements) {
+        DailySummaryPacket.PlayerDailySummary summary(boolean mvp, List<String> achievements, int day) {
             return new DailySummaryPacket.PlayerDailySummary(name, delta.blocksDestroyed(),
                     delta.distanceWalked(), delta.mobsKilled(), delta.deaths(), delta.jumps(),
-                    delta.damageDealt(), nightsSlept(player), mvp, achievements);
+                    delta.damageDealt(), day, mvp, achievements);
         }
     }
 

@@ -28,7 +28,7 @@ class ResourceIntegrityTest {
     private static final List<String> THEMES = List.of("classic", "magic", "tech", "vanilla");
 
     private static final List<String> THEMED_TEXTURES = List.of(
-            "frame", "info", "info_mvp", "badge", "nights", "stats_panel",
+            "frame", "info", "info_mvp", "badge", "days", "stats_panel",
             "achievement_badge", "tooltip", "button_left", "button_right", "sleeping_hud");
 
     private static final List<String> SHARED_TEXTURES = List.of(
