@@ -77,7 +77,7 @@ public final class MTClient {
     }
 
     public static void renderSleepingPlayersHud(GuiGraphics graphics) {
-        if (isHudHidden()) return;
+        if (isHudHidden() || Minecraft.getInstance().getDebugOverlay().showDebugScreen()) return;
         SleepingPlayersHud.render(graphics, graphics.guiWidth(), graphics.guiHeight());
     }
 
