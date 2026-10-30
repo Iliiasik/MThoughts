@@ -78,6 +78,7 @@ final class WellRestedGameTests {
                 "the effect survives relogging, ends on death and never leaks between profiles",
                 "the effect keeps running with its bonuses while the player travels to the nether and back",
                 "a new night replaces the running effect instead of stacking a second set of bonuses",
+                "yesterday's MVP who loses the title gets a plain effect with the plain duration",
                 "the MVP gets the MVP effect, every on and off mix of MVP and Well Rested behaves",
                 "custom attributes and effects can be added, removed and tuned, unknown ids are skipped",
                 "health is topped up when the effect starts and the regeneration bonus heals")));
@@ -207,6 +208,38 @@ final class WellRestedGameTests {
                         ctx.check(WellRestedEffect.getTicksRemaining(player.get()) > 10 * 1200 - 20, "the new effect did not start at full length");
                         ctx.equal(1, speedModifiers(player.get()), "speed bonuses on the player");
                         ctx.near(0.20F, bonus(player.get(), Attributes.MOVEMENT_SPEED), "speed bonus of the new night");
+                    });
+        }));
+
+        cases.add(new GameTestCase(ID, "former_mvp_gets_normal_effect", "Yesterday's MVP gets a normal effect after losing the title", 1200, ctx -> {
+            Bed firstBed = SleepGameTests.litBed(ctx, 4);
+            Bed secondBed = SleepGameTests.litBed(ctx, 16);
+            MockPlayer first = ctx.joinAt("Former", firstBed);
+            MockPlayer second = ctx.joinAt("Current", secondBed);
+            first.get().awardStat(Stats.BLOCK_MINED.get(Blocks.STONE), 4);
+            ctx.night();
+            ctx.idle(2).then(() -> {
+                        ctx.sleepOrFail(first, firstBed);
+                        ctx.sleepOrFail(second, secondBed);
+                    })
+                    .sleepThroughTheNight("the first night", first)
+                    .then(() -> {
+                        ctx.check(WellRestedEffect.isMvp(first.get()), "Former did not get the MVP effect");
+                        second.get().awardStat(Stats.BLOCK_MINED.get(Blocks.STONE), 4);
+                        ctx.night();
+                    })
+                    .idle(2)
+                    .then(() -> {
+                        ctx.sleepOrFail(first, firstBed);
+                        ctx.sleepOrFail(second, secondBed);
+                    })
+                    .sleepThroughTheNight("the second night", first)
+                    .then(() -> {
+                        ctx.check(WellRestedEffect.isMvp(second.get()), "Current did not get the MVP effect");
+                        ctx.check(!WellRestedEffect.isMvp(first.get()), "Former kept the MVP effect");
+                        ctx.equal(1, WellRestedEffect.getLevel(first.get()), "level of Former");
+                        ctx.equal(3 * 1200, WellRestedEffect.getTotalDurationTicksForPlayer(first.get()), "duration of Former");
+                        ctx.check(!ctx.lastSent(first, WellRestedPacket.class).mvp(), "the HUD of Former still shows MVP");
                     });
         }));
 

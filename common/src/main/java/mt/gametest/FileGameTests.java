@@ -81,9 +81,12 @@ final class FileGameTests {
         cases.add(new GameTestCase(ID, "broken_config_backed_up", "A broken config is backed up and replaced with defaults", 100, ctx -> {
             ctx.join("Admin");
             ctx.then(() -> {
+                Path broken = configFile().resolveSibling("midnightthoughts.json.broken");
+                delete(broken);
                 write(configFile(), "{ this is not json");
                 ctx.check(ctx.op("midnightthoughts reload config").result() > 0, "the reload command failed");
-                ctx.check(Files.exists(configFile().resolveSibling("midnightthoughts.json.broken")), "the broken config was not kept");
+                ctx.check(Files.exists(broken), "the broken config was not kept");
+                ctx.equal("{ this is not json", read(broken), "content of the kept broken config");
                 ctx.equal(5, ctx.config().getComfort().scanRadius, "scan radius after the broken config");
             });
         }));
@@ -128,15 +131,18 @@ final class FileGameTests {
             Bed bed = SleepGameTests.litBed(ctx, 10);
             MockPlayer player = ctx.joinAt("Sleeper", bed);
             Path stats = ctx.server().getWorldPath(LevelResource.ROOT).resolve("midnightthoughts_stats.json");
+            Path broken = stats.resolveSibling("midnightthoughts_stats.json.broken");
             ctx.then(() -> {
                 StatsStorage.unload();
+                delete(broken);
                 write(stats, "[[[ not stats");
                 ctx.night();
             }).idle(2).then(() -> ctx.sleepOrFail(player, bed))
                     .sleepThroughTheNight("the night to pass", player)
                     .then(() -> {
                         SleepGameTests.expectSummary(ctx, player, 1);
-                        ctx.check(Files.exists(stats.resolveSibling("midnightthoughts_stats.json.broken")), "the broken stats file was not kept");
+                        ctx.check(Files.exists(broken), "the broken stats file was not kept");
+                        ctx.equal("[[[ not stats", read(broken), "content of the kept broken stats file");
                     });
         }));
     }

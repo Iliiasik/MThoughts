@@ -334,7 +334,7 @@ public final class TestContext {
     }
 
     public void near(double expected, double actual, String what) {
-        if (Math.abs(expected - actual) > 1.0E-4) {
+        if (Double.isNaN(actual) || Math.abs(expected - actual) > 1.0E-4) {
             fail(what + ": expected " + expected + ", got " + actual);
         }
     }

@@ -51,6 +51,7 @@ final class SleepGameTests {
                 "gradual time skips like sleep mods do, and worlds with the daylight cycle switched off",
                 "leaving after sleeping, joining at night, nether beds and daytime attempts change nothing",
                 "several nights in a row reset the stats only for sleepers, the nights counter matches the game",
+                "a night of sleep counts once, lying in bed after sunrise like sleep mods do counts for nothing",
                 "a nightmare bed still gives a summary and shows the nightmare during the night")));
 
         cases.add(new GameTestCase(ID, "full_night", "One player sleeps through the night and gets a summary", 600, ctx -> {
@@ -250,17 +251,22 @@ final class SleepGameTests {
             ctx.sleepingPercentage(50);
             Bed first = litBed(ctx, 4);
             Bed second = litBed(ctx, 16);
+            ctx.decorate(second, Decor.LIGHTING, Decor.CARPET, Decor.FURNITURE);
             MockPlayer leaver = ctx.joinAt("Leaver", first);
             MockPlayer stayer = ctx.joinAt("Stayer", second);
             ctx.night();
             ctx.idle(2).then(() -> {
                 ctx.sleepOrFail(leaver, first);
                 ctx.sleepOrFail(stayer, second);
-            }).idle(30).then(leaver::leave)
+            }).idle(30).then(() -> {
+                        leaver.leave();
+                        ctx.undecorate(second);
+                    })
                     .sleepThroughTheNight("the night to pass", stayer)
                     .then(() -> {
                         expectSummary(ctx, stayer, 1);
                         expectNoSummary(ctx, leaver);
+                        ctx.equal(3, WellRestedEffect.getLevel(stayer.get()), "Well Rested level of the player who stayed");
                     });
         }));
 
@@ -335,6 +341,54 @@ final class SleepGameTests {
                         DailySummaryPacket summary = ctx.lastSummary(b);
                         ctx.equal(10, ctx.summaryLine(summary, a).jumps(), "jumps since the first night for the sleeper");
                         ctx.equal(30, ctx.summaryLine(summary, b).jumps(), "jumps kept by the player who skipped a night");
+                    });
+        }));
+
+        cases.add(new GameTestCase(ID, "one_night_counts_once", "Sleeping one night does not count for the next", 1200, ctx -> {
+            ctx.sleepingPercentage(50);
+            Bed firstBed = litBed(ctx, 4);
+            Bed secondBed = litBed(ctx, 16);
+            MockPlayer first = ctx.joinAt("Early", firstBed);
+            MockPlayer second = ctx.joinAt("Late", secondBed);
+            ctx.night();
+            ctx.idle(2).then(() -> ctx.sleepOrFail(first, firstBed))
+                    .sleepThroughTheNight("the first night", first)
+                    .then(() -> {
+                        ctx.equal(1, ctx.summaries(first).size(), "summaries of Early after the first night");
+                        expectNoSummary(ctx, second);
+                        ctx.night();
+                    })
+                    .idle(2)
+                    .then(() -> ctx.sleepOrFail(second, secondBed))
+                    .sleepThroughTheNight("the second night", second)
+                    .then(() -> {
+                        ctx.equal(1, ctx.summaries(first).size(), "summaries of Early after a night awake");
+                        expectSummary(ctx, second, 1);
+                    });
+        }));
+
+        cases.add(new GameTestCase(ID, "kept_in_bed_after_sunrise", "Lying in bed after sunrise like sleep mods do counts nothing", 1200, ctx -> {
+            ctx.sleepingPercentage(50);
+            Bed firstBed = litBed(ctx, 4);
+            Bed secondBed = litBed(ctx, 16);
+            MockPlayer first = ctx.joinAt("Lazy", firstBed);
+            MockPlayer second = ctx.joinAt("Steady", secondBed);
+            ctx.night();
+            ctx.idle(2).then(() -> ctx.sleepOrFail(first, firstBed))
+                    .sleepThroughTheNight("the first night", first);
+            for (int tick = 0; tick < 5; tick++) {
+                ctx.then(() -> first.get().startSleeping(firstBed.head())).idle(1);
+            }
+            ctx.then(() -> {
+                        ctx.equal(1, ctx.summaries(first).size(), "summaries of Lazy after lying in bed by day");
+                        ctx.night();
+                    })
+                    .idle(2)
+                    .then(() -> ctx.sleepOrFail(second, secondBed))
+                    .sleepThroughTheNight("the second night", second)
+                    .then(() -> {
+                        ctx.equal(1, ctx.summaries(first).size(), "summaries of Lazy after a night awake");
+                        expectSummary(ctx, second, 1);
                     });
         }));
 
