@@ -11,6 +11,14 @@ repositories {
             includeGroup 'com.terraformersmc'
         }
     }
+    maven {
+        name = 'Latvian Mods'
+        url = uri('https://maven.latvian.dev/releases')
+        content {
+            includeGroup 'dev.latvian.mods'
+            includeGroup 'dev.latvian.apps'
+        }
+    }
 }
 
 dependencies {
@@ -23,6 +31,8 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
     modCompileOnly("com.terraformersmc:modmenu:${modmenu_version}") { transitive = false }
+    modCompileOnly("dev.latvian.mods:kubejs-fabric:${kubejs_version}") { transitive = false }
+    modCompileOnly("dev.latvian.mods:rhino-fabric:${rhino_version}") { transitive = false }
 }
 
 loom {
