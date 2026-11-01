@@ -11,7 +11,7 @@ import mt.network.packet.SleepingPlayersPacket;
 import mt.network.packet.SyncAchievementsPacket;
 import mt.network.packet.SyncConfigPacket;
 import mt.network.packet.UserContentPacket;
-import mt.network.packet.WellRestedPacket;
+import mt.network.packet.PlayerSleepStatePacket;
 
 public class ClientPacketHandlers {
 
@@ -25,7 +25,7 @@ public class ClientPacketHandlers {
         SleepingPlayersHud.updateSleepingCount(packet.sleepingCount(), packet.totalPlayers());
     }
 
-    public static void handleWellRested(WellRestedPacket packet) {
+    public static void handleSleepState(PlayerSleepStatePacket packet) {
         WellRestedClientState.update(
                 packet.active(), packet.level(), packet.ticksRemaining(),
                 packet.totalTicks(), packet.nightmareMode(), packet.mvp()

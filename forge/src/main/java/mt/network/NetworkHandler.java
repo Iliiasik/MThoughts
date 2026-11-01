@@ -9,7 +9,7 @@ import mt.network.packet.SleepingPlayersPacket;
 import mt.network.packet.SyncAchievementsPacket;
 import mt.network.packet.SyncConfigPacket;
 import mt.network.packet.UserContentPacket;
-import mt.network.packet.WellRestedPacket;
+import mt.network.packet.PlayerSleepStatePacket;
 import mt.server.MTServer;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
@@ -43,7 +43,7 @@ public class NetworkHandler {
         if (FMLEnvironment.dist.isClient()) {
             toClient(DailySummaryPacket.class, DailySummaryPacket::read, ClientPacketHandlers::handleDailySummary);
             toClient(SleepingPlayersPacket.class, SleepingPlayersPacket::read, ClientPacketHandlers::handleSleepingPlayers);
-            toClient(WellRestedPacket.class, WellRestedPacket::read, ClientPacketHandlers::handleWellRested);
+            toClient(PlayerSleepStatePacket.class, PlayerSleepStatePacket::read, ClientPacketHandlers::handleSleepState);
             toClient(UserContentPacket.class, UserContentPacket::read, ClientPacketHandlers::handleUserContent);
             toClient(SyncAchievementsPacket.class, SyncAchievementsPacket::read, ClientPacketHandlers::handleSyncAchievements);
             toClient(SyncConfigPacket.class, SyncConfigPacket::read, ClientPacketHandlers::handleSyncConfig);
@@ -51,7 +51,7 @@ public class NetworkHandler {
         } else {
             toClient(DailySummaryPacket.class, DailySummaryPacket::read, packet -> {});
             toClient(SleepingPlayersPacket.class, SleepingPlayersPacket::read, packet -> {});
-            toClient(WellRestedPacket.class, WellRestedPacket::read, packet -> {});
+            toClient(PlayerSleepStatePacket.class, PlayerSleepStatePacket::read, packet -> {});
             toClient(UserContentPacket.class, UserContentPacket::read, packet -> {});
             toClient(SyncAchievementsPacket.class, SyncAchievementsPacket::read, packet -> {});
             toClient(SyncConfigPacket.class, SyncConfigPacket::read, packet -> {});

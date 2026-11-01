@@ -14,14 +14,8 @@ public final class McaCompat {
     private static final String MOD_ID = "mca";
     private static final Logger LOGGER = LoggerFactory.getLogger("MidnightThoughts");
 
-    private static final String[] CLIENT_CLASSES = {
-            "net.conczin.mca.MCAClient",
-            "net.mca.MCAClient"
-    };
-    private static final String[] SKIN_CACHE_CLASSES = {
-            "net.conczin.mca.client.render.DynamicSkinCache",
-            "net.mca.client.render.DynamicSkinCache"
-    };
+    private static final String CLIENT_SUFFIX = ".MCAClient";
+    private static final String SKIN_CACHE_SUFFIX = ".client.render.DynamicSkinCache";
 
     private static boolean resolved;
     private static boolean available;
@@ -61,33 +55,39 @@ public final class McaCompat {
         resolved = true;
         if (!MTPlatform.isModLoaded(MOD_ID)) return;
 
-        try {
-            Class<?> client = findClass(CLIENT_CLASSES);
-            Class<?> cache = findClass(SKIN_CACHE_CLASSES);
-            if (client == null || cache == null) return;
-
-            useVillagerRenderer = client.getMethod("useVillagerRenderer", UUID.class);
-            getPlayerData = client.getMethod("getPlayerData", UUID.class);
-            stitchedSkin = cache.getMethod("getOrCreateStitchedSkin", Entity.class);
-            available = true;
-            LOGGER.info("MCA Reborn detected, summary heads will use its skins");
-        } catch (Exception | LinkageError error) {
-            disable("MCA Reborn is installed but its skin API changed, summary heads stay vanilla", error);
+        String loader = findClass("net.fabricmc.loader.api.FabricLoader") != null ? "fabric" : "forge";
+        String[] packageRoots = {"net.conczin.mca", loader + ".net.conczin.mca", "net.mca"};
+        for (String root : packageRoots) {
+            Class<?> client = findClass(root + CLIENT_SUFFIX);
+            Class<?> cache = findClass(root + SKIN_CACHE_SUFFIX);
+            if (client == null || cache == null) continue;
+            try {
+                useVillagerRenderer = client.getMethod("useVillagerRenderer", UUID.class);
+                getPlayerData = client.getMethod("getPlayerData", UUID.class);
+                stitchedSkin = cache.getMethod("getOrCreateStitchedSkin", Entity.class);
+                available = true;
+                LOGGER.info("MCA Reborn detected in {}, summary heads will use its skins", root);
+                return;
+            } catch (Exception | LinkageError error) {
+                disable("MCA Reborn is installed but its skin API changed, summary heads stay vanilla", error);
+                return;
+            }
         }
     }
 
-    private static Class<?> findClass(String[] names) {
-        for (String name : names) {
-            try {
-                return Class.forName(name);
-            } catch (ClassNotFoundException ignored) {
-            }
+    private static Class<?> findClass(String name) {
+        try {
+            return Class.forName(name);
+        } catch (ClassNotFoundException | LinkageError ignored) {
+            return null;
         }
-        return null;
     }
 
     private static void disable(String message, Throwable error) {
         available = false;
+        useVillagerRenderer = null;
+        getPlayerData = null;
+        stitchedSkin = null;
         LOGGER.warn("Midnight Thoughts {}: {}", message, error.toString());
     }
 }

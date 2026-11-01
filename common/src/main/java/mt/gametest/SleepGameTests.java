@@ -3,7 +3,7 @@ package mt.gametest;
 import mt.gametest.TestContext.Bed;
 import mt.gametest.TestContext.Decor;
 import mt.network.packet.DailySummaryPacket;
-import mt.network.packet.WellRestedPacket;
+import mt.network.packet.PlayerSleepStatePacket;
 import mt.server.WellRestedEffect;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -420,7 +420,7 @@ final class SleepGameTests {
             ctx.night();
             ctx.idle(2).then(() -> ctx.sleepOrFail(player, bed))
                     .idle(3)
-                    .then(() -> ctx.check(ctx.lastSent(player, WellRestedPacket.class).nightmareMode(), "the nightmare was not shown"))
+                    .then(() -> ctx.check(ctx.lastSent(player, PlayerSleepStatePacket.class).nightmareMode(), "the nightmare was not shown"))
                     .sleepThroughTheNight("the night to pass", player)
                     .then(() -> {
                         expectSummary(ctx, player, 1);
