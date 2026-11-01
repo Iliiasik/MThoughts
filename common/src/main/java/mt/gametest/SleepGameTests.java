@@ -230,6 +230,41 @@ final class SleepGameTests {
                     .then(() -> expectSummary(ctx, player, 1));
         }));
 
+        cases.add(new GameTestCase(ID, "kept_in_bed_by_sleep_mods", "Sleep mods keeping players in bed after sunrise end the night only when they get up", 900, ctx -> {
+            ctx.sleepingPercentage(101);
+            Bed scary = ctx.bed(4, 10);
+            ctx.decorate(scary, Decor.MACABRE);
+            Bed cosy = litBed(ctx, 16);
+            MockPlayer haunted = ctx.joinAt("Haunted", scary);
+            MockPlayer rested = ctx.joinAt("Rested", cosy);
+            ctx.night();
+            ctx.idle(2).then(() -> {
+                ctx.sleepOrFail(haunted, scary);
+                ctx.sleepOrFail(rested, cosy);
+            }).idle(2).then(() -> {
+                ctx.level().setDayTime(ctx.dayStart() + 24000L);
+                ctx.setTime(1000L);
+            });
+            for (int tick = 0; tick < 10; tick++) {
+                ctx.then(() -> {
+                    haunted.get().startSleeping(scary.head());
+                    rested.get().startSleeping(cosy.head());
+                }).idle(1);
+            }
+            ctx.then(() -> {
+                        ctx.check(ctx.summaries(haunted).isEmpty() && ctx.summaries(rested).isEmpty(), "the summary came while the sleepers were still in bed");
+                        ctx.check(ctx.lastSent(haunted, PlayerSleepStatePacket.class).nightmareMode(), "the nightmare ended while the player was still in bed");
+                        ctx.check(!WellRestedEffect.hasEffect(rested.get()), "Well Rested came while the player was still in bed");
+                    })
+                    .waitFor("the sleepers to get up", 100, () -> !haunted.get().isSleeping() && !rested.get().isSleeping())
+                    .idle(3)
+                    .then(() -> {
+                        expectSummary(ctx, haunted, 2);
+                        expectSummary(ctx, rested, 2);
+                        ctx.check(WellRestedEffect.hasEffect(rested.get()), "no Well Rested after getting up");
+                    });
+        }));
+
         cases.add(new GameTestCase(ID, "daylight_cycle_off", "With the daylight cycle off a skip is not counted as getting up", 600, ctx -> {
             ctx.daylightCycle(false);
             Bed bed = litBed(ctx, 10);

@@ -37,12 +37,14 @@ public class SleepTracker {
         boolean hasPendingSleep = !pendingSleep.isEmpty();
         int sleepingCount = 0;
         int totalPlayers = 0;
+        boolean sleeperStillInBed = false;
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             boolean sleeping = player.isSleeping();
             if (hasPendingSleep) confirmSleepAttempt(player, sleeping);
             if (!isDay && sleeping) {
                 playersWhoSlept.add(player.getUUID());
             }
+            if (sleeping && playersWhoSlept.contains(player.getUUID())) sleeperStillInBed = true;
             if (player.level() != overworld) continue;
             if (sleeping) sleepingCount++;
             if (!player.isSpectator()) totalPlayers++;
@@ -56,7 +58,7 @@ public class SleepTracker {
 
         if (!isDay) {
             wasNight = true;
-        } else if (wasNight) {
+        } else if (wasNight && !sleeperStillInBed) {
             wasNight = false;
             Set<UUID> slept = new HashSet<>(playersWhoSlept);
             slept.removeAll(wakeVoluntarily);
