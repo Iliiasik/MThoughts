@@ -1,6 +1,6 @@
 package mt.server;
 
-import mt.network.packet.WellRestedPacket;
+import mt.network.packet.PlayerSleepStatePacket;
 import mt.platform.MTNetwork;
 import net.minecraft.server.level.ServerPlayer;
 
@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-public final class WellRestedSync {
+public final class PlayerSleepStateSync {
     private static final int RESYNC_INTERVAL_TICKS = 20;
     private static final Map<UUID, Snapshot> lastSent = new ConcurrentHashMap<>();
 
@@ -20,7 +20,7 @@ public final class WellRestedSync {
         }
     }
 
-    private WellRestedSync() {}
+    private PlayerSleepStateSync() {}
 
     @SuppressWarnings("resource")
     public static void sync(ServerPlayer player) {
@@ -42,7 +42,7 @@ public final class WellRestedSync {
 
         if (stateChanged || (active && resyncDue)) {
             MTNetwork.sendToPlayer(player,
-                    new WellRestedPacket(active, level, ticksRemaining, totalTicks, nightmare, mvp));
+                    new PlayerSleepStatePacket(active, level, ticksRemaining, totalTicks, nightmare, mvp));
             lastSent.put(uuid, new Snapshot(active, level, totalTicks, phase, nightmare, mvp, now));
         }
     }

@@ -6,11 +6,11 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
-public record WellRestedPacket(boolean active, int level, int ticksRemaining, int totalTicks, boolean nightmareMode, boolean mvp) implements CustomPacketPayload {
-    public static final ResourceLocation ID_LOC = ResourceLocation.fromNamespaceAndPath("midnightthoughts", "well_rested");
-    public static final CustomPacketPayload.Type<WellRestedPacket> TYPE = new CustomPacketPayload.Type<>(ID_LOC);
+public record PlayerSleepStatePacket(boolean active, int level, int ticksRemaining, int totalTicks, boolean nightmareMode, boolean mvp) implements CustomPacketPayload {
+    public static final ResourceLocation ID_LOC = ResourceLocation.fromNamespaceAndPath("midnightthoughts", "player_sleep_state");
+    public static final CustomPacketPayload.Type<PlayerSleepStatePacket> TYPE = new CustomPacketPayload.Type<>(ID_LOC);
 
-    public static final StreamCodec<FriendlyByteBuf, WellRestedPacket> CODEC = StreamCodec.of(
+    public static final StreamCodec<FriendlyByteBuf, PlayerSleepStatePacket> CODEC = StreamCodec.of(
             (buf, packet) -> {
                 buf.writeBoolean(packet.active());
                 buf.writeInt(packet.level());
@@ -19,7 +19,7 @@ public record WellRestedPacket(boolean active, int level, int ticksRemaining, in
                 buf.writeBoolean(packet.nightmareMode());
                 buf.writeBoolean(packet.mvp());
             },
-            buf -> new WellRestedPacket(
+            buf -> new PlayerSleepStatePacket(
                     buf.readBoolean(),
                     buf.readInt(),
                     buf.readInt(),

@@ -8,7 +8,7 @@ import mt.network.packet.SleepingPlayersPacket;
 import mt.network.packet.SyncAchievementsPacket;
 import mt.network.packet.SyncConfigPacket;
 import mt.network.packet.UserContentPacket;
-import mt.network.packet.WellRestedPacket;
+import mt.network.packet.PlayerSleepStatePacket;
 import mt.server.MTServer;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -34,7 +34,7 @@ public class NetworkHandler {
         if (FMLEnvironment.dist.isClient()) {
             toClient(registrar, DailySummaryPacket.TYPE, DailySummaryPacket.CODEC, ClientPacketHandlers::handleDailySummary);
             toClient(registrar, SleepingPlayersPacket.TYPE, SleepingPlayersPacket.CODEC, ClientPacketHandlers::handleSleepingPlayers);
-            toClient(registrar, WellRestedPacket.TYPE, WellRestedPacket.CODEC, ClientPacketHandlers::handleWellRested);
+            toClient(registrar, PlayerSleepStatePacket.TYPE, PlayerSleepStatePacket.CODEC, ClientPacketHandlers::handleSleepState);
             toClient(registrar, UserContentPacket.TYPE, UserContentPacket.CODEC, ClientPacketHandlers::handleUserContent);
             toClient(registrar, SyncAchievementsPacket.TYPE, SyncAchievementsPacket.CODEC, ClientPacketHandlers::handleSyncAchievements);
             toClient(registrar, SyncConfigPacket.TYPE, SyncConfigPacket.CODEC, ClientPacketHandlers::handleSyncConfig);
@@ -42,7 +42,7 @@ public class NetworkHandler {
         } else {
             toClient(registrar, DailySummaryPacket.TYPE, DailySummaryPacket.CODEC, packet -> {});
             toClient(registrar, SleepingPlayersPacket.TYPE, SleepingPlayersPacket.CODEC, packet -> {});
-            toClient(registrar, WellRestedPacket.TYPE, WellRestedPacket.CODEC, packet -> {});
+            toClient(registrar, PlayerSleepStatePacket.TYPE, PlayerSleepStatePacket.CODEC, packet -> {});
             toClient(registrar, UserContentPacket.TYPE, UserContentPacket.CODEC, packet -> {});
             toClient(registrar, SyncAchievementsPacket.TYPE, SyncAchievementsPacket.CODEC, packet -> {});
             toClient(registrar, SyncConfigPacket.TYPE, SyncConfigPacket.CODEC, packet -> {});

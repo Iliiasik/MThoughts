@@ -25,7 +25,7 @@ public final class MTServer {
         DailyStatsManager.tick(server);
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             WellRestedEffect.tick(player);
-            WellRestedSync.sync(player);
+            PlayerSleepStateSync.sync(player);
         }
     }
 
@@ -37,6 +37,7 @@ public final class MTServer {
         }
         SleepTracker tracker = DailyStatsManager.getSleepTracker(player.server);
         if (tracker != null) tracker.markSleepAttempt(player.getUUID(), comfortLevel);
+        PlayerSleepStateSync.sync(player);
         return null;
     }
 
@@ -59,7 +60,7 @@ public final class MTServer {
     public static void onLeave(ServerPlayer player) {
         ComfortCalculator.invalidateCache(player);
         DailyStatsManager.onPlayerLeave(player);
-        WellRestedSync.clear(player.getUUID());
+        PlayerSleepStateSync.clear(player.getUUID());
     }
 
     public static void onStopping(MinecraftServer server) {

@@ -3,7 +3,7 @@ package mt.gametest;
 import mt.config.MidnightThoughtsConfig;
 import mt.gametest.TestContext.Bed;
 import mt.gametest.TestContext.Decor;
-import mt.network.packet.WellRestedPacket;
+import mt.network.packet.PlayerSleepStatePacket;
 import mt.server.ComfortCalculator;
 import mt.server.WellRestedEffect;
 import net.minecraft.world.level.block.Blocks;
@@ -142,14 +142,36 @@ final class ComfortGameTests {
                     .idle(2)
                     .then(() -> {
                         ctx.equal(5, ctx.sessionComfort(player), "comfort in the cosy bed");
-                        ctx.check(!ctx.lastSent(player, WellRestedPacket.class).nightmareMode(), "the cosy bed must not show a nightmare");
+                        ctx.check(!ctx.lastSent(player, PlayerSleepStatePacket.class).nightmareMode(), "the cosy bed must not show a nightmare");
                         ctx.getUp(player);
                         ctx.sleepOrFail(player, scary);
                     })
                     .idle(2)
                     .then(() -> {
                         ctx.equal(-1, ctx.sessionComfort(player), "comfort in the nightmare bed");
-                        ctx.check(ctx.lastSent(player, WellRestedPacket.class).nightmareMode(), "the nightmare bed must show a nightmare");
+                        ctx.check(ctx.lastSent(player, PlayerSleepStatePacket.class).nightmareMode(), "the nightmare bed must show a nightmare");
+                    });
+        }));
+
+        cases.add(new GameTestCase(ID, "nightmare_state_sent_on_lying_down", "The new bed's nightmare state reaches the client the moment the player lies down", 200, ctx -> {
+            Bed cosy = ctx.bed(4, 10);
+            Bed scary = ctx.bed(16, 10);
+            ctx.decorate(cosy, Decor.LIGHTING, Decor.CARPET, Decor.FURNITURE, Decor.DECORATION, Decor.STRUCTURE);
+            ctx.decorate(scary, Decor.MACABRE);
+            MockPlayer player = ctx.joinAt("Jumper", cosy);
+            ctx.night();
+            ctx.then(() -> ctx.sleepOrFail(player, cosy))
+                    .idle(2)
+                    .then(() -> {
+                        ctx.getUp(player);
+                        ctx.sleepOrFail(player, scary);
+                        ctx.check(ctx.lastSent(player, PlayerSleepStatePacket.class).nightmareMode(), "the nightmare was not sent when lying in the nightmare bed");
+                    })
+                    .idle(2)
+                    .then(() -> {
+                        ctx.getUp(player);
+                        ctx.sleepOrFail(player, cosy);
+                        ctx.check(!ctx.lastSent(player, PlayerSleepStatePacket.class).nightmareMode(), "the old nightmare stayed when lying in the cosy bed");
                     });
         }));
 

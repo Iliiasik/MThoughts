@@ -6,7 +6,7 @@ import mt.network.packet.SleepingPlayersPacket;
 import mt.network.packet.SyncAchievementsPacket;
 import mt.network.packet.SyncConfigPacket;
 import mt.network.packet.UserContentPacket;
-import mt.network.packet.WellRestedPacket;
+import mt.network.packet.PlayerSleepStatePacket;
 import mt.platform.MTClientNetwork;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -19,7 +19,7 @@ public final class ClientNetworkHandler {
 
     public static void register() {
         receive(DailySummaryPacket.TYPE, ClientPacketHandlers::handleDailySummary);
-        receive(WellRestedPacket.TYPE, ClientPacketHandlers::handleWellRested);
+        receive(PlayerSleepStatePacket.TYPE, ClientPacketHandlers::handleSleepState);
         receive(SleepingPlayersPacket.TYPE, ClientPacketHandlers::handleSleepingPlayers);
         receive(UserContentPacket.TYPE, ClientPacketHandlers::handleUserContent);
         receive(SyncAchievementsPacket.TYPE, ClientPacketHandlers::handleSyncAchievements);

@@ -54,6 +54,7 @@ public final class TestCatalog {
         WellRestedGameTests.register(builtCategories, builtCases);
         MvpGameTests.register(builtCategories, builtCases);
         SleepGameTests.register(builtCategories, builtCases);
+        GroupSleepGameTests.register(builtCategories, builtCases);
         SleepingHudGameTests.register(builtCategories, builtCases);
         FileGameTests.register(builtCategories, builtCases);
         ContentGameTests.register(builtCategories, builtCases);

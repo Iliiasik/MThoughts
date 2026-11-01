@@ -4,7 +4,7 @@ import mt.config.MidnightThoughtsConfig;
 import mt.gametest.TestContext.Bed;
 import mt.gametest.TestContext.Decor;
 import mt.network.packet.DailySummaryPacket;
-import mt.network.packet.WellRestedPacket;
+import mt.network.packet.PlayerSleepStatePacket;
 import mt.platform.MTPlatform;
 import mt.server.WellRestedEffect;
 import net.minecraft.core.BlockPos;
@@ -119,7 +119,7 @@ final class WellRestedGameTests {
             }).idle(3).then(() -> {
                 ctx.check(!WellRestedEffect.hasEffect(player.get()), "the effect did not end");
                 ctx.check(hasNoBonus(player.get()), "a bonus was left behind");
-                ctx.check(!ctx.lastSent(player, WellRestedPacket.class).active(), "the HUD was not told the effect ended");
+                ctx.check(!ctx.lastSent(player, PlayerSleepStatePacket.class).active(), "the HUD was not told the effect ended");
             });
         }));
 
@@ -136,7 +136,7 @@ final class WellRestedGameTests {
                 ctx.check(left <= 1200 && left >= 1190, "time left after the change: " + left);
                 ctx.equal(0, WellRestedEffect.getCurrentPhase(player.get()), "phase after the change");
                 ctx.near(0.08F, bonus(player.get(), Attributes.MOVEMENT_SPEED), "speed bonus after the change");
-                WellRestedPacket hud = ctx.lastSent(player, WellRestedPacket.class);
+                PlayerSleepStatePacket hud = ctx.lastSent(player, PlayerSleepStatePacket.class);
                 ctx.equal(1200, hud.totalTicks(), "duration shown by the HUD");
                 ctx.check(hud.ticksRemaining() >= 1190, "the HUD is not nearly full: " + hud.ticksRemaining());
             });
@@ -174,7 +174,7 @@ final class WellRestedGameTests {
                 ctx.check(WellRestedEffect.hasEffect(player.get()), "the effect was lost in the nether");
                 ctx.check(WellRestedEffect.getTicksRemaining(player.get()) < ticks[0], "the effect stopped counting down in the nether");
                 ctx.near(0.16F, bonus(player.get(), Attributes.MOVEMENT_SPEED), "speed bonus in the nether");
-                ctx.check(ctx.lastSent(player, WellRestedPacket.class).active(), "the HUD lost the effect in the nether");
+                ctx.check(ctx.lastSent(player, PlayerSleepStatePacket.class).active(), "the HUD lost the effect in the nether");
                 player.moveTo(ctx.level(), ctx.at(10, 1, 4));
             }).idle(2).then(() -> {
                 ctx.check(player.get().level() == ctx.level(), "the player did not come back");
@@ -239,7 +239,7 @@ final class WellRestedGameTests {
                         ctx.check(!WellRestedEffect.isMvp(first.get()), "Former kept the MVP effect");
                         ctx.equal(1, WellRestedEffect.getLevel(first.get()), "level of Former");
                         ctx.equal(3 * 1200, WellRestedEffect.getTotalDurationTicksForPlayer(first.get()), "duration of Former");
-                        ctx.check(!ctx.lastSent(first, WellRestedPacket.class).mvp(), "the HUD of Former still shows MVP");
+                        ctx.check(!ctx.lastSent(first, PlayerSleepStatePacket.class).mvp(), "the HUD of Former still shows MVP");
                     });
         }));
 
@@ -294,7 +294,7 @@ final class WellRestedGameTests {
                 mvp[0] = ctx.rejoin(mvp[0], ctx.at(10, 1, 4));
             }).idle(1).then(() -> {
                 ctx.check(WellRestedEffect.isMvp(mvp[0].get()), "the MVP flag was lost on relog");
-                ctx.check(ctx.lastSent(mvp[0], WellRestedPacket.class).mvp(), "the HUD was not told about the MVP");
+                ctx.check(ctx.lastSent(mvp[0], PlayerSleepStatePacket.class).mvp(), "the HUD was not told about the MVP");
             });
         }));
 

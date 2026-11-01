@@ -27,10 +27,10 @@ class PacketRoundTripTest {
                 "decode did not consume the whole buffer, encode and decode are out of sync");
     }
 
-    private static WellRestedPacket roundTrip(WellRestedPacket packet) {
+    private static PlayerSleepStatePacket roundTrip(PlayerSleepStatePacket packet) {
         FriendlyByteBuf buf = buffer();
-        WellRestedPacket.CODEC.encode(buf, packet);
-        WellRestedPacket decoded = WellRestedPacket.CODEC.decode(buf);
+        PlayerSleepStatePacket.CODEC.encode(buf, packet);
+        PlayerSleepStatePacket decoded = PlayerSleepStatePacket.CODEC.decode(buf);
         assertFullyConsumed(buf);
         return decoded;
     }
@@ -76,10 +76,10 @@ class PacketRoundTripTest {
     }
 
     @Test
-    void wellRestedRoundTripsWithDistinctValues() {
-        WellRestedPacket packet = new WellRestedPacket(true, 3, 1200, 2400, false, true);
+    void sleepStateRoundTripsWithDistinctValues() {
+        PlayerSleepStatePacket packet = new PlayerSleepStatePacket(true, 3, 1200, 2400, false, true);
 
-        WellRestedPacket decoded = roundTrip(packet);
+        PlayerSleepStatePacket decoded = roundTrip(packet);
 
         assertEquals(packet, decoded);
         assertTrue(decoded.active());
@@ -91,18 +91,18 @@ class PacketRoundTripTest {
     }
 
     @Test
-    void wellRestedFlagsAreNeverSwapped() {
-        assertEquals(new WellRestedPacket(true, 1, 2, 3, false, false),
-                roundTrip(new WellRestedPacket(true, 1, 2, 3, false, false)));
-        assertEquals(new WellRestedPacket(false, 1, 2, 3, true, false),
-                roundTrip(new WellRestedPacket(false, 1, 2, 3, true, false)));
-        assertEquals(new WellRestedPacket(false, 1, 2, 3, false, true),
-                roundTrip(new WellRestedPacket(false, 1, 2, 3, false, true)));
+    void sleepStateFlagsAreNeverSwapped() {
+        assertEquals(new PlayerSleepStatePacket(true, 1, 2, 3, false, false),
+                roundTrip(new PlayerSleepStatePacket(true, 1, 2, 3, false, false)));
+        assertEquals(new PlayerSleepStatePacket(false, 1, 2, 3, true, false),
+                roundTrip(new PlayerSleepStatePacket(false, 1, 2, 3, true, false)));
+        assertEquals(new PlayerSleepStatePacket(false, 1, 2, 3, false, true),
+                roundTrip(new PlayerSleepStatePacket(false, 1, 2, 3, false, true)));
     }
 
     @Test
-    void wellRestedCountersAreNeverSwapped() {
-        WellRestedPacket decoded = roundTrip(new WellRestedPacket(true, 1, 2, 3, true, true));
+    void sleepStateCountersAreNeverSwapped() {
+        PlayerSleepStatePacket decoded = roundTrip(new PlayerSleepStatePacket(true, 1, 2, 3, true, true));
 
         assertEquals(1, decoded.level());
         assertEquals(2, decoded.ticksRemaining());
@@ -110,23 +110,23 @@ class PacketRoundTripTest {
     }
 
     @Test
-    void wellRestedHandlesEveryLevel() {
+    void sleepStateHandlesEveryLevel() {
         for (int level = 1; level <= 5; level++) {
-            WellRestedPacket packet = new WellRestedPacket(true, level, 100, 200, false, false);
+            PlayerSleepStatePacket packet = new PlayerSleepStatePacket(true, level, 100, 200, false, false);
             assertEquals(packet, roundTrip(packet));
         }
     }
 
     @Test
-    void wellRestedCarriesNoEffectPhase() {
-        assertEquals(6, WellRestedPacket.class.getRecordComponents().length,
+    void sleepStateCarriesNoEffectPhase() {
+        assertEquals(6, PlayerSleepStatePacket.class.getRecordComponents().length,
                 "the client never reads an effect phase, it must not travel over the wire");
     }
 
     @Test
-    void wellRestedWireFormatHasTheExpectedSize() {
+    void sleepStateWireFormatHasTheExpectedSize() {
         FriendlyByteBuf buf = buffer();
-        WellRestedPacket.CODEC.encode(buf, new WellRestedPacket(true, 1, 2, 3, false, true));
+        PlayerSleepStatePacket.CODEC.encode(buf, new PlayerSleepStatePacket(true, 1, 2, 3, false, true));
 
         assertEquals(3 + 3 * 4, buf.readableBytes(),
                 "wire format changed, bump the protocol version before shipping this");
@@ -283,7 +283,7 @@ class PacketRoundTripTest {
 
     @Test
     void everyPacketSurvivesRepeatedRoundTrips() {
-        WellRestedPacket wellRested = new WellRestedPacket(true, 4, 900, 1800, true, false);
+        PlayerSleepStatePacket wellRested = new PlayerSleepStatePacket(true, 4, 900, 1800, true, false);
         MoonPhasePacket moon = new MoonPhasePacket(5);
         SleepingPlayersPacket sleeping = new SleepingPlayersPacket(3, 9);
 
@@ -293,7 +293,7 @@ class PacketRoundTripTest {
             sleeping = roundTrip(sleeping);
         }
 
-        assertEquals(new WellRestedPacket(true, 4, 900, 1800, true, false), wellRested);
+        assertEquals(new PlayerSleepStatePacket(true, 4, 900, 1800, true, false), wellRested);
         assertEquals(new MoonPhasePacket(5), moon);
         assertEquals(new SleepingPlayersPacket(3, 9), sleeping);
     }
