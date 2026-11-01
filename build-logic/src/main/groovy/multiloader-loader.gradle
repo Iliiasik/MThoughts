@@ -33,6 +33,7 @@ processResources {
 }
 
 tasks.named('jar', Jar) {
+    includeEmptyDirs = false
     exclude('mt/gametest/**')
     exclude('data/midnightthoughts/structures/gametest/**')
 }
