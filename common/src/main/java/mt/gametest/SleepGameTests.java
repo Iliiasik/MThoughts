@@ -26,7 +26,11 @@ final class SleepGameTests {
     private SleepGameTests() {}
 
     static Bed litBed(TestContext ctx, int x) {
-        Bed bed = ctx.bed(x, 10);
+        return litBed(ctx, x, 10);
+    }
+
+    static Bed litBed(TestContext ctx, int x, int z) {
+        Bed bed = ctx.bed(x, z);
         ctx.decorate(bed, Decor.LIGHTING);
         return bed;
     }
