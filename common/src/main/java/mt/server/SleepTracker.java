@@ -98,8 +98,8 @@ public class SleepTracker {
     }
 
     public Integer getSessionComfort(UUID uuid) {
-        Integer pinned = pinnedComfort.get(uuid);
-        return pinned != null ? pinned : pendingSleep.get(uuid);
+        Integer pending = pendingSleep.get(uuid);
+        return pending != null ? pending : pinnedComfort.get(uuid);
     }
 
     public void forgetPlayer(UUID uuid) {
