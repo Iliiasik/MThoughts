@@ -8,7 +8,7 @@ neoForge {
 
     runs {
         configureEach {
-            ideName = "NeoForge ${it.name.capitalize()} (${project.path})"
+            ideName = "NeoForge ${it.name.capitalize()} (${this.path})"
         }
         client {
             client()
@@ -17,6 +17,11 @@ neoForge {
         server {
             server()
             gameDirectory = this.mkdir(this.file('runs/server'))
+        }
+        gameTestServer {
+            type = 'gameTestServer'
+            systemProperty 'neoforge.enabledGameTestNamespaces', providers.gradleProperty('mod_id').get()
+            gameDirectory = this.mkdir(this.file('runs/gametest'))
         }
     }
 

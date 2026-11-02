@@ -7,18 +7,23 @@ import mt.client.manager.WellRestedClientState;
 import mt.client.model.Slide;
 import mt.client.model.SlideCategory;
 import mt.client.service.SlideService;
-import mt.platform.MTClientNetwork;
+import mt.client.ui.engine.RenderHelper;
+import mt.client.ui.engine.RenderUtils;
+import mt.integration.mca.McaCompat;
 import mt.network.packet.RequestMoonPhasePacket;
+import mt.platform.MTClientNetwork;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.resources.Identifier;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class SleepOverlayRenderer {
-    private static final Identifier SKULL_TEXTURE = Identifier.fromNamespaceAndPath(MTConstants.MOD_ID, "textures/gui/shared/overlay/skull.png");
+    private static final Identifier SKULL_TEXTURE = Identifier.fromNamespaceAndPath(MTConstants.MOD_ID, "textures/gui/shared/overlay/nightmares/skull.png");
 
     private static final Identifier[] MOON_PHASE_TEXTURES = {
             Identifier.fromNamespaceAndPath(MTConstants.MOD_ID, "textures/gui/shared/overlay/moon_phases/full_moon.png"),
@@ -36,6 +41,7 @@ public class SleepOverlayRenderer {
     private static final int VIRTUAL_IMAGE_SIZE = 252;
     private static final int VIRTUAL_GAP = 56;
     private static final int VIRTUAL_TEXT_WIDTH = 1040;
+    private static final int VIRTUAL_TEXT_BLOCK = 200;
     private static final float VIRTUAL_TEXT_SCALE = 3.4f;
     private static final int VIRTUAL_LINE_SPACING = 6;
     private static final int VIRTUAL_PROGRESS_WIDTH = 220;
@@ -48,6 +54,7 @@ public class SleepOverlayRenderer {
     private final SlideService slideService;
     private final MidnightThoughtsConfig config;
     private final StarField starField = new StarField();
+    private final SpaceField spaceField = new SpaceField();
     private final NightmareField nightmareField = new NightmareField();
 
     private Slide currentSlide;
@@ -59,7 +66,6 @@ public class SleepOverlayRenderer {
     private int currentSlideDuration;
     private float incomingAlpha = 0f;
     private float outgoingAlpha = 0f;
-    private float overlayAlpha = 0f;
     private SlideState slideState = SlideState.HIDDEN;
     private boolean isOverlayVisible = false;
     private int moonPhase = 0;
@@ -118,7 +124,7 @@ public class SleepOverlayRenderer {
         }
 
         if (sleepStateManager.isSleeping() && isOverlayVisible) {
-            updateOverlayAlpha();
+            syncNightmareState(now);
             updateSlideState();
             if (config.isEnableStarDust() && !isNightmareOverlay) {
                 starField.tick(now);
@@ -126,11 +132,33 @@ public class SleepOverlayRenderer {
         }
     }
 
+    private void syncNightmareState(long now) {
+        boolean nightmare = WellRestedClientState.isNightmareMode();
+        if (nightmare == isNightmareOverlay) return;
+
+        isNightmareOverlay = nightmare;
+        currentSlide = getNightmareAwareSlide();
+        nextSlide = getNightmareAwareSlide();
+        outgoingSlide = null;
+        outgoingAlpha = 0f;
+        incomingAlpha = 1f;
+        currentSlideDuration = config.getRandomSlideDisplayTime();
+        visibleStartTime = now;
+        slideState = SlideState.VISIBLE;
+
+        if (nightmare) {
+            nightmareField.reset(now);
+        } else {
+            starField.reset(now);
+            spaceField.reset(now);
+        }
+    }
+
     private void onSleepStart() {
         MTClientNetwork.sendToServer(new RequestMoonPhasePacket());
+        prewarmSummaryHeads();
         isNightmareOverlay = WellRestedClientState.isNightmareMode();
         isOverlayVisible = true;
-        overlayAlpha = 1f;
         outgoingSlide = null;
         outgoingAlpha = 0f;
         incomingAlpha = 1f;
@@ -143,6 +171,7 @@ public class SleepOverlayRenderer {
             nightmareField.reset(System.currentTimeMillis());
         } else {
             starField.reset(System.currentTimeMillis());
+            spaceField.reset(System.currentTimeMillis());
         }
     }
 
@@ -153,9 +182,16 @@ public class SleepOverlayRenderer {
         slideState = SlideState.HIDDEN;
         incomingAlpha = 0f;
         outgoingAlpha = 0f;
-        overlayAlpha = 0f;
         isOverlayVisible = false;
         isNightmareOverlay = false;
+    }
+
+    private static void prewarmSummaryHeads() {
+        ClientPacketListener connection = Minecraft.getInstance().getConnection();
+        if (connection == null) return;
+        for (PlayerInfo info : connection.getOnlinePlayers()) {
+            McaCompat.prewarm(info.getProfile().id());
+        }
     }
 
     private Slide getNightmareAwareSlide() {
@@ -164,10 +200,6 @@ public class SleepOverlayRenderer {
             if (s != null) return s;
         }
         return slideService.getNextSlide();
-    }
-
-    private void updateOverlayAlpha() {
-        if (isOverlayVisible && overlayAlpha < 1f) overlayAlpha = Math.min(1f, overlayAlpha + 0.02f);
     }
 
     private void updateSlideState() {
@@ -217,31 +249,24 @@ public class SleepOverlayRenderer {
         return t < 0.5f ? 2 * t * t : 1 - (float) Math.pow(-2 * t + 2, 2) / 2;
     }
 
-    private int clampAlpha(float a) {
-        int v = Math.round(a * 255f);
-        return v < 0 ? 0 : Math.min(v, 255);
-    }
-
-    public void renderOverlayOnly(GuiGraphicsExtractor context, int screenWidth, int screenHeight) {
-        if (!sleepStateManager.isSleeping() || !config.isEnableOverlay()) return;
-        if (overlayAlpha <= 0 && !isOverlayVisible) return;
+    public void render(GuiGraphicsExtractor context, int screenWidth, int screenHeight) {
+        if (!isShowing() || !config.isEnableOverlay()) return;
         renderOverlay(context, screenWidth, screenHeight);
+        renderContent(context, screenWidth, screenHeight);
     }
 
-    public void renderContentOnly(GuiGraphicsExtractor context, int screenWidth, int screenHeight) {
-        if (!sleepStateManager.isSleeping() || !config.isEnableOverlay()) return;
-        if (overlayAlpha <= 0 && !isOverlayVisible) return;
-        renderContent(context, screenWidth, screenHeight);
+    private boolean isShowing() {
+        return sleepStateManager.isSleeping() && isOverlayVisible;
     }
 
     private void renderOverlay(GuiGraphicsExtractor context, int w, int h) {
         int rgb = isNightmareOverlay ? 0x1A0000 : 0x000000;
-        float strength = config.getOverlayOpacity() * overlayAlpha;
+        float strength = config.getOverlayOpacity();
 
-        int baseA = clampAlpha(strength * 0.6f);
+        int baseA = RenderUtils.alphaByte(strength * 0.6f);
         context.fill(0, 0, w, h, (baseA << 24) | rgb);
 
-        int edgeA = clampAlpha(strength);
+        int edgeA = RenderUtils.alphaByte(strength);
         int bandH = Math.round(h * 0.42f);
         int bandW = Math.round(w * 0.30f);
         context.fillGradient(0, 0, w, bandH, (edgeA << 24) | rgb, rgb);
@@ -266,43 +291,78 @@ public class SleepOverlayRenderer {
         Minecraft mc = Minecraft.getInstance();
         Font font = mc.font;
 
-        float uiScale = Math.min(w / BASE_W, h / BASE_H);
-        int imageSize = Math.max(1, Math.round(VIRTUAL_IMAGE_SIZE * uiScale));
-        int gap = Math.round(VIRTUAL_GAP * uiScale);
-        int textAreaWidth = Math.round(VIRTUAL_TEXT_WIDTH * uiScale);
+        float baseScale = Math.min(w / BASE_W, h / BASE_H);
+        float imageScale = baseScale * config.getOverlayImageScale();
+        float textScale = baseScale * config.getOverlayTextScale();
+        int imageSize = Math.max(1, Math.round(VIRTUAL_IMAGE_SIZE * imageScale));
+        int gap = Math.round(VIRTUAL_GAP * imageScale);
+        int textAreaWidth = Math.round(VIRTUAL_TEXT_WIDTH * textScale);
         int lineHeight = font.lineHeight + VIRTUAL_LINE_SPACING;
         int centerX = w / 2;
         boolean showImage = config.isEnableImage();
-        int imageTop = Math.round(h * GROUP_TOP_PERCENT);
 
-        if (config.isEnableStarDust()) {
-            if (isNightmareOverlay) {
-                nightmareField.render(context, w, h, overlayAlpha);
-            } else {
-                starField.render(context, w, h, overlayAlpha);
+        float imageBlockShift = showImage
+                ? (VIRTUAL_IMAGE_SIZE + VIRTUAL_GAP) * (1.0f - config.getOverlayImageScale())
+                : 0.0f;
+        float textBlockShift = VIRTUAL_TEXT_BLOCK * (1.0f - config.getOverlayTextScale());
+        int groupShift = Math.round((imageBlockShift + textBlockShift) * baseScale / 2.0f);
+        int imageTop = Math.round(h * GROUP_TOP_PERCENT) + groupShift;
+
+        int textTop = imageTop + (showImage ? imageSize + gap : 0);
+        List<OverlayRect> contentZones = contentZones(centerX, imageTop, imageSize, showImage,
+                textTop, textAreaWidth, lineHeight, textScale, baseScale);
+
+        if (isNightmareOverlay) {
+            if (config.isEnableStarDust()) {
+                nightmareField.render(context, w, h);
+            }
+        } else {
+            boolean space = config.isEnableSpaceObjects();
+            if (space) {
+                spaceField.layout(w, h, baseScale, contentZones);
+                spaceField.render(context);
+            }
+            if (config.isEnableStarDust()) {
+                starField.render(context, w, h, contentZones, baseScale, space ? spaceField : null);
             }
         }
 
         if (showImage) {
             renderImage(context, centerX - imageSize / 2, imageTop, imageSize);
         }
-        int textTop = imageTop + (showImage ? imageSize + gap : 0);
 
         if (outgoingSlide != null && outgoingAlpha > 0.01f) {
-            TextLayout outgoing = outgoingCache.get(outgoingSlide, font, textAreaWidth, uiScale);
+            TextLayout outgoing = outgoingCache.get(outgoingSlide, font, textAreaWidth, textScale);
             drawLayout(context, font, outgoing, centerX, textTop, lineHeight, outgoingAlpha);
         }
 
         TextLayout currentLayout = null;
         if (currentSlide != null && incomingAlpha > 0.01f) {
-            currentLayout = currentCache.get(currentSlide, font, textAreaWidth, uiScale);
+            currentLayout = currentCache.get(currentSlide, font, textAreaWidth, textScale);
             drawLayout(context, font, currentLayout, centerX, textTop, lineHeight, incomingAlpha);
         }
 
         if (config.isShowSlideProgress() && slideState == SlideState.VISIBLE && currentLayout != null) {
             int textBottom = textTop + Math.round(currentLayout.lines().size() * lineHeight * currentLayout.scale());
-            drawProgress(context, centerX, textBottom + Math.round(18 * uiScale), uiScale, slideProgress());
+            drawProgress(context, centerX, textBottom + Math.round(18 * baseScale), baseScale, slideProgress());
         }
+    }
+
+    private static List<OverlayRect> contentZones(int centerX, int imageTop, int imageSize, boolean showImage,
+                                                  int textTop, int textAreaWidth, int lineHeight,
+                                                  float textScale, float baseScale) {
+        List<OverlayRect> zones = new ArrayList<>(2);
+        if (showImage) {
+            zones.add(new OverlayRect(centerX - imageSize / 2, imageTop,
+                    centerX + imageSize / 2, imageTop + imageSize));
+        }
+        float nominalTextScale = VIRTUAL_TEXT_SCALE * textScale;
+        int textBlockHeight = Math.round(MAX_TEXT_LINES * lineHeight * nominalTextScale);
+        int progressWidth = Math.max(20, Math.round(VIRTUAL_PROGRESS_WIDTH * baseScale));
+        int halfWidth = Math.max(textAreaWidth, progressWidth) / 2;
+        int bottom = textTop + textBlockHeight + Math.round(18 * baseScale) + Math.max(1, Math.round(2 * baseScale));
+        zones.add(new OverlayRect(centerX - halfWidth, textTop, centerX + halfWidth, bottom));
+        return zones;
     }
 
     private void renderImage(GuiGraphicsExtractor context, int x, int y, int size) {
@@ -310,8 +370,7 @@ public class SleepOverlayRenderer {
                 ? SKULL_TEXTURE
                 : MOON_PHASE_TEXTURES[Math.floorMod(moonPhase, MOON_PHASE_TEXTURES.length)];
 
-        mt.client.ui.summary.RenderHelper.blitTexture(context, texture, x, y, size, size,
-                overlayAlpha * config.getImageOpacity());
+        RenderHelper.blitTexture(context, texture, x, y, size, size, config.getImageOpacity());
     }
 
     private static TextLayout layoutText(String text, Font font, int textAreaWidth, float uiScale) {
@@ -338,7 +397,7 @@ public class SleepOverlayRenderer {
     }
 
     private void drawLayout(GuiGraphicsExtractor context, Font font, TextLayout layout, int centerX, int top, int lineHeight, float alpha01) {
-        int a = clampAlpha(config.getTextOpacity() * alpha01);
+        int a = RenderUtils.alphaByte(config.getTextOpacity() * alpha01);
         if (a <= 0) return;
         int textColor = (a << 24) | 0xFFFFFF;
 
@@ -359,8 +418,8 @@ public class SleepOverlayRenderer {
         int barHeight = Math.max(1, Math.round(2 * uiScale));
         int x = centerX - barWidth / 2;
 
-        int trackA = clampAlpha(overlayAlpha * 0.18f);
-        int fillA = clampAlpha(overlayAlpha * 0.65f);
+        int trackA = RenderUtils.alphaByte(0.18f);
+        int fillA = RenderUtils.alphaByte(0.65f);
         context.fill(x, y, x + barWidth, y + barHeight, (trackA << 24) | 0xFFFFFF);
         int fw = Math.round(barWidth * (1f - frac));
         if (fw > 0) context.fill(x, y, x + fw, y + barHeight, (fillA << 24) | 0xFFFFFF);
@@ -423,10 +482,14 @@ public class SleepOverlayRenderer {
     }
 
     public boolean shouldHideCrosshair() {
-        return sleepStateManager.isSleeping() && isOverlayVisible;
+        return isShowing();
     }
 
     public boolean shouldHideChat() {
-        return config.isHideChatWhenSleeping() && sleepStateManager.isSleeping() && isOverlayVisible;
+        return config.isHideChatWhenSleeping() && isShowing();
+    }
+
+    public boolean shouldHideHudMessages() {
+        return config.isHideHudMessagesWhenSleeping() && isShowing();
     }
 }

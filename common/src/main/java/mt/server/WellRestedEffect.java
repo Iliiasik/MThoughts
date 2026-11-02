@@ -2,140 +2,97 @@ package mt.server;
 
 import mt.config.MidnightThoughtsConfig;
 import mt.platform.MTEvents;
+import mt.platform.MTPlatform;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundUpdateAttributesPacket;
-import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 
 public class WellRestedEffect {
     private static final MidnightThoughtsConfig CONFIG = MidnightThoughtsConfig.getInstance();
 
-    private static final Identifier SPEED_ID = Identifier.fromNamespaceAndPath("midnightthoughts", "well_rested_speed");
-    private static final Identifier STRENGTH_ID = Identifier.fromNamespaceAndPath("midnightthoughts", "well_rested_strength");
-    private static final Identifier ATTACK_SPEED_ID = Identifier.fromNamespaceAndPath("midnightthoughts", "well_rested_attack_speed");
-    private static final Identifier HASTE_ID = Identifier.fromNamespaceAndPath("midnightthoughts", "well_rested_haste");
-    private static final Identifier HEALTH_ID = Identifier.fromNamespaceAndPath("midnightthoughts", "well_rested_health");
+    private static final String LEVEL_KEY = "mt_well_rested_level";
+    private static final String TICKS_KEY = "mt_well_rested_ticks_remaining";
+    private static final String PHASE_KEY = "mt_well_rested_phase";
+    private static final String MVP_KEY = "mt_well_rested_mvp_flag";
 
-    private static int clampLevel(int level) {
-        if (level < 1) return 1;
-        return Math.min(level, 5);
-    }
-
-    @SuppressWarnings("resource")
-    private static WellRestedData data(ServerPlayer player) {
-        return WellRestedData.get(player.level().getServer());
-    }
-
-    private static WellRestedData.Entry entry(ServerPlayer player) {
-        return data(player).get(player.getUUID());
-    }
-
-    private static void store(ServerPlayer player, WellRestedData.Entry value) {
-        data(player).put(player.getUUID(), value);
-    }
-
-    public static int getTotalDurationTicks(int comfortLevel) {
-        return CONFIG.getWellRested().getLevel(clampLevel(comfortLevel)).durationMinutes * 60 * 20;
-    }
+    private static final int MAX_LEVEL = 5;
+    private static final int PHASES = 3;
+    private static final int REGEN_INTERVAL_TICKS = 100;
 
     public static void applyToPlayer(ServerPlayer player, int comfortLevel) {
-        if (!CONFIG.getWellRested().enabled) return;
         if (comfortLevel <= 0) return;
-        int lvlIdx = clampLevel(comfortLevel);
-        MidnightThoughtsConfig.WellRestedLevel lvl = CONFIG.getWellRested().getLevel(lvlIdx);
+        int level = Math.min(comfortLevel, MAX_LEVEL);
+        start(player, level, durationTicks(level), false);
+    }
 
-        removeFromPlayer(player);
+    public static void applyMvpToPlayer(ServerPlayer player) {
+        start(player, MAX_LEVEL, mvpDurationTicks(), true);
+    }
 
-        store(player, new WellRestedData.Entry(lvlIdx, getTotalDurationTicks(lvlIdx), -1, false));
+    private static void start(ServerPlayer player, int level, int durationTicks, boolean mvp) {
+        if (!CONFIG.getWellRested().enabled) return;
+        remove(player);
 
-        applyHealthBonus(player, lvl.healthBonus);
-        applyPhaseAttributes(player, lvl.speedPhase1, lvl.strengthPhase1, lvl.hastePhase1, lvl.attackSpeedPhase1);
+        CompoundTag data = MTPlatform.persistentData(player);
+        data.putInt(LEVEL_KEY, level);
+        data.putInt(TICKS_KEY, durationTicks);
+        if (mvp) data.putInt(MVP_KEY, 1);
 
+        WellRestedBuffs.apply(player, CONFIG.getWellRested().getLevel(level), 0, durationTicks);
         player.setHealth(player.getMaxHealth());
-
-        MTEvents.wellRestedApplied(player, lvlIdx, false, getTotalDurationTicks(lvlIdx));
+        MTEvents.wellRestedApplied(player, level, mvp, durationTicks);
     }
 
     public static void clear(ServerPlayer player) {
         boolean had = hasEffect(player);
-        removeFromPlayer(player);
-        if (had) {
-            MTEvents.wellRestedExpired(player);
-        }
-    }
-
-    public static void removeFromPlayer(ServerPlayer player) {
-        data(player).remove(player.getUUID());
-        removeAttributes(player);
-    }
-
-    public static void onPlayerJoin(ServerPlayer player) {
-        if (entry(player) != null) return;
-        removeAttributes(player);
-        syncAttributes(player);
+        remove(player);
+        if (had) MTEvents.wellRestedExpired(player);
     }
 
     public static void tick(ServerPlayer player) {
-        WellRestedData.Entry current = entry(player);
+        if (!MTPlatform.persistentData(player).contains(TICKS_KEY)) return;
 
-        if (!CONFIG.getWellRested().enabled) {
-            if (current != null) {
-                removeFromPlayer(player);
-                syncAttributes(player);
-                MTEvents.wellRestedExpired(player);
-            }
-            return;
-        }
-        if (current == null) return;
-
-        int ticksRemaining = current.ticksRemaining();
-        int level = current.level();
         int totalTicks = getTotalDurationTicksForPlayer(player);
-
-        if (ticksRemaining > totalTicks) {
-            ticksRemaining = totalTicks;
-        }
-
-        if (ticksRemaining <= 0) {
-            removeFromPlayer(player);
-            syncAttributes(player);
-            MTEvents.wellRestedExpired(player);
+        int ticksRemaining = Math.min(getTicksRemaining(player), totalTicks);
+        if (!CONFIG.getWellRested().enabled || ticksRemaining <= 0) {
+            expire(player);
             return;
         }
 
         ticksRemaining--;
+        MTPlatform.persistentData(player).putInt(TICKS_KEY, ticksRemaining);
 
-        int phaseTicks = totalTicks / 3;
-        MidnightThoughtsConfig.WellRestedLevel lvl = CONFIG.getWellRested().getLevel(level);
+        MidnightThoughtsConfig.WellRestedLevel level = CONFIG.getWellRested().getLevel(getLevel(player));
+        int phaseTicks = totalTicks / PHASES;
+        int phase = phaseTicks > 0 ? Math.min((totalTicks - ticksRemaining) / phaseTicks, PHASES - 1) : 0;
 
-        int currentPhaseIndex = phaseTicks > 0 ? (totalTicks - ticksRemaining) / phaseTicks : 0;
-        if (currentPhaseIndex > 2) currentPhaseIndex = 2;
-
-        float regen = lvl.regenBonus;
-
-        float speed, strength, haste, attackSpeed;
-        switch (currentPhaseIndex) {
-            case 0 -> { speed = lvl.speedPhase1; strength = lvl.strengthPhase1; haste = lvl.hastePhase1; attackSpeed = lvl.attackSpeedPhase1; }
-            case 1 -> { speed = lvl.speedPhase2; strength = lvl.strengthPhase2; haste = lvl.hastePhase2; attackSpeed = lvl.attackSpeedPhase2; }
-            default -> { speed = lvl.speedPhase3; strength = lvl.strengthPhase3; haste = lvl.hastePhase3; attackSpeed = lvl.attackSpeedPhase3; }
-        }
-
-        int previousPhase = current.phase();
-        store(player, new WellRestedData.Entry(level, ticksRemaining, currentPhaseIndex, current.mvp()));
-
-        if (previousPhase != currentPhaseIndex) {
-            applyPhaseAttributes(player, speed, strength, haste, attackSpeed);
+        if (getInt(player, PHASE_KEY, -1) != phase) {
+            MTPlatform.persistentData(player).putInt(PHASE_KEY, phase);
+            WellRestedBuffs.apply(player, level, phase, ticksRemaining);
             syncAttributes(player);
         }
 
-        if (regen > 0 && ticksRemaining % 100 == 0) {
+        if (level.regenBonus > 0 && ticksRemaining % REGEN_INTERVAL_TICKS == 0) {
             float maxHealth = player.getMaxHealth();
-            float currentHealth = player.getHealth();
-            if (currentHealth < maxHealth) {
-                player.setHealth(Math.min(currentHealth + maxHealth * regen * 0.5f, maxHealth));
+            if (player.getHealth() < maxHealth) {
+                player.setHealth(Math.min(player.getHealth() + maxHealth * level.regenBonus * 0.5f, maxHealth));
             }
         }
+    }
+
+    private static void expire(ServerPlayer player) {
+        remove(player);
+        syncAttributes(player);
+        MTEvents.wellRestedExpired(player);
+    }
+
+    private static void remove(ServerPlayer player) {
+        CompoundTag data = MTPlatform.persistentData(player);
+        data.remove(LEVEL_KEY);
+        data.remove(TICKS_KEY);
+        data.remove(PHASE_KEY);
+        data.remove(MVP_KEY);
+        WellRestedBuffs.removeAll(player);
     }
 
     private static void syncAttributes(ServerPlayer player) {
@@ -147,88 +104,44 @@ public class WellRestedEffect {
         player.setHealth(Math.min(player.getHealth(), player.getMaxHealth()));
     }
 
-    private static void applyHealthBonus(ServerPlayer player, float bonus) {
-        var healthAttr = player.getAttribute(Attributes.MAX_HEALTH);
-        if (healthAttr != null) {
-            healthAttr.addOrReplacePermanentModifier(
-                    new AttributeModifier(HEALTH_ID, bonus, AttributeModifier.Operation.ADD_VALUE));
-        }
+    private static int durationTicks(int level) {
+        return minutesToTicks(CONFIG.getWellRested().getLevel(level).durationMinutes);
     }
 
-    private static void applyPhaseAttributes(ServerPlayer player, float speed, float strength, float haste, float attackSpeed) {
-        var speedAttr = player.getAttribute(Attributes.MOVEMENT_SPEED);
-        var strengthAttr = player.getAttribute(Attributes.ATTACK_DAMAGE);
-        var hasteAttr = player.getAttribute(Attributes.BLOCK_BREAK_SPEED);
-        var attackSpeedAttr = player.getAttribute(Attributes.ATTACK_SPEED);
-        if (speedAttr != null)
-            speedAttr.addOrReplacePermanentModifier(new AttributeModifier(SPEED_ID, speed, AttributeModifier.Operation.ADD_MULTIPLIED_BASE));
-        if (strengthAttr != null)
-            strengthAttr.addOrReplacePermanentModifier(new AttributeModifier(STRENGTH_ID, strength, AttributeModifier.Operation.ADD_VALUE));
-        if (hasteAttr != null)
-            hasteAttr.addOrReplacePermanentModifier(new AttributeModifier(HASTE_ID, haste, AttributeModifier.Operation.ADD_MULTIPLIED_BASE));
-        if (attackSpeedAttr != null)
-            attackSpeedAttr.addOrReplacePermanentModifier(new AttributeModifier(ATTACK_SPEED_ID, attackSpeed, AttributeModifier.Operation.ADD_MULTIPLIED_BASE));
+    private static int mvpDurationTicks() {
+        return minutesToTicks(CONFIG.getMvp().mvpWellRestedDurationMinutes);
     }
 
-    private static void removeAttributes(ServerPlayer player) {
-        var speedAttr = player.getAttribute(Attributes.MOVEMENT_SPEED);
-        var strengthAttr = player.getAttribute(Attributes.ATTACK_DAMAGE);
-        var hasteAttr = player.getAttribute(Attributes.BLOCK_BREAK_SPEED);
-        var attackSpeedAttr = player.getAttribute(Attributes.ATTACK_SPEED);
-        var healthAttr = player.getAttribute(Attributes.MAX_HEALTH);
-        if (speedAttr != null) speedAttr.removeModifier(SPEED_ID);
-        if (strengthAttr != null) strengthAttr.removeModifier(STRENGTH_ID);
-        if (hasteAttr != null) hasteAttr.removeModifier(HASTE_ID);
-        if (attackSpeedAttr != null) attackSpeedAttr.removeModifier(ATTACK_SPEED_ID);
-        if (healthAttr != null) healthAttr.removeModifier(HEALTH_ID);
+    private static int minutesToTicks(int minutes) {
+        return minutes * 60 * 20;
     }
 
-    public static boolean isMvp(ServerPlayer player) {
-        WellRestedData.Entry e = entry(player);
-        return e != null && e.mvp();
-    }
-
-    public static void applyMvpToPlayer(ServerPlayer player) {
-        if (!CONFIG.getWellRested().enabled) return;
-        MidnightThoughtsConfig.WellRestedLevel lvl = CONFIG.getWellRested().getLevel(5);
-        int durationTicks = CONFIG.getMvp().mvpWellRestedDurationMinutes * 60 * 20;
-
-        removeFromPlayer(player);
-
-        store(player, new WellRestedData.Entry(5, durationTicks, -1, true));
-
-        applyHealthBonus(player, lvl.healthBonus);
-        applyPhaseAttributes(player, lvl.speedPhase1, lvl.strengthPhase1, lvl.hastePhase1, lvl.attackSpeedPhase1);
-
-        player.setHealth(player.getMaxHealth());
-
-        MTEvents.wellRestedApplied(player, 5, true, durationTicks);
+    private static int getInt(ServerPlayer player, String key, int fallback) {
+        CompoundTag data = MTPlatform.persistentData(player);
+        return data.getIntOr(key, fallback);
     }
 
     public static int getTotalDurationTicksForPlayer(ServerPlayer player) {
-        if (isMvp(player)) {
-            return CONFIG.getMvp().mvpWellRestedDurationMinutes * 60 * 20;
-        }
-        return getTotalDurationTicks(getLevel(player));
+        return isMvp(player) ? mvpDurationTicks() : durationTicks(Math.clamp(getLevel(player), 1, MAX_LEVEL));
     }
 
     public static boolean hasEffect(ServerPlayer player) {
-        WellRestedData.Entry e = entry(player);
-        return e != null && e.ticksRemaining() > 0;
+        return getTicksRemaining(player) > 0;
+    }
+
+    public static boolean isMvp(ServerPlayer player) {
+        return getInt(player, MVP_KEY, 0) == 1;
     }
 
     public static int getTicksRemaining(ServerPlayer player) {
-        WellRestedData.Entry e = entry(player);
-        return e != null ? e.ticksRemaining() : 0;
+        return getInt(player, TICKS_KEY, 0);
     }
 
     public static int getLevel(ServerPlayer player) {
-        WellRestedData.Entry e = entry(player);
-        return e != null ? e.level() : 0;
+        return getInt(player, LEVEL_KEY, 0);
     }
 
     public static int getCurrentPhase(ServerPlayer player) {
-        WellRestedData.Entry e = entry(player);
-        return e != null ? Math.max(0, e.phase()) : 0;
+        return getInt(player, PHASE_KEY, 0);
     }
 }

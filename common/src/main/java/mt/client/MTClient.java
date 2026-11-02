@@ -10,10 +10,17 @@ import mt.client.repository.SlideRepository;
 import mt.client.service.FactProvider;
 import mt.client.service.SlideService;
 import mt.client.service.UserContentLoader;
+import mt.client.ui.DailySummaryScreen;
 import mt.client.ui.SleepingPlayersHud;
+import mt.client.ui.WellRestedHud;
 import mt.config.MidnightThoughtsConfig;
+import mt.network.packet.DailySummaryPacket;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.server.packs.resources.ResourceManager;
+
+import java.util.List;
 
 public final class MTClient {
 
@@ -21,6 +28,7 @@ public final class MTClient {
     private static SleepStateManager sleepStateManager;
     private static SleepOverlayRenderer overlayRenderer;
     private static UserContentLoader userContentLoader;
+    private static List<DailySummaryPacket.PlayerDailySummary> pendingSummary;
 
     private MTClient() {}
 
@@ -44,10 +52,38 @@ public final class MTClient {
         return userContentLoader;
     }
 
+    public static void showSummary(List<DailySummaryPacket.PlayerDailySummary> summaries) {
+        pendingSummary = summaries;
+    }
+
     public static void tick(LocalPlayer player) {
         if (player == null || sleepStateManager == null) return;
         sleepStateManager.tick(player);
         overlayRenderer.tick();
+        if (pendingSummary != null && !player.isSleeping()) {
+            Minecraft.getInstance().setScreen(new DailySummaryScreen(pendingSummary));
+            pendingSummary = null;
+        }
+    }
+
+    public static void renderSleepOverlay(GuiGraphicsExtractor graphics) {
+        if (overlayRenderer == null || Minecraft.getInstance().player == null) return;
+        overlayRenderer.render(graphics, graphics.guiWidth(), graphics.guiHeight());
+    }
+
+    public static void renderWellRestedHud(GuiGraphicsExtractor graphics) {
+        if (isHudHidden()) return;
+        WellRestedHud.render(graphics, graphics.guiWidth(), graphics.guiHeight());
+    }
+
+    public static void renderSleepingPlayersHud(GuiGraphicsExtractor graphics) {
+        if (isHudHidden() || Minecraft.getInstance().getDebugOverlay().showDebugScreen()) return;
+        SleepingPlayersHud.render(graphics, graphics.guiWidth(), graphics.guiHeight());
+    }
+
+    private static boolean isHudHidden() {
+        Minecraft minecraft = Minecraft.getInstance();
+        return minecraft.player == null || minecraft.options.hideGui;
     }
 
     public static void reloadSlides(ResourceManager manager) {
@@ -57,6 +93,7 @@ public final class MTClient {
     }
 
     public static void onDisconnect() {
+        pendingSummary = null;
         ServerConfigCache.clear();
         ClientAchievementCache.clear();
         WellRestedClientState.reset();

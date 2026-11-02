@@ -110,7 +110,7 @@ class SleepOverlayTextWrapTest {
         List<String> lines = wrap("before " + "x".repeat(60) + " after", 60);
 
         assertEveryLineFits(lines, 60);
-        assertEquals("before", lines.get(0));
+        assertEquals("before", lines.getFirst());
         assertTrue(String.join("", lines).endsWith("after"));
     }
 

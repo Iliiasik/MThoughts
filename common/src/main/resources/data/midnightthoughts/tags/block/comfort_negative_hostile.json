@@ -10,6 +10,8 @@
     "minecraft:magma_block",
     "minecraft:netherrack",
     "minecraft:crimson_nylium",
-    "minecraft:warped_nylium"
+    "minecraft:warped_nylium",
+    "minecraft:trial_spawner",
+    "minecraft:vault"
   ]
 }

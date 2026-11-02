@@ -1,8 +1,7 @@
 package mt.network.packet;
 
 import io.netty.buffer.Unpooled;
-import net.minecraft.core.RegistryAccess;
-import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.FriendlyByteBuf;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.RecordComponent;
@@ -20,11 +19,11 @@ class SyncConfigPacketTest {
             true, false, true, false, true, false,
             "magic",
             "bar",
-            true, true, false, true, false
+            true, true, false, true, false, 0.75f, 1.25f, true
     );
 
     private static SyncConfigPacket roundTrip(SyncConfigPacket packet) {
-        RegistryFriendlyByteBuf buf = new RegistryFriendlyByteBuf(Unpooled.buffer(), RegistryAccess.EMPTY);
+        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
         SyncConfigPacket.CODEC.encode(buf, packet);
         SyncConfigPacket decoded = SyncConfigPacket.CODEC.decode(buf);
         assertEquals(0, buf.readableBytes(),
@@ -42,12 +41,7 @@ class SyncConfigPacketTest {
     }
 
     private static SyncConfigPacket construct(Object[] values) throws Exception {
-        RecordComponent[] components = SyncConfigPacket.class.getRecordComponents();
-        Class<?>[] types = new Class<?>[components.length];
-        for (int i = 0; i < components.length; i++) {
-            types[i] = components[i].getType();
-        }
-        return SyncConfigPacket.class.getDeclaredConstructor(types).newInstance(values);
+        return (SyncConfigPacket) SyncConfigPacket.class.getDeclaredConstructors()[0].newInstance(values);
     }
 
     private static SyncConfigPacket withFlags(boolean value) {
@@ -56,7 +50,7 @@ class SyncConfigPacketTest {
                 0.0f, 0.5f, 1.0f, 0.25f,
                 value, value, value, value, value, value,
                 "magic", "bar",
-                value, value, value, value, value
+                value, value, value, value, value, 0.75f, 1.25f, value
         );
     }
 
@@ -66,7 +60,7 @@ class SyncConfigPacketTest {
                 0.1f, 0.2f, 0.3f, 0.4f,
                 true, false, true, false, true, false,
                 theme, "bar",
-                true, true, false, true, false
+                true, true, false, true, false, 0.75f, 1.25f, true
         );
     }
 
@@ -76,7 +70,7 @@ class SyncConfigPacketTest {
                 0.1f, 0.2f, 0.3f, 0.4f,
                 true, false, true, false, true, false,
                 "magic", position,
-                true, true, false, true, false
+                true, true, false, true, false, 0.75f, 1.25f, true
         );
     }
 
@@ -90,7 +84,7 @@ class SyncConfigPacketTest {
 
     @Test
     void theRecordStillCarriesEveryConfiguredValue() {
-        assertEquals(21, SyncConfigPacket.class.getRecordComponents().length,
+        assertEquals(24, SyncConfigPacket.class.getRecordComponents().length,
                 "a config field was added or removed without updating the wire format");
     }
 
@@ -130,16 +124,16 @@ class SyncConfigPacketTest {
 
     @Test
     void wireFormatHasTheExpectedSize() {
-        RegistryFriendlyByteBuf buf = new RegistryFriendlyByteBuf(Unpooled.buffer(), RegistryAccess.EMPTY);
+        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
         SyncConfigPacket.CODEC.encode(buf, BASE);
 
         int fourVarInts = 2 + 2 + 2 + 2;
-        int fourFloats = 4 * 4;
-        int elevenBooleans = 11;
+        int sixFloats = 6 * 4;
+        int twelveBooleans = 12;
         int theme = 1 + "magic".getBytes(StandardCharsets.UTF_8).length;
         int hudPosition = 1 + "bar".getBytes(StandardCharsets.UTF_8).length;
 
-        assertEquals(fourVarInts + fourFloats + elevenBooleans + theme + hudPosition,
+        assertEquals(fourVarInts + sixFloats + twelveBooleans + theme + hudPosition,
                 buf.readableBytes(),
                 "wire format changed, bump the protocol version before shipping this");
     }
@@ -161,7 +155,7 @@ class SyncConfigPacketTest {
                 Float.MIN_VALUE, Float.MAX_VALUE, -0.0f, 1.0E-10f,
                 true, false, true, false, true, false,
                 "classic", "left",
-                true, true, false, true, false
+                true, true, false, true, false, -0.0f, 1.0E-10f, false
         );
 
         assertEquals(packet, roundTrip(packet));
@@ -198,7 +192,7 @@ class SyncConfigPacketTest {
 
     @Test
     void encodingDoesNotMutateTheSourcePacket() {
-        RegistryFriendlyByteBuf buf = new RegistryFriendlyByteBuf(Unpooled.buffer(), RegistryAccess.EMPTY);
+        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
         SyncConfigPacket.CODEC.encode(buf, BASE);
 
         assertEquals(1000, BASE.minSlideDisplayTimeMs());

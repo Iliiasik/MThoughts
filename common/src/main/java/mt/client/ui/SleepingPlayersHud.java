@@ -1,18 +1,18 @@
 package mt.client.ui;
 
-import mt.client.config.ClientConfig;
-import mt.client.config.ThemeColors;
+import mt.client.ui.engine.RenderHelper;
+import mt.client.ui.engine.RenderUtils;
 import mt.client.ui.summary.SummaryConstants;
+import mt.client.ui.summary.ThemeColors;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import org.joml.Matrix3x2fStack;
 
 public class SleepingPlayersHud {
-    private static final int TEXTURE_WIDTH = 260;
-    private static final int TEXTURE_HEIGHT = 160;
+    private static final int TEXTURE_WIDTH = SummaryConstants.SLEEPING_HUD_TEXTURE_WIDTH;
+    private static final int TEXTURE_HEIGHT = SummaryConstants.SLEEPING_HUD_TEXTURE_HEIGHT;
 
     private static int sleepingCount = 0;
     private static int totalPlayers = 0;
@@ -41,8 +41,9 @@ public class SleepingPlayersHud {
 
     public static void render(GuiGraphicsExtractor context, int screenWidth, int screenHeight) {
         Minecraft client = Minecraft.getInstance();
-        if (client.player == null) return;
-
+        if (client.player == null) {
+            return;
+        }
         if (mt.config.MidnightThoughtsConfig.getInstance().isHideSleepingPlayersHud()) {
             return;
         }
@@ -59,54 +60,45 @@ public class SleepingPlayersHud {
             displayAlpha = Math.max(0.0f, displayAlpha - step);
         }
 
-        if (displayAlpha <= 0.01f) return;
+        if (displayAlpha <= 0.01f) {
+            return;
+        }
 
-        String theme = ClientConfig.getInstance().getEffectiveTheme();
-        ThemeColors.ThemeColor colors = ThemeColors.getThemeColors(theme);
-        Font font = client.font;
+        Font textRenderer = client.font;
 
-        float scale = Math.min(screenWidth / 1920.0f, screenHeight / 1080.0f);
-        scale = Math.clamp(scale, 0.8f, 1.5f);
+        float scale = Math.clamp(Math.min(screenWidth / 1920.0f, screenHeight / 1080.0f), 0.8f, 1.5f);
 
-        int hudHeight = (int) (55 * scale);
-        int hudWidth = (int) (hudHeight * (TEXTURE_WIDTH / (float) TEXTURE_HEIGHT));
-        int hudX = (int) (10 * scale);
-        int hudY = (int) (10 * scale);
+        int hudScale = Math.max(1, Math.round(55 * scale / (float) TEXTURE_HEIGHT));
+        int hudHeight = TEXTURE_HEIGHT * hudScale;
+        int hudWidth = TEXTURE_WIDTH * hudScale;
+        int hudX = Math.round(10 * scale);
+        int hudY = Math.round(10 * scale);
 
-        int textAlpha = (int) (displayAlpha * 255);
+        context.blit(RenderPipelines.GUI_TEXTURED, SummaryConstants.getSleepingHudTexture(), hudX, hudY, 0.0f, 0.0f,
+            hudWidth, hudHeight, TEXTURE_WIDTH, TEXTURE_HEIGHT, TEXTURE_WIDTH, TEXTURE_HEIGHT, RenderHelper.white(displayAlpha));
 
-        context.blit(RenderPipelines.GUI_TEXTURED, SummaryConstants.getSleepingHudTexture(), hudX, hudY,
-                0.0f, 0.0f, hudWidth, hudHeight, TEXTURE_WIDTH, TEXTURE_HEIGHT,
-                TEXTURE_WIDTH, TEXTURE_HEIGHT,
-                (textAlpha << 24) | 0x00FFFFFF);
+        renderText(context, textRenderer, hudX, hudY, hudWidth, hudHeight, scale);
+    }
 
+    private static void renderText(GuiGraphicsExtractor context, Font textRenderer, int hudX, int hudY, int hudWidth, int hudHeight, float scale) {
         String sleepText = sleepingCount + " / " + totalPlayers;
         Component titleText = Component.translatable("midnightthoughts.hud.sleeping");
 
-        int titleColor = (textAlpha << 24) | colors.sleepingHudTitleColor();
+        ThemeColors.TextStyle style = ThemeColors.current().sleepingHud();
+        int textColor = style.argb(displayAlpha);
 
         float textScale = scale * 1.1f;
-        int titleWidth = (int) (font.width(titleText) * textScale);
-        int titleX = hudX + (hudWidth - titleWidth) / 2;
-        int titleY = hudY + (int) (14 * scale);
+        int titleWidth = RenderUtils.scaledWidth(textRenderer, titleText, textScale);
+        int titleX = RenderUtils.centeredX(hudX, hudWidth, titleWidth);
+        int titleY = hudY + Math.round(hudHeight * (14.0f / 55.0f));
 
-        Matrix3x2fStack matrices = context.pose();
-        matrices.pushMatrix();
-        matrices.translate(titleX, titleY);
-        matrices.scale(textScale, textScale);
-        context.text(font, titleText, 0, 0, titleColor, false);
-        matrices.popMatrix();
+        RenderUtils.renderScaledText(context, textRenderer, titleText, titleX, titleY, textColor, textScale, style.shadow());
 
-        int sleepColor = (textAlpha << 24) | colors.sleepingHudCountColor();
         float sleepTextScale = scale * 1.2f;
-        int sleepTextWidth = (int) (font.width(sleepText) * sleepTextScale);
-        int sleepX = hudX + (hudWidth - sleepTextWidth) / 2;
-        int sleepY = hudY + (int) (32 * scale);
+        int sleepTextWidth = RenderUtils.scaledWidth(textRenderer, sleepText, sleepTextScale);
+        int sleepX = RenderUtils.centeredX(hudX, hudWidth, sleepTextWidth);
+        int sleepY = hudY + Math.round(hudHeight * (32.0f / 55.0f));
 
-        matrices.pushMatrix();
-        matrices.translate(sleepX, sleepY);
-        matrices.scale(sleepTextScale, sleepTextScale);
-        context.text(font, sleepText, 0, 0, sleepColor, false);
-        matrices.popMatrix();
+        RenderUtils.renderScaledText(context, textRenderer, sleepText, sleepX, sleepY, textColor, sleepTextScale, style.shadow());
     }
 }

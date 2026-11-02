@@ -28,14 +28,17 @@ class ResourceIntegrityTest {
     private static final List<String> THEMES = List.of("classic", "magic", "tech", "vanilla");
 
     private static final List<String> THEMED_TEXTURES = List.of(
-            "frame", "badge", "pages_holder", "sleeping_hud", "row",
-            "mvp_row", "name_badge", "stat_badge", "achievement_badge");
+            "frame", "info", "info_mvp", "badge", "days", "stats_panel",
+            "achievement_badge", "tooltip", "button_left", "button_right", "sleeping_hud");
 
     private static final List<String> SHARED_TEXTURES = List.of(
-            "icons/icon_blocks", "icons/icon_distance", "icons/icon_sword",
-            "icons/icon_death", "icons/icon_jump", "icons/icon_axe",
-            "overlay/skull", "hud/scale", "hud/fill", "hud/well_rested",
-            "hud/mvp", "summary/gear");
+            "overlay/nightmares/skull", "hud/scale", "hud/fill", "hud/well_rested",
+            "hud/mvp", "icon");
+
+    private static final List<String> SPACE_TEXTURES = List.of(
+            "blue_giant", "orange_dwarf", "quasi_star",
+            "rounded_blue", "rounded_pink", "rounded_white",
+            "blue", "orange", "white", "yellow", "red", "purple", "pink");
 
     private static final List<String> MOON_PHASES = List.of(
             "full_moon", "waning_gibbous", "last_quarter", "waning_crescent",
@@ -54,7 +57,7 @@ class ResourceIntegrityTest {
     }
 
     private static Path rootDir() {
-        return projectDir().getParent();
+        return projectDir().toAbsolutePath().getParent();
     }
 
     private static Path assets() {
@@ -112,11 +115,20 @@ class ResourceIntegrityTest {
     }
 
     @Test
+    void everySpaceTextureExists() {
+        for (String name : SPACE_TEXTURES) {
+            Path file = assets().resolve("textures/gui/shared/overlay/space/" + name + ".png");
+            assertTrue(Files.isRegularFile(file), "missing texture " + file);
+            assertTrue(file.toFile().length() > 0, "empty texture " + file);
+        }
+    }
+
+    @Test
     void everyComfortTagExistsAndIsNotEmpty() throws IOException {
         for (String tag : allTags()) {
             Path file = tagsDir().resolve(tag + ".json");
             assertTrue(Files.isRegularFile(file), "missing tag " + file);
-            assertTrue(tagValues(tag).size() > 0, "tag " + tag + " is empty");
+            assertFalse(tagValues(tag).isEmpty(), "tag " + tag + " is empty");
         }
     }
 
@@ -145,7 +157,7 @@ class ResourceIntegrityTest {
         Map<String, List<String>> owners = new HashMap<>();
         for (String tag : allTags()) {
             for (String value : tagValues(tag)) {
-                owners.computeIfAbsent(value, key -> new ArrayList<>()).add(tag);
+                owners.computeIfAbsent(value, _ -> new ArrayList<>()).add(tag);
             }
         }
 
@@ -176,9 +188,9 @@ class ResourceIntegrityTest {
                 .findFirst()
                 .orElseThrow();
 
-        assertTrue(toml.contains("${mod_version}"),
+        assertTrue(toml.contains("version = \"${mod_version}\""),
                 "neoforge.mods.toml must take the version from gradle.properties, found a hardcoded one");
-        assertTrue(fabricJson.contains("${mod_version}"),
+        assertTrue(fabricJson.contains("\"version\": \"${mod_version}\""),
                 "fabric.mod.json must take the version from gradle.properties, found a hardcoded one");
         assertFalse(declared.isBlank(), "mod_version is missing from gradle.properties");
     }

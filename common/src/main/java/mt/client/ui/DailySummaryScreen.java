@@ -2,142 +2,145 @@ package mt.client.ui;
 
 import mt.client.ui.summary.*;
 import mt.network.packet.DailySummaryPacket;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class DailySummaryScreen extends Screen {
-    private final List<DailySummaryPacket.PlayerDailySummary> allPlayers;
-    private final List<AchievementTooltipArea> achievementAreas = new ArrayList<>();
+    private static final long FADE_DURATION = 300;
+
+    private final List<DailySummaryPacket.PlayerDailySummary> cards;
+    private final List<HoverArea> hoverAreas = new ArrayList<>();
+    private final SummaryLayout layout = new SummaryLayout();
+    private final long screenOpenTime;
+    private final String selfName;
+
     private int currentPage = 0;
     private float fadeAlpha = 0.0f;
-    private final long screenOpenTime;
-    private final long animationStartTime;
-    private final SummaryDimensions dimensions = new SummaryDimensions();
-    private ThemeSwitchButton themeSwitchButton;
 
     public DailySummaryScreen(List<DailySummaryPacket.PlayerDailySummary> players) {
         super(Component.literal("Summary"));
-        this.allPlayers = new ArrayList<>(players);
-        this.allPlayers.sort((p1, p2) -> {
-            if (p1.isMvp() && !p2.isMvp()) return -1;
-            if (!p1.isMvp() && p2.isMvp()) return 1;
-            return 0;
-        });
+        this.selfName = resolveSelfName();
+        this.cards = new ArrayList<>(players);
+        this.cards.sort(Comparator.comparingInt(this::rank));
         this.screenOpenTime = System.currentTimeMillis();
-        this.animationStartTime = System.currentTimeMillis() + 300;
+    }
+
+    private static String resolveSelfName() {
+        Minecraft mc = Minecraft.getInstance();
+        return mc.player != null ? mc.player.getGameProfile().name() : null;
+    }
+
+    private int rank(DailySummaryPacket.PlayerDailySummary card) {
+        if (card.isMvp()) return 0;
+        if (card.playerName() != null && card.playerName().equals(selfName)) return 1;
+        return 2;
     }
 
     @Override
     protected void init() {
         super.init();
-        dimensions.calculate(width, height);
+        layout.calculate(width, height);
 
-        int buttonWidth = dimensions.getButtonWidth();
-        int buttonHeight = dimensions.getButtonHeight();
-        int buttonSpacing = dimensions.s(8);
-        int totalPages = SummaryDimensions.getTotalPages(allPlayers.size());
-
-        int buttonY = dimensions.panelY + dimensions.panelHeight + dimensions.s(8);
-
-        if (totalPages > 1) {
-            addNavigationButtons(buttonWidth, buttonHeight, buttonY, buttonSpacing);
-        }
-
-        addThemeSwitchButton();
-    }
-
-    private void addThemeSwitchButton() {
-        int iconSize = dimensions.s(21);
-        int iconX = dimensions.panelX + dimensions.panelWidth + dimensions.s(7);
-        int iconY = dimensions.panelY + dimensions.s(11);
-        themeSwitchButton = new ThemeSwitchButton(iconX, iconY, iconSize);
-        addRenderableWidget(themeSwitchButton);
-    }
-
-    private void addNavigationButtons(int buttonWidth, int buttonHeight, int buttonY, int buttonSpacing) {
-        int navButtonsWidth = buttonWidth * 2 + buttonSpacing;
-        int navStartX = width / 2 - navButtonsWidth / 2;
-
-        addRenderableWidget(new StyledButton(
-                navStartX, buttonY, buttonWidth, buttonHeight,
-                Component.translatable("midnightthoughts.summary.previous"),
-                _ -> navigateToPreviousPage()
-        ));
-
-        addRenderableWidget(new StyledButton(
-                navStartX + buttonWidth + buttonSpacing, buttonY, buttonWidth, buttonHeight,
-                Component.translatable("midnightthoughts.summary.next"),
-                _ -> navigateToNextPage()
-        ));
-    }
-
-    private void navigateToPreviousPage() {
-        if (currentPage > 0) {
-            currentPage--;
-            rebuildWidgets();
+        if (cards.size() > 1) {
+            addNavigationButtons();
         }
     }
 
-    private void navigateToNextPage() {
-        int totalPages = SummaryDimensions.getTotalPages(allPlayers.size());
-        if (currentPage < totalPages - 1) {
-            currentPage++;
-            rebuildWidgets();
-        }
+    private void addNavigationButtons() {
+        int size = layout.buttonSize();
+        int gap = layout.s(SummaryLayout.BUTTON_GAP);
+        int totalWidth = size * 2 + gap;
+        int startX = layout.frameX + (layout.frameWidth() - totalWidth) / 2;
+        int y = layout.controlRowY();
+
+        addRenderableWidget(new ArrowButton(startX, y, size, false, _ -> turnPage(-1)));
+        addRenderableWidget(new ArrowButton(startX + size + gap, y, size, true, _ -> turnPage(1)));
     }
 
+    private void turnPage(int delta) {
+        int next = currentPage + delta;
+        if (next < 0 || next >= cards.size()) return;
+        currentPage = next;
+        rebuildWidgets();
+    }
 
     @Override
-    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
-        graphics.fill(0, 0, this.width, this.height, 0x88000000);
+    protected void rebuildWidgets() {
+        this.clearWidgets();
+        this.init();
+    }
+
+    @Override
+    public void extractRenderState(@NotNull GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
+        context.fill(0, 0, this.width, this.height, 0x88000000);
         updateFadeAnimation();
-        achievementAreas.clear();
+        hoverAreas.clear();
 
-        dimensions.calculate(width, height);
+        layout.calculate(width, height);
 
-        renderPanel(graphics);
-        renderPlayerList(graphics);
-
-        super.extractRenderState(graphics, mouseX, mouseY, delta);
-
-        TooltipRenderer.render(graphics, font, mouseX, mouseY, achievementAreas, width, fadeAlpha);
-
-        if (themeSwitchButton != null && themeSwitchButton.isMouseOver(mouseX, mouseY)) {
-            graphics.setTooltipForNextFrame(font, List.of(themeSwitchButton.getTooltipText().getVisualOrderText()), mouseX, mouseY);
+        if (!cards.isEmpty()) {
+            DailySummaryPacket.PlayerDailySummary card = cards.get(Math.min(currentPage, cards.size() - 1));
+            FrameRenderer.render(context, layout, card.isMvp(), fadeAlpha);
+            FrameRenderer.renderBadge(context, font, layout, headline(card), fadeAlpha);
+            CardRenderer.render(context, font, card, layout, fadeAlpha, hoverAreas);
         }
+
+        for (GuiEventListener child : this.children()) {
+            if (child instanceof AbstractWidget widget) widget.setAlpha(fadeAlpha);
+        }
+
+        super.extractRenderState(context, mouseX, mouseY, delta);
+
+        TooltipRenderer.render(context, font, mouseX, mouseY, hoverAreas, layout, width, height, fadeAlpha);
+
+    }
+
+    private Component headline(DailySummaryPacket.PlayerDailySummary card) {
+        boolean self = selfName != null && selfName.equals(card.playerName());
+        if (self) {
+            return Component.translatable(card.isMvp()
+                    ? "midnightthoughts.summary.headline.self_mvp"
+                    : "midnightthoughts.summary.headline.self");
+        }
+        return Component.translatable(card.isMvp()
+                ? "midnightthoughts.summary.headline.friend_mvp"
+                : "midnightthoughts.summary.headline.friend", card.playerName());
+    }
+
+    @Override
+    public void extractBackground(@NotNull GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
     }
 
     private void updateFadeAnimation() {
-        long elapsedTime = System.currentTimeMillis() - screenOpenTime;
-        fadeAlpha = Math.min(1.0f, elapsedTime / 300.0f);
+        long elapsed = System.currentTimeMillis() - screenOpenTime;
+        fadeAlpha = Math.min(1.0f, elapsed / (float) FADE_DURATION);
     }
 
-    private void renderPanel(GuiGraphicsExtractor graphics) {
-        FrameRenderer.render(graphics, dimensions, fadeAlpha);
-        FrameRenderer.renderBadge(graphics, font, dimensions, fadeAlpha);
-        int totalPages = SummaryDimensions.getTotalPages(allPlayers.size());
-        FrameRenderer.renderPagesHolder(graphics, font, dimensions, currentPage, totalPages, fadeAlpha);
-    }
-
-    private void renderPlayerList(GuiGraphicsExtractor graphics) {
-        int contentPaddingTop = dimensions.s(53);
-        int contentPaddingSides = dimensions.s(60);
-
-        int startIndex = currentPage * SummaryConstants.PLAYERS_PER_PAGE;
-        int endIndex = Math.min(startIndex + SummaryConstants.PLAYERS_PER_PAGE, allPlayers.size());
-
-        int startY = dimensions.panelY + contentPaddingTop;
-
-        for (int i = startIndex; i < endIndex; i++) {
-            DailySummaryPacket.PlayerDailySummary player = allPlayers.get(i);
-            int rowY = startY + (i - startIndex) * dimensions.playerRowHeight;
-            PlayerRowRenderer.render(graphics, font, player, dimensions.panelX + contentPaddingSides,
-                    rowY, dimensions, fadeAlpha, animationStartTime, achievementAreas);
+    @Override
+    public boolean keyPressed(@NotNull KeyEvent event) {
+        if (this.minecraft.options.keyInventory.matches(event)) {
+            onClose();
+            return true;
         }
+        if (this.minecraft.options.keyLeft.matches(event)) {
+            turnPage(-1);
+            return true;
+        }
+        if (this.minecraft.options.keyRight.matches(event)) {
+            turnPage(1);
+            return true;
+        }
+        return super.keyPressed(event);
     }
 
     @Override

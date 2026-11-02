@@ -5,24 +5,25 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import mt.config.MidnightThoughtsConfig;
-import mt.platform.MTNetwork;
 import mt.network.packet.SyncAchievementsPacket;
-import mt.network.packet.SyncConfigPacket;
-import mt.network.packet.UserContentPacket;
+import mt.platform.MTNetwork;
+import mt.server.AchievementDefinition;
 import mt.server.AchievementLoader;
 import mt.server.ComfortCalculator;
+import mt.server.MTServer;
 import mt.server.UserContentInitializer;
 import mt.server.WellRestedEffect;
+import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.MutableComponent;
 
 import java.util.Collection;
+import java.util.List;
 
 public final class MidnightThoughtsCommand {
 
@@ -38,6 +39,8 @@ public final class MidnightThoughtsCommand {
                                 .then(Commands.literal("achievements").executes(MidnightThoughtsCommand::reloadAchievements))
                                 .then(Commands.literal("content").executes(MidnightThoughtsCommand::reloadContent))
                                 .then(Commands.literal("all").executes(MidnightThoughtsCommand::reloadAll)))
+                        .then(Commands.literal("config")
+                                .then(Commands.literal("recreate").executes(MidnightThoughtsCommand::recreateConfig)))
                         .then(Commands.literal("comfort")
                                 .executes(MidnightThoughtsCommand::comfortDebug)
                                 .then(Commands.argument("target", EntityArgument.player())
@@ -60,6 +63,19 @@ public final class MidnightThoughtsCommand {
     private static int reloadConfig(CommandContext<CommandSourceStack> ctx) {
         doReloadConfig(ctx.getSource().getServer());
         reply(ctx, "Config reloaded and synced.");
+        return 1;
+    }
+
+    private static int recreateConfig(CommandContext<CommandSourceStack> ctx) {
+        String backup = MidnightThoughtsConfig.recreate();
+        if (backup == null) {
+            replyFailure(ctx, "Could not back up the current config, nothing was changed.");
+            return 0;
+        }
+        MTServer.syncConfig(ctx.getSource().getServer());
+        reply(ctx, backup.isEmpty()
+                ? "Config recreated with defaults and synced."
+                : "Config recreated with defaults and synced. Previous file saved as " + backup + ".");
         return 1;
     }
 
@@ -141,7 +157,7 @@ public final class MidnightThoughtsCommand {
             ChatFormatting c = weight > 0 ? ChatFormatting.GREEN : (weight < 0 ? ChatFormatting.RED : ChatFormatting.GRAY);
             value = Component.literal("  " + (weight > 0 ? "+" : "") + weight).withStyle(c);
         } else {
-            value = Component.literal("  —").withStyle(ChatFormatting.DARK_GRAY);
+            value = Component.literal("  -").withStyle(ChatFormatting.DARK_GRAY);
         }
         return Component.literal("  ").append(icon).append(label).append(value);
     }
@@ -248,37 +264,26 @@ public final class MidnightThoughtsCommand {
 
     private static void doReloadConfig(MinecraftServer server) {
         MidnightThoughtsConfig.reload();
-        ComfortCalculator.clearCache();
-        SyncConfigPacket packet = SyncConfigPacket.of(MidnightThoughtsConfig.getInstance());
-        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
-            MTNetwork.sendToPlayer(player, packet);
-        }
+        MTServer.syncConfig(server);
     }
 
     private static int doReloadAchievements(MinecraftServer server) {
-        var list = AchievementLoader.reload();
-        SyncAchievementsPacket packet = new SyncAchievementsPacket(list);
-        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
-            MTNetwork.sendToPlayer(player, packet);
-        }
-        return list.size();
+        List<AchievementDefinition> achievements = AchievementLoader.reload();
+        MTNetwork.sendToAll(server, new SyncAchievementsPacket(achievements));
+        return achievements.size();
     }
 
     private static void doReloadContent(MinecraftServer server) {
         UserContentInitializer.writeDefaultFiles();
         UserContentInitializer.invalidateCache();
-        UserContentPacket packet = UserContentInitializer.buildPacket();
-        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
-            MTNetwork.sendToPlayer(player, packet);
-        }
-    }
-
-    private static void reply(CommandContext<CommandSourceStack> ctx, String message) {
-        ctx.getSource().sendSuccess(() -> Component.literal("[Midnight Thoughts] " + message), true);
+        MTNetwork.sendToAll(server, UserContentInitializer.buildPacket());
     }
 
     private static void replyFailure(CommandContext<CommandSourceStack> ctx, String message) {
         ctx.getSource().sendFailure(Component.literal("[Midnight Thoughts] " + message));
     }
 
+    private static void reply(CommandContext<CommandSourceStack> ctx, String message) {
+        ctx.getSource().sendSuccess(() -> Component.literal("[Midnight Thoughts] " + message), true);
+    }
 }

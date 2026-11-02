@@ -1,80 +1,77 @@
 package mt.client.ui.summary;
 
 import mt.MTConstants;
-import mt.client.config.ClientConfig;
 import net.minecraft.resources.Identifier;
 
 public class SummaryConstants {
 
-    public static final Identifier ICON_BLOCKS = Identifier.fromNamespaceAndPath(MTConstants.MOD_ID, "textures/gui/shared/icons/icon_blocks.png");
-    public static final Identifier ICON_DISTANCE = Identifier.fromNamespaceAndPath(MTConstants.MOD_ID, "textures/gui/shared/icons/icon_distance.png");
-    public static final Identifier ICON_SWORD = Identifier.fromNamespaceAndPath(MTConstants.MOD_ID, "textures/gui/shared/icons/icon_sword.png");
-    public static final Identifier ICON_DEATH = Identifier.fromNamespaceAndPath(MTConstants.MOD_ID, "textures/gui/shared/icons/icon_death.png");
-    public static final Identifier ICON_JUMP = Identifier.fromNamespaceAndPath(MTConstants.MOD_ID, "textures/gui/shared/icons/icon_jump.png");
-    public static final Identifier ICON_AXE = Identifier.fromNamespaceAndPath(MTConstants.MOD_ID, "textures/gui/shared/icons/icon_axe.png");
+    public static final int FRAME_TEXTURE_WIDTH = 260;
+    public static final int FRAME_TEXTURE_HEIGHT = 200;
 
-    public static final int ROW_TEXTURE_WIDTH = 320;
-    public static final int ROW_TEXTURE_HEIGHT = 64;
+    public static final int INFO_TEXTURE_WIDTH = 220;
+    public static final int INFO_TEXTURE_HEIGHT = 160;
 
-    public static final int NAME_BADGE_TEXTURE_WIDTH = 80;
-    public static final int NAME_BADGE_TEXTURE_HEIGHT = 14;
+    public static final int BADGE_TEXTURE_WIDTH = 32;
+    public static final int BADGE_TEXTURE_HEIGHT = 14;
+    public static final int BADGE_BORDER = 2;
+    public static final int BADGE_INSET = 3;
 
-    public static final int STAT_BADGE_TEXTURE_WIDTH = 100;
-    public static final int STAT_BADGE_TEXTURE_HEIGHT = 14;
+    public static final int TOOLTIP_TEXTURE_WIDTH = 32;
+    public static final int TOOLTIP_TEXTURE_HEIGHT = 16;
+    public static final int TOOLTIP_BORDER = 2;
 
-    public static final int ACHIEVEMENT_BADGE_TEXTURE_WIDTH = 100;
-    public static final int ACHIEVEMENT_BADGE_TEXTURE_HEIGHT = 14;
+    public static final int STATS_PANEL_TEXTURE_WIDTH = 138;
+    public static final int STATS_PANEL_TEXTURE_HEIGHT = 98;
+
+    public static final int ACHIEVEMENT_TEXTURE_SIZE = 24;
+
+    public static final int CHIP_TEXTURE_WIDTH = 64;
+    public static final int CHIP_TEXTURE_HEIGHT = 14;
+    public static final int CHIP_INSET = 4;
+
+    public static final int BUTTON_TEXTURE_SIZE = 16;
+
+    public static final int SLEEPING_HUD_TEXTURE_WIDTH = 26;
+    public static final int SLEEPING_HUD_TEXTURE_HEIGHT = 16;
+
+    private static Identifier themed(String name) {
+        return Identifier.fromNamespaceAndPath(MTConstants.MOD_ID,
+                "textures/gui/" + ThemeColors.currentTheme() + "/" + name + ".png");
+    }
 
     public static Identifier getFrameTexture() {
-        String theme = ClientConfig.getInstance().getEffectiveTheme();
-        return Identifier.fromNamespaceAndPath(MTConstants.MOD_ID, "textures/gui/" + theme + "/frame.png");
+        return themed("frame");
+    }
+
+    public static Identifier getInfoTexture(boolean mvp) {
+        return themed(mvp ? "info_mvp" : "info");
     }
 
     public static Identifier getBadgeTexture() {
-        String theme = ClientConfig.getInstance().getEffectiveTheme();
-        return Identifier.fromNamespaceAndPath(MTConstants.MOD_ID, "textures/gui/" + theme + "/badge.png");
+        return themed("badge");
     }
 
-    public static Identifier getPagesHolderTexture() {
-        String theme = ClientConfig.getInstance().getEffectiveTheme();
-        return Identifier.fromNamespaceAndPath(MTConstants.MOD_ID, "textures/gui/" + theme + "/pages_holder.png");
+    public static Identifier getStatsPanelTexture() {
+        return themed("stats_panel");
+    }
+
+    public static Identifier getAchievementTexture() {
+        return themed("achievement_badge");
+    }
+
+    public static Identifier getChipTexture() {
+        return themed("days");
+    }
+
+    public static Identifier getTooltipTexture() {
+        return themed("tooltip");
+    }
+
+    public static Identifier getButtonTexture(boolean next) {
+        return themed(next ? "button_right" : "button_left");
     }
 
     public static Identifier getSleepingHudTexture() {
-        String theme = ClientConfig.getInstance().getEffectiveTheme();
-        return Identifier.fromNamespaceAndPath(MTConstants.MOD_ID, "textures/gui/" + theme + "/sleeping_hud.png");
+        return themed("sleeping_hud");
     }
-
-    public static Identifier getRowTexture() {
-        String theme = ClientConfig.getInstance().getEffectiveTheme();
-        return Identifier.fromNamespaceAndPath(MTConstants.MOD_ID, "textures/gui/" + theme + "/row.png");
-    }
-
-    public static Identifier getMvpRowTexture() {
-        String theme = ClientConfig.getInstance().getEffectiveTheme();
-        return Identifier.fromNamespaceAndPath(MTConstants.MOD_ID, "textures/gui/" + theme + "/mvp_row.png");
-    }
-
-    public static Identifier getNameBadgeTexture() {
-        String theme = ClientConfig.getInstance().getEffectiveTheme();
-        return Identifier.fromNamespaceAndPath(MTConstants.MOD_ID, "textures/gui/" + theme + "/name_badge.png");
-    }
-
-    public static Identifier getStatBadgeTexture() {
-        String theme = ClientConfig.getInstance().getEffectiveTheme();
-        return Identifier.fromNamespaceAndPath(MTConstants.MOD_ID, "textures/gui/" + theme + "/stat_badge.png");
-    }
-
-    public static Identifier getAchievementBadgeTexture() {
-        String theme = ClientConfig.getInstance().getEffectiveTheme();
-        return Identifier.fromNamespaceAndPath(MTConstants.MOD_ID, "textures/gui/" + theme + "/achievement_badge.png");
-    }
-
-    public static final long STAT_ANIMATION_DURATION = 800;
-    public static final float FRAME_ASPECT_RATIO = 1000.0f / 640.0f;
-
-    public static final int PAGES_HOLDER_TEXTURE_WIDTH = 380;
-    public static final int PAGES_HOLDER_TEXTURE_HEIGHT = 170;
-
-    public static final int PLAYERS_PER_PAGE = 2;
 }

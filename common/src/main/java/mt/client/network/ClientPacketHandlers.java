@@ -4,25 +4,20 @@ import mt.cache.ClientAchievementCache;
 import mt.cache.ServerConfigCache;
 import mt.client.MTClient;
 import mt.client.manager.WellRestedClientState;
-import mt.client.ui.DailySummaryScreen;
 import mt.client.ui.SleepingPlayersHud;
-import mt.config.MidnightThoughtsConfig;
 import mt.network.packet.DailySummaryPacket;
 import mt.network.packet.MoonPhasePacket;
 import mt.network.packet.SleepingPlayersPacket;
 import mt.network.packet.SyncAchievementsPacket;
 import mt.network.packet.SyncConfigPacket;
 import mt.network.packet.UserContentPacket;
-import mt.network.packet.WellRestedPacket;
-import net.minecraft.client.Minecraft;
+import mt.network.packet.PlayerSleepStatePacket;
 
-public final class ClientPacketHandlers {
-
-    private ClientPacketHandlers() {}
+public class ClientPacketHandlers {
 
     public static void handleDailySummary(DailySummaryPacket packet) {
-        if (MidnightThoughtsConfig.getInstance().isEnableDailySummaryScreen()) {
-            Minecraft.getInstance().setScreen(new DailySummaryScreen(packet.summaries()));
+        if (mt.config.MidnightThoughtsConfig.getInstance().isEnableDailySummaryScreen()) {
+            MTClient.showSummary(packet.summaries());
         }
     }
 
@@ -30,7 +25,7 @@ public final class ClientPacketHandlers {
         SleepingPlayersHud.updateSleepingCount(packet.sleepingCount(), packet.totalPlayers());
     }
 
-    public static void handleWellRested(WellRestedPacket packet) {
+    public static void handleSleepState(PlayerSleepStatePacket packet) {
         WellRestedClientState.update(
                 packet.active(), packet.level(), packet.ticksRemaining(),
                 packet.totalTicks(), packet.nightmareMode(), packet.mvp()

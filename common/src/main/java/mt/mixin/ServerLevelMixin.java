@@ -8,7 +8,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
 import java.util.function.BooleanSupplier;
 
 @Mixin(ServerLevel.class)
@@ -21,7 +20,7 @@ public class ServerLevelMixin {
                     shift = At.Shift.AFTER
             )
     )
-    private void onAfterWakeUpAllPlayers(BooleanSupplier haveTime, CallbackInfo ci) {
+    private void onAfterWakeUpAllPlayers(BooleanSupplier hasTimeLeft, CallbackInfo ci) {
         if (!MidnightThoughtsConfig.getInstance().getServer().resetPhantomTimerForNonSleepers) return;
         for (ServerPlayer player : ((ServerLevel) (Object) this).players()) {
             if (!player.isSpectator()) {

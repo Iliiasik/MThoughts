@@ -9,18 +9,6 @@ class SleepingPlayersHudTest {
 
     private static final float FADE_DURATION_MS = 160.0f;
 
-    private static float fadeOverFrames(int frameCount, float frameMs) {
-        float alpha = 0f;
-        long now = 1_000_000L;
-        long previous = 0L;
-        for (int i = 0; i < frameCount; i++) {
-            alpha = Math.min(1.0f, alpha + SleepingPlayersHud.fadeStep(now, previous));
-            previous = now;
-            now += (long) frameMs;
-        }
-        return alpha;
-    }
-
     private static int framesUntilOpaque(float frameMs) {
         float alpha = 0f;
         long now = 1_000_000L;
@@ -94,7 +82,14 @@ class SleepingPlayersHudTest {
 
     @Test
     void halfTheDurationGivesRoughlyHalfTheOpacity() {
-        float alpha = fadeOverFrames(5, 16f);
+        float alpha = 0f;
+        long now = 1_000_000L;
+        long previous = 0L;
+        for (int i = 0; i < 5; i++) {
+            alpha = Math.min(1.0f, alpha + SleepingPlayersHud.fadeStep(now, previous));
+            previous = now;
+            now += 16L;
+        }
 
         assertTrue(alpha > 0.3f && alpha < 0.7f, "unexpected midpoint opacity: " + alpha);
     }

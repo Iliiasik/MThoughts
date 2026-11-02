@@ -29,29 +29,34 @@ public class SlideRepository {
     private final Map<String, Map<SlideCategory, List<Slide>>> slideCache = new HashMap<>();
 
     public void loadAllSlides(ResourceManager manager) {
-        for (String language : mt.common.SupportedLanguages.codes()) {
-            loadSlidesForLanguage(manager, language);
+        List<String> languages = mt.common.SupportedLanguages.codes();
+        int total = 0;
+        for (String language : languages) {
+            int loaded = loadSlidesForLanguage(manager, language);
+            if (loaded == 0) {
+                LOGGER.warn("No slides were loaded for language: {}", language);
+            }
+            total += loaded;
         }
+        LOGGER.info("Loaded {} slides for {} languages", total, languages.size());
     }
 
-    private void loadSlidesForLanguage(ResourceManager manager, String language) {
+    private int loadSlidesForLanguage(ResourceManager manager, String language) {
         Map<SlideCategory, List<Slide>> categoryMap = new EnumMap<>(SlideCategory.class);
 
-        categoryMap.put(SlideCategory.FACT, loadCategory(manager, language, "facts", SlideCategory.FACT));
-        categoryMap.put(SlideCategory.LORE, loadCategory(manager, language, "lore", SlideCategory.LORE));
-        categoryMap.put(SlideCategory.SURREAL, loadCategory(manager, language, "surreal", SlideCategory.SURREAL));
-        categoryMap.put(SlideCategory.SPECIAL, loadCategory(manager, language, "special", SlideCategory.SPECIAL));
-        categoryMap.put(SlideCategory.NIGHTMARE, loadCategory(manager, language, "nightmares", SlideCategory.NIGHTMARE));
+        for (SlideCategory category : SlideCategory.values()) {
+            categoryMap.put(category, loadCategory(manager, language, category));
+        }
 
         slideCache.put(language, categoryMap);
 
-        int total = categoryMap.values().stream().mapToInt(List::size).sum();
-        LOGGER.info("Loaded {} slides for language: {}", total, language);
+        return categoryMap.values().stream().mapToInt(List::size).sum();
     }
 
-    private List<Slide> loadCategory(ResourceManager manager, String language, String fileName, SlideCategory category) {
+    private List<Slide> loadCategory(ResourceManager manager, String language, SlideCategory category) {
         List<Slide> slides = new ArrayList<>();
-        Identifier resourceId = Identifier.fromNamespaceAndPath(MTConstants.MOD_ID, "dreams/" + language + "/" + fileName + ".json");
+        Identifier resourceId = Identifier.fromNamespaceAndPath(MTConstants.MOD_ID,
+                "dreams/" + language + "/" + category.fileName() + ".json");
 
         try {
             Optional<Resource> resourceOpt = manager.getResource(resourceId);
@@ -75,6 +80,7 @@ public class SlideRepository {
     }
 
     public List<Slide> getSlidesByCategory(String language, SlideCategory category) {
+        ensureLoaded();
         List<Slide> slides = slidesFrom(slideCache.get(language), category);
         if (!slides.isEmpty()) {
             return slides;
@@ -119,6 +125,12 @@ public class SlideRepository {
             }
         }
         return slides.getLast();
+    }
+
+    private void ensureLoaded() {
+        if (!slideCache.isEmpty()) return;
+        LOGGER.warn("Slides were requested before the resource reload finished, loading them now");
+        loadAllSlides(net.minecraft.client.Minecraft.getInstance().getResourceManager());
     }
 
     public void clearCache() {

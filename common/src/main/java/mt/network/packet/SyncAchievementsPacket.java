@@ -1,7 +1,7 @@
 package mt.network.packet;
 
 import mt.server.AchievementDefinition;
-import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
@@ -11,13 +11,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public record SyncAchievementsPacket(List<AchievementDefinition> achievements) implements CustomPacketPayload {
-
     public static final Identifier ID_LOC = Identifier.fromNamespaceAndPath("midnightthoughts", "sync_achievements");
-    public static final Type<@NotNull SyncAchievementsPacket> TYPE = new Type<>(ID_LOC);
+    public static final CustomPacketPayload.Type<SyncAchievementsPacket> TYPE = new CustomPacketPayload.Type<>(ID_LOC);
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, SyncAchievementsPacket> CODEC = StreamCodec.of(
+    public static final StreamCodec<FriendlyByteBuf, SyncAchievementsPacket> CODEC = StreamCodec.of(
             (buf, packet) -> {
-                buf.writeInt(packet.achievements().size());
+                buf.writeVarInt(packet.achievements().size());
                 for (AchievementDefinition def : packet.achievements()) {
                     buf.writeUtf(def.id);
                     buf.writeUtf(def.name);
@@ -25,7 +24,7 @@ public record SyncAchievementsPacket(List<AchievementDefinition> achievements) i
                 }
             },
             buf -> {
-                int size = buf.readInt();
+                int size = buf.readVarInt();
                 List<AchievementDefinition> list = new ArrayList<>();
                 for (int i = 0; i < size; i++) {
                     AchievementDefinition def = new AchievementDefinition();
@@ -40,7 +39,7 @@ public record SyncAchievementsPacket(List<AchievementDefinition> achievements) i
     );
 
     @Override
-    public @NotNull Type<? extends @NotNull CustomPacketPayload> type() {
+    public @NotNull Type<? extends CustomPacketPayload> type() {
         return TYPE;
     }
 }

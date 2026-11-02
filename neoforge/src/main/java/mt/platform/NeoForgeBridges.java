@@ -5,9 +5,10 @@ import mt.api.event.MvpDeterminedEvent;
 import mt.api.event.NightmareEvent;
 import mt.api.event.WellRestedAppliedEvent;
 import mt.api.event.WellRestedExpiredEvent;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.server.MinecraftServer;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
+import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.network.PacketDistributor;
 
@@ -45,15 +46,17 @@ public final class NeoForgeBridges {
             }
         });
 
-        MTNetwork.setBridge(new MTNetwork.Bridge() {
+        MTNetwork.setBridge(PacketDistributor::sendToPlayer);
+
+        MTPlatform.setBridge(new MTPlatform.Bridge() {
             @Override
-            public void sendToPlayer(ServerPlayer player, CustomPacketPayload payload) {
-                PacketDistributor.sendToPlayer(player, payload);
+            public boolean isModLoaded(String modId) {
+                return ModList.get().isLoaded(modId);
             }
 
             @Override
-            public void sendToAll(MinecraftServer server, CustomPacketPayload payload) {
-                PacketDistributor.sendToAllPlayers(payload);
+            public CompoundTag persistentData(Player player) {
+                return player.getPersistentData();
             }
         });
     }

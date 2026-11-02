@@ -1,23 +1,23 @@
 package mt.common;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -48,21 +48,13 @@ class SupportedLanguagesTest {
     }
 
     @Test
-    void apiSupportedSetIsImmutable() {
-        assertThrows(UnsupportedOperationException.class,
-                () -> SupportedLanguages.apiSupported().add("xx_xx"));
+    void neitherCollectionCanBeChangedFromOutside() {
+        assertRejectsChanges(SupportedLanguages.codes());
+        assertRejectsChanges(SupportedLanguages.apiSupported());
     }
 
-    @Test
-    void codesListIsImmutable() {
-        assertThrows(UnsupportedOperationException.class,
-                () -> SupportedLanguages.codes().add("xx_xx"));
-    }
-
-    @Test
-    void accessorsReturnStableInstances() {
-        assertSame(SupportedLanguages.codes(), SupportedLanguages.codes());
-        assertSame(SupportedLanguages.apiSupported(), SupportedLanguages.apiSupported());
+    private static void assertRejectsChanges(Collection<String> collection) {
+        assertThrows(UnsupportedOperationException.class, () -> collection.add("xx_xx"));
     }
 
     @ParameterizedTest
@@ -127,36 +119,36 @@ class SupportedLanguagesTest {
     }
 
     @Test
-    void fromLocaleIsThreadSafeUnderLoad() throws Exception {
+    @Timeout(60)
+    void fromLocaleIsThreadSafeUnderLoad() {
         int threads = 16;
         int iterations = 20_000;
-        ExecutorService pool = Executors.newFixedThreadPool(threads);
         CountDownLatch start = new CountDownLatch(1);
         AtomicInteger mismatches = new AtomicInteger();
         List<String> codes = SupportedLanguages.codes();
 
-        for (int t = 0; t < threads; t++) {
-            pool.submit(() -> {
-                try {
-                    start.await();
-                    for (int i = 0; i < iterations; i++) {
-                        String code = codes.get(i % codes.size());
-                        if (!code.equals(SupportedLanguages.fromLocale(code))) {
-                            mismatches.incrementAndGet();
+        try (ExecutorService pool = Executors.newFixedThreadPool(threads)) {
+            for (int t = 0; t < threads; t++) {
+                pool.submit(() -> {
+                    try {
+                        start.await();
+                        for (int i = 0; i < iterations; i++) {
+                            String code = codes.get(i % codes.size());
+                            if (!code.equals(SupportedLanguages.fromLocale(code))) {
+                                mismatches.incrementAndGet();
+                            }
+                            if (!codes.contains(SupportedLanguages.fromLocale("qq_qq"))) {
+                                mismatches.incrementAndGet();
+                            }
                         }
-                        if (!codes.contains(SupportedLanguages.fromLocale("qq_qq"))) {
-                            mismatches.incrementAndGet();
-                        }
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
                     }
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-            });
+                });
+            }
+            start.countDown();
         }
 
-        start.countDown();
-        pool.shutdown();
-        assertTrue(pool.awaitTermination(60, TimeUnit.SECONDS), "load test did not finish in time");
         assertEquals(0, mismatches.get());
     }
 

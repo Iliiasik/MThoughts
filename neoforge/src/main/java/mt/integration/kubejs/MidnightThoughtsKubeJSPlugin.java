@@ -19,7 +19,7 @@ public class MidnightThoughtsKubeJSPlugin implements KubeJSPlugin {
     }
 
     @Override
-    public void afterInit() {
+    public void init() {
         NeoForge.EVENT_BUS.register(new MTEventForwarder());
     }
 }

@@ -1,1 +1,1 @@
-mt.integration.kubejs.MidnightThoughtsKubeJSPlugin
+mt.integration.kubejs.MidnightThoughtsKubeJSPlugin midnightthoughts

@@ -122,11 +122,16 @@ public class StatsStorage {
         public int baseDeaths;
         public int baseJumps;
         public int baseDamageDealt;
+
         public int recordBlocks;
         public int recordDistance;
         public int recordMobs;
         public int totalSleeps;
+
         public Set<String> unlockedAchievements = new HashSet<>();
+
+        public SavedPlayerStats() {}
+
     }
 
     private static class StatsAdapter implements JsonSerializer<SavedPlayerStats>, JsonDeserializer<SavedPlayerStats> {
@@ -151,6 +156,7 @@ public class StatsStorage {
         public SavedPlayerStats deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
             JsonObject obj = json.getAsJsonObject();
             SavedPlayerStats stats = new SavedPlayerStats();
+
             stats.baseBlocksDestroyed = safeGetInt(obj, "baseBlocksDestroyed");
             stats.baseDistanceWalked = safeGetInt(obj, "baseDistanceWalked");
             stats.baseMobsKilled = safeGetInt(obj, "baseMobsKilled");
@@ -162,6 +168,7 @@ public class StatsStorage {
             stats.recordMobs = safeGetInt(obj, "recordMobs");
             stats.totalSleeps = safeGetInt(obj, "totalSleeps");
             stats.unlockedAchievements = safeGetStringSet(obj);
+
             return stats;
         }
 
@@ -169,10 +176,15 @@ public class StatsStorage {
             if (!obj.has(field)) {
                 return 0;
             }
+
             try {
                 JsonElement element = obj.get(field);
-                if (element.isJsonPrimitive() && element.getAsJsonPrimitive().isNumber()) {
-                    return clampToSafeInt(element.getAsJsonPrimitive().getAsLong());
+                if (element.isJsonPrimitive()) {
+                    JsonPrimitive primitive = element.getAsJsonPrimitive();
+                    if (primitive.isNumber()) {
+                        long value = primitive.getAsLong();
+                        return clampToSafeInt(value);
+                    }
                 }
                 return 0;
             } catch (Exception e) {

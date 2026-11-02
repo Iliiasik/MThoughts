@@ -56,7 +56,7 @@ class MidnightThoughtsConfigTest {
     }
 
     @Test
-    void missingFileProducesDefaultsAndWritesThemOut() throws IOException {
+    void missingFileProducesDefaultsAndWritesThemOut() {
         MidnightThoughtsConfig config = MidnightThoughtsConfig.load();
 
         assertNotNull(config);
@@ -233,7 +233,6 @@ class MidnightThoughtsConfigTest {
             assertFalse(MidnightThoughtsConfigValidation.isValidTheme(theme),
                     "\"" + theme + "\" must not reach a texture path");
         }
-        assertFalse(MidnightThoughtsConfigValidation.isValidTheme(null));
     }
 
     @Test
@@ -252,12 +251,12 @@ class MidnightThoughtsConfigTest {
     }
 
     @Test
-    void hastePhasesAreClamped() throws IOException {
+    void aLevelWithoutAnAttributeListFallsBackToDefaults() throws IOException {
         writeConfig("""
                 {
                   "wellRested": {
                     "levels": {
-                      "level1": { "hastePhase1": 900.0, "hastePhase2": -900.0, "hastePhase3": 0.25 }
+                      "level1": { "durationMinutes": 4 }
                     }
                   }
                 }
@@ -265,9 +264,45 @@ class MidnightThoughtsConfigTest {
 
         MidnightThoughtsConfig.WellRestedLevel level = MidnightThoughtsConfig.load().getWellRested().getLevel(1);
 
-        assertEquals(5.0f, level.hastePhase1);
-        assertEquals(-5.0f, level.hastePhase2);
-        assertEquals(0.25f, level.hastePhase3);
+        assertEquals(4, level.durationMinutes, "an explicit value must survive the fallback");
+        assertFalse(level.attributes.isEmpty(), "a missing list must not leave the level without bonuses");
+        assertNotNull(findBonus(level, MidnightThoughtsConfig.ATTRIBUTE_MOVEMENT_SPEED));
+        assertNotNull(findBonus(level, MidnightThoughtsConfig.ATTRIBUTE_MAX_HEALTH));
+    }
+
+    @Test
+    void attributeBonusValuesAreClamped() throws IOException {
+        writeConfig("""
+                {
+                  "wellRested": {
+                    "levels": {
+                      "level1": {
+                        "attributes": [
+                          { "id": "minecraft:luck", "operation": "nonsense",
+                            "phase1": 99999.0, "phase2": -99999.0, "phase3": 2.0 }
+                        ]
+                      }
+                    }
+                  }
+                }
+                """);
+
+        MidnightThoughtsConfig.WellRestedLevel level = MidnightThoughtsConfig.load().getWellRested().getLevel(1);
+        MidnightThoughtsConfig.AttributeBonus luck = findBonus(level, "minecraft:luck");
+
+        assertEquals(10000.0f, luck.phase1);
+        assertEquals(-10000.0f, luck.phase2);
+        assertEquals(2.0f, luck.phase3);
+        assertEquals(MidnightThoughtsConfig.OPERATION_ADD_VALUE, luck.operation,
+                "an unknown operation must fall back to add_value");
+    }
+
+    private static MidnightThoughtsConfig.AttributeBonus findBonus(
+            MidnightThoughtsConfig.WellRestedLevel level, String id) {
+        for (MidnightThoughtsConfig.AttributeBonus bonus : level.attributes) {
+            if (id.equals(bonus.id)) return bonus;
+        }
+        throw new AssertionError("no attribute bonus for " + id);
     }
 
     @Test
@@ -346,10 +381,10 @@ class MidnightThoughtsConfigTest {
         JsonObject overlay = onDisk.getAsJsonObject("sleepOverlay");
 
         assertTrue(overlay.has("enableStarDust"), "new key missing after migration");
+        assertTrue(overlay.has("enableSpaceObjects"), "new key missing after migration");
         assertTrue(overlay.has("showSlideProgress"), "new key missing after migration");
         assertTrue(onDisk.getAsJsonObject("ui").has("hideWellRestedHud"));
         assertTrue(onDisk.getAsJsonObject("ui").has("hideSleepingPlayersHud"));
-        assertTrue(onDisk.getAsJsonObject("ui").has("hideThemeSwitchButton"));
         assertEquals(4500, overlay.get("minSlideDisplayTimeMs").getAsInt());
         assertEquals(7500, overlay.get("maxSlideDisplayTimeMs").getAsInt());
         assertEquals("magic", onDisk.getAsJsonObject("ui").get("theme").getAsString());
@@ -385,9 +420,6 @@ class MidnightThoughtsConfigTest {
                     "levels": {
                       "level1": {
                         "durationMinutes": 0,
-                        "speedPhase1": 900.0,
-                        "strengthPhase1": -900.0,
-                        "healthBonus": -5.0,
                         "regenBonus": 55.0
                       }
                     }
@@ -398,14 +430,28 @@ class MidnightThoughtsConfigTest {
         MidnightThoughtsConfig.WellRestedLevel level = MidnightThoughtsConfig.load().getWellRested().getLevel(1);
 
         assertEquals(1, level.durationMinutes);
-        assertEquals(5.0f, level.speedPhase1);
-        assertEquals(-5.0f, level.strengthPhase1);
-        assertEquals(0.0f, level.healthBonus);
         assertEquals(1.0f, level.regenBonus);
     }
 
     @Test
-    void unknownLevelKeyFallsBackToLevelOne() throws IOException {
+    void anEmptyAttributeListIsLeftAlone() throws IOException {
+        writeConfig("""
+                {
+                  "wellRested": {
+                    "levels": {
+                      "level1": { "durationMinutes": 5, "attributes": [] }
+                    }
+                  }
+                }
+                """);
+
+        MidnightThoughtsConfig.WellRestedLevel level = MidnightThoughtsConfig.load().getWellRested().getLevel(1);
+
+        assertTrue(level.attributes.isEmpty(), "an explicitly emptied list must not be repopulated");
+    }
+
+    @Test
+    void unknownLevelKeyFallsBackToLevelOne() {
         MidnightThoughtsConfig config = MidnightThoughtsConfig.load();
 
         assertEquals(config.getWellRested().getLevel(1).durationMinutes,

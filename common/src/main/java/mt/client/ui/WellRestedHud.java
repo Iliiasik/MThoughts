@@ -20,28 +20,31 @@ public class WellRestedHud {
     private static final int TEX_FILL_W = 50;
     private static final int TEX_FILL_H = 5;
     private static final int TEX_ICON_SIZE = 9;
-    public static final int BAR_GUI_H = 9;
+    private static final int BAR_GUI_H = 9;
     private static final int ICON_GUI_SIZE = 9;
     private static final int GAP = 1;
     private static final int FILL_INSET = 2;
 
-    private static final String[] ROMAN = {"", "I", "II", "III", "IV", "V"};
-    private static final int BLINK_THRESHOLD_TICKS = 200;
-
     private static final int MARGIN_SIDE = 4;
     private static final int MARGIN_BOTTOM = 4;
+
+    private static final String[] ROMAN = {"", "I", "II", "III", "IV", "V"};
 
     public static boolean isActive() {
         return WellRestedClientState.isActive()
                 && !MidnightThoughtsConfig.getInstance().isHideWellRestedHud();
     }
 
-    public static boolean isBarPosition() {
+    public static int airBubbleShift() {
+        return isActive() && isBarPosition() ? BAR_GUI_H + 3 : 0;
+    }
+
+    private static boolean isBarPosition() {
         return MidnightThoughtsConfig.HUD_POSITION_BAR
                 .equals(MidnightThoughtsConfig.getInstance().getWellRestedHudPosition());
     }
 
-    public static void render(GuiGraphicsExtractor context, int screenWidth, int screenHeight) {
+    public static void render(GuiGraphicsExtractor graphics, int screenWidth, int screenHeight) {
         if (!isActive()) return;
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
@@ -62,17 +65,7 @@ public class WellRestedHud {
         String roman = (!isMvp && level >= 1 && level <= 5) ? ROMAN[level] : "";
         int romanWidth = roman.isEmpty() ? 0 : font.width(roman);
 
-        float scaleAlpha = 1.0f;
-        if (ticksRemaining <= BLINK_THRESHOLD_TICKS && ticksRemaining > 0) {
-            float sin = (float) Math.sin(System.currentTimeMillis() / 1000.0 * Math.PI * 3.0f);
-            scaleAlpha = 0.4f + 0.6f * (sin * 0.5f + 0.5f);
-        }
-
-        int alpha = Math.round(scaleAlpha * 255f) << 24;
-        int scaleColor = alpha | 0x00FFFFFF;
-
         String position = MidnightThoughtsConfig.getInstance().getWellRestedHudPosition();
-        boolean bar = MidnightThoughtsConfig.HUD_POSITION_BAR.equals(position);
         int romanSpace = roman.isEmpty() ? 0 : romanWidth + GAP;
         int totalRight = screenWidth / 2 + 91;
 
@@ -80,7 +73,7 @@ public class WellRestedHud {
 
         int iconX;
         int barY;
-        if (bar) {
+        if (isBarPosition()) {
             iconX = totalRight - hudWidth;
             barY = screenHeight - 32 - BAR_GUI_H - 10;
         } else {
@@ -93,25 +86,31 @@ public class WellRestedHud {
         int romanX = iconX + ICON_GUI_SIZE + GAP;
         int barX = romanX + romanSpace;
 
-        context.blit(RenderPipelines.GUI_TEXTURED, activeIcon, iconX, barY, 0.0f, 0.0f,
-                ICON_GUI_SIZE, ICON_GUI_SIZE, TEX_ICON_SIZE, TEX_ICON_SIZE, scaleColor);
+        blit(graphics, activeIcon, iconX, barY, ICON_GUI_SIZE, ICON_GUI_SIZE,
+                TEX_ICON_SIZE, TEX_ICON_SIZE, TEX_ICON_SIZE, TEX_ICON_SIZE);
 
         if (!roman.isEmpty()) {
             int romanY = barY + (BAR_GUI_H - font.lineHeight) / 2;
-            context.text(font, roman, romanX, romanY, alpha | 0x00FFD966, true);
+            graphics.text(font, roman, romanX, romanY, 0xFFFFD966, true);
         }
 
-        context.blit(RenderPipelines.GUI_TEXTURED, SCALE_TEXTURE, barX, barY, 0.0f, 0.0f,
-                TEX_SCALE_W, BAR_GUI_H, TEX_SCALE_W, TEX_SCALE_H, scaleColor);
+        blit(graphics, SCALE_TEXTURE, barX, barY, TEX_SCALE_W, BAR_GUI_H,
+                TEX_SCALE_W, TEX_SCALE_H, TEX_SCALE_W, TEX_SCALE_H);
 
         if (progress > 0f) {
             int fillGuiX = barX + FILL_INSET;
             int fillGuiY = barY + (BAR_GUI_H - TEX_FILL_H) / 2;
             int visibleFillW = Math.round(TEX_FILL_W * progress);
             if (visibleFillW > 0) {
-                context.blit(RenderPipelines.GUI_TEXTURED, FILL_TEXTURE, fillGuiX, fillGuiY, 0.0f, 0.0f,
-                        visibleFillW, TEX_FILL_H, TEX_FILL_W, TEX_FILL_H, scaleColor);
+                blit(graphics, FILL_TEXTURE, fillGuiX, fillGuiY, visibleFillW, TEX_FILL_H,
+                        visibleFillW, TEX_FILL_H, TEX_FILL_W, TEX_FILL_H);
             }
         }
+
+    }
+
+    private static void blit(GuiGraphicsExtractor graphics, Identifier texture, int x, int y,
+                             int guiW, int guiH, int srcW, int srcH, int texW, int texH) {
+        graphics.blit(RenderPipelines.GUI_TEXTURED, texture, x, y, 0.0f, 0.0f, guiW, guiH, srcW, srcH, texW, texH);
     }
 }

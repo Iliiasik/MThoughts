@@ -1,94 +1,56 @@
 package mt.client.ui.summary;
 
 import mt.cache.ClientAchievementCache;
-import mt.client.config.ClientConfig;
-import mt.client.config.ThemeColors;
+import mt.client.ui.engine.RenderHelper;
+import mt.client.ui.engine.RenderUtils;
 import mt.server.AchievementDefinition;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class AchievementRenderer {
+public final class AchievementRenderer {
 
-    public static void render(GuiGraphicsExtractor graphics, Font font, List<String> achievements,
-                              int x, int y, int width, int height, SummaryDimensions dims,
-                              float fadeAlpha, List<AchievementTooltipArea> achievementAreas) {
-        int maxAchievements = 3;
-        int count = Math.min(achievements.size(), maxAchievements);
+    private AchievementRenderer() {}
+
+    public static void render(GuiGraphicsExtractor context, List<String> achievements,
+                              SummaryLayout layout, float fadeAlpha, List<HoverArea> areas) {
+        int count = Math.min(achievements.size(), SummaryLayout.ACHIEVEMENT_COUNT);
         if (count == 0) return;
 
-        BadgeDimensions badgeDims = BadgeDimensions.calculate(dims);
-        int badgeH = badgeDims.height();
-        int rowSpacing = badgeDims.rowSpacing();
-        float textScale = badgeDims.textScale();
-
-        String theme = ClientConfig.getInstance().getEffectiveTheme();
-        ThemeColors.ThemeColor colors = ThemeColors.getThemeColors(theme);
-
-        int texW = SummaryConstants.ACHIEVEMENT_BADGE_TEXTURE_WIDTH;
-        int texH = SummaryConstants.ACHIEVEMENT_BADGE_TEXTURE_HEIGHT;
-
-        int totalH = count * badgeH + (count - 1) * rowSpacing;
-        int startY = y + Math.max(0, (height - totalH) / 2);
+        int size = layout.achievementSize();
+        int step = size + layout.s(SummaryLayout.ACHIEVEMENT_GAP);
+        int startX = RenderUtils.centeredX(layout.panelX(), layout.panelWidth(),
+                layout.achievementRowWidth(count));
+        int y = layout.achievementsY();
 
         for (int i = 0; i < count; i++) {
-            String achievementId = achievements.get(i);
-            int rowY = startY + i * (badgeH + rowSpacing);
-            if (rowY + badgeH > y + height) break;
+            int x = startX + i * step;
+            String id = achievements.get(i);
 
-            RenderHelper.ScaledBlit sb = RenderHelper.computeScaledBlit(rowY, width, badgeH, texW, texH);
-            renderBadge(graphics, font, x, rowY, width, badgeH, achievementId, textScale, fadeAlpha, colors);
-            achievementAreas.add(new AchievementTooltipArea(x, sb.renderY(), sb.renderW(), sb.renderH(), achievementId));
+            RenderHelper.blitTexture(context, SummaryConstants.getAchievementTexture(),
+                    x, y, size, size, fadeAlpha);
+
+            areas.add(new HoverArea(x, y, size, size, describe(id)));
         }
     }
 
-    private static void renderBadge(GuiGraphicsExtractor graphics, Font font,
-                                    int x, int y, int width, int height,
-                                    String achievementId, float textScale, float fadeAlpha,
-                                    ThemeColors.ThemeColor colors) {
-        int texW = SummaryConstants.ACHIEVEMENT_BADGE_TEXTURE_WIDTH;
-        int texH = SummaryConstants.ACHIEVEMENT_BADGE_TEXTURE_HEIGHT;
-        RenderHelper.ScaledBlit sb = RenderHelper.computeScaledBlit(y, width, height, texW, texH);
-
-        int color = (int) (fadeAlpha * 255) << 24 | 0xFFFFFF;
-        graphics.pose().pushMatrix();
-        graphics.pose().translate(x, sb.renderY());
-        graphics.pose().scale((float) sb.renderW() / texW, (float) sb.renderH() / texH);
-        graphics.blit(RenderPipelines.GUI_TEXTURED, SummaryConstants.getAchievementBadgeTexture(),
-                0, 0, 0.0f, 0.0f, texW, texH, texW, texH, texW, texH, color);
-        graphics.pose().popMatrix();
-
-        String name = resolveAchievementName(achievementId);
-        int padX = Math.max(3, (int) (4 * ((float) sb.renderH() / texH)));
-        int maxTextW = (int) ((sb.renderW() - padX * 2) / textScale);
-        name = RenderUtils.truncateWithEllipsis(font, name, maxTextW);
-
-        int alpha = (int) (fadeAlpha * 255);
-        int textColor = (alpha << 24) | colors.achievementTextColor();
-        int textY = sb.renderY() + (sb.renderH() - (int) (8 * textScale)) / 2;
-        int textW = (int) (font.width(name) * textScale);
-        int textX = x + Math.max(padX, (sb.renderW() - textW) / 2);
-        RenderUtils.renderScaledText(graphics, font, name, textX, textY, textColor, textScale, true);
-    }
-
-    private static String resolveAchievementName(String achievementId) {
+    private static List<String> describe(String achievementId) {
         for (AchievementDefinition def : ClientAchievementCache.get()) {
             if (def.id.equals(achievementId)) {
-                return def.name;
+                List<String> lines = new ArrayList<>(2);
+                lines.add(def.name);
+                if (def.tooltip != null && !def.tooltip.isBlank()) lines.add(def.tooltip);
+                return lines;
             }
         }
-        return Component.translatable("midnightthoughts.achievement." + achievementId).getString();
-    }
 
-    public static String resolveAchievementTooltip(String achievementId) {
-        for (AchievementDefinition def : ClientAchievementCache.get()) {
-            if (def.id.equals(achievementId)) {
-                return def.tooltip != null ? def.tooltip : def.name;
-            }
-        }
-        return Component.translatable("midnightthoughts.achievement." + achievementId + ".desc").getString();
+        List<String> lines = new ArrayList<>(2);
+        lines.add(Component.translatable("midnightthoughts.achievement." + achievementId).getString());
+        String key = "midnightthoughts.achievement." + achievementId + ".desc";
+        String description = Component.translatable(key).getString();
+        if (!description.equals(key)) lines.add(description);
+        return lines;
     }
 }

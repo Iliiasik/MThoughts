@@ -5,10 +5,12 @@ import mt.api.event.MvpDeterminedCallback;
 import mt.api.event.NightmareCallback;
 import mt.api.event.WellRestedAppliedCallback;
 import mt.api.event.WellRestedExpiredCallback;
+import mt.fabric.PersistentDataHolder;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.server.MinecraftServer;
+import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 
 public final class FabricBridges {
 
@@ -42,17 +44,17 @@ public final class FabricBridges {
             }
         });
 
-        MTNetwork.setBridge(new MTNetwork.Bridge() {
+        MTNetwork.setBridge(ServerPlayNetworking::send);
+
+        MTPlatform.setBridge(new MTPlatform.Bridge() {
             @Override
-            public void sendToPlayer(ServerPlayer player, CustomPacketPayload payload) {
-                ServerPlayNetworking.send(player, payload);
+            public boolean isModLoaded(String modId) {
+                return FabricLoader.getInstance().isModLoaded(modId);
             }
 
             @Override
-            public void sendToAll(MinecraftServer server, CustomPacketPayload payload) {
-                for (ServerPlayer player : server.getPlayerList().getPlayers()) {
-                    ServerPlayNetworking.send(player, payload);
-                }
+            public CompoundTag persistentData(Player player) {
+                return ((PersistentDataHolder) player).midnightthoughts$getPersistentData();
             }
         });
     }

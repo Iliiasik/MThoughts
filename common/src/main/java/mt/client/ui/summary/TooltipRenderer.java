@@ -1,44 +1,73 @@
 package mt.client.ui.summary;
 
+import mt.client.ui.engine.RenderHelper;
+import mt.client.ui.engine.RenderUtils;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class TooltipRenderer {
+public final class TooltipRenderer {
 
-    public static void render(GuiGraphicsExtractor graphics, Font font, int mouseX, int mouseY,
-                              List<AchievementTooltipArea> achievementAreas, int screenWidth, float fadeAlpha) {
-        for (AchievementTooltipArea area : achievementAreas) {
+    private static final int LINE_STEP = 10;
+    private static final int INK_HEIGHT = 9;
+    private static final int INNER_PAD = 2;
+    private static final int CURSOR_OFFSET = 4;
+
+    private TooltipRenderer() {}
+
+    public static void render(GuiGraphicsExtractor context, Font font, int mouseX, int mouseY,
+                              List<HoverArea> areas, SummaryLayout layout,
+                              int screenWidth, int screenHeight, float fadeAlpha) {
+        for (HoverArea area : areas) {
             if (area.contains(mouseX, mouseY)) {
-                renderTooltip(graphics, font, mouseX, mouseY, area.achievementId(), screenWidth, fadeAlpha);
-                break;
+                draw(context, font, mouseX, mouseY, area.lines(),
+                        layout, screenWidth, screenHeight, fadeAlpha);
+                return;
             }
         }
     }
 
-    private static void renderTooltip(GuiGraphicsExtractor graphics, Font font, int mouseX, int mouseY,
-                                      String achievementId, int screenWidth, float fadeAlpha) {
-        String tooltipText = AchievementRenderer.resolveAchievementTooltip(achievementId);
+    private static void draw(GuiGraphicsExtractor context, Font font, int mouseX, int mouseY, List<String> lines,
+                             SummaryLayout layout, int screenWidth, int screenHeight, float fadeAlpha) {
+        if (lines.isEmpty()) return;
 
-        int tooltipPadding = 4;
-        int tooltipWidth = font.width(tooltipText) + tooltipPadding * 2;
-        int tooltipHeight = 12;
+        int pixelScale = layout.scale;
+        int inset = (SummaryConstants.TOOLTIP_BORDER + INNER_PAD) * pixelScale;
+        int step = LINE_STEP * pixelScale;
 
-        int tooltipX = mouseX + 8;
-        int tooltipY = mouseY - tooltipHeight - 4;
+        int maxText = Math.max(1, Math.round((screenWidth - 16 * pixelScale - inset * 2) / (float) pixelScale));
+        List<String> fitted = new ArrayList<>(lines.size());
+        int textWidth = 0;
+        for (String line : lines) {
+            String clipped = RenderUtils.truncateWithEllipsis(font, line, maxText);
+            fitted.add(clipped);
+            textWidth = Math.max(textWidth, RenderUtils.scaledWidth(font, clipped, pixelScale));
+        }
 
-        if (tooltipX + tooltipWidth > screenWidth) tooltipX = mouseX - tooltipWidth - 8;
-        if (tooltipY < 0) tooltipY = mouseY + 16;
+        int width = textWidth + inset * 2;
+        int height = (fitted.size() - 1) * step + INK_HEIGHT * pixelScale + inset * 2;
 
-        int bgAlpha = (int) (fadeAlpha * 240);
-        int bgColor = (bgAlpha << 24) | 0x1a1a2e;
-        int borderColor = (bgAlpha << 24) | 0x8a6a2a;
+        int offset = CURSOR_OFFSET * pixelScale;
+        int x = mouseX + offset;
+        int y = mouseY - height - 2 * pixelScale;
+        if (x + width > screenWidth) x = mouseX - width - offset;
+        if (x < 0) x = 0;
+        if (y < 0) y = mouseY + 8 * pixelScale;
+        if (y + height > screenHeight) y = Math.max(0, screenHeight - height);
 
-        graphics.fill(tooltipX - 1, tooltipY - 1, tooltipX + tooltipWidth + 1, tooltipY + tooltipHeight + 1, borderColor);
-        graphics.fill(tooltipX, tooltipY, tooltipX + tooltipWidth, tooltipY + tooltipHeight, bgColor);
+        context.nextStratum();
 
-        int textColor = ((int) (fadeAlpha * 255) << 24) | 0xffd700;
-        graphics.text(font, tooltipText, tooltipX + tooltipPadding, tooltipY + 2, textColor, false);
+        RenderHelper.blitNineSlice(context, SummaryConstants.getTooltipTexture(), x, y, width, height,
+                SummaryConstants.TOOLTIP_TEXTURE_WIDTH, SummaryConstants.TOOLTIP_TEXTURE_HEIGHT,
+                SummaryConstants.TOOLTIP_BORDER, pixelScale, fadeAlpha);
+
+        ThemeColors.TextStyle style = ThemeColors.current().tooltip();
+        int color = style.argb(fadeAlpha);
+        for (int i = 0; i < fitted.size(); i++) {
+            RenderUtils.renderScaledText(context, font, fitted.get(i),
+                    x + inset, y + inset + i * step, color, pixelScale, style.shadow());
+        }
     }
 }

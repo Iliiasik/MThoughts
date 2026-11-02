@@ -1,6 +1,6 @@
 package mt.network.packet;
 
-import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
@@ -25,11 +25,13 @@ public record SyncConfigPacket(
         String wellRestedHudPosition,
         boolean hideWellRestedHud,
         boolean hideSleepingPlayersHud,
-        boolean hideThemeSwitchButton,
         boolean enableStarDust,
-        boolean showSlideProgress
+        boolean showSlideProgress,
+        boolean hideHudMessagesWhenSleeping,
+        float overlayTextScale,
+        float overlayImageScale,
+        boolean enableSpaceObjects
 ) implements CustomPacketPayload {
-
     public static SyncConfigPacket of(mt.config.MidnightThoughtsConfig cfg) {
         mt.config.MidnightThoughtsConfig.SleepOverlaySettings o = cfg.getSleepOverlay();
         mt.config.MidnightThoughtsConfig.UISettings ui = cfg.getUi();
@@ -52,16 +54,19 @@ public record SyncConfigPacket(
                 ui.wellRestedHudPosition,
                 ui.hideWellRestedHud,
                 ui.hideSleepingPlayersHud,
-                ui.hideThemeSwitchButton,
                 o.enableStarDust,
-                o.showSlideProgress
+                o.showSlideProgress,
+                o.hideHudMessagesWhenSleeping,
+                o.textScale,
+                o.imageScale,
+                o.enableSpaceObjects
         );
     }
 
     public static final Identifier ID_LOC = Identifier.fromNamespaceAndPath("midnightthoughts", "sync_config");
-    public static final Type<@NotNull SyncConfigPacket> TYPE = new Type<>(ID_LOC);
+    public static final CustomPacketPayload.Type<SyncConfigPacket> TYPE = new CustomPacketPayload.Type<>(ID_LOC);
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, SyncConfigPacket> CODEC = StreamCodec.of(
+    public static final StreamCodec<FriendlyByteBuf, SyncConfigPacket> CODEC = StreamCodec.of(
             (buf, p) -> {
                 buf.writeVarInt(p.minSlideDisplayTimeMs());
                 buf.writeVarInt(p.maxSlideDisplayTimeMs());
@@ -81,9 +86,12 @@ public record SyncConfigPacket(
                 buf.writeUtf(p.wellRestedHudPosition());
                 buf.writeBoolean(p.hideWellRestedHud());
                 buf.writeBoolean(p.hideSleepingPlayersHud());
-                buf.writeBoolean(p.hideThemeSwitchButton());
                 buf.writeBoolean(p.enableStarDust());
                 buf.writeBoolean(p.showSlideProgress());
+                buf.writeBoolean(p.hideHudMessagesWhenSleeping());
+                buf.writeFloat(p.overlayTextScale());
+                buf.writeFloat(p.overlayImageScale());
+                buf.writeBoolean(p.enableSpaceObjects());
             },
             buf -> new SyncConfigPacket(
                     buf.readVarInt(),
@@ -106,12 +114,15 @@ public record SyncConfigPacket(
                     buf.readBoolean(),
                     buf.readBoolean(),
                     buf.readBoolean(),
+                    buf.readBoolean(),
+                    buf.readFloat(),
+                    buf.readFloat(),
                     buf.readBoolean()
             )
     );
 
     @Override
-    public @NotNull Type<? extends @NotNull CustomPacketPayload> type() {
+    public @NotNull Type<? extends CustomPacketPayload> type() {
         return TYPE;
     }
 }

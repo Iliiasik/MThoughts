@@ -5,18 +5,16 @@
   "compatibilityLevel": "JAVA_25",
   "mixins": [
     "ServerLevelMixin",
+    "SleepStatusMessageMixin",
     "StatsCounterAccessor"
   ],
   "client": [
-    "ChatHudMixin",
+    "ChatComponentMixin",
     "GuiAirBubblesMixin",
-    "InGameHudMixin"
+    "GuiCrosshairMixin",
+    "GuiOverlayMessageMixin"
   ],
-  "server": [],
   "injectors": {
     "defaultRequire": 1
-  },
-  "overwrites": {
-    "requireAnnotations": true
   }
 }

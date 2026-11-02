@@ -3,8 +3,7 @@ package mt.server;
 import io.netty.buffer.Unpooled;
 import mt.common.SupportedLanguages;
 import mt.network.packet.UserContentPacket;
-import net.minecraft.core.RegistryAccess;
-import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.FriendlyByteBuf;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -204,7 +203,7 @@ class UserContentInitializerTest {
         writeOversizedLibrary("я");
 
         UserContentPacket packet = UserContentInitializer.buildPacket();
-        RegistryFriendlyByteBuf buf = new RegistryFriendlyByteBuf(Unpooled.buffer(), RegistryAccess.EMPTY);
+        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
         UserContentPacket.CODEC.encode(buf, packet);
 
         assertTrue(buf.readableBytes() < 1048576,

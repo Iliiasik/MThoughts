@@ -13,17 +13,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class GuiAirBubblesMixin {
 
     @Inject(method = "extractAirBubbles", at = @At("HEAD"))
-    private void onExtractAirBubblesHead(GuiGraphicsExtractor graphics, Player player, int vehicleHearts, int yLineAir, int xRight, CallbackInfo ci) {
-        if (WellRestedHud.isActive() && WellRestedHud.isBarPosition()) {
-            graphics.pose().pushMatrix();
-            graphics.pose().translate(0, -(WellRestedHud.BAR_GUI_H + 3));
-        }
+    private void midnightthoughts$shiftAirBubbles(GuiGraphicsExtractor graphics, Player player, int vehicleHearts, int yLineAir, int xRight, CallbackInfo ci) {
+        graphics.pose().pushMatrix();
+        graphics.pose().translate(0, -WellRestedHud.airBubbleShift());
     }
 
     @Inject(method = "extractAirBubbles", at = @At("TAIL"))
-    private void onExtractAirBubblesTail(GuiGraphicsExtractor graphics, Player player, int vehicleHearts, int yLineAir, int xRight, CallbackInfo ci) {
-        if (WellRestedHud.isActive() && WellRestedHud.isBarPosition()) {
-            graphics.pose().popMatrix();
-        }
+    private void midnightthoughts$restoreAirBubbles(GuiGraphicsExtractor graphics, Player player, int vehicleHearts, int yLineAir, int xRight, CallbackInfo ci) {
+        graphics.pose().popMatrix();
     }
 }

@@ -1,11 +1,14 @@
 package mt.client.render;
 
+import mt.client.ui.engine.RenderUtils;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 
+import java.util.List;
 import java.util.Random;
 
 public class StarField {
     private static final int STAR_COUNT = 70;
+    private static final int CONTENT_MARGIN_VIRTUAL = 10;
     private static final int SHUFFLE_MIN_MS = 700;
     private static final int SHUFFLE_MAX_MS = 2200;
 
@@ -38,19 +41,36 @@ public class StarField {
         }
     }
 
-    public void render(GuiGraphicsExtractor context, int w, int h, float overlayAlpha) {
+    public void render(GuiGraphicsExtractor context, int w, int h, List<OverlayRect> content, float baseScale, SpaceField space) {
+        int contentMargin = Math.round(CONTENT_MARGIN_VIRTUAL * baseScale);
+        int edgeMargin = Math.round(SpaceField.EDGE_MARGIN_VIRTUAL * baseScale);
         float elapsed = System.currentTimeMillis() - origin;
+
         for (int i = 0; i < STAR_COUNT; i++) {
             float twinkle = 0.35f + 0.65f * (float) Math.sin(elapsed * speed[i] + phase[i]);
-            int a = clampAlpha(alpha[i] * twinkle * overlayAlpha);
+            int a = RenderUtils.alphaByte(alpha[i] * twinkle);
             if (a <= 1) continue;
+
+            int size = big[i] ? 2 : 1;
+            int usableWidth = w - edgeMargin * 2 - size;
+            int usableHeight = h - edgeMargin * 2 - size;
+            if (usableWidth <= 0 || usableHeight <= 0) continue;
+
             float dy = y[i] + elapsed * drift[i];
             dy = dy - (float) Math.floor(dy);
-            int px = Math.round(x[i] * w);
-            int py = Math.round(dy * h);
-            int size = big[i] ? 2 : 1;
+            int px = edgeMargin + Math.round(x[i] * usableWidth);
+            int py = edgeMargin + Math.round(dy * usableHeight);
+            if (isBlocked(content, contentMargin, space, px, py)) continue;
+
             context.fill(px, py, px + size, py + size, (a << 24) | 0xFFFFFF);
         }
+    }
+
+    private static boolean isBlocked(List<OverlayRect> content, int contentMargin, SpaceField space, int px, int py) {
+        for (OverlayRect rect : content) {
+            if (rect.contains(px, py, contentMargin)) return true;
+        }
+        return space != null && space.occupies(px, py);
     }
 
     private void regenerate() {
@@ -69,10 +89,5 @@ public class StarField {
 
     private void scheduleShuffle(long now) {
         nextShuffle = now + SHUFFLE_MIN_MS + rng.nextInt(SHUFFLE_MAX_MS - SHUFFLE_MIN_MS);
-    }
-
-    private int clampAlpha(float a) {
-        int v = Math.round(a * 255f);
-        return v < 0 ? 0 : Math.min(v, 255);
     }
 }

@@ -6,39 +6,33 @@ import mt.network.packet.SleepingPlayersPacket;
 import mt.network.packet.SyncAchievementsPacket;
 import mt.network.packet.SyncConfigPacket;
 import mt.network.packet.UserContentPacket;
-import mt.network.packet.WellRestedPacket;
+import mt.network.packet.PlayerSleepStatePacket;
 import mt.platform.MTClientNetwork;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+
+import java.util.function.Consumer;
 
 public final class ClientNetworkHandler {
 
     private ClientNetworkHandler() {}
 
-    @SuppressWarnings("resource")
-    public static void registerPacketHandlers() {
-        ClientPlayNetworking.registerGlobalReceiver(WellRestedPacket.TYPE,
-                (packet, context) -> context.client().execute(() -> ClientPacketHandlers.handleWellRested(packet)));
+    public static void register() {
+        receive(DailySummaryPacket.TYPE, ClientPacketHandlers::handleDailySummary);
+        receive(PlayerSleepStatePacket.TYPE, ClientPacketHandlers::handleSleepState);
+        receive(SleepingPlayersPacket.TYPE, ClientPacketHandlers::handleSleepingPlayers);
+        receive(UserContentPacket.TYPE, ClientPacketHandlers::handleUserContent);
+        receive(SyncAchievementsPacket.TYPE, ClientPacketHandlers::handleSyncAchievements);
+        receive(SyncConfigPacket.TYPE, ClientPacketHandlers::handleSyncConfig);
+        receive(MoonPhasePacket.TYPE, ClientPacketHandlers::handleMoonPhase);
 
-        ClientPlayNetworking.registerGlobalReceiver(DailySummaryPacket.TYPE,
-                (packet, context) -> context.client().execute(() -> ClientPacketHandlers.handleDailySummary(packet)));
-
-        ClientPlayNetworking.registerGlobalReceiver(SleepingPlayersPacket.TYPE,
-                (packet, context) -> context.client().execute(() -> ClientPacketHandlers.handleSleepingPlayers(packet)));
-
-        ClientPlayNetworking.registerGlobalReceiver(UserContentPacket.TYPE,
-                (packet, context) -> context.client().execute(() -> ClientPacketHandlers.handleUserContent(packet)));
-
-        ClientPlayNetworking.registerGlobalReceiver(SyncAchievementsPacket.TYPE,
-                (packet, context) -> context.client().execute(() -> ClientPacketHandlers.handleSyncAchievements(packet)));
-
-        ClientPlayNetworking.registerGlobalReceiver(SyncConfigPacket.TYPE,
-                (packet, context) -> context.client().execute(() -> ClientPacketHandlers.handleSyncConfig(packet)));
-
-        ClientPlayNetworking.registerGlobalReceiver(MoonPhasePacket.TYPE,
-                (packet, context) -> context.client().execute(() -> ClientPacketHandlers.handleMoonPhase(packet)));
+        MTClientNetwork.setBridge(ClientPlayNetworking::send);
     }
 
-    public static void installBridge() {
-        MTClientNetwork.setBridge(ClientPlayNetworking::send);
+    @SuppressWarnings("resource")
+    private static <T extends CustomPacketPayload> void receive(CustomPacketPayload.Type<T> type,
+                                                                Consumer<T> handler) {
+        ClientPlayNetworking.registerGlobalReceiver(type,
+                (packet, context) -> context.client().execute(() -> handler.accept(packet)));
     }
 }

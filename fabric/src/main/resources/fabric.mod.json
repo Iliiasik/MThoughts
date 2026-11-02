@@ -19,10 +19,14 @@
     ],
     "client": [
       "mt.client.MidnightThoughtsClient"
+    ],
+    "modmenu": [
+      "mt.client.ModMenuIntegration"
     ]
   },
   "mixins": [
-    "${mod_id}.mixins.json"
+    "${mod_id}.mixins.json",
+    "${mod_id}.fabric.mixins.json"
   ],
   "depends": {
     "fabricloader": "${loader_version_range}",

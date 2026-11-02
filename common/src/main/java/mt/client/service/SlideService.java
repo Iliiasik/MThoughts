@@ -5,7 +5,6 @@ import mt.client.model.Slide;
 import mt.client.model.SlideCategory;
 import mt.client.repository.SlideRepository;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.language.LanguageManager;
 
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -14,8 +13,7 @@ public class SlideService {
     private final MidnightThoughtsConfig config;
     private final FactProvider factProvider;
 
-    public SlideService(SlideRepository slideRepository,
-                        MidnightThoughtsConfig config, FactProvider factProvider) {
+    public SlideService(SlideRepository slideRepository, MidnightThoughtsConfig config, FactProvider factProvider) {
         this.slideRepository = slideRepository;
         this.config = config;
         this.factProvider = factProvider;
@@ -75,8 +73,7 @@ public class SlideService {
     }
 
     public String getCurrentLanguage() {
-        Minecraft client = Minecraft.getInstance();
-        LanguageManager langManager = client.getLanguageManager();
-        return mt.common.SupportedLanguages.fromLocale(langManager.getSelected());
+        Minecraft mc = Minecraft.getInstance();
+        return mt.common.SupportedLanguages.fromLocale(mc.getLanguageManager().getSelected());
     }
 }

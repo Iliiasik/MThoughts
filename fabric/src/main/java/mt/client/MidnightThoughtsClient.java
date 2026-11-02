@@ -2,20 +2,15 @@ package mt.client;
 
 import mt.MTConstants;
 import mt.client.network.ClientNetworkHandler;
-import mt.client.ui.SleepingPlayersHud;
-import mt.client.ui.WellRestedHud;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
-import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
-import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
-import net.minecraft.client.Minecraft;
+import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.PackType;
-import net.minecraft.server.packs.resources.ResourceManager;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,56 +20,25 @@ public class MidnightThoughtsClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         MTClient.init();
+        ClientNetworkHandler.register();
 
-        registerEventListeners();
-        registerResourceReloadListener();
-        ClientNetworkHandler.installBridge();
-        ClientNetworkHandler.registerPacketHandlers();
+        ResourceManagerReloadListener slideReloader = MTClient::reloadSlides;
+        ResourceLoader.get(PackType.CLIENT_RESOURCES).registerReloadListener(layerId("slide_reloader"), slideReloader);
 
-        LOGGER.info("[MidnightThoughtsClient] Midnight Thoughts initialized successfully!");
-    }
+        HudElementRegistry.attachElementBefore(VanillaHudElements.HELD_ITEM_TOOLTIP, layerId("well_rested_hud"),
+                (graphics, _) -> MTClient.renderWellRestedHud(graphics));
+        HudElementRegistry.attachElementAfter(VanillaHudElements.SLEEP, layerId("sleep_overlay"),
+                (graphics, _) -> MTClient.renderSleepOverlay(graphics));
+        HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT, layerId("sleeping_players_hud"),
+                (graphics, _) -> MTClient.renderSleepingPlayersHud(graphics));
 
-    private void registerEventListeners() {
         ClientTickEvents.END_CLIENT_TICK.register(client -> MTClient.tick(client.player));
-
-        HudElementRegistry.attachElementBefore(VanillaHudElements.HELD_ITEM_TOOLTIP,
-                Identifier.fromNamespaceAndPath(MTConstants.MOD_ID, "well_rested_hud"), (context, _) -> {
-            Minecraft mc = Minecraft.getInstance();
-            WellRestedHud.render(context, mc.getWindow().getGuiScaledWidth(), mc.getWindow().getGuiScaledHeight());
-        });
-
-        HudElementRegistry.attachElementAfter(VanillaHudElements.SLEEP,
-                Identifier.fromNamespaceAndPath(MTConstants.MOD_ID, "sleep_overlay"), (context, _) -> {
-            Minecraft mc = Minecraft.getInstance();
-            int width = mc.getWindow().getGuiScaledWidth();
-            int height = mc.getWindow().getGuiScaledHeight();
-            MTClient.overlay().renderOverlayOnly(context, width, height);
-            MTClient.overlay().renderContentOnly(context, width, height);
-        });
-
-        HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT,
-                Identifier.fromNamespaceAndPath(MTConstants.MOD_ID, "sleeping_players_hud"), (context, _) -> {
-            Minecraft mc = Minecraft.getInstance();
-            SleepingPlayersHud.render(context, mc.getWindow().getGuiScaledWidth(), mc.getWindow().getGuiScaledHeight());
-        });
-
         ClientPlayConnectionEvents.DISCONNECT.register((_, _) -> MTClient.onDisconnect());
+
+        LOGGER.info("[MidnightThoughtsClient] Midnight Thoughts client setup complete");
     }
 
-    @SuppressWarnings("deprecation")
-    private void registerResourceReloadListener() {
-        ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(
-                new SimpleSynchronousResourceReloadListener() {
-                    @Override
-                    public @NotNull Identifier getFabricId() {
-                        return Identifier.fromNamespaceAndPath(MTConstants.MOD_ID, "slide_reloader");
-                    }
-
-                    @Override
-                    public void onResourceManagerReload(@NotNull ResourceManager manager) {
-                        MTClient.reloadSlides(manager);
-                    }
-                }
-        );
+    private static Identifier layerId(String name) {
+        return Identifier.fromNamespaceAndPath(MTConstants.MOD_ID, name);
     }
 }

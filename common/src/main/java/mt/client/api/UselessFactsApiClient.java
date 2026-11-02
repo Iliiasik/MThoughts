@@ -23,8 +23,14 @@ public class UselessFactsApiClient {
     private static final Gson GSON = new GsonBuilder().create();
 
     private final HttpClient httpClient;
+    private final String baseUrl;
 
     public UselessFactsApiClient() {
+        this(API_BASE_URL);
+    }
+
+    UselessFactsApiClient(String baseUrl) {
+        this.baseUrl = baseUrl;
         ExecutorService executor = Executors.newSingleThreadExecutor(r -> {
             Thread thread = new Thread(r, "MidnightThoughts-API");
             thread.setDaemon(true);
@@ -39,7 +45,7 @@ public class UselessFactsApiClient {
 
     public CompletableFuture<Optional<String>> fetchRandomFact(String languageCode) {
         String apiLanguage = mapLanguageCode(languageCode);
-        String url = API_BASE_URL + apiLanguage;
+        String url = baseUrl + apiLanguage;
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))

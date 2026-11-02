@@ -39,3 +39,17 @@ type = "optional"
 versionRange = "*"
 ordering = "AFTER"
 side = "BOTH"
+
+[[dependencies."${mod_id}"]]
+modId = "mca"
+type = "optional"
+versionRange = "*"
+ordering = "NONE"
+side = "CLIENT"
+
+[[dependencies."${mod_id}"]]
+modId = "sereneseasons"
+type = "optional"
+versionRange = "*"
+ordering = "NONE"
+side = "CLIENT"

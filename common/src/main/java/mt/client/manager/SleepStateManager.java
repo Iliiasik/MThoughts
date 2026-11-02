@@ -23,3 +23,4 @@ public class SleepStateManager {
         return !isSleeping && wasSleeping;
     }
 }
+

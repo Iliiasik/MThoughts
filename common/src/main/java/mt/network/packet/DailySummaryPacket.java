@@ -1,6 +1,6 @@
 package mt.network.packet;
 
-import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
@@ -10,46 +10,37 @@ import java.util.ArrayList;
 import java.util.List;
 
 public record DailySummaryPacket(List<PlayerDailySummary> summaries) implements CustomPacketPayload {
-    public static final CustomPacketPayload.Type<@org.jetbrains.annotations.NotNull DailySummaryPacket> TYPE =
-            new CustomPacketPayload.Type<>(Identifier.fromNamespaceAndPath("midnightthoughts", "daily_summary"));
+    public static final Identifier ID_LOC = Identifier.fromNamespaceAndPath("midnightthoughts", "daily_summary");
+    public static final CustomPacketPayload.Type<DailySummaryPacket> TYPE = new CustomPacketPayload.Type<>(ID_LOC);
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, DailySummaryPacket> CODEC = new StreamCodec<>() {
-        @Override
-        public @NotNull DailySummaryPacket decode(RegistryFriendlyByteBuf buf) {
-            int size = buf.readVarInt();
-            List<PlayerDailySummary> summaries = new ArrayList<>(size);
-            for (int i = 0; i < size; i++) {
-                summaries.add(PlayerDailySummary.decode(buf));
+    public static final StreamCodec<FriendlyByteBuf, DailySummaryPacket> CODEC = StreamCodec.of(
+            (buf, packet) -> {
+                buf.writeVarInt(packet.summaries().size());
+                for (PlayerDailySummary summary : packet.summaries()) {
+                    PlayerDailySummary.encode(buf, summary);
+                }
+            },
+            buf -> {
+                int size = buf.readVarInt();
+                List<PlayerDailySummary> summaries = new ArrayList<>(size);
+                for (int i = 0; i < size; i++) {
+                    summaries.add(PlayerDailySummary.decode(buf));
+                }
+                return new DailySummaryPacket(summaries);
             }
-            return new DailySummaryPacket(summaries);
-        }
-
-        @Override
-        public void encode(RegistryFriendlyByteBuf buf, DailySummaryPacket packet) {
-            buf.writeVarInt(packet.summaries().size());
-            for (PlayerDailySummary summary : packet.summaries()) {
-                PlayerDailySummary.encode(buf, summary);
-            }
-        }
-    };
+    );
 
     @Override
-    public @NotNull Type<? extends @NotNull CustomPacketPayload> type() {
+    public @NotNull Type<? extends CustomPacketPayload> type() {
         return TYPE;
     }
 
-    public record PlayerDailySummary(
-            String playerName,
-            int blocksDestroyed,
-            int distanceWalked,
-            int mobsKilled,
-            int deaths,
-            int jumps,
-            int damageDealt,
-            boolean isMvp,
-            List<String> achievements
-    ) {
-        public static PlayerDailySummary decode(RegistryFriendlyByteBuf buf) {
+    public record PlayerDailySummary(String playerName, int blocksDestroyed, int distanceWalked,
+                                     int mobsKilled, int deaths, int jumps, int damageDealt,
+                                     int day, boolean isMvp,
+                                     List<String> achievements) {
+
+        public static PlayerDailySummary decode(FriendlyByteBuf buf) {
             String playerName = buf.readUtf();
             int blocksDestroyed = clampValue(buf.readVarInt());
             int distanceWalked = clampValue(buf.readVarInt());
@@ -57,16 +48,18 @@ public record DailySummaryPacket(List<PlayerDailySummary> summaries) implements 
             int deaths = clampValue(buf.readVarInt());
             int jumps = clampValue(buf.readVarInt());
             int damageDealt = clampValue(buf.readVarInt());
+            int day = clampValue(buf.readVarInt());
             boolean isMvp = buf.readBoolean();
             int achievementCount = buf.readVarInt();
             List<String> achievements = new ArrayList<>(achievementCount);
             for (int i = 0; i < achievementCount; i++) {
                 achievements.add(buf.readUtf());
             }
-            return new PlayerDailySummary(playerName, blocksDestroyed, distanceWalked, mobsKilled, deaths, jumps, damageDealt, isMvp, achievements);
+            return new PlayerDailySummary(playerName, blocksDestroyed, distanceWalked, mobsKilled,
+                    deaths, jumps, damageDealt, day, isMvp, achievements);
         }
 
-        public static void encode(RegistryFriendlyByteBuf buf, PlayerDailySummary summary) {
+        public static void encode(FriendlyByteBuf buf, PlayerDailySummary summary) {
             buf.writeUtf(summary.playerName());
             buf.writeVarInt(clampValue(summary.blocksDestroyed()));
             buf.writeVarInt(clampValue(summary.distanceWalked()));
@@ -74,6 +67,7 @@ public record DailySummaryPacket(List<PlayerDailySummary> summaries) implements 
             buf.writeVarInt(clampValue(summary.deaths()));
             buf.writeVarInt(clampValue(summary.jumps()));
             buf.writeVarInt(clampValue(summary.damageDealt()));
+            buf.writeVarInt(clampValue(summary.day()));
             buf.writeBoolean(summary.isMvp());
             buf.writeVarInt(summary.achievements().size());
             for (String achievement : summary.achievements()) {

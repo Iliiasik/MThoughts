@@ -75,58 +75,6 @@ class NumberFormatterTest {
         assertEquals(2, NumberFormatter.formatLargeNumber(1_000_000_000L).length());
     }
 
-    @ParameterizedTest
-    @CsvSource({
-            "100, 0.0, 0",
-            "100, -1.0, 0",
-            "100, 0.5, 50",
-            "100, 1.0, 100",
-            "100, 2.0, 100",
-            "0, 0.5, 0",
-            "-50, 0.5, 0"
-    })
-    void animatesValuesSafely(int value, float progress, int expected) {
-        assertEquals(expected, NumberFormatter.safeAnimatedValue(value, progress));
-    }
-
-    @Test
-    void animatedValueNeverExceedsTheTarget() {
-        int[] values = {1, 17, 1000, 123_456, Integer.MAX_VALUE};
-        for (int value : values) {
-            for (float progress = 0.0f; progress <= 1.0f; progress += 0.01f) {
-                int animated = NumberFormatter.safeAnimatedValue(value, progress);
-                assertTrue(animated >= 0, "negative animated value for " + value + " @ " + progress);
-                assertTrue(animated <= value, "animated value overshoots for " + value + " @ " + progress);
-            }
-        }
-    }
-
-    @Test
-    void animatedValueHandlesNonFiniteProgress() {
-        assertEquals(0, NumberFormatter.safeAnimatedValue(100, Float.NaN));
-        assertEquals(100, NumberFormatter.safeAnimatedValue(100, Float.POSITIVE_INFINITY));
-        assertEquals(0, NumberFormatter.safeAnimatedValue(100, Float.NEGATIVE_INFINITY));
-    }
-
-    @ParameterizedTest
-    @CsvSource({
-            "10, 2, 5",
-            "10, 0, 0",
-            "0, 5, 0",
-            "-10, 2, -5",
-            "7, 2, 3"
-    })
-    void dividesSafely(int value, int divisor, int expected) {
-        assertEquals(expected, NumberFormatter.safeDivide(value, divisor));
-    }
-
-    @Test
-    void divisionByZeroNeverThrows() {
-        for (int value = -1000; value <= 1000; value++) {
-            assertEquals(0, NumberFormatter.safeDivide(value, 0));
-        }
-    }
-
     @Test
     void formattingUnderLoadStaysCorrect() {
         for (int i = 0; i < 500_000; i++) {

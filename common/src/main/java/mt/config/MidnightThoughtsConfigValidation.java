@@ -3,17 +3,19 @@ package mt.config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
 public final class MidnightThoughtsConfigValidation {
     private static final Logger LOGGER = LoggerFactory.getLogger("MidnightThoughts");
 
-    private static final Set<String> VALID_THEMES = Set.of("classic", "magic", "tech", "vanilla");
-    private static final Set<String> VALID_HUD_POSITIONS = Set.of(
-            MidnightThoughtsConfig.HUD_POSITION_LEFT,
-            MidnightThoughtsConfig.HUD_POSITION_BAR,
-            MidnightThoughtsConfig.HUD_POSITION_RIGHT);
+    private static final Set<String> VALID_OPERATIONS = Set.of(
+            "add_value", "addition",
+            "add_multiplied_base", "multiply_base",
+            "add_multiplied_total", "multiply_total");
 
     private static final String CLAMPED_TO_MINIMUM = "Config value {} was {}, clamped to minimum {}";
     private static final String CLAMPED_TO_MAXIMUM = "Config value {} was {}, clamped to maximum {}";
@@ -22,11 +24,11 @@ public final class MidnightThoughtsConfigValidation {
     private MidnightThoughtsConfigValidation() {}
 
     public static boolean isValidTheme(String theme) {
-        return theme != null && VALID_THEMES.contains(theme);
+        return theme != null && MidnightThoughtsConfig.THEMES.contains(theme);
     }
 
     public static boolean isValidHudPosition(String position) {
-        return position != null && VALID_HUD_POSITIONS.contains(position);
+        return position != null && MidnightThoughtsConfig.HUD_POSITIONS.contains(position);
     }
 
     public static void apply(MidnightThoughtsConfig config) {
@@ -74,6 +76,8 @@ public final class MidnightThoughtsConfigValidation {
         o.textOpacity = clampFloat(o.textOpacity, 0f, 1f, 1.0f, "sleepOverlay.textOpacity");
         o.imageOpacity = clampFloat(o.imageOpacity, 0f, 1f, 0.6f, "sleepOverlay.imageOpacity");
         o.specialSlideChance = clampFloat(o.specialSlideChance, 0f, 1f, 0.05f, "sleepOverlay.specialSlideChance");
+        o.textScale = clampFloat(o.textScale, 0.5f, 1.5f, 1.0f, "sleepOverlay.textScale");
+        o.imageScale = clampFloat(o.imageScale, 0.5f, 1.5f, 1.0f, "sleepOverlay.imageScale");
     }
 
     private static void validateWellRested(MidnightThoughtsConfig.WellRestedSettings wellRested) {
@@ -91,6 +95,11 @@ public final class MidnightThoughtsConfigValidation {
                 wellRested.levels.put(key, defaults.get(key));
                 continue;
             }
+            if (level.attributes == null) {
+                MidnightThoughtsConfig.WellRestedLevel fallback = defaults.get(key);
+                level.attributes = fallback != null ? fallback.attributes : new ArrayList<>();
+                LOGGER.warn("Config entry wellRested.levels.{} had no attribute list, filled with defaults", key);
+            }
             validateLevel(level, key);
         }
     }
@@ -98,20 +107,52 @@ public final class MidnightThoughtsConfigValidation {
     private static void validateLevel(MidnightThoughtsConfig.WellRestedLevel l, String key) {
         String p = "wellRested.levels." + key + ".";
         l.durationMinutes = clampInt(l.durationMinutes, 1, 1440, p + "durationMinutes");
-        l.speedPhase1 = clampFloat(l.speedPhase1, -5f, 5f, 0f, p + "speedPhase1");
-        l.speedPhase2 = clampFloat(l.speedPhase2, -5f, 5f, 0f, p + "speedPhase2");
-        l.speedPhase3 = clampFloat(l.speedPhase3, -5f, 5f, 0f, p + "speedPhase3");
-        l.strengthPhase1 = clampFloat(l.strengthPhase1, -5f, 5f, 0f, p + "strengthPhase1");
-        l.strengthPhase2 = clampFloat(l.strengthPhase2, -5f, 5f, 0f, p + "strengthPhase2");
-        l.strengthPhase3 = clampFloat(l.strengthPhase3, -5f, 5f, 0f, p + "strengthPhase3");
-        l.hastePhase1 = clampFloat(l.hastePhase1, -5f, 5f, 0f, p + "hastePhase1");
-        l.hastePhase2 = clampFloat(l.hastePhase2, -5f, 5f, 0f, p + "hastePhase2");
-        l.hastePhase3 = clampFloat(l.hastePhase3, -5f, 5f, 0f, p + "hastePhase3");
-        l.attackSpeedPhase1 = clampFloat(l.attackSpeedPhase1, -5f, 5f, 0f, p + "attackSpeedPhase1");
-        l.attackSpeedPhase2 = clampFloat(l.attackSpeedPhase2, -5f, 5f, 0f, p + "attackSpeedPhase2");
-        l.attackSpeedPhase3 = clampFloat(l.attackSpeedPhase3, -5f, 5f, 0f, p + "attackSpeedPhase3");
-        l.healthBonus = clampFloat(l.healthBonus, 0f, 200f, 0f, p + "healthBonus");
         l.regenBonus = clampFloat(l.regenBonus, 0f, 1f, 0f, p + "regenBonus");
+        l.attributes = validateAttributeBonuses(l.attributes, p);
+        l.effects = validateEffectBonuses(l.effects, p);
+    }
+
+    private static List<MidnightThoughtsConfig.AttributeBonus> validateAttributeBonuses(
+            List<MidnightThoughtsConfig.AttributeBonus> bonuses, String p) {
+        List<MidnightThoughtsConfig.AttributeBonus> result = new ArrayList<>();
+        if (bonuses == null) return result;
+        for (MidnightThoughtsConfig.AttributeBonus bonus : bonuses) {
+            if (bonus == null || bonus.id == null || bonus.id.isBlank()) {
+                LOGGER.warn("Config entry {}attributes had no id and was dropped", p);
+                continue;
+            }
+            String operation = bonus.operation == null ? "" : bonus.operation.trim().toLowerCase(Locale.ROOT);
+            if (!VALID_OPERATIONS.contains(operation)) {
+                LOGGER.warn("Config value {}attributes[{}].operation was '{}', reset to 'add_value'",
+                        p, bonus.id, bonus.operation);
+                operation = "add_value";
+            }
+            bonus.operation = operation;
+            String field = p + "attributes[" + bonus.id + "].";
+            bonus.phase1 = clampFloat(bonus.phase1, -10000f, 10000f, 0f, field + "phase1");
+            bonus.phase2 = clampFloat(bonus.phase2, -10000f, 10000f, 0f, field + "phase2");
+            bonus.phase3 = clampFloat(bonus.phase3, -10000f, 10000f, 0f, field + "phase3");
+            result.add(bonus);
+        }
+        return result;
+    }
+
+    private static List<MidnightThoughtsConfig.EffectBonus> validateEffectBonuses(
+            List<MidnightThoughtsConfig.EffectBonus> bonuses, String p) {
+        List<MidnightThoughtsConfig.EffectBonus> result = new ArrayList<>();
+        if (bonuses == null) return result;
+        for (MidnightThoughtsConfig.EffectBonus bonus : bonuses) {
+            if (bonus == null || bonus.id == null || bonus.id.isBlank()) {
+                LOGGER.warn("Config entry {}effects had no id and was dropped", p);
+                continue;
+            }
+            String field = p + "effects[" + bonus.id + "].";
+            bonus.phase1 = clampInt(bonus.phase1, -1, 255, field + "phase1");
+            bonus.phase2 = clampInt(bonus.phase2, -1, 255, field + "phase2");
+            bonus.phase3 = clampInt(bonus.phase3, -1, 255, field + "phase3");
+            result.add(bonus);
+        }
+        return result;
     }
 
     private static void validateMvp(MidnightThoughtsConfig.MvpSettings mvp) {
