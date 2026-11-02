@@ -19,7 +19,7 @@ public class MidnightThoughtsConfigScreen extends Screen {
     private static final int TITLE_TOP = 14;
     private static final int NOTE_GAP = 8;
     private static final int ICON_GAP = 8;
-    private static final int NOTE_COLOR = 0xA0A0A0;
+    private static final int NOTE_COLOR = 0xFFA0A0A0;
 
     private final Screen parent;
 
@@ -49,7 +49,7 @@ public class MidnightThoughtsConfigScreen extends Screen {
     @Override
     public void extractRenderState(@NotNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         super.extractRenderState(graphics, mouseX, mouseY, partialTick);
-        graphics.centeredText(this.font, this.title, this.width / 2, TITLE_TOP, 0xFFFFFF);
+        graphics.centeredText(this.font, this.title, this.width / 2, TITLE_TOP, 0xFFFFFFFF);
 
         int secondNote = this.height - DONE_BOTTOM - NOTE_GAP - this.font.lineHeight;
         int firstNote = secondNote - this.font.lineHeight - 2;
