@@ -33,6 +33,8 @@ public class ConfigSectionScreen extends OptionsSubScreen {
     private static final String MILLIS_KEY = OPTION_PREFIX + "milliseconds";
     private static final String MINUTES_KEY = OPTION_PREFIX + "minutes";
     private static final String BLOCKS_KEY = OPTION_PREFIX + "blocks";
+    private static final String SCALE_KEY = OPTION_PREFIX + "scale";
+    private static final String SUMMARY_SCALE_AUTO_KEY = OPTION_PREFIX + "summary_scale.auto";
 
     private static final String THEME_PREFIX = "midnightthoughts.theme.";
     private static final String HUD_POSITION_PREFIX = OPTION_PREFIX + "hud_position.";
@@ -120,8 +122,9 @@ public class ConfigSectionScreen extends OptionsSubScreen {
                 choice("hud_position", MidnightThoughtsConfig.HUD_POSITIONS, HUD_POSITION_PREFIX, ui.wellRestedHudPosition,
                         value -> ui.wellRestedHudPosition = value),
                 flag("hide_well_rested_hud", ui.hideWellRestedHud, value -> ui.hideWellRestedHud = value));
-        options.addBig(
-                flag("hide_sleeping_players_hud", ui.hideSleepingPlayersHud, value -> ui.hideSleepingPlayersHud = value));
+        options.addSmall(
+                flag("hide_sleeping_players_hud", ui.hideSleepingPlayersHud, value -> ui.hideSleepingPlayersHud = value),
+                summaryScale(ui.summaryScale, value -> ui.summaryScale = value));
     }
 
     private static void addMvp(OptionsList options, MidnightThoughtsConfig.MvpSettings mvp) {
@@ -211,6 +214,21 @@ public class ConfigSectionScreen extends OptionsSubScreen {
                 new OptionInstance.IntRange(min, max),
                 Mth.clamp(Math.round(current * 100f), min, max),
                 value -> setter.set(value / 100f));
+    }
+
+    private static OptionInstance<Integer> summaryScale(int current, IntConsumer setter) {
+        String key = OPTION_PREFIX + "summary_scale";
+        int min = MidnightThoughtsConfig.SUMMARY_SCALE_AUTO;
+        int max = MidnightThoughtsConfig.SUMMARY_SCALE_MAX;
+        return new OptionInstance<>(
+                key,
+                tooltip(key),
+                (caption, value) -> valueLabel(caption, value == min
+                        ? Component.translatable(SUMMARY_SCALE_AUTO_KEY)
+                        : Component.translatable(SCALE_KEY, value)),
+                new OptionInstance.IntRange(min, max),
+                Mth.clamp(current, min, max),
+                setter::accept);
     }
 
     private static OptionInstance<String> choice(String name, List<String> values, String valuePrefix,

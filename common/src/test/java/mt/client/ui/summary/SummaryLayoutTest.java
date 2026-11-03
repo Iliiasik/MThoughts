@@ -1,5 +1,6 @@
 package mt.client.ui.summary;
 
+import mt.config.MidnightThoughtsConfig;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -13,8 +14,12 @@ class SummaryLayoutTest {
     };
 
     private static SummaryLayout at(int width, int height) {
+        return at(width, height, MidnightThoughtsConfig.SUMMARY_SCALE_AUTO);
+    }
+
+    private static SummaryLayout at(int width, int height, int maxScale) {
         SummaryLayout layout = new SummaryLayout();
-        layout.calculate(width, height);
+        layout.calculate(width, height, maxScale);
         return layout;
     }
 
@@ -57,6 +62,42 @@ class SummaryLayoutTest {
             assertTrue(layout.frameX + layout.frameWidth() <= width, "frame overflows right" + at);
             assertTrue(layout.controlRowY() + layout.buttonSize() <= height,
                     "control row overflows the bottom" + at);
+        }
+    }
+
+    @Test
+    void fixedScaleNeverExceedsWhatAutoFits() {
+        for (int[] space : GUI_SPACES) {
+            int fits = at(space[0], space[1]).scale;
+            for (int cap = 1; cap <= MidnightThoughtsConfig.SUMMARY_SCALE_MAX; cap++) {
+                assertEquals(Math.min(cap, fits), at(space[0], space[1], cap).scale,
+                        "cap " + cap + " at " + space[0] + "x" + space[1]);
+            }
+        }
+    }
+
+    @Test
+    void scaleOfOneFollowsTheGuiScale() {
+        for (int[] space : GUI_SPACES) {
+            SummaryLayout layout = at(space[0], space[1], 1);
+            assertEquals(1, layout.scale, "1x must stay 1x at " + space[0] + "x" + space[1]);
+            assertEquals(SummaryConstants.FRAME_TEXTURE_WIDTH, layout.frameWidth());
+        }
+    }
+
+    @Test
+    void everyFixedScaleStaysOnScreenAndCentered() {
+        for (int[] space : GUI_SPACES) {
+            for (int cap = 1; cap <= MidnightThoughtsConfig.SUMMARY_SCALE_MAX; cap++) {
+                SummaryLayout layout = at(space[0], space[1], cap);
+                String at = " at " + space[0] + "x" + space[1] + " cap " + cap;
+
+                assertTrue(layout.frameX >= 0 && layout.frameY >= 0, "frame starts off screen" + at);
+                assertTrue(layout.frameX + layout.frameWidth() <= space[0], "frame overflows right" + at);
+                assertTrue(layout.controlRowY() + layout.buttonSize() <= space[1], "control row overflows" + at);
+                int right = space[0] - (layout.frameX + layout.frameWidth());
+                assertTrue(Math.abs(layout.frameX - right) <= 1, "frame is off center" + at);
+            }
         }
     }
 
@@ -129,7 +170,7 @@ class SummaryLayoutTest {
         int x = layout.frameX;
         int y = layout.frameY;
 
-        layout.calculate(960, 540);
+        layout.calculate(960, 540, MidnightThoughtsConfig.SUMMARY_SCALE_AUTO);
 
         assertEquals(scale, layout.scale);
         assertEquals(x, layout.frameX);

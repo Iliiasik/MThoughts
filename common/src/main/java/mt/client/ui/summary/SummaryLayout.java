@@ -21,9 +21,10 @@ public final class SummaryLayout {
     public int frameX;
     public int frameY;
 
-    public void calculate(int screenWidth, int screenHeight) {
+    public void calculate(int screenWidth, int screenHeight, int maxScale) {
         int k = 1;
-        while (SummaryConstants.FRAME_TEXTURE_WIDTH * (k + 1) <= screenWidth - SCREEN_MARGIN
+        while ((maxScale <= 0 || k < maxScale)
+                && SummaryConstants.FRAME_TEXTURE_WIDTH * (k + 1) <= screenWidth - SCREEN_MARGIN
                 && TOTAL_HEIGHT * (k + 1) <= screenHeight) {
             k++;
         }
