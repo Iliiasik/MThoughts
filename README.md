@@ -7,19 +7,35 @@
   </a>
 </div>
 
-<img  alt="Head" src="https://github.com/user-attachments/assets/cd810ea0-d401-434f-b418-73f84020b118" />
+<img width="2244" height="1525" alt="Header" src="https://github.com/user-attachments/assets/b47eeacb-ce1c-441d-b0e4-c403df76c058" />
 
-<img  alt="Overlay" src="https://github.com/user-attachments/assets/db3b3d2a-c9e4-4d3b-b2cf-5c7c940993d7" />
+<img width="2653" height="2101" alt="Overlay" src="https://github.com/user-attachments/assets/9711367e-4bf0-4c8c-a8eb-95023f6574d8" />
 
-<img  alt="Summary" src="https://github.com/user-attachments/assets/957a6a30-c071-4122-93b4-926bd201aa44" />
+<img width="2080" height="2562" alt="Overlay custom" src="https://github.com/user-attachments/assets/4cd74cd3-e4e6-4f13-8d4a-97b8908bc989" />
 
-<img alt="Well Rested" src="https://github.com/user-attachments/assets/5b496bc0-faf4-484f-b2a5-746f4450e42a" />
+<img width="1900" height="1908" alt="Diary" src="https://github.com/user-attachments/assets/f964f141-c80c-4d06-baf2-307f42eb231b" />
+
+<img width="1968" height="1148" alt="Diary 2" src="https://github.com/user-attachments/assets/2e2d2e39-db9c-4bb8-8c13-e8167054bedb" />
+
+<img width="1402" height="1434" alt="Diary 3" src="https://github.com/user-attachments/assets/41de3457-ab8e-43e4-bd07-95af91eec8f6" />
+
+<img width="1232" height="1662" alt="Integrations" src="https://github.com/user-attachments/assets/9bb559b4-d233-4be8-b4c5-b552708bae50" />
+
+<img width="1154" height="1106" alt="Themes 1" src="https://github.com/user-attachments/assets/3012a1af-565f-4656-b2e1-c022007ab0df" />
+
+<img width="1599" height="1552" alt="Themes 2" src="https://github.com/user-attachments/assets/f12be09f-c2b0-4be3-ba4e-c34ba097fe83" />
+
+<img width="943" height="923" alt="Themes 3" src="https://github.com/user-attachments/assets/1d1e1145-50e3-4176-a8cf-eb2b0efba60c" />
+
+<img width="1063" height="821" alt="WR 1" src="https://github.com/user-attachments/assets/0efcad89-b632-42e8-872c-75429a0f64db" />
+
+<img width="1104" height="1324" alt="WR 2" src="https://github.com/user-attachments/assets/57181864-acd2-40bd-b94d-a5e2fda26b9b" />
 
 <img  alt="Nightmares" src="https://github.com/user-attachments/assets/d8cacc82-9e86-4618-b1d2-b39318b5539a" />
 
 <div align="center">
   <a href="https://github.com/Iliiasik/MThoughts/issues">
-    <img alt="Ideas" src="https://github.com/user-attachments/assets/75a98b69-2ce4-420c-8932-8bd538d0ba24" />
+    <img alt="Ideas" src="https://github.com/user-attachments/assets/7d8e6360-d4a1-4f50-8c1b-8c497c7ca13a" />
   </a>
 </div>
 
