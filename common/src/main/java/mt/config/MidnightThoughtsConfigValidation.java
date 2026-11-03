@@ -190,5 +190,7 @@ public final class MidnightThoughtsConfigValidation {
                     ui.wellRestedHudPosition, MidnightThoughtsConfig.HUD_POSITION_LEFT);
             ui.wellRestedHudPosition = MidnightThoughtsConfig.HUD_POSITION_LEFT;
         }
+        ui.summaryScale = clampInt(ui.summaryScale, MidnightThoughtsConfig.SUMMARY_SCALE_AUTO,
+                MidnightThoughtsConfig.SUMMARY_SCALE_MAX, "ui.summaryScale");
     }
 }

@@ -2,6 +2,7 @@ package mt.gametest;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.datafixers.util.Either;
+import mt.MTConstants;
 import mt.config.MidnightThoughtsConfig;
 import mt.network.packet.DailySummaryPacket;
 import mt.server.ComfortCalculator;
@@ -10,15 +11,18 @@ import net.minecraft.commands.CommandSource;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.permissions.LevelBasedPermissionSet;
 import net.minecraft.server.permissions.PermissionSet;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.Unit;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.GameType;
@@ -37,6 +41,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.BooleanSupplier;
+import java.util.stream.Stream;
 
 @SuppressWarnings("resource")
 public final class TestContext {
@@ -85,6 +90,15 @@ public final class TestContext {
             {-2, -1}, {-2, 0}, {-2, 1}, {-1, 2}, {0, 2}, {1, 2}, {2, 1}, {2, 2}
     };
 
+    private static final int ARENA_WIDTH = 21;
+    private static final int ARENA_HEIGHT = 8;
+    private static final int TERRAIN_MARGIN = 8;
+    private static final List<TagKey<Block>> COMFORT_TAGS = Stream.of(
+                    "comfort_lighting", "comfort_carpet", "comfort_furniture", "comfort_decoration",
+                    "comfort_structure", "comfort_negative_macabre", "comfort_negative_hostile", "comfort_negative_dark")
+            .map(name -> TagKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath(MTConstants.MOD_ID, name)))
+            .toList();
+
     private final GameTestHelper helper;
     private final List<MockPlayer> players = new ArrayList<>();
     private final List<Step> steps = new ArrayList<>();
@@ -114,6 +128,24 @@ public final class TestContext {
 
     public BlockPos at(int x, int y, int z) {
         return helper.absolutePos(new BlockPos(x, y, z));
+    }
+
+    void neutralizeTerrain() {
+        ServerLevel level = level();
+        for (int x = -TERRAIN_MARGIN; x < ARENA_WIDTH + TERRAIN_MARGIN; x++) {
+            for (int z = -TERRAIN_MARGIN; z < ARENA_WIDTH + TERRAIN_MARGIN; z++) {
+                for (int y = -TERRAIN_MARGIN; y < ARENA_HEIGHT + TERRAIN_MARGIN; y++) {
+                    boolean inArena = x >= 0 && x < ARENA_WIDTH && z >= 0 && z < ARENA_WIDTH
+                            && y >= 0 && y < ARENA_HEIGHT;
+                    if (inArena) continue;
+                    BlockPos pos = at(x, y, z);
+                    BlockState state = level.getBlockState(pos);
+                    if (COMFORT_TAGS.stream().noneMatch(state::is)) continue;
+                    Block replacement = y < 0 ? Blocks.STONE : Blocks.AIR;
+                    level.setBlock(pos, replacement.defaultBlockState(), Block.UPDATE_CLIENTS);
+                }
+            }
+        }
     }
 
     public void place(BlockPos absolute, Block block) {

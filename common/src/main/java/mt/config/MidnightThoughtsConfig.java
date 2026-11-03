@@ -25,6 +25,8 @@ public final class MidnightThoughtsConfig {
     public static final String HUD_POSITION_RIGHT = "right";
     public static final List<String> HUD_POSITIONS = List.of(HUD_POSITION_LEFT, HUD_POSITION_BAR, HUD_POSITION_RIGHT);
     public static final List<String> THEMES = List.of("vanilla", "magic", "classic", "tech");
+    public static final int SUMMARY_SCALE_AUTO = 0;
+    public static final int SUMMARY_SCALE_MAX = 4;
 
     public static final String ATTRIBUTE_MOVEMENT_SPEED = "minecraft:movement_speed";
     public static final String ATTRIBUTE_ATTACK_DAMAGE = "minecraft:attack_damage";
@@ -402,5 +404,6 @@ public final class MidnightThoughtsConfig {
         public String wellRestedHudPosition = HUD_POSITION_LEFT;
         public boolean hideWellRestedHud = false;
         public boolean hideSleepingPlayersHud = false;
+        public int summaryScale = SUMMARY_SCALE_AUTO;
     }
 }

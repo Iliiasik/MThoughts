@@ -1,6 +1,7 @@
 package mt.client.ui;
 
 import mt.client.ui.summary.*;
+import mt.config.MidnightThoughtsConfig;
 import mt.network.packet.DailySummaryPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.input.KeyEvent;
@@ -40,6 +41,10 @@ public class DailySummaryScreen extends Screen {
         return mc.player != null ? mc.player.getGameProfile().name() : null;
     }
 
+    private static int maxScale() {
+        return MidnightThoughtsConfig.getInstance().getUi().summaryScale;
+    }
+
     private int rank(DailySummaryPacket.PlayerDailySummary card) {
         if (card.isMvp()) return 0;
         if (card.playerName() != null && card.playerName().equals(selfName)) return 1;
@@ -49,7 +54,7 @@ public class DailySummaryScreen extends Screen {
     @Override
     protected void init() {
         super.init();
-        layout.calculate(width, height);
+        layout.calculate(width, height, maxScale());
 
         if (cards.size() > 1) {
             addNavigationButtons();
@@ -86,7 +91,7 @@ public class DailySummaryScreen extends Screen {
         updateFadeAnimation();
         hoverAreas.clear();
 
-        layout.calculate(width, height);
+        layout.calculate(width, height, maxScale());
 
         if (!cards.isEmpty()) {
             DailySummaryPacket.PlayerDailySummary card = cards.get(Math.min(currentPage, cards.size() - 1));

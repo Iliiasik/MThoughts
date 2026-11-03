@@ -251,6 +251,27 @@ class MidnightThoughtsConfigTest {
     }
 
     @Test
+    void summaryScaleDefaultsToAuto() throws IOException {
+        writeConfig("{}");
+
+        assertEquals(MidnightThoughtsConfig.SUMMARY_SCALE_AUTO, MidnightThoughtsConfig.load().getUi().summaryScale);
+    }
+
+    @Test
+    void summaryScaleIsClampedToItsRange() throws IOException {
+        writeConfig("{\"ui\":{\"summaryScale\":-3}}");
+        assertEquals(MidnightThoughtsConfig.SUMMARY_SCALE_AUTO, MidnightThoughtsConfig.load().getUi().summaryScale);
+
+        writeConfig("{\"ui\":{\"summaryScale\":99}}");
+        assertEquals(MidnightThoughtsConfig.SUMMARY_SCALE_MAX, MidnightThoughtsConfig.load().getUi().summaryScale);
+
+        for (int scale = MidnightThoughtsConfig.SUMMARY_SCALE_AUTO; scale <= MidnightThoughtsConfig.SUMMARY_SCALE_MAX; scale++) {
+            writeConfig("{\"ui\":{\"summaryScale\":" + scale + "}}");
+            assertEquals(scale, MidnightThoughtsConfig.load().getUi().summaryScale);
+        }
+    }
+
+    @Test
     void aLevelWithoutAnAttributeListFallsBackToDefaults() throws IOException {
         writeConfig("""
                 {

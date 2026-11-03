@@ -58,6 +58,7 @@ public final class TestHarness {
         savedFiles = snapshotFiles();
         TestContext context = new TestContext(helper);
         current = context;
+        context.neutralizeTerrain();
         testCase.body().accept(context);
         context.start();
     }
