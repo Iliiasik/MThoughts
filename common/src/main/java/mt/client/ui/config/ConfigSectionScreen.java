@@ -30,6 +30,7 @@ public class ConfigSectionScreen extends OptionsSubScreen {
     private static final String BLOCKS_KEY = OPTION_PREFIX + "blocks";
     private static final String SCALE_KEY = OPTION_PREFIX + "scale";
     private static final String SUMMARY_SCALE_AUTO_KEY = OPTION_PREFIX + "summary_scale.auto";
+    private static final String SUMMARY_STYLE_PREFIX = OPTION_PREFIX + "summary_style.";
 
     private static final String THEME_PREFIX = "midnightthoughts.theme.";
     private static final String HUD_POSITION_PREFIX = OPTION_PREFIX + "hud_position.";
@@ -90,7 +91,10 @@ public class ConfigSectionScreen extends OptionsSubScreen {
     }
 
     private static void addInterface(OptionsList options, MidnightThoughtsConfig.UISettings ui) {
-        options.addBig(choice("theme", MidnightThoughtsConfig.THEMES, THEME_PREFIX, ui.theme, value -> ui.theme = value));
+        options.addSmall(
+                choice("theme", MidnightThoughtsConfig.THEMES, THEME_PREFIX, ui.theme, value -> ui.theme = value),
+                choice("summary_style", MidnightThoughtsConfig.SUMMARY_STYLES, SUMMARY_STYLE_PREFIX, ui.summaryStyle,
+                        value -> ui.summaryStyle = value));
         options.addSmall(
                 choice("hud_position", MidnightThoughtsConfig.HUD_POSITIONS, HUD_POSITION_PREFIX, ui.wellRestedHudPosition,
                         value -> ui.wellRestedHudPosition = value),

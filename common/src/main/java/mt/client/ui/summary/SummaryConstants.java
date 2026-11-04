@@ -55,6 +55,10 @@ public class SummaryConstants {
         return themed("stats_panel");
     }
 
+    public static Identifier getStatsTableTexture() {
+        return themed("stats_table");
+    }
+
     public static Identifier getAchievementTexture() {
         return themed("achievement_badge");
     }

@@ -189,6 +189,22 @@ class LanguageAssetsTest {
     }
 
     @Test
+    void tableLabelsFitNextToTheirValues() throws IOException {
+        List<String> violations = new ArrayList<>();
+        for (String language : SupportedLanguages.codes()) {
+            JsonObject actual = lang(language);
+            for (Map.Entry<String, JsonElement> entry : actual.entrySet()) {
+                if (!entry.getKey().startsWith("midnightthoughts.summary.table.")) continue;
+                String label = entry.getValue().getAsString();
+                if (label.isBlank() || label.length() > 10) {
+                    violations.add(language + "/" + entry.getKey() + " = \"" + label + "\"");
+                }
+            }
+        }
+        assertTrue(violations.isEmpty(), "table labels must be short enough for the stats table: " + violations);
+    }
+
+    @Test
     void translationsStayWithinTheEnglishWidthBudget() throws IOException {
         JsonObject reference = lang(SupportedLanguages.DEFAULT);
 

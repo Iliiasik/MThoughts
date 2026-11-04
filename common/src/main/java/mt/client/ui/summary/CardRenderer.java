@@ -20,10 +20,10 @@ public final class CardRenderer {
     private CardRenderer() {}
 
     public static void render(GuiGraphicsExtractor context, Font font, DailySummaryPacket.PlayerDailySummary player,
-                              SummaryLayout layout, float fadeAlpha, List<HoverArea> areas) {
+                              SummaryLayout layout, float fadeAlpha, float countProgress, List<HoverArea> areas) {
         renderHead(context, player, layout, fadeAlpha);
         renderDaysChip(context, font, player, layout, fadeAlpha, areas);
-        StatsPanelRenderer.render(context, player, layout, fadeAlpha, areas);
+        StatsPanelRenderer.render(context, font, player, layout, fadeAlpha, countProgress, areas);
         AchievementRenderer.render(context, player.achievements(), layout, fadeAlpha, areas);
     }
 

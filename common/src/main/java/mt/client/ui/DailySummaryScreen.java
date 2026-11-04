@@ -18,6 +18,7 @@ import java.util.List;
 
 public class DailySummaryScreen extends Screen {
     private static final long FADE_DURATION = 300;
+    private static final long COUNT_DURATION = 800;
 
     private final List<DailySummaryPacket.PlayerDailySummary> cards;
     private final List<HoverArea> hoverAreas = new ArrayList<>();
@@ -26,6 +27,7 @@ public class DailySummaryScreen extends Screen {
     private final String selfName;
 
     private int currentPage = 0;
+    private long countStartTime;
     private float fadeAlpha = 0.0f;
 
     public DailySummaryScreen(List<DailySummaryPacket.PlayerDailySummary> players) {
@@ -34,6 +36,7 @@ public class DailySummaryScreen extends Screen {
         this.cards = new ArrayList<>(players);
         this.cards.sort(Comparator.comparingInt(this::rank));
         this.screenOpenTime = System.currentTimeMillis();
+        this.countStartTime = screenOpenTime + FADE_DURATION;
     }
 
     private static String resolveSelfName() {
@@ -76,6 +79,7 @@ public class DailySummaryScreen extends Screen {
         int next = currentPage + delta;
         if (next < 0 || next >= cards.size()) return;
         currentPage = next;
+        countStartTime = System.currentTimeMillis();
         rebuildWidgets();
     }
 
@@ -97,7 +101,7 @@ public class DailySummaryScreen extends Screen {
             DailySummaryPacket.PlayerDailySummary card = cards.get(Math.min(currentPage, cards.size() - 1));
             FrameRenderer.render(context, layout, card.isMvp(), fadeAlpha);
             FrameRenderer.renderBadge(context, font, layout, headline(card), fadeAlpha);
-            CardRenderer.render(context, font, card, layout, fadeAlpha, hoverAreas);
+            CardRenderer.render(context, font, card, layout, fadeAlpha, countProgress(), hoverAreas);
         }
 
         for (GuiEventListener child : this.children()) {
@@ -124,6 +128,12 @@ public class DailySummaryScreen extends Screen {
 
     @Override
     public void extractBackground(@NotNull GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
+    }
+
+    private float countProgress() {
+        long elapsed = System.currentTimeMillis() - countStartTime;
+        if (elapsed <= 0) return 0.0f;
+        return Math.min(1.0f, elapsed / (float) COUNT_DURATION);
     }
 
     private void updateFadeAnimation() {

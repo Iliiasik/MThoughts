@@ -11,6 +11,11 @@ public final class SummaryLayout {
     public static final int ACHIEVEMENT_COUNT = 3;
     public static final int BUTTON_GAP = 2;
     public static final int SCREEN_MARGIN = 20;
+    public static final int TABLE_PAD_X = 10;
+    public static final int TABLE_PAD_Y = 12;
+    public static final int TABLE_ROW_STEP = 13;
+    public static final int TABLE_ROWS = 6;
+    public static final int TABLE_MIN_GAP = 6;
 
     public static final int CONTROL_ROW = SummaryConstants.BUTTON_TEXTURE_SIZE;
 
@@ -108,6 +113,18 @@ public final class SummaryLayout {
     public int achievementRowWidth(int count) {
         if (count <= 0) return 0;
         return count * achievementSize() + (count - 1) * s(ACHIEVEMENT_GAP);
+    }
+
+    public int tableTextLeft() {
+        return panelX() + s(TABLE_PAD_X);
+    }
+
+    public int tableTextRight() {
+        return panelX() + panelWidth() - s(TABLE_PAD_X);
+    }
+
+    public int tableRowY(int row) {
+        return columnsY() + s(TABLE_PAD_Y + row * TABLE_ROW_STEP);
     }
 
     public int chipY() {

@@ -258,6 +258,24 @@ class MidnightThoughtsConfigTest {
     }
 
     @Test
+    void summaryStyleDefaultsToPictureAndKeepsTable() throws IOException {
+        writeConfig("{}");
+        assertEquals(MidnightThoughtsConfig.SUMMARY_STYLE_PICTURE, MidnightThoughtsConfig.load().getUi().summaryStyle);
+
+        writeConfig("{\"ui\":{\"summaryStyle\":\"table\"}}");
+        assertEquals(MidnightThoughtsConfig.SUMMARY_STYLE_TABLE, MidnightThoughtsConfig.load().getUi().summaryStyle);
+    }
+
+    @Test
+    void unknownSummaryStyleIsResetToPicture() throws IOException {
+        for (String style : new String[]{"grid", "", "TABLE", "table "}) {
+            writeConfig("{\"ui\":{\"summaryStyle\":\"" + style + "\"}}");
+            assertEquals(MidnightThoughtsConfig.SUMMARY_STYLE_PICTURE, MidnightThoughtsConfig.load().getUi().summaryStyle,
+                    "style \"" + style + "\"");
+        }
+    }
+
+    @Test
     void summaryScaleIsClampedToItsRange() throws IOException {
         writeConfig("{\"ui\":{\"summaryScale\":-3}}");
         assertEquals(MidnightThoughtsConfig.SUMMARY_SCALE_AUTO, MidnightThoughtsConfig.load().getUi().summaryScale);
