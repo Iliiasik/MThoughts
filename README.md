@@ -15,7 +15,7 @@
 
 <img width="1900" height="1908" alt="Diary" src="https://github.com/user-attachments/assets/f964f141-c80c-4d06-baf2-307f42eb231b" />
 
-<img width="1968" height="1148" alt="Diary 2" src="https://github.com/user-attachments/assets/2e2d2e39-db9c-4bb8-8c13-e8167054bedb" />
+<img width="1968" height="1149" alt="Diary 2" src="https://github.com/user-attachments/assets/35ff1828-1437-43dc-8cd9-fb9532fb0326" />
 
 <img width="1402" height="1434" alt="Diary 3" src="https://github.com/user-attachments/assets/41de3457-ab8e-43e4-bd07-95af91eec8f6" />
 
@@ -26,6 +26,8 @@
 <img width="1599" height="1552" alt="Themes 2" src="https://github.com/user-attachments/assets/f12be09f-c2b0-4be3-ba4e-c34ba097fe83" />
 
 <img width="943" height="923" alt="Themes 3" src="https://github.com/user-attachments/assets/1d1e1145-50e3-4176-a8cf-eb2b0efba60c" />
+
+<img width="1579" height="1705" alt="Themes 4" src="https://github.com/user-attachments/assets/97cc2be6-5bce-4263-94a8-1cdacb3739a9" />
 
 <img width="1063" height="821" alt="WR 1" src="https://github.com/user-attachments/assets/0efcad89-b632-42e8-872c-75429a0f64db" />
 
