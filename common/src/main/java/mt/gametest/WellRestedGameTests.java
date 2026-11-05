@@ -202,7 +202,8 @@ final class WellRestedGameTests {
                     .then(() -> ctx.sleepOrFail(player, bed))
                     .sleepThroughTheNight("the second night", player)
                     .then(() -> {
-                        ctx.equal(4, WellRestedEffect.getLevel(player.get()), "level after the second night");
+                        ctx.equal(4, WellRestedEffect.getLevel(player.get()),
+                                "level after the second night, comfort blocks now: " + ctx.comfortBreakdown(bed));
                         ctx.equal(0, WellRestedEffect.getCurrentPhase(player.get()), "phase after the second night");
                         ctx.check(WellRestedEffect.getTicksRemaining(player.get()) > 10 * 1200 - 20, "the new effect did not start at full length");
                         ctx.equal(1, speedModifiers(player.get()), "speed bonuses on the player");

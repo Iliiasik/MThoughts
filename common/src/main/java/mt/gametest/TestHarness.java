@@ -7,6 +7,7 @@ import mt.server.UserContentInitializer;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.gametest.framework.GlobalTestReporter;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.Difficulty;
 import net.minecraft.world.level.GameRules;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,6 +52,7 @@ public final class TestHarness {
             PacketLog.install();
             GlobalTestReporter.replaceWith(new MTTestReporter());
             TestDataPack.uninstall(helper.getLevel().getServer());
+            helper.getLevel().getServer().setDifficulty(Difficulty.PEACEFUL, true);
         }
         finishCurrent();
         savedFiles = snapshotFiles();

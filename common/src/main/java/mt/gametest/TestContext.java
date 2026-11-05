@@ -144,6 +144,31 @@ public final class TestContext {
         }
     }
 
+    public String comfortBreakdown(Bed bed) {
+        int radius = Math.max(0, Math.min(8, config().getComfort().scanRadius));
+        BlockPos origin = at(0, 0, 0);
+        StringBuilder found = new StringBuilder();
+        for (TagKey<Block> tag : COMFORT_TAGS) {
+            BlockPos hit = firstInRadius(bed.head(), radius, tag);
+            if (hit == null) continue;
+            BlockPos relative = hit.subtract(origin);
+            if (!found.isEmpty()) found.append(", ");
+            found.append(tag.location().getPath()).append(' ')
+                    .append(level().getBlockState(hit).getBlock().getDescriptionId())
+                    .append(" at ").append(relative.getX()).append(' ')
+                    .append(relative.getY()).append(' ').append(relative.getZ());
+        }
+        return found.isEmpty() ? "nothing" : found.toString();
+    }
+
+    private BlockPos firstInRadius(BlockPos center, int radius, TagKey<Block> tag) {
+        for (BlockPos pos : BlockPos.betweenClosed(center.offset(-radius, -radius, -radius),
+                center.offset(radius, radius, radius))) {
+            if (level().getBlockState(pos).is(tag)) return pos.immutable();
+        }
+        return null;
+    }
+
     public void place(BlockPos absolute, Block block) {
         level().setBlock(absolute, block.defaultBlockState(), Block.UPDATE_ALL);
     }
