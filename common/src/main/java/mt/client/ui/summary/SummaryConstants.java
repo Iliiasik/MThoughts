@@ -55,6 +55,10 @@ public class SummaryConstants {
         return themed("stats_panel");
     }
 
+    public static ResourceLocation getStatsTableTexture() {
+        return themed("stats_table");
+    }
+
     public static ResourceLocation getAchievementTexture() {
         return themed("achievement_badge");
     }

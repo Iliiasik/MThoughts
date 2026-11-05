@@ -27,6 +27,9 @@ public final class MidnightThoughtsConfig {
     public static final List<String> THEMES = List.of("vanilla", "magic", "classic", "tech");
     public static final int SUMMARY_SCALE_AUTO = 0;
     public static final int SUMMARY_SCALE_MAX = 4;
+    public static final String SUMMARY_STYLE_PICTURE = "picture";
+    public static final String SUMMARY_STYLE_TABLE = "table";
+    public static final List<String> SUMMARY_STYLES = List.of(SUMMARY_STYLE_PICTURE, SUMMARY_STYLE_TABLE);
 
     public static final String ATTRIBUTE_MOVEMENT_SPEED = "minecraft:generic.movement_speed";
     public static final String ATTRIBUTE_ATTACK_DAMAGE = "minecraft:generic.attack_damage";
@@ -405,5 +408,6 @@ public final class MidnightThoughtsConfig {
         public boolean hideWellRestedHud = false;
         public boolean hideSleepingPlayersHud = false;
         public int summaryScale = SUMMARY_SCALE_AUTO;
+        public String summaryStyle = SUMMARY_STYLE_PICTURE;
     }
 }

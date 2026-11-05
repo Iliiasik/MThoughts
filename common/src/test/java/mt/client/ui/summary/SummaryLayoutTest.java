@@ -164,6 +164,33 @@ class SummaryLayoutTest {
     }
 
     @Test
+    void tableRowsAreCenteredInThePanel() {
+        int lineHeight = 9;
+        int block = (SummaryLayout.TABLE_ROWS - 1) * SummaryLayout.TABLE_ROW_STEP + lineHeight;
+        assertEquals(SummaryConstants.STATS_PANEL_TEXTURE_HEIGHT, SummaryLayout.TABLE_PAD_Y * 2 + block,
+                "the rows must leave the same space above and below");
+    }
+
+    @Test
+    void tableStaysInsideThePanelAtEveryScale() {
+        for (int[] space : GUI_SPACES) {
+            for (int cap = 1; cap <= MidnightThoughtsConfig.SUMMARY_SCALE_MAX; cap++) {
+                SummaryLayout layout = at(space[0], space[1], cap);
+                String at = " at " + space[0] + "x" + space[1] + " cap " + cap;
+                int top = layout.columnsY();
+                int bottom = top + layout.panelHeight();
+
+                assertEquals(layout.panelX() + layout.s(SummaryLayout.TABLE_PAD_X), layout.tableTextLeft(), "left pad" + at);
+                assertEquals(layout.panelX() + layout.panelWidth() - layout.s(SummaryLayout.TABLE_PAD_X),
+                        layout.tableTextRight(), "right pad" + at);
+                assertEquals(top + layout.s(SummaryLayout.TABLE_PAD_Y), layout.tableRowY(0), "top pad" + at);
+                assertEquals(bottom - layout.s(SummaryLayout.TABLE_PAD_Y),
+                        layout.tableRowY(SummaryLayout.TABLE_ROWS - 1) + layout.s(9), "bottom pad" + at);
+            }
+        }
+    }
+
+    @Test
     void calculateIsIdempotent() {
         SummaryLayout layout = at(960, 540);
         int scale = layout.scale;
