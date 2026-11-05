@@ -11,6 +11,7 @@ final class ConfigScreenAssets {
     static final String TITLE_KEY = "screen.midnightthoughts.config";
     static final String NOTE_WELL_RESTED_KEY = "screen.midnightthoughts.config.note.well_rested";
     static final String NOTE_SERVER_FILE_KEY = "screen.midnightthoughts.config.note.server_file";
+    static final String NOTE_SERVER_OTHER_KEY = "screen.midnightthoughts.config.note.server_other";
 
     static final int ICON_SIZE = 40;
 

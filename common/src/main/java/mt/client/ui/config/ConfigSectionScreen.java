@@ -35,6 +35,7 @@ public class ConfigSectionScreen extends OptionsSubScreen {
     private static final String BLOCKS_KEY = OPTION_PREFIX + "blocks";
     private static final String SCALE_KEY = OPTION_PREFIX + "scale";
     private static final String SUMMARY_SCALE_AUTO_KEY = OPTION_PREFIX + "summary_scale.auto";
+    private static final String SUMMARY_STYLE_PREFIX = OPTION_PREFIX + "summary_style.";
 
     private static final String THEME_PREFIX = "midnightthoughts.theme.";
     private static final String HUD_POSITION_PREFIX = OPTION_PREFIX + "hud_position.";
@@ -65,6 +66,7 @@ public class ConfigSectionScreen extends OptionsSubScreen {
             case MVP -> addMvp(list, config.getMvp());
             case COMFORT -> addComfort(list, config.getComfort());
             case SERVER -> addServer(list, config.getServer());
+            case PERSONAL -> addPersonal(list, config.getUi());
         }
         addWidget(this.list);
         addRenderableWidget(Button.builder(CommonComponents.GUI_DONE, button -> onClose())
@@ -117,14 +119,25 @@ public class ConfigSectionScreen extends OptionsSubScreen {
     }
 
     private static void addInterface(OptionsList options, MidnightThoughtsConfig.UISettings ui) {
-        options.addBig(choice("theme", MidnightThoughtsConfig.THEMES, THEME_PREFIX, ui.theme, value -> ui.theme = value));
+        options.addSmall(
+                choice("theme", MidnightThoughtsConfig.THEMES, THEME_PREFIX, ui.theme, value -> ui.theme = value),
+                summaryStyle(ui));
         options.addSmall(
                 choice("hud_position", MidnightThoughtsConfig.HUD_POSITIONS, HUD_POSITION_PREFIX, ui.wellRestedHudPosition,
                         value -> ui.wellRestedHudPosition = value),
                 flag("hide_well_rested_hud", ui.hideWellRestedHud, value -> ui.hideWellRestedHud = value));
         options.addSmall(
                 flag("hide_sleeping_players_hud", ui.hideSleepingPlayersHud, value -> ui.hideSleepingPlayersHud = value),
-                summaryScale(ui.summaryScale, value -> ui.summaryScale = value));
+                summaryScale(ui));
+    }
+
+    private static void addPersonal(OptionsList options, MidnightThoughtsConfig.UISettings ui) {
+        options.addSmall(summaryStyle(ui), summaryScale(ui));
+    }
+
+    private static OptionInstance<String> summaryStyle(MidnightThoughtsConfig.UISettings ui) {
+        return choice("summary_style", MidnightThoughtsConfig.SUMMARY_STYLES, SUMMARY_STYLE_PREFIX, ui.summaryStyle,
+                value -> ui.summaryStyle = value);
     }
 
     private static void addMvp(OptionsList options, MidnightThoughtsConfig.MvpSettings mvp) {
@@ -216,7 +229,7 @@ public class ConfigSectionScreen extends OptionsSubScreen {
                 value -> setter.set(value / 100f));
     }
 
-    private static OptionInstance<Integer> summaryScale(int current, IntConsumer setter) {
+    private static OptionInstance<Integer> summaryScale(MidnightThoughtsConfig.UISettings ui) {
         String key = OPTION_PREFIX + "summary_scale";
         int min = MidnightThoughtsConfig.SUMMARY_SCALE_AUTO;
         int max = MidnightThoughtsConfig.SUMMARY_SCALE_MAX;
@@ -227,8 +240,8 @@ public class ConfigSectionScreen extends OptionsSubScreen {
                         ? Component.translatable(SUMMARY_SCALE_AUTO_KEY)
                         : Component.translatable(SCALE_KEY, value)),
                 new OptionInstance.IntRange(min, max),
-                Mth.clamp(current, min, max),
-                setter::accept);
+                Mth.clamp(ui.summaryScale, min, max),
+                value -> ui.summaryScale = value);
     }
 
     private static OptionInstance<String> choice(String name, List<String> values, String valuePrefix,

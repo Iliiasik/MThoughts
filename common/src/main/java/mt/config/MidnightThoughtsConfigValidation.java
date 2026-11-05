@@ -27,6 +27,10 @@ public final class MidnightThoughtsConfigValidation {
         return theme != null && MidnightThoughtsConfig.THEMES.contains(theme);
     }
 
+    public static boolean isValidSummaryStyle(String style) {
+        return style != null && MidnightThoughtsConfig.SUMMARY_STYLES.contains(style);
+    }
+
     public static boolean isValidHudPosition(String position) {
         return position != null && MidnightThoughtsConfig.HUD_POSITIONS.contains(position);
     }
@@ -192,5 +196,10 @@ public final class MidnightThoughtsConfigValidation {
         }
         ui.summaryScale = clampInt(ui.summaryScale, MidnightThoughtsConfig.SUMMARY_SCALE_AUTO,
                 MidnightThoughtsConfig.SUMMARY_SCALE_MAX, "ui.summaryScale");
+        if (!isValidSummaryStyle(ui.summaryStyle)) {
+            LOGGER.warn("Config value ui.summaryStyle was '{}', reset to '{}'",
+                    ui.summaryStyle, MidnightThoughtsConfig.SUMMARY_STYLE_PICTURE);
+            ui.summaryStyle = MidnightThoughtsConfig.SUMMARY_STYLE_PICTURE;
+        }
     }
 }

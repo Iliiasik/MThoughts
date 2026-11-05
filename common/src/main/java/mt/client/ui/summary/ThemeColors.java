@@ -7,6 +7,11 @@ import mt.network.packet.SyncConfigPacket;
 
 public class ThemeColors {
 
+    public static boolean tableStyle() {
+        return MidnightThoughtsConfig.SUMMARY_STYLE_TABLE.equals(
+                MidnightThoughtsConfig.getInstance().getUi().summaryStyle);
+    }
+
     public static String currentTheme() {
         SyncConfigPacket cached = ServerConfigCache.get();
         if (cached != null && MidnightThoughtsConfigValidation.isValidTheme(cached.theme())) {
@@ -25,15 +30,18 @@ public class ThemeColors {
                     TextStyle.shadowed(0xFFFFFF),
                     TextStyle.shadowed(0xFFFFFF),
                     TextStyle.shadowed(0xFFFFFF),
+                    TextStyle.shadowed(0xFFFFFF),
                     TextStyle.shadowed(0xFFFFFF)
             );
             case "classic" -> new ThemeColor(
                     TextStyle.shadowed(0xF2E6CE),
                     TextStyle.shadowed(0xF2E6CE),
                     TextStyle.shadowed(0xF2E6CE),
-                    TextStyle.shadowed(0xFFFFFF)
+                    TextStyle.shadowed(0xFFFFFF),
+                    TextStyle.flat(0x4F391F)
             );
             case "tech" -> new ThemeColor(
+                    TextStyle.shadowed(0xFFFFFF),
                     TextStyle.shadowed(0xFFFFFF),
                     TextStyle.shadowed(0xFFFFFF),
                     TextStyle.shadowed(0xFFFFFF),
@@ -43,13 +51,15 @@ public class ThemeColors {
                     TextStyle.flat(0xFFFFFF),
                     TextStyle.flat(0xFFFFFF),
                     TextStyle.shadowed(0xFFFFFF),
-                    TextStyle.flat(0xFFFFFF)
+                    TextStyle.flat(0xFFFFFF),
+                    TextStyle.flat(0x2C0D26)
             );
             default -> new ThemeColor(
                     TextStyle.flat(0x1a1a1a),
                     TextStyle.flat(0x1a1a1a),
                     TextStyle.flat(0x1a1a1a),
-                    TextStyle.flat(0x5a3a1a)
+                    TextStyle.flat(0x5a3a1a),
+                    TextStyle.flat(0x1a1a1a)
             );
         };
     }
@@ -74,6 +84,7 @@ public class ThemeColors {
             TextStyle badge,
             TextStyle days,
             TextStyle tooltip,
-            TextStyle sleepingHud
+            TextStyle sleepingHud,
+            TextStyle table
     ) {}
 }
