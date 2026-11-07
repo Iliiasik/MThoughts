@@ -46,6 +46,16 @@ final class SleepGameTests {
         ctx.check(ctx.summaries(player).isEmpty(), player.name() + " got a summary but should not");
     }
 
+    private static void placeNetherBed(ServerLevel nether, BlockPos foot, BlockPos head) {
+        for (BlockPos pos : BlockPos.betweenClosed(foot.offset(-1, -1, -1), head.offset(2, 2, 1))) {
+            nether.setBlock(pos, pos.getY() < foot.getY() ? Blocks.STONE.defaultBlockState()
+                    : Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
+        }
+        BlockState base = Blocks.RED_BED.defaultBlockState().setValue(BedBlock.FACING, Direction.SOUTH);
+        nether.setBlock(head, base.setValue(BedBlock.PART, BedPart.HEAD), Block.UPDATE_ALL);
+        nether.setBlock(foot, base.setValue(BedBlock.PART, BedPart.FOOT), Block.UPDATE_ALL);
+    }
+
     static void register(List<TestCatalog.Category> categories, List<GameTestCase> cases) {
         categories.add(new TestCatalog.Category(ID, "Sleep and the daily summary", List.of(
                 "a full night, getting up and lying down again, one or both of two players sleeping",
@@ -54,6 +64,8 @@ final class SleepGameTests {
                 "thunderstorms: a skip, getting up during the storm and staying in bed until it ends",
                 "gradual time skips like sleep mods do, and worlds with the daylight cycle switched off",
                 "leaving after sleeping, joining at night, nether beds and daytime attempts change nothing",
+                "sleeping through in another dimension gives the summary right away and only once",
+                "a sleeper in a dimension with frozen time does not hold the overworld morning",
                 "several nights in a row reset the stats only for sleepers, the summary shows the current day",
                 "a night of sleep counts once, lying in bed after sunrise like sleep mods do counts for nothing",
                 "a nightmare bed still gives a summary and shows the nightmare during the night")));
@@ -340,6 +352,60 @@ final class SleepGameTests {
                 ctx.equal(Player.BedSleepingProblem.NOT_POSSIBLE_HERE, result.left().orElse(null), "nether bed answer");
                 ctx.check(!player.get().isSleeping(), "the player fell asleep in the nether");
             }).idle(3).then(ctx::day).idle(3).then(() -> expectNoSummary(ctx, player));
+        }));
+
+        cases.add(new GameTestCase(ID, "other_dimension", "Sleeping through in another dimension gives the summary right away", 600, ctx -> {
+            MockPlayer player = ctx.join("Homebody");
+            ServerLevel nether = ctx.nether();
+            BlockPos foot = new BlockPos(8, 100, 0);
+            BlockPos head = foot.relative(Direction.SOUTH);
+            ctx.then(() -> {
+                ApiEventLog.setComfortBonus(5);
+                placeNetherBed(nether, foot, head);
+                player.moveTo(nether, foot.east());
+                ctx.night();
+            }).idle(2).then(() -> {
+                player.get().startSleeping(head);
+                nether.updateSleepingPlayerList();
+                ctx.check(player.get().isSleeping(), "the player did not lie down in the other dimension");
+            }).waitFor("the other dimension to wake the sleeper", 300, () -> !player.get().isSleeping()).idle(2).then(() -> {
+                ctx.check(!ctx.level().isDay(), "the overworld night ended, the test proves nothing");
+                expectSummary(ctx, player, 1);
+                ctx.check(WellRestedEffect.hasEffect(player.get()), "no Well Rested after sleeping in the other dimension");
+                ctx.day();
+            }).idle(3).then(() -> ctx.equal(1, ctx.summaries(player).size(),
+                    "summaries after the overworld morning"));
+        }));
+
+        cases.add(new GameTestCase(ID, "frozen_time_keeps_its_own_morning", "A sleeper in a dimension with frozen time does not hold the overworld morning", 900, ctx -> {
+            Bed bed = litBed(ctx, 10);
+            MockPlayer local = ctx.joinAt("Local", bed);
+            MockPlayer homebody = ctx.join("Homebody");
+            MockPlayer guest = ctx.join("Guest");
+            ServerLevel nether = ctx.nether();
+            BlockPos foot = new BlockPos(8, 100, 0);
+            BlockPos head = foot.relative(Direction.SOUTH);
+            ctx.then(() -> {
+                ApiEventLog.setComfortBonus(5);
+                placeNetherBed(nether, foot, head);
+                homebody.moveTo(nether, foot.east());
+                guest.moveTo(nether, foot.west());
+                ctx.night();
+            }).idle(2).then(() -> {
+                homebody.get().startSleeping(head);
+                nether.updateSleepingPlayerList();
+                ctx.sleepOrFail(local, bed);
+            }).sleepThroughTheNight("the overworld night to pass", local).then(() -> {
+                ctx.check(homebody.get().isSleeping(), "the other dimension woke its sleeper, the test proves nothing");
+                expectSummary(ctx, local, 1);
+                expectNoSummary(ctx, homebody);
+                guest.moveTo(ctx.level(), ctx.at(10, 1, 4));
+                nether.updateSleepingPlayerList();
+            }).waitFor("the other dimension to wake the sleeper", 300, () -> !homebody.get().isSleeping()).idle(2).then(() -> {
+                expectSummary(ctx, homebody, 1);
+                ctx.check(WellRestedEffect.hasEffect(homebody.get()), "no Well Rested after sleeping in the other dimension");
+                ctx.equal(1, ctx.summaries(local).size(), "summaries of the overworld sleeper");
+            }).idle(3).then(() -> ctx.equal(1, ctx.summaries(homebody).size(), "summaries of the other dimension sleeper"));
         }));
 
         cases.add(new GameTestCase(ID, "no_sleep_during_the_day", "Trying to sleep during the day counts nothing", 200, ctx -> {
