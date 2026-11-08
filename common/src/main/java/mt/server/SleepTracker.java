@@ -21,6 +21,7 @@ public class SleepTracker {
     private boolean wasNight = false;
     private final Set<UUID> playersWhoSlept = new HashSet<>();
     private final Set<UUID> wakeVoluntarily = new HashSet<>();
+    private final Set<UUID> asleepInFrozenTime = new HashSet<>();
     private final Map<UUID, Integer> pinnedComfort = new HashMap<>();
     private final Map<UUID, Integer> pendingSleep = new HashMap<>();
 
@@ -28,6 +29,7 @@ public class SleepTracker {
         this.server = server;
     }
 
+    @SuppressWarnings("resource")
     public void tick() {
         ServerLevel overworld = server.getLevel(Level.OVERWORLD);
         if (overworld == null) return;
@@ -38,13 +40,18 @@ public class SleepTracker {
         int sleepingCount = 0;
         int totalPlayers = 0;
         boolean sleeperStillInBed = false;
+        asleepInFrozenTime.clear();
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             boolean sleeping = player.isSleeping();
             if (hasPendingSleep) confirmSleepAttempt(player, sleeping);
             if (!isDay && sleeping) {
                 playersWhoSlept.add(player.getUUID());
             }
-            if (sleeping && playersWhoSlept.contains(player.getUUID())) sleeperStillInBed = true;
+            if (sleeping && hasFrozenTime(player.level(), overworld)) {
+                asleepInFrozenTime.add(player.getUUID());
+            } else if (sleeping && playersWhoSlept.contains(player.getUUID())) {
+                sleeperStillInBed = true;
+            }
             if (player.level() != overworld) continue;
             if (sleeping) sleepingCount++;
             if (!player.isSpectator()) totalPlayers++;
@@ -62,12 +69,17 @@ public class SleepTracker {
             wasNight = false;
             Set<UUID> slept = new HashSet<>(playersWhoSlept);
             slept.removeAll(wakeVoluntarily);
-            playersWhoSlept.clear();
+            slept.removeAll(asleepInFrozenTime);
+            playersWhoSlept.retainAll(asleepInFrozenTime);
             wakeVoluntarily.clear();
             DailyStatsManager.showDailySummaryAndReset(server, slept);
-            pinnedComfort.clear();
-            pendingSleep.clear();
+            pinnedComfort.keySet().retainAll(asleepInFrozenTime);
+            pendingSleep.keySet().retainAll(asleepInFrozenTime);
         }
+    }
+
+    private static boolean hasFrozenTime(Level level, ServerLevel overworld) {
+        return level != overworld && level.dimensionType().hasFixedTime();
     }
 
     public void markPlayerListChanged() {
@@ -75,6 +87,7 @@ public class SleepTracker {
         lastTotalPlayers = -1;
     }
 
+    @SuppressWarnings("resource")
     public void markPlayerWoke(ServerPlayer player) {
         if (player.level().isDay()) return;
         wakeVoluntarily.add(player.getUUID());
@@ -102,6 +115,12 @@ public class SleepTracker {
     public Integer getSessionComfort(UUID uuid) {
         Integer pending = pendingSleep.get(uuid);
         return pending != null ? pending : pinnedComfort.get(uuid);
+    }
+
+    public void finishSleepOutsideOverworld(Set<UUID> sleepers) {
+        if (sleepers.isEmpty()) return;
+        DailyStatsManager.showDailySummaryAndReset(server, sleepers);
+        sleepers.forEach(this::forgetPlayer);
     }
 
     public void forgetPlayer(UUID uuid) {

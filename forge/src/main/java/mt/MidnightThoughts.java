@@ -70,7 +70,7 @@ public class MidnightThoughts {
 
     @SubscribeEvent
     public void onPlayerWakeUp(PlayerWakeUpEvent event) {
-        if (event.wakeImmediately() || !event.updateLevel()) return;
+        if (!event.updateLevel()) return;
         if (event.getEntity() instanceof ServerPlayer player) MTServer.onWokeUp(player);
     }
 

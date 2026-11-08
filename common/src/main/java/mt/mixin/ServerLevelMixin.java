@@ -1,6 +1,7 @@
 package mt.mixin;
 
 import mt.config.MidnightThoughtsConfig;
+import mt.server.MTServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
@@ -12,6 +13,11 @@ import java.util.function.BooleanSupplier;
 
 @Mixin(ServerLevel.class)
 public class ServerLevelMixin {
+    @Inject(method = "wakeUpAllPlayers", at = @At("HEAD"))
+    private void onBeforeWakeUpAllPlayers(CallbackInfo ci) {
+        MTServer.onLevelWakesSleepers((ServerLevel) (Object) this);
+    }
+
     @Inject(
             method = "tick",
             at = @At(
