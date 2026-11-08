@@ -49,6 +49,7 @@ final class SleepGameTests {
         categories.add(new TestCatalog.Category(ID, "Sleep and the daily summary", List.of(
                 "a full night, getting up and lying down again, one or both of two players sleeping",
                 "whoever gets up before the night passes gets no summary and no effect",
+                "a broken bed or a hit during the night counts as not sleeping through",
                 "/time set day, lying until morning without a skip and a sleeping percentage above 100",
                 "thunderstorms: a skip, getting up during the storm and staying in bed until it ends",
                 "gradual time skips like sleep mods do, and worlds with the daylight cycle switched off",
@@ -127,6 +128,47 @@ final class SleepGameTests {
                         expectSummary(ctx, stayed, 1);
                         expectNoSummary(ctx, left);
                         ctx.check(!WellRestedEffect.hasEffect(left.get()), "the player who got up got an effect");
+                    });
+        }));
+
+        cases.add(new GameTestCase(ID, "bed_broken_during_sleep", "A player whose bed was broken during the night gets nothing", 600, ctx -> {
+            ctx.sleepingPercentage(50);
+            Bed first = litBed(ctx, 4);
+            Bed second = litBed(ctx, 16);
+            MockPlayer stayed = ctx.joinAt("Stayed", first);
+            MockPlayer homeless = ctx.joinAt("Homeless", second);
+            ctx.night();
+            ctx.idle(2).then(() -> {
+                ctx.sleepOrFail(stayed, first);
+                ctx.sleepOrFail(homeless, second);
+            }).idle(20).then(() -> ctx.level().removeBlock(second.head(), false))
+                    .waitFor("the broken bed to wake the player", 20, () -> !homeless.get().isSleeping())
+                    .sleepThroughTheNight("the night to pass", stayed)
+                    .then(() -> {
+                        expectSummary(ctx, stayed, 1);
+                        expectNoSummary(ctx, homeless);
+                        ctx.check(!WellRestedEffect.hasEffect(homeless.get()), "the player whose bed was broken got an effect");
+                    });
+        }));
+
+        cases.add(new GameTestCase(ID, "hurt_during_sleep", "A player woken by a hit during the night gets nothing", 600, ctx -> {
+            ctx.sleepingPercentage(50);
+            Bed first = litBed(ctx, 4);
+            Bed second = litBed(ctx, 16);
+            MockPlayer stayed = ctx.joinAt("Stayed", first);
+            MockPlayer hit = ctx.joinAt("Hit", second);
+            ctx.night();
+            ctx.idle(2).then(() -> {
+                ctx.sleepOrFail(stayed, first);
+                ctx.sleepOrFail(hit, second);
+            }).idle(80).then(() -> ctx.check(hit.get().hurtServer(ctx.level(), hit.get().damageSources().generic(), 1.0F),
+                            "the sleeping player took no damage"))
+                    .waitFor("the hit to wake the player", 20, () -> !hit.get().isSleeping())
+                    .sleepThroughTheNight("the night to pass", stayed)
+                    .then(() -> {
+                        expectSummary(ctx, stayed, 1);
+                        expectNoSummary(ctx, hit);
+                        ctx.check(!WellRestedEffect.hasEffect(hit.get()), "the player woken by a hit got an effect");
                     });
         }));
 

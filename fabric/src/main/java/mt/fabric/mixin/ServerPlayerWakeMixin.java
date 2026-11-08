@@ -12,7 +12,7 @@ public abstract class ServerPlayerWakeMixin {
 
     @Inject(method = "stopSleepInBed", at = @At("HEAD"))
     private void midnightthoughts$onWake(boolean wakeImmediately, boolean updateLevel, CallbackInfo ci) {
-        if (wakeImmediately || !updateLevel) return;
+        if (!updateLevel) return;
         MTServer.onWokeUp((ServerPlayer) (Object) this);
     }
 }

@@ -8,8 +8,14 @@ import mt.platform.MTNetwork;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 
 public final class MTServer {
 
@@ -46,6 +52,17 @@ public final class MTServer {
     public static void onWokeUp(ServerPlayer player) {
         SleepTracker tracker = DailyStatsManager.getSleepTracker(player.level().getServer());
         if (tracker != null) tracker.markPlayerWoke(player);
+    }
+
+    public static void onLevelWakesSleepers(ServerLevel level) {
+        if (level.dimension() == Level.OVERWORLD) return;
+        SleepTracker tracker = DailyStatsManager.getSleepTracker(level.getServer());
+        if (tracker == null) return;
+        Set<UUID> sleepers = new HashSet<>();
+        for (ServerPlayer player : level.players()) {
+            if (player.isSleeping()) sleepers.add(player.getUUID());
+        }
+        tracker.finishSleepOutsideOverworld(sleepers);
     }
 
     public static void onDeath(ServerPlayer player) {
