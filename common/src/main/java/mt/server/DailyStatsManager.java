@@ -56,7 +56,9 @@ public class DailyStatsManager {
         for (Sleeper sleeper : sleepers) {
             List<String> achievements = AchievementCalculator.calculateAchievements(sleeper.delta(), sleeper.saved());
             StatsStorage.savePlayerStats(server, sleeper.player().getUUID(), sleeper.saved());
-            summaries.add(sleeper.summary(sleeper.name().equals(mvpName), achievements, day));
+            boolean mvp = sleeper.name().equals(mvpName);
+            summaries.add(sleeper.summary(mvp, achievements, day,
+                    WellRestedEffect.levelFor(sleepComfort(sleeper.player()), mvp)));
         }
 
         DailySummaryPacket packet = new DailySummaryPacket(summaries);
@@ -69,6 +71,8 @@ public class DailyStatsManager {
             } else {
                 WellRestedEffect.applyToPlayer(player, sleepComfort(player));
             }
+            int experience = sleeper.experience();
+            if (experience > 0) player.giveExperiencePoints(experience);
             DailyPlayerStats stats = getOrCreateStats(player.getUUID());
             stats.captureCurrentStats(player);
             stats.saveToStorage(server);
@@ -91,10 +95,15 @@ public class DailyStatsManager {
                     delta.distanceWalked(), delta.mobsKilled(), delta.deaths(), delta.jumps());
         }
 
-        DailySummaryPacket.PlayerDailySummary summary(boolean mvp, List<String> achievements, int day) {
+        int experience() {
+            return AchievementCalculator.experienceFor(mvpData());
+        }
+
+        DailySummaryPacket.PlayerDailySummary summary(boolean mvp, List<String> achievements, int day,
+                                                      int wellRestedLevel) {
             return new DailySummaryPacket.PlayerDailySummary(name, delta.blocksDestroyed(),
                     delta.distanceWalked(), delta.mobsKilled(), delta.deaths(), delta.jumps(),
-                    delta.damageDealt(), day, mvp, achievements);
+                    delta.damageDealt(), day, mvp, achievements, experience(), wellRestedLevel);
         }
     }
 

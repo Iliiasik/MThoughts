@@ -30,11 +30,14 @@ public record SyncConfigPacket(
         boolean hideHudMessagesWhenSleeping,
         float overlayTextScale,
         float overlayImageScale,
-        boolean enableSpaceObjects
+        boolean enableSpaceObjects,
+        boolean sereneSeasonsIntegration,
+        boolean eclipticSeasonsIntegration
 ) implements CustomPacketPayload {
     public static SyncConfigPacket of(mt.config.MidnightThoughtsConfig cfg) {
         mt.config.MidnightThoughtsConfig.SleepOverlaySettings o = cfg.getSleepOverlay();
         mt.config.MidnightThoughtsConfig.UISettings ui = cfg.getUi();
+        mt.config.MidnightThoughtsConfig.IntegrationSettings integrations = cfg.getIntegrations();
         return new SyncConfigPacket(
                 o.minSlideDisplayTimeMs,
                 o.maxSlideDisplayTimeMs,
@@ -59,7 +62,9 @@ public record SyncConfigPacket(
                 o.hideHudMessagesWhenSleeping,
                 o.textScale,
                 o.imageScale,
-                o.enableSpaceObjects
+                o.enableSpaceObjects,
+                integrations.sereneSeasons,
+                integrations.eclipticSeasons
         );
     }
 
@@ -92,6 +97,8 @@ public record SyncConfigPacket(
                 buf.writeFloat(p.overlayTextScale());
                 buf.writeFloat(p.overlayImageScale());
                 buf.writeBoolean(p.enableSpaceObjects());
+                buf.writeBoolean(p.sereneSeasonsIntegration());
+                buf.writeBoolean(p.eclipticSeasonsIntegration());
             },
             buf -> new SyncConfigPacket(
                     buf.readVarInt(),
@@ -117,6 +124,8 @@ public record SyncConfigPacket(
                     buf.readBoolean(),
                     buf.readFloat(),
                     buf.readFloat(),
+                    buf.readBoolean(),
+                    buf.readBoolean(),
                     buf.readBoolean()
             )
     );
