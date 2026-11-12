@@ -19,7 +19,7 @@
 
 <img width="1402" height="1434" alt="Diary 3" src="https://github.com/user-attachments/assets/41de3457-ab8e-43e4-bd07-95af91eec8f6" />
 
-<img width="1232" height="1662" alt="Integrations" src="https://github.com/user-attachments/assets/9bb559b4-d233-4be8-b4c5-b552708bae50" />
+<img width="1830" height="1372" alt="Integrations" src="https://github.com/user-attachments/assets/8f1d3641-a91e-48ed-a6e2-97739e1cde6e" />
 
 <img width="1154" height="1106" alt="Themes 1" src="https://github.com/user-attachments/assets/3012a1af-565f-4656-b2e1-c022007ab0df" />
 
@@ -32,6 +32,8 @@
 <img width="1063" height="821" alt="WR 1" src="https://github.com/user-attachments/assets/0efcad89-b632-42e8-872c-75429a0f64db" />
 
 <img width="1104" height="1324" alt="WR 2" src="https://github.com/user-attachments/assets/57181864-acd2-40bd-b94d-a5e2fda26b9b" />
+
+<img width="1282" height="1598" alt="Rewards" src="https://github.com/user-attachments/assets/f022331c-deab-4118-8e4b-971304ddade9" />
 
 <img  alt="Nightmares" src="https://github.com/user-attachments/assets/d8cacc82-9e86-4618-b1d2-b39318b5539a" />
 
