@@ -22,6 +22,7 @@ public final class CardRenderer {
     public static void render(GuiGraphics context, Font font, DailySummaryPacket.PlayerDailySummary player,
                               SummaryLayout layout, float fadeAlpha, float countProgress, List<HoverArea> areas) {
         renderHead(context, player, layout, fadeAlpha);
+        addRewardsArea(player, layout, areas);
         renderDaysChip(context, font, player, layout, fadeAlpha, areas);
         StatsPanelRenderer.render(context, font, player, layout, fadeAlpha, countProgress, areas);
         AchievementRenderer.render(context, player.achievements(), layout, fadeAlpha, areas);
@@ -58,6 +59,14 @@ public final class CardRenderer {
         context.blit(skin, x, y, size, size, 40, 8, 8, 8, 64, 64);
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
         RenderSystem.disableBlend();
+    }
+
+    private static void addRewardsArea(DailySummaryPacket.PlayerDailySummary player, SummaryLayout layout,
+                                       List<HoverArea> areas) {
+        List<String> rewards = RewardsTooltip.lines(player);
+        if (rewards.isEmpty()) return;
+        int size = layout.s(SummaryLayout.HEAD);
+        areas.add(new HoverArea(layout.contentX(), layout.columnsY(), size, size, rewards));
     }
 
     private static void renderDaysChip(GuiGraphics context, Font font,

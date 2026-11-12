@@ -26,7 +26,7 @@ class DailySummaryPacketTest {
 
     private static DailySummaryPacket.PlayerDailySummary summary(String name) {
         return new DailySummaryPacket.PlayerDailySummary(
-                name, 11, 22, 33, 44, 55, 66, 7, true, List.of("distance_record", "mobs_record"));
+                name, 11, 22, 33, 44, 55, 66, 7, true, List.of("distance_record", "mobs_record"), 120, 3);
     }
 
     @Test
@@ -57,12 +57,14 @@ class DailySummaryPacketTest {
         assertEquals(66, decoded.damageDealt());
         assertTrue(decoded.isMvp());
         assertEquals(List.of("distance_record", "mobs_record"), decoded.achievements());
+        assertEquals(120, decoded.experience());
+        assertEquals(3, decoded.wellRestedLevel());
     }
 
     @Test
     void distinctStatValuesAreNeverSwapped() {
         DailySummaryPacket.PlayerDailySummary original = new DailySummaryPacket.PlayerDailySummary(
-                "Ordered", 1, 2, 3, 4, 5, 6, 77, false, List.of());
+                "Ordered", 1, 2, 3, 4, 5, 6, 77, false, List.of(), 0, 0);
 
         DailySummaryPacket.PlayerDailySummary decoded =
                 roundTrip(new DailySummaryPacket(List.of(original))).summaries().get(0);
@@ -94,7 +96,7 @@ class DailySummaryPacketTest {
     @Test
     void negativeStatsAreClampedToZeroOnTheWire() {
         DailySummaryPacket.PlayerDailySummary original = new DailySummaryPacket.PlayerDailySummary(
-                "Negative", -1, -1000, -5, -7, -9, -11, 7, false, List.of());
+                "Negative", -1, -1000, -5, -7, -9, -11, 7, false, List.of(), -4, -2);
 
         DailySummaryPacket.PlayerDailySummary decoded =
                 roundTrip(new DailySummaryPacket(List.of(original))).summaries().get(0);
@@ -111,7 +113,7 @@ class DailySummaryPacketTest {
     void oversizedStatsAreClampedToHalfTheIntegerRange() {
         DailySummaryPacket.PlayerDailySummary original = new DailySummaryPacket.PlayerDailySummary(
                 "Huge", Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE,
-                Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE, 7, true, List.of());
+                Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE, 7, true, List.of(), Integer.MAX_VALUE, 5);
 
         DailySummaryPacket.PlayerDailySummary decoded =
                 roundTrip(new DailySummaryPacket(List.of(original))).summaries().get(0);
@@ -128,7 +130,7 @@ class DailySummaryPacketTest {
     void clampingIsStableAcrossRepeatedRoundTrips() {
         DailySummaryPacket packet = new DailySummaryPacket(List.of(
                 new DailySummaryPacket.PlayerDailySummary(
-                        "Stable", -5, Integer.MAX_VALUE, 100, 0, 7, 9, 7, true, List.of("first"))));
+                        "Stable", -5, Integer.MAX_VALUE, 100, 0, 7, 9, 7, true, List.of("first"), 15, 5)));
 
         DailySummaryPacket once = roundTrip(packet);
         DailySummaryPacket twice = roundTrip(once);
@@ -139,7 +141,7 @@ class DailySummaryPacketTest {
     @Test
     void aPlayerWithNoAchievementsRoundTrips() {
         DailySummaryPacket.PlayerDailySummary original = new DailySummaryPacket.PlayerDailySummary(
-                "Empty", 1, 2, 3, 4, 5, 6, 7, false, List.of());
+                "Empty", 1, 2, 3, 4, 5, 6, 7, false, List.of(), 0, 0);
 
         assertTrue(roundTrip(new DailySummaryPacket(List.of(original)))
                 .summaries().get(0).achievements().isEmpty());
@@ -152,7 +154,7 @@ class DailySummaryPacketTest {
             achievements.add("achievement_" + i);
         }
         DailySummaryPacket.PlayerDailySummary original = new DailySummaryPacket.PlayerDailySummary(
-                "Collector", 1, 2, 3, 4, 5, 6, 7, true, achievements);
+                "Collector", 1, 2, 3, 4, 5, 6, 7, true, achievements, 0, 0);
 
         assertEquals(achievements, roundTrip(new DailySummaryPacket(List.of(original)))
                 .summaries().get(0).achievements());
@@ -161,8 +163,8 @@ class DailySummaryPacketTest {
     @Test
     void theMvpFlagIsCarriedPerPlayer() {
         DailySummaryPacket packet = new DailySummaryPacket(List.of(
-                new DailySummaryPacket.PlayerDailySummary("Winner", 1, 1, 1, 0, 1, 1, 7, true, List.of()),
-                new DailySummaryPacket.PlayerDailySummary("Other", 1, 1, 1, 0, 1, 1, 7, false, List.of())));
+                new DailySummaryPacket.PlayerDailySummary("Winner", 1, 1, 1, 0, 1, 1, 7, true, List.of(), 0, 5),
+                new DailySummaryPacket.PlayerDailySummary("Other", 1, 1, 1, 0, 1, 1, 7, false, List.of(), 0, 1)));
 
         DailySummaryPacket decoded = roundTrip(packet);
 
@@ -174,7 +176,7 @@ class DailySummaryPacketTest {
     void unicodeNamesAndAchievementsRoundTrip() {
         for (String name : List.of("Игрок", "プレイヤー", "플레이어", "Oyuncu", "Gracz")) {
             DailySummaryPacket.PlayerDailySummary original = new DailySummaryPacket.PlayerDailySummary(
-                    name, 1, 2, 3, 4, 5, 6, 7, false, List.of("достижение", "実績"));
+                    name, 1, 2, 3, 4, 5, 6, 7, false, List.of("достижение", "実績"), 0, 0);
 
             DailySummaryPacket.PlayerDailySummary decoded =
                     roundTrip(new DailySummaryPacket(List.of(original))).summaries().get(0);
@@ -190,7 +192,7 @@ class DailySummaryPacketTest {
         for (int i = 0; i < 200; i++) {
             players.add(new DailySummaryPacket.PlayerDailySummary(
                     "Player" + i, i, i * 100, i % 7, i % 3, i * 13, i * 29,
-                    7, i == 0, List.of("a" + i, "b" + i)));
+                    7, i == 0, List.of("a" + i, "b" + i), i * 3, i % 6));
         }
 
         DailySummaryPacket decoded = roundTrip(new DailySummaryPacket(players));

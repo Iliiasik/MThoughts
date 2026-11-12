@@ -20,6 +20,12 @@ public class WellRestedEffect {
     private static final int PHASES = 3;
     private static final int REGEN_INTERVAL_TICKS = 100;
 
+    public static int levelFor(int comfortLevel, boolean mvp) {
+        if (!CONFIG.getWellRested().enabled) return 0;
+        if (mvp) return MAX_LEVEL;
+        return Mth.clamp(comfortLevel, 0, MAX_LEVEL);
+    }
+
     public static void applyToPlayer(ServerPlayer player, int comfortLevel) {
         if (comfortLevel <= 0) return;
         int level = Math.min(comfortLevel, MAX_LEVEL);

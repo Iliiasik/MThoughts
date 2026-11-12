@@ -39,6 +39,7 @@ public final class MidnightThoughtsConfigValidation {
         validateSleepOverlay(config.getSleepOverlay());
         validateWellRested(config.getWellRested());
         validateMvp(config.getMvp());
+        validateExperience(config.getExperience());
         validateComfort(config.getComfort());
         validateUi(config.getUi());
     }
@@ -65,6 +66,13 @@ public final class MidnightThoughtsConfigValidation {
             return fallback;
         }
         return clamp(value, min, max, field);
+    }
+
+    private static void validateExperience(MidnightThoughtsConfig.ExperienceSettings experience) {
+        experience.experiencePerPoint = clampFloat(experience.experiencePerPoint,
+                0f, MidnightThoughtsConfig.EXPERIENCE_PER_POINT_MAX, 0.03f, "experience.experiencePerPoint");
+        experience.maxExperiencePerSleep = clampInt(experience.maxExperiencePerSleep,
+                0, MidnightThoughtsConfig.EXPERIENCE_LIMIT_MAX, "experience.maxExperiencePerSleep");
     }
 
     private static void validateSleepOverlay(MidnightThoughtsConfig.SleepOverlaySettings o) {

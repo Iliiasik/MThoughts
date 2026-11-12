@@ -36,7 +36,8 @@ public record DailySummaryPacket(List<PlayerDailySummary> summaries) implements 
     public record PlayerDailySummary(String playerName, int blocksDestroyed, int distanceWalked,
                                      int mobsKilled, int deaths, int jumps, int damageDealt,
                                      int day, boolean isMvp,
-                                     List<String> achievements) {
+                                     List<String> achievements,
+                                     int experience, int wellRestedLevel) {
 
         public static PlayerDailySummary decode(FriendlyByteBuf buf) {
             String playerName = buf.readUtf();
@@ -53,8 +54,10 @@ public record DailySummaryPacket(List<PlayerDailySummary> summaries) implements 
             for (int i = 0; i < achievementCount; i++) {
                 achievements.add(buf.readUtf());
             }
+            int experience = clampValue(buf.readVarInt());
+            int wellRestedLevel = clampValue(buf.readVarInt());
             return new PlayerDailySummary(playerName, blocksDestroyed, distanceWalked, mobsKilled,
-                    deaths, jumps, damageDealt, day, isMvp, achievements);
+                    deaths, jumps, damageDealt, day, isMvp, achievements, experience, wellRestedLevel);
         }
 
         public static void encode(FriendlyByteBuf buf, PlayerDailySummary summary) {
@@ -71,6 +74,8 @@ public record DailySummaryPacket(List<PlayerDailySummary> summaries) implements 
             for (String achievement : summary.achievements()) {
                 buf.writeUtf(achievement);
             }
+            buf.writeVarInt(clampValue(summary.experience()));
+            buf.writeVarInt(clampValue(summary.wellRestedLevel()));
         }
 
         private static int clampValue(int value) {

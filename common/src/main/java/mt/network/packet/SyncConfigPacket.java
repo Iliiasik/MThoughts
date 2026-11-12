@@ -29,11 +29,14 @@ public record SyncConfigPacket(
         boolean hideHudMessagesWhenSleeping,
         float overlayTextScale,
         float overlayImageScale,
-        boolean enableSpaceObjects
+        boolean enableSpaceObjects,
+        boolean sereneSeasonsIntegration,
+        boolean eclipticSeasonsIntegration
 ) implements MTPacket {
     public static SyncConfigPacket of(mt.config.MidnightThoughtsConfig cfg) {
         mt.config.MidnightThoughtsConfig.SleepOverlaySettings o = cfg.getSleepOverlay();
         mt.config.MidnightThoughtsConfig.UISettings ui = cfg.getUi();
+        mt.config.MidnightThoughtsConfig.IntegrationSettings integrations = cfg.getIntegrations();
         return new SyncConfigPacket(
                 o.minSlideDisplayTimeMs,
                 o.maxSlideDisplayTimeMs,
@@ -58,7 +61,9 @@ public record SyncConfigPacket(
                 o.hideHudMessagesWhenSleeping,
                 o.textScale,
                 o.imageScale,
-                o.enableSpaceObjects
+                o.enableSpaceObjects,
+                integrations.sereneSeasons,
+                integrations.eclipticSeasons
         );
     }
 
@@ -89,6 +94,8 @@ public record SyncConfigPacket(
             buf.readBoolean(),
             buf.readFloat(),
             buf.readFloat(),
+            buf.readBoolean(),
+            buf.readBoolean(),
             buf.readBoolean()
     );
     }
@@ -119,6 +126,8 @@ public record SyncConfigPacket(
         buf.writeFloat(overlayTextScale());
         buf.writeFloat(overlayImageScale());
         buf.writeBoolean(enableSpaceObjects());
+        buf.writeBoolean(sereneSeasonsIntegration());
+        buf.writeBoolean(eclipticSeasonsIntegration());
     }
 
     @Override

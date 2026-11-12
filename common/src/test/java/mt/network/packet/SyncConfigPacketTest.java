@@ -19,7 +19,7 @@ class SyncConfigPacketTest {
             true, false, true, false, true, false,
             "magic",
             "bar",
-            true, true, false, true, false, 0.75f, 1.25f, true
+            true, true, false, true, false, 0.75f, 1.25f, true, true, false
     );
 
     private static SyncConfigPacket roundTrip(SyncConfigPacket packet) {
@@ -50,7 +50,7 @@ class SyncConfigPacketTest {
                 0.0f, 0.5f, 1.0f, 0.25f,
                 value, value, value, value, value, value,
                 "magic", "bar",
-                value, value, value, value, value, 0.75f, 1.25f, value
+                value, value, value, value, value, 0.75f, 1.25f, value, value, value
         );
     }
 
@@ -60,7 +60,7 @@ class SyncConfigPacketTest {
                 0.1f, 0.2f, 0.3f, 0.4f,
                 true, false, true, false, true, false,
                 theme, "bar",
-                true, true, false, true, false, 0.75f, 1.25f, true
+                true, true, false, true, false, 0.75f, 1.25f, true, true, false
         );
     }
 
@@ -70,7 +70,7 @@ class SyncConfigPacketTest {
                 0.1f, 0.2f, 0.3f, 0.4f,
                 true, false, true, false, true, false,
                 "magic", position,
-                true, true, false, true, false, 0.75f, 1.25f, true
+                true, true, false, true, false, 0.75f, 1.25f, true, true, false
         );
     }
 
@@ -84,7 +84,7 @@ class SyncConfigPacketTest {
 
     @Test
     void theRecordStillCarriesEveryConfiguredValue() {
-        assertEquals(24, SyncConfigPacket.class.getRecordComponents().length,
+        assertEquals(26, SyncConfigPacket.class.getRecordComponents().length,
                 "a config field was added or removed without updating the wire format");
     }
 
@@ -129,11 +129,11 @@ class SyncConfigPacketTest {
 
         int fourVarInts = 2 + 2 + 2 + 2;
         int sixFloats = 6 * 4;
-        int twelveBooleans = 12;
+        int fourteenBooleans = 14;
         int theme = 1 + "magic".getBytes(StandardCharsets.UTF_8).length;
         int hudPosition = 1 + "bar".getBytes(StandardCharsets.UTF_8).length;
 
-        assertEquals(fourVarInts + sixFloats + twelveBooleans + theme + hudPosition,
+        assertEquals(fourVarInts + sixFloats + fourteenBooleans + theme + hudPosition,
                 buf.readableBytes(),
                 "wire format changed, bump the protocol version before shipping this");
     }
@@ -155,7 +155,7 @@ class SyncConfigPacketTest {
                 Float.MIN_VALUE, Float.MAX_VALUE, -0.0f, 1.0E-10f,
                 true, false, true, false, true, false,
                 "classic", "left",
-                true, true, false, true, false, -0.0f, 1.0E-10f, false
+                true, true, false, true, false, -0.0f, 1.0E-10f, false, false, true
         );
 
         assertEquals(packet, roundTrip(packet));
