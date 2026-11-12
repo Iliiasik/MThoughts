@@ -14,6 +14,7 @@ import net.minecraft.network.chat.Component;
 import com.mojang.serialization.Codec;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 
@@ -35,6 +36,10 @@ public class ConfigSectionScreen extends OptionsSubScreen {
     private static final String THEME_PREFIX = "midnightthoughts.theme.";
     private static final String HUD_POSITION_PREFIX = OPTION_PREFIX + "hud_position.";
 
+    private static final float EXPERIENCE_STEPS = 100f;
+    private static final int EXPERIENCE_SLIDER_MAX = 100;
+    private static final int EXPERIENCE_LIMIT_SLIDER_MAX = 1000;
+
     private final ConfigSection section;
 
     public ConfigSectionScreen(Screen parent, ConfigSection section) {
@@ -48,8 +53,8 @@ public class ConfigSectionScreen extends OptionsSubScreen {
         MidnightThoughtsConfig config = MidnightThoughtsConfig.getInstance();
         switch (section) {
             case SLEEP_OVERLAY -> addSleepOverlay(list, config.getSleepOverlay());
-            case INTERFACE -> addInterface(list, config.getUi());
-            case MVP -> addMvp(list, config.getMvp());
+            case INTERFACE -> addInterface(list, config.getUi(), config.getIntegrations());
+            case MVP -> addMvp(list, config.getMvp(), config.getExperience());
             case COMFORT -> addComfort(list, config.getComfort());
             case SERVER -> addServer(list, config.getServer());
             case PERSONAL -> addPersonal(list, config.getUi());
@@ -91,7 +96,8 @@ public class ConfigSectionScreen extends OptionsSubScreen {
                 value -> o.specialSlideChance = value));
     }
 
-    private static void addInterface(OptionsList options, MidnightThoughtsConfig.UISettings ui) {
+    private static void addInterface(OptionsList options, MidnightThoughtsConfig.UISettings ui,
+                                     MidnightThoughtsConfig.IntegrationSettings integrations) {
         options.addSmall(
                 choice("theme", MidnightThoughtsConfig.THEMES, THEME_PREFIX, ui.theme, value -> ui.theme = value),
                 summaryStyle(ui));
@@ -102,6 +108,11 @@ public class ConfigSectionScreen extends OptionsSubScreen {
         options.addSmall(
                 flag("hide_sleeping_players_hud", ui.hideSleepingPlayersHud, value -> ui.hideSleepingPlayersHud = value),
                 summaryScale(ui));
+        options.addSmall(
+                flag("serene_seasons_integration", integrations.sereneSeasons,
+                        value -> integrations.sereneSeasons = value),
+                flag("ecliptic_seasons_integration", integrations.eclipticSeasons,
+                        value -> integrations.eclipticSeasons = value));
     }
 
     private static void addPersonal(OptionsList options, MidnightThoughtsConfig.UISettings ui) {
@@ -113,7 +124,8 @@ public class ConfigSectionScreen extends OptionsSubScreen {
                 value -> ui.summaryStyle = value);
     }
 
-    private static void addMvp(OptionsList options, MidnightThoughtsConfig.MvpSettings mvp) {
+    private static void addMvp(OptionsList options, MidnightThoughtsConfig.MvpSettings mvp,
+                               MidnightThoughtsConfig.ExperienceSettings experience) {
         options.addBig(flag("mvp_enabled", mvp.enabled, value -> mvp.enabled = value));
         options.addSmall(
                 number("mvp_min_score", null, 0, 500, mvp.minScoreRequired, value -> mvp.minScoreRequired = value),
@@ -127,6 +139,35 @@ public class ConfigSectionScreen extends OptionsSubScreen {
                 number("mvp_death_penalty", null, 0, 500, mvp.penaltyPerDeath, value -> mvp.penaltyPerDeath = value));
         options.addBig(number("mvp_well_rested_duration", MINUTES_KEY, 1, 240, mvp.mvpWellRestedDurationMinutes,
                 value -> mvp.mvpWellRestedDurationMinutes = value));
+        options.addSmall(
+                flag("experience_enabled", experience.enabled, value -> experience.enabled = value),
+                experiencePerPoint(experience));
+        options.addBig(experienceLimit(experience));
+    }
+
+    private static OptionInstance<Integer> experienceLimit(MidnightThoughtsConfig.ExperienceSettings experience) {
+        String key = OPTION_PREFIX + "max_experience";
+        return new OptionInstance<>(
+                key,
+                tooltip(key),
+                (caption, value) -> valueLabel(caption, value == 0
+                        ? Component.translatable(key + ".none")
+                        : Component.literal(String.valueOf(value))),
+                new OptionInstance.IntRange(0, EXPERIENCE_LIMIT_SLIDER_MAX),
+                Math.clamp(experience.maxExperiencePerSleep, 0, EXPERIENCE_LIMIT_SLIDER_MAX),
+                value -> experience.maxExperiencePerSleep = value);
+    }
+
+    private static OptionInstance<Integer> experiencePerPoint(MidnightThoughtsConfig.ExperienceSettings experience) {
+        String key = OPTION_PREFIX + "experience_per_point";
+        return new OptionInstance<>(
+                key,
+                tooltip(key),
+                (caption, value) -> valueLabel(caption, Component.literal(
+                        String.format(Locale.ROOT, "%.2f", value / EXPERIENCE_STEPS))),
+                new OptionInstance.IntRange(0, EXPERIENCE_SLIDER_MAX),
+                Math.clamp(Math.round(experience.experiencePerPoint * EXPERIENCE_STEPS), 0, EXPERIENCE_SLIDER_MAX),
+                value -> experience.experiencePerPoint = value / EXPERIENCE_STEPS);
     }
 
     private static void addComfort(OptionsList options, MidnightThoughtsConfig.ComfortSettings comfort) {

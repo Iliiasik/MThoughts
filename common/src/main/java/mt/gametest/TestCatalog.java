@@ -53,6 +53,7 @@ public final class TestCatalog {
         ComfortGameTests.register(builtCategories, builtCases);
         WellRestedGameTests.register(builtCategories, builtCases);
         MvpGameTests.register(builtCategories, builtCases);
+        ExperienceGameTests.register(builtCategories, builtCases);
         SleepGameTests.register(builtCategories, builtCases);
         GroupSleepGameTests.register(builtCategories, builtCases);
         SleepingHudGameTests.register(builtCategories, builtCases);

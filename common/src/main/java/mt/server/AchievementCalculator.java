@@ -7,6 +7,7 @@ import java.util.List;
 
 public class AchievementCalculator {
     private static final MidnightThoughtsConfig CONFIG = MidnightThoughtsConfig.getInstance();
+    private static final long RATE_PRECISION = 10_000L;
 
     public static List<String> calculateAchievements(
             DailyPlayerStats.DailyDelta delta,
@@ -69,7 +70,7 @@ public class AchievementCalculator {
         int mvpCount = 0;
 
         for (PlayerSummaryData player : players) {
-            int score = calculateMvpScore(player);
+            int score = score(player);
             if (score > highestScore) {
                 highestScore = score;
                 mvpName = player.playerName();
@@ -83,7 +84,17 @@ public class AchievementCalculator {
         return mvpName;
     }
 
-    private static int calculateMvpScore(PlayerSummaryData player) {
+    public static int experienceFor(PlayerSummaryData player) {
+        MidnightThoughtsConfig.ExperienceSettings experience = CONFIG.getExperience();
+        if (!experience.enabled) return 0;
+        long rate = Math.round(experience.experiencePerPoint * (double) RATE_PRECISION);
+        long limit = experience.maxExperiencePerSleep > 0
+                ? experience.maxExperiencePerSleep
+                : MidnightThoughtsConfig.EXPERIENCE_LIMIT_MAX;
+        return (int) Math.clamp(score(player) * rate / RATE_PRECISION, 0L, limit);
+    }
+
+    public static int score(PlayerSummaryData player) {
         MidnightThoughtsConfig.MvpSettings mvp = CONFIG.getMvp();
         int score = 0;
         score += (player.distanceWalked() / 100) / 100 * mvp.pointsPerDistance100;

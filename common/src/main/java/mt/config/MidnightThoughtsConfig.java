@@ -31,6 +31,9 @@ public final class MidnightThoughtsConfig {
     public static final String SUMMARY_STYLE_TABLE = "table";
     public static final List<String> SUMMARY_STYLES = List.of(SUMMARY_STYLE_PICTURE, SUMMARY_STYLE_TABLE);
 
+    public static final float EXPERIENCE_PER_POINT_MAX = 10.0f;
+    public static final int EXPERIENCE_LIMIT_MAX = 1_000_000;
+
     public static final String ATTRIBUTE_MOVEMENT_SPEED = "minecraft:movement_speed";
     public static final String ATTRIBUTE_ATTACK_DAMAGE = "minecraft:attack_damage";
     public static final String ATTRIBUTE_ATTACK_SPEED = "minecraft:attack_speed";
@@ -51,9 +54,11 @@ public final class MidnightThoughtsConfig {
     private SleepOverlaySettings sleepOverlay = new SleepOverlaySettings();
     private WellRestedSettings wellRested = new WellRestedSettings();
     private MvpSettings mvp = new MvpSettings();
+    private ExperienceSettings experience = new ExperienceSettings();
     private ComfortSettings comfort = new ComfortSettings();
     private ServerSettings server = new ServerSettings();
     private UISettings ui = new UISettings();
+    private IntegrationSettings integrations = new IntegrationSettings();
 
     private MidnightThoughtsConfig() {}
 
@@ -130,9 +135,11 @@ public final class MidnightThoughtsConfig {
         instance.sleepOverlay = fresh.sleepOverlay;
         instance.wellRested = fresh.wellRested;
         instance.mvp = fresh.mvp;
+        instance.experience = fresh.experience;
         instance.comfort = fresh.comfort;
         instance.server = fresh.server;
         instance.ui = fresh.ui;
+        instance.integrations = fresh.integrations;
     }
 
     public void save() {
@@ -148,10 +155,12 @@ public final class MidnightThoughtsConfig {
         if (sleepOverlay == null) sleepOverlay = new SleepOverlaySettings();
         if (wellRested == null) wellRested = new WellRestedSettings();
         if (mvp == null) mvp = new MvpSettings();
+        if (experience == null) experience = new ExperienceSettings();
         if (comfort == null) comfort = new ComfortSettings();
         if (comfort.weights == null) comfort.weights = new ComfortWeights();
         if (server == null) server = new ServerSettings();
         if (ui == null) ui = new UISettings();
+        if (integrations == null) integrations = new IntegrationSettings();
 
         MidnightThoughtsConfigValidation.apply(this);
     }
@@ -171,9 +180,11 @@ public final class MidnightThoughtsConfig {
     public SleepOverlaySettings getSleepOverlay() { return sleepOverlay; }
     public WellRestedSettings getWellRested() { return wellRested; }
     public MvpSettings getMvp() { return mvp; }
+    public ExperienceSettings getExperience() { return experience; }
     public ComfortSettings getComfort() { return comfort; }
     public ServerSettings getServer() { return server; }
     public UISettings getUi() { return ui; }
+    public IntegrationSettings getIntegrations() { return integrations; }
 
     public String getWellRestedHudPosition() {
         return synced(SyncConfigPacket::wellRestedHudPosition, ui.wellRestedHudPosition);
@@ -253,6 +264,14 @@ public final class MidnightThoughtsConfig {
 
     public boolean isEnableSpaceObjects() {
         return synced(SyncConfigPacket::enableSpaceObjects, sleepOverlay.enableSpaceObjects);
+    }
+
+    public boolean isSereneSeasonsIntegration() {
+        return synced(SyncConfigPacket::sereneSeasonsIntegration, integrations.sereneSeasons);
+    }
+
+    public boolean isEclipticSeasonsIntegration() {
+        return synced(SyncConfigPacket::eclipticSeasonsIntegration, integrations.eclipticSeasons);
     }
 
     public boolean isShowSlideProgress() {
@@ -376,6 +395,12 @@ public final class MidnightThoughtsConfig {
         public int mvpWellRestedDurationMinutes = 21;
     }
 
+    public static class ExperienceSettings {
+        public boolean enabled = true;
+        public float experiencePerPoint = 0.03f;
+        public int maxExperiencePerSleep = 0;
+    }
+
     public static class ComfortSettings {
         public boolean enabled = true;
         public int scanRadius = 5;
@@ -400,6 +425,11 @@ public final class MidnightThoughtsConfig {
     public static class ServerSettings {
         public boolean resetPhantomTimerForNonSleepers = true;
         public boolean suppressVanillaSleepMessages = true;
+    }
+
+    public static class IntegrationSettings {
+        public boolean sereneSeasons = true;
+        public boolean eclipticSeasons = true;
     }
 
     public static class UISettings {

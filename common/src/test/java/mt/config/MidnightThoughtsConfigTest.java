@@ -606,6 +606,54 @@ class MidnightThoughtsConfigTest {
         assertTrue(onDisk.has("comfort"));
         assertTrue(onDisk.has("server"));
         assertTrue(onDisk.has("ui"));
-        assertEquals(6, onDisk.keySet().size(), "unexpected top level keys: " + onDisk.keySet());
+        assertTrue(onDisk.has("experience"));
+        assertTrue(onDisk.has("integrations"));
+        assertEquals(8, onDisk.keySet().size(), "unexpected top level keys: " + onDisk.keySet());
+    }
+
+    @Test
+    void experienceAndIntegrationsHaveDefaults() throws IOException {
+        writeConfig("{\"sleepOverlay\":{\"minSlideDisplayTimeMs\":4000}}");
+
+        MidnightThoughtsConfig config = MidnightThoughtsConfig.load();
+
+        assertTrue(config.getExperience().enabled);
+        assertEquals(0.03f, config.getExperience().experiencePerPoint);
+        assertEquals(0, config.getExperience().maxExperiencePerSleep);
+        assertTrue(config.getIntegrations().sereneSeasons);
+        assertTrue(config.getIntegrations().eclipticSeasons);
+    }
+
+    @Test
+    void explicitNullExperienceAndIntegrationsAreRestored() throws IOException {
+        writeConfig("{\"experience\":null,\"integrations\":null}");
+
+        MidnightThoughtsConfig config = MidnightThoughtsConfig.load();
+
+        assertNotNull(config.getExperience());
+        assertNotNull(config.getIntegrations());
+    }
+
+    @Test
+    void experiencePerPointIsClamped() throws IOException {
+        writeConfig("{\"experience\":{\"enabled\":false,\"experiencePerPoint\":-3.0}}");
+        MidnightThoughtsConfig negative = MidnightThoughtsConfig.load();
+        assertEquals(0f, negative.getExperience().experiencePerPoint);
+        assertFalse(negative.getExperience().enabled);
+
+        writeConfig("{\"experience\":{\"experiencePerPoint\":500.0,\"maxExperiencePerSleep\":-7}}");
+        assertEquals(0, MidnightThoughtsConfig.load().getExperience().maxExperiencePerSleep);
+        assertEquals(MidnightThoughtsConfig.EXPERIENCE_PER_POINT_MAX,
+                MidnightThoughtsConfig.load().getExperience().experiencePerPoint);
+    }
+
+    @Test
+    void integrationSwitchesAreReadFromTheFile() throws IOException {
+        writeConfig("{\"integrations\":{\"sereneSeasons\":false,\"eclipticSeasons\":true}}");
+
+        MidnightThoughtsConfig config = MidnightThoughtsConfig.load();
+
+        assertFalse(config.getIntegrations().sereneSeasons);
+        assertTrue(config.getIntegrations().eclipticSeasons);
     }
 }

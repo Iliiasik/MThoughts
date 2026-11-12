@@ -22,6 +22,7 @@ public final class CardRenderer {
     public static void render(GuiGraphicsExtractor context, Font font, DailySummaryPacket.PlayerDailySummary player,
                               SummaryLayout layout, float fadeAlpha, float countProgress, List<HoverArea> areas) {
         renderHead(context, player, layout, fadeAlpha);
+        addRewardsArea(player, layout, areas);
         renderDaysChip(context, font, player, layout, fadeAlpha, areas);
         StatsPanelRenderer.render(context, font, player, layout, fadeAlpha, countProgress, areas);
         AchievementRenderer.render(context, player.achievements(), layout, fadeAlpha, areas);
@@ -51,6 +52,14 @@ public final class CardRenderer {
         Identifier skin = McaCompat.headTexture(entry.getProfile().id());
         if (skin == null) skin = entry.getSkin().body().texturePath();
         PlayerFaceExtractor.extractRenderState(context, skin, x, y, size, true, false, RenderHelper.white(fadeAlpha));
+    }
+
+    private static void addRewardsArea(DailySummaryPacket.PlayerDailySummary player, SummaryLayout layout,
+                                       List<HoverArea> areas) {
+        List<String> rewards = RewardsTooltip.lines(player);
+        if (rewards.isEmpty()) return;
+        int size = layout.s(SummaryLayout.HEAD);
+        areas.add(new HoverArea(layout.contentX(), layout.columnsY(), size, size, rewards));
     }
 
     private static void renderDaysChip(GuiGraphicsExtractor context, Font font,
