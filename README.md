@@ -1,4 +1,4 @@
-<img alt="Logo GIF" src="https://github.com/user-attachments/assets/4ebd484c-c471-4658-ba69-31f14104e182" />
+<img width="1500" height="1312" alt="Title GIF" src="https://github.com/user-attachments/assets/ed712d65-773e-456a-818e-87c9a41aa998" />
 
 
 <div align="center">
