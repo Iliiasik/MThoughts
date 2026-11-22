@@ -4,7 +4,7 @@
   "version": "${mod_version}",
   "name": "${mod_name}",
   "description": "${mod_description}",
-  "icon": "${mod_id}_icon.png",
+  "icon": "assets/${mod_id}/textures/gui/shared/icon.png",
   "authors": ["${mod_authors}"],
   "contact": {
     "homepage": "https://iliiasik.github.io/MThoughts-Wiki/",
@@ -33,11 +33,5 @@
     "minecraft": "${fabric_minecraft_range}",
     "java": ">=${java_version}",
     "fabric-api": "*"
-  },
-  "custom": {
-    "catalogue": {
-      "banner": "${mod_id}_banner.png",
-      "background": "${mod_id}_background.png"
-    }
   }
 }

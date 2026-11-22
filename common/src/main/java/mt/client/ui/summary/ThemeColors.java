@@ -7,8 +7,8 @@ import mt.network.packet.SyncConfigPacket;
 
 public class ThemeColors {
 
-    public static boolean tableStyle() {
-        return MidnightThoughtsConfig.SUMMARY_STYLE_TABLE.equals(
+    public static boolean pictureStyle() {
+        return MidnightThoughtsConfig.SUMMARY_STYLE_PICTURE.equals(
                 MidnightThoughtsConfig.getInstance().getUi().summaryStyle);
     }
 
@@ -34,10 +34,10 @@ public class ThemeColors {
                     TextStyle.shadowed(0xFFFFFF)
             );
             case "classic" -> new ThemeColor(
-                    TextStyle.shadowed(0xF2E6CE),
-                    TextStyle.shadowed(0xF2E6CE),
-                    TextStyle.shadowed(0xF2E6CE),
-                    TextStyle.shadowed(0xFFFFFF),
+                    TextStyle.flat(0x4F391F),
+                    TextStyle.flat(0x4F391F),
+                    TextStyle.flat(0x4F391F),
+                    TextStyle.flat(0x4F391F),
                     TextStyle.flat(0x4F391F)
             );
             case "tech" -> new ThemeColor(
@@ -48,10 +48,10 @@ public class ThemeColors {
                     TextStyle.shadowed(0xFFFFFF)
             );
             case "magic" -> new ThemeColor(
-                    TextStyle.flat(0xFFFFFF),
-                    TextStyle.flat(0xFFFFFF),
-                    TextStyle.shadowed(0xFFFFFF),
-                    TextStyle.flat(0xFFFFFF),
+                    TextStyle.flat(0x2C0D26),
+                    TextStyle.flat(0x2C0D26),
+                    TextStyle.flat(0x2C0D26),
+                    TextStyle.flat(0x2C0D26),
                     TextStyle.flat(0x2C0D26)
             );
             default -> new ThemeColor(

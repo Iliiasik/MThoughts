@@ -29,7 +29,7 @@ public final class MidnightThoughtsConfig {
     public static final int SUMMARY_SCALE_MAX = 4;
     public static final String SUMMARY_STYLE_PICTURE = "picture";
     public static final String SUMMARY_STYLE_TABLE = "table";
-    public static final List<String> SUMMARY_STYLES = List.of(SUMMARY_STYLE_PICTURE, SUMMARY_STYLE_TABLE);
+    public static final List<String> SUMMARY_STYLES = List.of(SUMMARY_STYLE_TABLE, SUMMARY_STYLE_PICTURE);
 
     public static final float EXPERIENCE_PER_POINT_MAX = 10.0f;
     public static final int EXPERIENCE_LIMIT_MAX = 1_000_000;
@@ -435,6 +435,6 @@ public final class MidnightThoughtsConfig {
         public boolean hideWellRestedHud = false;
         public boolean hideSleepingPlayersHud = false;
         public int summaryScale = SUMMARY_SCALE_AUTO;
-        public String summaryStyle = SUMMARY_STYLE_PICTURE;
+        public String summaryStyle = SUMMARY_STYLE_TABLE;
     }
 }

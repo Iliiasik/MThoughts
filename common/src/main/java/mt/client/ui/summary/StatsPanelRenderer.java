@@ -50,17 +50,16 @@ public final class StatsPanelRenderer {
         int width = layout.panelWidth();
         int height = layout.panelHeight();
 
-        if (ThemeColors.tableStyle()) {
-            RenderHelper.blitTexture(context, SummaryConstants.getStatsTableTexture(),
+        if (ThemeColors.pictureStyle()) {
+            RenderHelper.blitTexture(context, SummaryConstants.getStatsPanelTexture(),
                     x, y, width, height, fadeAlpha);
-            renderTable(context, font, counted(values(player), countProgress), layout, fadeAlpha);
+            areas.add(new HoverArea(x, y, width, height, lines(values(player))));
             return;
         }
 
-        RenderHelper.blitTexture(context, SummaryConstants.getStatsPanelTexture(),
+        RenderHelper.blitTexture(context, SummaryConstants.getStatsTableTexture(),
                 x, y, width, height, fadeAlpha);
-
-        areas.add(new HoverArea(x, y, width, height, lines(values(player))));
+        renderTable(context, font, counted(values(player), countProgress), layout, fadeAlpha);
     }
 
     private static void renderTable(GuiGraphics context, Font font, int[] values,

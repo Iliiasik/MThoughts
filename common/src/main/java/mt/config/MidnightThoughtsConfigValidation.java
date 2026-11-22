@@ -206,8 +206,8 @@ public final class MidnightThoughtsConfigValidation {
                 MidnightThoughtsConfig.SUMMARY_SCALE_MAX, "ui.summaryScale");
         if (!isValidSummaryStyle(ui.summaryStyle)) {
             LOGGER.warn("Config value ui.summaryStyle was '{}', reset to '{}'",
-                    ui.summaryStyle, MidnightThoughtsConfig.SUMMARY_STYLE_PICTURE);
-            ui.summaryStyle = MidnightThoughtsConfig.SUMMARY_STYLE_PICTURE;
+                    ui.summaryStyle, MidnightThoughtsConfig.SUMMARY_STYLE_TABLE);
+            ui.summaryStyle = MidnightThoughtsConfig.SUMMARY_STYLE_TABLE;
         }
     }
 }

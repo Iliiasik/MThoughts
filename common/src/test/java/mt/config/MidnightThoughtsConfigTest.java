@@ -258,19 +258,19 @@ class MidnightThoughtsConfigTest {
     }
 
     @Test
-    void summaryStyleDefaultsToPictureAndKeepsTable() throws IOException {
+    void summaryStyleDefaultsToTableAndKeepsPicture() throws IOException {
         writeConfig("{}");
-        assertEquals(MidnightThoughtsConfig.SUMMARY_STYLE_PICTURE, MidnightThoughtsConfig.load().getUi().summaryStyle);
-
-        writeConfig("{\"ui\":{\"summaryStyle\":\"table\"}}");
         assertEquals(MidnightThoughtsConfig.SUMMARY_STYLE_TABLE, MidnightThoughtsConfig.load().getUi().summaryStyle);
+
+        writeConfig("{\"ui\":{\"summaryStyle\":\"picture\"}}");
+        assertEquals(MidnightThoughtsConfig.SUMMARY_STYLE_PICTURE, MidnightThoughtsConfig.load().getUi().summaryStyle);
     }
 
     @Test
-    void unknownSummaryStyleIsResetToPicture() throws IOException {
-        for (String style : new String[]{"grid", "", "TABLE", "table "}) {
+    void unknownSummaryStyleIsResetToTable() throws IOException {
+        for (String style : new String[]{"grid", "", "PICTURE", "picture "}) {
             writeConfig("{\"ui\":{\"summaryStyle\":\"" + style + "\"}}");
-            assertEquals(MidnightThoughtsConfig.SUMMARY_STYLE_PICTURE, MidnightThoughtsConfig.load().getUi().summaryStyle,
+            assertEquals(MidnightThoughtsConfig.SUMMARY_STYLE_TABLE, MidnightThoughtsConfig.load().getUi().summaryStyle,
                     "style \"" + style + "\"");
         }
     }

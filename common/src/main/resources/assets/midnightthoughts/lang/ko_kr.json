@@ -133,7 +133,7 @@
   "option.midnightthoughts.serene_seasons_integration.tooltip": "요약 화면의 날짜 배지에 마우스를 올리면 Serene Seasons 달력을 보여 줍니다.",
   "option.midnightthoughts.ecliptic_seasons_integration.tooltip": "요약 화면의 날짜 배지에 마우스를 올리면 Ecliptic Seasons 절기를 보여 줍니다.",
   "option.midnightthoughts.summary_scale.tooltip": "자동은 화면에 맞는 가장 큰 크기로 표시합니다. 1x는 바닐라 화면처럼 게임의 GUI 크기를 따르고, 값이 클수록 커집니다. 이 설정은 개인 설정이며 서버에서 가져오지 않습니다.",
-  "option.midnightthoughts.summary_style.tooltip": "그림은 삽화 패널을 보여 주며, 마우스를 올리면 통계가 나옵니다. 표는 모든 통계를 카드에 바로 보여 줍니다. 이 설정은 개인 설정이며 서버에서 가져오지 않습니다.",
+  "option.midnightthoughts.summary_style.tooltip": "표는 모든 통계를 카드에 바로 보여 줍니다. 그림은 삽화 패널을 보여 주며, 마우스를 올리면 통계가 나옵니다. 이 설정은 개인 설정이며 서버에서 가져오지 않습니다.",
   "option.midnightthoughts.mvp_enabled.tooltip": "매일 밤 점수가 가장 높은 플레이어를 뽑아 더 긴 휴식 효과를 줍니다.",
   "option.midnightthoughts.mvp_min_score.tooltip": "이 점수 미만이면 아무도 MVP가 되지 않아, 조용한 하루에는 승자가 없습니다.",
   "option.midnightthoughts.mvp_points_distance.tooltip": "100블록 이동할 때마다 얻는 점수입니다.",
