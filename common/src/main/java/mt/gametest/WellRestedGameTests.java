@@ -236,7 +236,8 @@ final class WellRestedGameTests {
                     .sleepThroughTheNight("the second night", first)
                     .then(() -> {
                         ctx.check(WellRestedEffect.isMvp(second.get()), "Current did not get the MVP effect");
-                        ctx.check(!WellRestedEffect.isMvp(first.get()), "Former kept the MVP effect");
+                        ctx.check(!WellRestedEffect.isMvp(first.get()),
+                                "Former kept the MVP effect, comfort blocks around the bed: " + ctx.comfortBreakdown(firstBed));
                         ctx.equal(1, WellRestedEffect.getLevel(first.get()), "level of Former");
                         ctx.equal(3 * 1200, WellRestedEffect.getTotalDurationTicksForPlayer(first.get()), "duration of Former");
                         ctx.check(!ctx.lastSent(first, PlayerSleepStatePacket.class).mvp(), "the HUD of Former still shows MVP");

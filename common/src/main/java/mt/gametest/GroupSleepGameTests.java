@@ -39,6 +39,11 @@ final class GroupSleepGameTests {
                 player.name() + (rested ? " got no Well Rested" : " got Well Rested without sleeping the night"));
     }
 
+    private static void expectRestedIn(TestContext ctx, MockPlayer player, TestContext.Bed bed) {
+        ctx.check(WellRestedEffect.hasEffect(player.get()),
+                player.name() + " got no Well Rested, comfort blocks around the bed: " + ctx.comfortBreakdown(bed));
+    }
+
     static void register(List<TestCatalog.Category> categories, List<GameTestCase> cases) {
         categories.add(new TestCatalog.Category(ID, "Three players", List.of(
                 "one, two or all three of three players sleeping, each summary lists exactly the sleepers",
@@ -230,8 +235,10 @@ final class GroupSleepGameTests {
                     .then(() -> {
                         for (MockPlayer viewer : List.of(first, second, late)) {
                             expectListed(ctx, viewer, first, second, late);
-                            expectRested(ctx, viewer, true);
                         }
+                        expectRestedIn(ctx, first, room.first());
+                        expectRestedIn(ctx, second, room.second());
+                        expectRestedIn(ctx, late, room.third());
                     });
         }));
 
