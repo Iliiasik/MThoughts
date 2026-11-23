@@ -18,6 +18,27 @@ public class RenderHelper {
         RenderSystem.disableBlend();
     }
 
+    public static void blitTextureLeft(GuiGraphics context, ResourceLocation texture,
+                                       int x, int y, int width, int height, float visibleWidth, float alpha) {
+        if (width <= 0 || height <= 0 || visibleWidth <= 0.0f) return;
+
+        float visible = Math.min(visibleWidth, width);
+        int whole = (int) visible;
+        float partial = visible - whole;
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        if (whole > 0) {
+            RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, alpha);
+            context.blit(texture, x, y, whole, height, 0.0f, 0.0f, whole, height, width, height);
+        }
+        if (partial > 0.0f && whole < width) {
+            RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, alpha * partial);
+            context.blit(texture, x + whole, y, 1, height, whole, 0.0f, 1, height, width, height);
+        }
+        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+        RenderSystem.disableBlend();
+    }
+
     public static void blitNineSlice(GuiGraphics context, ResourceLocation texture,
                                      int x, int y, int width, int height,
                                      int texW, int texH, int border, int pixelScale, float alpha) {

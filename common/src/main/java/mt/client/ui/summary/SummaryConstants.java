@@ -11,12 +11,12 @@ public class SummaryConstants {
     public static final int INFO_TEXTURE_WIDTH = 220;
     public static final int INFO_TEXTURE_HEIGHT = 160;
 
-    public static final int BADGE_TEXTURE_WIDTH = 32;
+    public static final int BADGE_TEXTURE_WIDTH = 14;
     public static final int BADGE_TEXTURE_HEIGHT = 14;
     public static final int BADGE_BORDER = 2;
     public static final int BADGE_INSET = 3;
 
-    public static final int TOOLTIP_TEXTURE_WIDTH = 32;
+    public static final int TOOLTIP_TEXTURE_WIDTH = 16;
     public static final int TOOLTIP_TEXTURE_HEIGHT = 16;
     public static final int TOOLTIP_BORDER = 2;
 

@@ -33,6 +33,7 @@ public final class MidnightThoughtsConfig {
 
     public static final float EXPERIENCE_PER_POINT_MAX = 10.0f;
     public static final int EXPERIENCE_LIMIT_MAX = 1_000_000;
+    public static final int FADE_MAX_MS = 1000;
 
     public static final String ATTRIBUTE_MOVEMENT_SPEED = "minecraft:generic.movement_speed";
     public static final String ATTRIBUTE_ATTACK_DAMAGE = "minecraft:generic.attack_damage";

@@ -82,8 +82,8 @@ public final class MidnightThoughtsConfigValidation {
             LOGGER.warn("Config value sleepOverlay.maxSlideDisplayTimeMs was below the minimum, raised to {}", o.minSlideDisplayTimeMs);
             o.maxSlideDisplayTimeMs = o.minSlideDisplayTimeMs;
         }
-        o.fadeInDurationMs = clampInt(o.fadeInDurationMs, 0, 10000, "sleepOverlay.fadeInDurationMs");
-        o.fadeOutDurationMs = clampInt(o.fadeOutDurationMs, 0, 10000, "sleepOverlay.fadeOutDurationMs");
+        o.fadeInDurationMs = clampInt(o.fadeInDurationMs, 0, MidnightThoughtsConfig.FADE_MAX_MS, "sleepOverlay.fadeInDurationMs");
+        o.fadeOutDurationMs = clampInt(o.fadeOutDurationMs, 0, MidnightThoughtsConfig.FADE_MAX_MS, "sleepOverlay.fadeOutDurationMs");
         o.overlayOpacity = clampFloat(o.overlayOpacity, 0f, 1f, 0.4f, "sleepOverlay.overlayOpacity");
         o.textOpacity = clampFloat(o.textOpacity, 0f, 1f, 1.0f, "sleepOverlay.textOpacity");
         o.imageOpacity = clampFloat(o.imageOpacity, 0f, 1f, 0.6f, "sleepOverlay.imageOpacity");

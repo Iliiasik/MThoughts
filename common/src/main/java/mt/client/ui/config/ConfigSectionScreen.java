@@ -2,7 +2,6 @@ package mt.client.ui.config;
 
 import mt.config.MidnightThoughtsConfig;
 import mt.server.MTServer;
-import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.OptionInstance;
 import net.minecraft.client.gui.GuiGraphics;
@@ -42,6 +41,7 @@ public class ConfigSectionScreen extends OptionsSubScreen {
     private static final String HUD_POSITION_PREFIX = OPTION_PREFIX + "hud_position.";
 
     private static final int LIST_TOP = 32;
+    private static final int TITLE_Y = 20;
     private static final int LIST_BOTTOM_MARGIN = 32;
     private static final int LIST_ITEM_HEIGHT = 25;
     private static final int DONE_WIDTH = 200;
@@ -51,12 +51,13 @@ public class ConfigSectionScreen extends OptionsSubScreen {
     private static final float EXPERIENCE_STEPS = 100f;
     private static final int EXPERIENCE_SLIDER_MAX = 100;
     private static final int EXPERIENCE_LIMIT_SLIDER_MAX = 1000;
+    private static final int FADE_STEP_MS = 50;
 
     private final ConfigSection section;
     private OptionsList list;
 
     public ConfigSectionScreen(Screen parent, ConfigSection section) {
-        super(parent, Minecraft.getInstance().options, section.title().withStyle(ChatFormatting.BOLD));
+        super(parent, Minecraft.getInstance().options, section.title());
         this.section = section;
     }
 
@@ -83,8 +84,7 @@ public class ConfigSectionScreen extends OptionsSubScreen {
     public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         renderBackground(graphics);
         this.list.render(graphics, mouseX, mouseY, partialTick);
-        int titleY = (LIST_TOP - this.font.lineHeight) / 2;
-        graphics.drawCenteredString(this.font, this.title, this.width / 2, titleY, 0xFFFFFF);
+        graphics.drawCenteredString(this.font, this.title, this.width / 2, TITLE_Y, 0xFFFFFF);
         super.render(graphics, mouseX, mouseY, partialTick);
     }
 
@@ -109,9 +109,9 @@ public class ConfigSectionScreen extends OptionsSubScreen {
         options.addSmall(
                 number("max_slide_time", SECONDS_KEY, 1, 60, o.maxSlideDisplayTimeMs / 1000,
                         value -> o.maxSlideDisplayTimeMs = value * 1000),
-                number("fade_in", MILLIS_KEY, 0, 3000, o.fadeInDurationMs, value -> o.fadeInDurationMs = value));
+                fade("fade_in", o.fadeInDurationMs, value -> o.fadeInDurationMs = value));
         options.addSmall(
-                number("fade_out", MILLIS_KEY, 0, 3000, o.fadeOutDurationMs, value -> o.fadeOutDurationMs = value),
+                fade("fade_out", o.fadeOutDurationMs, value -> o.fadeOutDurationMs = value),
                 percent("overlay_opacity", 0, 100, o.overlayOpacity, value -> o.overlayOpacity = value));
         options.addSmall(
                 percent("text_opacity", 0, 100, o.textOpacity, value -> o.textOpacity = value),
@@ -256,6 +256,18 @@ public class ConfigSectionScreen extends OptionsSubScreen {
                 new OptionInstance.IntRange(min, max),
                 Mth.clamp(current, min, max),
                 setter::accept);
+    }
+
+    private static OptionInstance<Integer> fade(String name, int currentMs, IntConsumer setter) {
+        String key = OPTION_PREFIX + name;
+        int steps = MidnightThoughtsConfig.FADE_MAX_MS / FADE_STEP_MS;
+        return new OptionInstance<>(
+                key,
+                tooltip(key),
+                (caption, value) -> valueLabel(caption, Component.translatable(MILLIS_KEY, value * FADE_STEP_MS)),
+                new OptionInstance.IntRange(0, steps),
+                Mth.clamp(Math.round(currentMs / (float) FADE_STEP_MS), 0, steps),
+                value -> setter.accept(value * FADE_STEP_MS));
     }
 
     private static OptionInstance<Integer> percent(String name, int min, int max,

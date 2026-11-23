@@ -24,6 +24,8 @@ import java.util.List;
 
 public class SleepOverlayRenderer {
     private static final ResourceLocation SKULL_TEXTURE = MTConstants.id("textures/gui/shared/overlay/nightmares/skull.png");
+    private static final ResourceLocation PROGRESS_TEXTURE = MTConstants.id("textures/gui/shared/overlay/space/progress.png");
+    private static final ResourceLocation NIGHTMARE_PROGRESS_TEXTURE = MTConstants.id("textures/gui/shared/overlay/nightmares/progress.png");
 
     private static final ResourceLocation[] MOON_PHASE_TEXTURES = {
             MTConstants.id("textures/gui/shared/overlay/moon_phases/full_moon.png"),
@@ -45,6 +47,15 @@ public class SleepOverlayRenderer {
     private static final float VIRTUAL_TEXT_SCALE = 3.4f;
     private static final int VIRTUAL_LINE_SPACING = 6;
     private static final int VIRTUAL_PROGRESS_WIDTH = 220;
+    private static final int VIRTUAL_PROGRESS_HEIGHT = 15;
+    private static final int VIRTUAL_PROGRESS_GAP = 20;
+    private static final int PROGRESS_TEXTURE_WIDTH = 44;
+    private static final int PROGRESS_TEXTURE_HEIGHT = 3;
+    private static final int MOON_TEXTURE_SIZE = 18;
+    private static final int SKULL_TEXTURE_SIZE = 20;
+    private static final int MIN_FONT_ALPHA = 4;
+    private static final int VIRTUAL_TEXT_DRIFT = 12;
+    private static final float PROGRESS_TRACK_ALPHA = 0.18f;
     private static final float GROUP_TOP_PERCENT = 0.30f;
     private static final int MAX_TEXT_LINES = 6;
     private static final int SHORT_TEXT_LINES = 2;
@@ -220,11 +231,13 @@ public class SleepOverlayRenderer {
             }
             case TRANSITION -> {
                 long elapsed = now - transitionStart;
-                float outP = clamp01(elapsed / (float) Math.max(1, config.getFadeOutDurationMs()));
-                float inP = clamp01(elapsed / (float) Math.max(1, config.getFadeInDurationMs()));
+                int fadeOut = Math.max(1, config.getFadeOutDurationMs());
+                int fadeIn = Math.max(1, config.getFadeInDurationMs());
+                float outP = clamp01(elapsed / (float) fadeOut);
+                float inP = clamp01((elapsed - fadeOut) / (float) fadeIn);
                 outgoingAlpha = 1f - easeInOut(outP);
                 incomingAlpha = easeInOut(inP);
-                if (outP >= 1f && inP >= 1f) {
+                if (inP >= 1f) {
                     outgoingSlide = null;
                     outgoingAlpha = 0f;
                     incomingAlpha = 1f;
@@ -253,6 +266,7 @@ public class SleepOverlayRenderer {
         if (!isShowing() || !config.isEnableOverlay()) return;
         renderOverlay(context, screenWidth, screenHeight);
         context.flush();
+        updateSlideState();
         renderContent(context, screenWidth, screenHeight);
         context.flush();
     }
@@ -310,9 +324,18 @@ public class SleepOverlayRenderer {
         int groupShift = Math.round((imageBlockShift + textBlockShift) * baseScale / 2.0f);
         int imageTop = Math.round(h * GROUP_TOP_PERCENT) + groupShift;
 
-        int textTop = imageTop + (showImage ? imageSize + gap : 0);
+        boolean showProgress = config.isShowSlideProgress();
+        float progressScale = showImage ? imageScale : baseScale;
+        int progressHeight = Math.max(1, Math.round(VIRTUAL_PROGRESS_HEIGHT * progressScale));
+        int progressTop = showImage
+                ? imageTop + imageSize + Math.max(0, (gap - progressHeight) / 2)
+                : imageTop;
+        int textTop = imageTop + (showImage
+                ? imageSize + gap
+                : showProgress ? progressHeight + Math.round(VIRTUAL_PROGRESS_GAP * baseScale) : 0);
         List<OverlayRect> contentZones = contentZones(centerX, imageTop, imageSize, showImage,
-                textTop, textAreaWidth, lineHeight, textScale, baseScale);
+                textTop, textAreaWidth, lineHeight, textScale, baseScale,
+                showProgress ? progressTop : -1, progressHeight, progressScale);
 
         if (isNightmareOverlay) {
             if (config.isEnableStarDust()) {
@@ -330,49 +353,71 @@ public class SleepOverlayRenderer {
         }
 
         if (showImage) {
-            renderImage(context, centerX - imageSize / 2, imageTop, imageSize);
+            renderImage(context, centerX, imageTop, imageSize);
         }
 
         if (outgoingSlide != null && outgoingAlpha > 0.01f) {
             TextLayout outgoing = outgoingCache.get(outgoingSlide, font, textAreaWidth, textScale);
-            drawLayout(context, font, outgoing, centerX, textTop, lineHeight, outgoingAlpha);
+            float drift = VIRTUAL_TEXT_DRIFT * baseScale * (1f - outgoingAlpha);
+            drawLayout(context, font, outgoing, centerX - drift, textTop, lineHeight, outgoingAlpha);
         }
 
-        TextLayout currentLayout = null;
         if (currentSlide != null && incomingAlpha > 0.01f) {
-            currentLayout = currentCache.get(currentSlide, font, textAreaWidth, textScale);
-            drawLayout(context, font, currentLayout, centerX, textTop, lineHeight, incomingAlpha);
+            TextLayout currentLayout = currentCache.get(currentSlide, font, textAreaWidth, textScale);
+            float drift = VIRTUAL_TEXT_DRIFT * baseScale * (1f - incomingAlpha);
+            drawLayout(context, font, currentLayout, centerX + drift, textTop, lineHeight, incomingAlpha);
         }
 
-        if (config.isShowSlideProgress() && slideState == SlideState.VISIBLE && currentLayout != null) {
-            int textBottom = textTop + Math.round(currentLayout.lines().size() * lineHeight * currentLayout.scale());
-            drawProgress(context, centerX, textBottom + Math.round(18 * baseScale), baseScale, slideProgress());
+        if (showProgress && currentSlide != null && slideState != SlideState.HIDDEN) {
+            float frac = slideState == SlideState.VISIBLE ? slideProgress() : 0f;
+            drawProgress(context, centerX, progressTop, progressHeight, progressScale, frac, incomingAlpha);
         }
     }
 
     private static List<OverlayRect> contentZones(int centerX, int imageTop, int imageSize, boolean showImage,
                                                   int textTop, int textAreaWidth, int lineHeight,
-                                                  float textScale, float baseScale) {
-        List<OverlayRect> zones = new ArrayList<>(2);
+                                                  float textScale, float baseScale,
+                                                  int progressTop, int progressHeight, float progressScale) {
+        List<OverlayRect> zones = new ArrayList<>(3);
         if (showImage) {
             zones.add(new OverlayRect(centerX - imageSize / 2, imageTop,
                     centerX + imageSize / 2, imageTop + imageSize));
         }
+        if (progressTop >= 0) {
+            int halfProgress = Math.max(20, Math.round(VIRTUAL_PROGRESS_WIDTH * progressScale)) / 2;
+            zones.add(new OverlayRect(centerX - halfProgress, progressTop,
+                    centerX + halfProgress, progressTop + progressHeight));
+        }
         float nominalTextScale = VIRTUAL_TEXT_SCALE * textScale;
         int textBlockHeight = Math.round(MAX_TEXT_LINES * lineHeight * nominalTextScale);
-        int progressWidth = Math.max(20, Math.round(VIRTUAL_PROGRESS_WIDTH * baseScale));
-        int halfWidth = Math.max(textAreaWidth, progressWidth) / 2;
-        int bottom = textTop + textBlockHeight + Math.round(18 * baseScale) + Math.max(1, Math.round(2 * baseScale));
-        zones.add(new OverlayRect(centerX - halfWidth, textTop, centerX + halfWidth, bottom));
+        int bottom = textTop + textBlockHeight + Math.round(18 * baseScale);
+        zones.add(new OverlayRect(centerX - textAreaWidth / 2, textTop, centerX + textAreaWidth / 2, bottom));
         return zones;
     }
 
-    private void renderImage(GuiGraphics context, int x, int y, int size) {
+    private void renderImage(GuiGraphics context, int centerX, int top, int size) {
         ResourceLocation texture = isNightmareOverlay
                 ? SKULL_TEXTURE
                 : MOON_PHASE_TEXTURES[Math.floorMod(moonPhase, MOON_PHASE_TEXTURES.length)];
+        int textureSize = isNightmareOverlay ? SKULL_TEXTURE_SIZE : MOON_TEXTURE_SIZE;
 
-        RenderHelper.blitTexture(context, texture, x, y, size, size, config.getImageOpacity());
+        float guiScale = guiScale();
+        int pixelSize = textureSize * snappedTexel(size * guiScale / textureSize);
+        int x = Math.round(centerX * guiScale) - pixelSize / 2;
+        int y = Math.round((top + size / 2f) * guiScale) - pixelSize / 2;
+
+        context.pose().pushPose();
+        context.pose().scale(1.0f / guiScale, 1.0f / guiScale, 1.0f);
+        RenderHelper.blitTexture(context, texture, x, y, pixelSize, pixelSize, config.getImageOpacity());
+        context.pose().popPose();
+    }
+
+    private static float guiScale() {
+        return (float) Minecraft.getInstance().getWindow().getGuiScale();
+    }
+
+    private static int snappedTexel(float pixelsPerTexel) {
+        return Math.max(1, Math.round(pixelsPerTexel));
     }
 
     private static TextLayout layoutText(String text, Font font, int textAreaWidth, float uiScale) {
@@ -398,9 +443,9 @@ public class SleepOverlayRenderer {
         return new TextLayout(lines, scale);
     }
 
-    private void drawLayout(GuiGraphics context, Font font, TextLayout layout, int centerX, int top, int lineHeight, float alpha01) {
+    private void drawLayout(GuiGraphics context, Font font, TextLayout layout, float centerX, int top, int lineHeight, float alpha01) {
         int a = RenderUtils.alphaByte(config.getTextOpacity() * alpha01);
-        if (a <= 0) return;
+        if (a < MIN_FONT_ALPHA) return;
         int textColor = (a << 24) | 0xFFFFFF;
 
         context.pose().pushPose();
@@ -415,16 +460,22 @@ public class SleepOverlayRenderer {
         context.pose().popPose();
     }
 
-    private void drawProgress(GuiGraphics context, int centerX, int y, float uiScale, float frac) {
-        int barWidth = Math.max(20, Math.round(VIRTUAL_PROGRESS_WIDTH * uiScale));
-        int barHeight = Math.max(1, Math.round(2 * uiScale));
-        int x = centerX - barWidth / 2;
+    private void drawProgress(GuiGraphics context, int centerX, int y, int height, float uiScale,
+                              float frac, float fillAlpha) {
+        float guiScale = guiScale();
+        int texel = snappedTexel(VIRTUAL_PROGRESS_WIDTH * uiScale * guiScale / PROGRESS_TEXTURE_WIDTH);
+        int barWidth = PROGRESS_TEXTURE_WIDTH * texel;
+        int barHeight = PROGRESS_TEXTURE_HEIGHT * texel;
+        int x = Math.round(centerX * guiScale) - barWidth / 2;
+        int top = Math.round((y + height / 2f) * guiScale) - barHeight / 2;
 
-        int trackA = RenderUtils.alphaByte(0.18f);
-        int fillA = RenderUtils.alphaByte(0.65f);
-        context.fill(x, y, x + barWidth, y + barHeight, (trackA << 24) | 0xFFFFFF);
-        int fw = Math.round(barWidth * (1f - frac));
-        if (fw > 0) context.fill(x, y, x + fw, y + barHeight, (fillA << 24) | 0xFFFFFF);
+        context.pose().pushPose();
+        context.pose().scale(1.0f / guiScale, 1.0f / guiScale, 1.0f);
+        ResourceLocation texture = isNightmareOverlay ? NIGHTMARE_PROGRESS_TEXTURE : PROGRESS_TEXTURE;
+        RenderHelper.blitTexture(context, texture, x, top, barWidth, barHeight, PROGRESS_TRACK_ALPHA);
+        RenderHelper.blitTextureLeft(context, texture, x, top, barWidth, barHeight,
+                barWidth * (1f - frac), fillAlpha);
+        context.pose().popPose();
     }
 
     private float slideProgress() {

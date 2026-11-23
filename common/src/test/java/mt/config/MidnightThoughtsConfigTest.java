@@ -130,7 +130,7 @@ class MidnightThoughtsConfigTest {
 
         assertEquals(120000, config.getSleepOverlay().minSlideDisplayTimeMs);
         assertEquals(120000, config.getSleepOverlay().maxSlideDisplayTimeMs);
-        assertEquals(10000, config.getSleepOverlay().fadeInDurationMs);
+        assertEquals(1000, config.getSleepOverlay().fadeInDurationMs);
         assertEquals(0, config.getSleepOverlay().fadeOutDurationMs);
         assertEquals(8, config.getComfort().scanRadius);
         assertEquals(1440, config.getMvp().mvpWellRestedDurationMinutes);

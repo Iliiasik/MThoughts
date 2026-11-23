@@ -33,7 +33,7 @@ class ResourceIntegrityTest {
 
     private static final List<String> SHARED_TEXTURES = List.of(
             "overlay/nightmares/skull", "hud/scale", "hud/fill", "hud/well_rested",
-            "hud/mvp", "icon");
+            "hud/mvp", "icon", "overlay/space/progress", "overlay/nightmares/progress");
 
     private static final List<String> SPACE_TEXTURES = List.of(
             "blue_giant", "orange_dwarf", "quasi_star",

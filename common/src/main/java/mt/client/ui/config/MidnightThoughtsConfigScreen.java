@@ -1,6 +1,5 @@
 package mt.client.ui.config;
 
-import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -27,7 +26,7 @@ public class MidnightThoughtsConfigScreen extends Screen {
     private List<ConfigSection> sections = List.of();
 
     public MidnightThoughtsConfigScreen(Screen parent) {
-        super(Component.translatable(ConfigScreenAssets.TITLE_KEY).withStyle(ChatFormatting.BOLD));
+        super(Component.translatable(ConfigScreenAssets.TITLE_KEY));
         this.parent = parent;
     }
 
