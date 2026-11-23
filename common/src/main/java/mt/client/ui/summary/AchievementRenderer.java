@@ -32,7 +32,7 @@ public final class AchievementRenderer {
             RenderHelper.blitTexture(context, SummaryConstants.getAchievementTexture(),
                     x, y, size, size, fadeAlpha);
 
-            areas.add(new HoverArea(x, y, size, size, describe(id)));
+            areas.add(new HoverArea(x, y, size, size, () -> describe(id)));
         }
     }
 

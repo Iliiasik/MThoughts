@@ -63,10 +63,8 @@ public final class CardRenderer {
 
     private static void addRewardsArea(DailySummaryPacket.PlayerDailySummary player, SummaryLayout layout,
                                        List<HoverArea> areas) {
-        List<String> rewards = RewardsTooltip.lines(player);
-        if (rewards.isEmpty()) return;
         int size = layout.s(SummaryLayout.HEAD);
-        areas.add(new HoverArea(layout.contentX(), layout.columnsY(), size, size, rewards));
+        areas.add(new HoverArea(layout.contentX(), layout.columnsY(), size, size, () -> RewardsTooltip.lines(player)));
     }
 
     private static void renderDaysChip(GuiGraphics context, Font font,
@@ -94,9 +92,6 @@ public final class CardRenderer {
                 RenderUtils.centeredTextY(y, height, textScale, style.shadow()),
                 style.argb(fadeAlpha), textScale, style.shadow());
 
-        List<String> season = SeasonChip.tooltipLines();
-        if (!season.isEmpty()) {
-            areas.add(new HoverArea(x, y, width, height, season));
-        }
+        areas.add(new HoverArea(x, y, width, height, SeasonChip::tooltipLines));
     }
 }

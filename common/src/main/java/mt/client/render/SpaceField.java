@@ -1,10 +1,20 @@
 package mt.client.render;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.BufferUploader;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import mt.MTConstants;
+import mt.client.ui.engine.RenderUtils;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.resources.ResourceLocation;
+import org.joml.Matrix4f;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -46,6 +56,7 @@ public class SpaceField {
 
     private static final int CONTENT_MARGIN_VIRTUAL = 28;
     static final int EDGE_MARGIN_VIRTUAL = 40;
+    private static final float SETTLE_MS = 1500f;
     private static final int PLACEMENT_ATTEMPTS = 120;
 
     private final ResourceLocation[] texture = new ResourceLocation[TOTAL_COUNT];
@@ -56,6 +67,7 @@ public class SpaceField {
     private final float[] peakAlpha = new float[TOTAL_COUNT];
     private final float[] fadeSpeed = new float[TOTAL_COUNT];
     private final float[] phase = new float[TOTAL_COUNT];
+    private final boolean[] drawn = new boolean[TOTAL_COUNT];
     private final Random rng = new Random();
 
     private int placed;
@@ -71,6 +83,18 @@ public class SpaceField {
     public void reset(long now) {
         origin = now;
         dirty = true;
+    }
+
+    static void warmTextures(TextureManager textures) {
+        for (ResourceLocation[] group : List.of(LARGE_TEXTURES, MEDIUM_TEXTURES, SMALL_TEXTURES)) {
+            for (ResourceLocation id : group) textures.getTexture(id);
+        }
+    }
+
+    static float settle(float wave, float elapsed) {
+        float t = Math.min(1f, Math.max(0f, elapsed / SETTLE_MS));
+        float eased = t * t * (3f - 2f * t);
+        return 1f + (wave - 1f) * eased;
     }
 
     public void layout(int width, int height, float baseScale, List<OverlayRect> content) {
@@ -148,20 +172,44 @@ public class SpaceField {
         return false;
     }
 
-    public void render(GuiGraphics context) {
+    public void render(GuiGraphics context, float fade) {
         if (placed == 0) return;
         float elapsed = System.currentTimeMillis() - origin;
+        Matrix4f pose = context.pose().last().pose();
+        BufferBuilder buffer = Tesselator.getInstance().getBuilder();
+        Arrays.fill(drawn, 0, placed, false);
+
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
+        RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
         for (int i = 0; i < placed; i++) {
-            float wave = 0.5f + 0.5f * (float) Math.sin(elapsed * fadeSpeed[i] + phase[i]);
-            float alpha = peakAlpha[i] * wave;
-            if (alpha <= 0.01f) continue;
-            RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, alpha);
-            context.blit(texture[i], x[i], y[i], size[i], size[i], 0.0f, 0.0f, size[i], size[i], size[i], size[i]);
+            if (drawn[i]) continue;
+            boolean begun = false;
+            for (int j = i; j < placed; j++) {
+                if (drawn[j] || !texture[j].equals(texture[i])) continue;
+                drawn[j] = true;
+                float wave = settle(0.5f + 0.5f * (float) Math.sin(elapsed * fadeSpeed[j] + phase[j]), elapsed);
+                int alpha = RenderUtils.alphaByte(peakAlpha[j] * wave * fade);
+                if (alpha <= 2) continue;
+                if (!begun) {
+                    buffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+                    begun = true;
+                }
+                quad(buffer, pose, x[j], y[j], size[j], alpha);
+            }
+            if (begun) {
+                RenderSystem.setShaderTexture(0, texture[i]);
+                BufferUploader.drawWithShader(buffer.end());
+            }
         }
-        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
         RenderSystem.disableBlend();
+    }
+
+    private static void quad(BufferBuilder buffer, Matrix4f pose, int x, int y, int size, int alpha) {
+        buffer.vertex(pose, x, y, 0).uv(0f, 0f).color(255, 255, 255, alpha).endVertex();
+        buffer.vertex(pose, x, y + size, 0).uv(0f, 1f).color(255, 255, 255, alpha).endVertex();
+        buffer.vertex(pose, x + size, y + size, 0).uv(1f, 1f).color(255, 255, 255, alpha).endVertex();
+        buffer.vertex(pose, x + size, y, 0).uv(1f, 0f).color(255, 255, 255, alpha).endVertex();
     }
 
     public boolean occupies(int px, int py) {

@@ -88,7 +88,7 @@ public class SleepingPlayersHud {
 
     private static void renderText(GuiGraphics context, Font textRenderer, int hudX, int hudY, int hudWidth, int hudHeight, float scale) {
         String sleepText = sleepingCount + " / " + totalPlayers;
-        Component titleText = Component.translatable("midnightthoughts.hud.sleeping");
+        String titleText = Component.translatable("midnightthoughts.hud.sleeping").getString();
 
         ThemeColors.TextStyle style = ThemeColors.current().sleepingHud();
         int textColor = style.argb(displayAlpha);

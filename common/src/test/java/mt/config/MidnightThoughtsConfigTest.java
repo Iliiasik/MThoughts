@@ -119,7 +119,9 @@ class MidnightThoughtsConfigTest {
                     "minSlideDisplayTimeMs": 2147483647,
                     "maxSlideDisplayTimeMs": 2147483647,
                     "fadeInDurationMs": 999999999,
-                    "fadeOutDurationMs": -999999999
+                    "fadeOutDurationMs": -999999999,
+                    "overlayFadeInMs": 999999999,
+                    "overlayFadeOutMs": -999999999
                   },
                   "comfort": { "scanRadius": 1000 },
                   "mvp": { "mvpWellRestedDurationMinutes": 100000 }
@@ -132,6 +134,8 @@ class MidnightThoughtsConfigTest {
         assertEquals(120000, config.getSleepOverlay().maxSlideDisplayTimeMs);
         assertEquals(1000, config.getSleepOverlay().fadeInDurationMs);
         assertEquals(0, config.getSleepOverlay().fadeOutDurationMs);
+        assertEquals(1000, config.getSleepOverlay().overlayFadeInMs);
+        assertEquals(0, config.getSleepOverlay().overlayFadeOutMs);
         assertEquals(8, config.getComfort().scanRadius);
         assertEquals(1440, config.getMvp().mvpWellRestedDurationMinutes);
     }

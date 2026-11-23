@@ -25,21 +25,16 @@ public class NightmareField {
         origin = now;
     }
 
-    public void render(GuiGraphics context, int w, int h) {
+    public void render(GuiGraphics context, int w, int h, float alpha) {
         float elapsed = Math.max(0f, System.currentTimeMillis() - origin);
 
-        context.fill(0, 0, w, h, (RenderUtils.alphaByte(WASH_ALPHA) << 24) | WASH_RGB);
-
-        int edge = RenderUtils.alphaByte(EDGE_ALPHA);
-
+        int edge = RenderUtils.alphaByte(EDGE_ALPHA * alpha);
         int bandHeight = Math.round(h * lerp(EDGE_HEIGHT_MIN, EDGE_HEIGHT_MAX, verticalClosure(elapsed)));
         int bandWidth = Math.round(w * lerp(EDGE_WIDTH_MIN, EDGE_WIDTH_MAX, horizontalClosure(elapsed)));
         int solid = (edge << 24) | EDGE_RGB;
 
-        context.fillGradient(0, 0, w, bandHeight, solid, EDGE_RGB);
-        context.fillGradient(0, h - bandHeight, w, h, EDGE_RGB, solid);
-        SleepOverlayRenderer.fillHorizontalGradient(context, 0, bandWidth, h, edge, 0, EDGE_RGB);
-        SleepOverlayRenderer.fillHorizontalGradient(context, w - bandWidth, w, h, 0, edge, EDGE_RGB);
+        SleepOverlayRenderer.drawVignette(context, w, h, (RenderUtils.alphaByte(WASH_ALPHA * alpha) << 24) | WASH_RGB,
+                bandHeight, bandWidth, solid, EDGE_RGB);
     }
 
     static float verticalClosure(float elapsed) {

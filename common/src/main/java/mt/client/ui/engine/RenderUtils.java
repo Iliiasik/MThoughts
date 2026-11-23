@@ -2,7 +2,6 @@ package mt.client.ui.engine;
 
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 
 public class RenderUtils {
@@ -19,10 +18,6 @@ public class RenderUtils {
         return Math.round(font.width(text) * scale);
     }
 
-    public static int scaledWidth(Font font, Component text, float scale) {
-        return Math.round(font.width(text) * scale);
-    }
-
     public static int centeredX(int boxX, int boxWidth, int contentWidth) {
         return boxX + Math.round((boxWidth - contentWidth) / 2.0f);
     }
@@ -33,11 +28,6 @@ public class RenderUtils {
     }
 
     public static void renderScaledText(GuiGraphics context, Font font, String text,
-                                        int x, int y, int color, float scale, boolean shadow) {
-        renderScaledText(context, font, Component.literal(text), x, y, color, scale, shadow);
-    }
-
-    public static void renderScaledText(GuiGraphics context, Font font, Component text,
                                         int x, int y, int color, float scale, boolean shadow) {
         context.pose().pushPose();
         context.pose().translate(x, y, 0);

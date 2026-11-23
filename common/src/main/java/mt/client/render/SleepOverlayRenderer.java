@@ -17,6 +17,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.multiplayer.PlayerInfo;
+import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.ArrayList;
@@ -79,6 +80,10 @@ public class SleepOverlayRenderer {
     private float outgoingAlpha = 0f;
     private SlideState slideState = SlideState.HIDDEN;
     private boolean isOverlayVisible = false;
+    private float presence = 0f;
+    private long presenceUpdatedAt;
+    private float overlayAlpha = 0f;
+    private boolean texturesWarm = false;
     private int moonPhase = 0;
     private boolean isNightmareOverlay = false;
 
@@ -120,8 +125,10 @@ public class SleepOverlayRenderer {
 
     public void tick() {
         if (!config.isEnableOverlay()) return;
+        warmTextures();
 
         long now = System.currentTimeMillis();
+        updatePresence(now);
 
         if (sleepStateManager.justStoppedSleeping()) lastSleepEndTime = now;
 
@@ -131,7 +138,7 @@ public class SleepOverlayRenderer {
         }
 
         if (!sleepStateManager.isSleeping() && isOverlayVisible) {
-            if ((now - lastSleepEndTime) >= SLEEP_DEBOUNCE_MS) onSleepEnd();
+            if ((now - lastSleepEndTime) >= SLEEP_DEBOUNCE_MS && presence <= 0f) onSleepEnd();
         }
 
         if (sleepStateManager.isSleeping() && isOverlayVisible) {
@@ -139,6 +146,27 @@ public class SleepOverlayRenderer {
             if (config.isEnableStarDust() && !isNightmareOverlay) {
                 starField.tick(now);
             }
+        }
+    }
+
+    private void warmTextures() {
+        if (texturesWarm) return;
+        TextureManager textures = Minecraft.getInstance().getTextureManager();
+        textures.getTexture(SKULL_TEXTURE);
+        textures.getTexture(PROGRESS_TEXTURE);
+        textures.getTexture(NIGHTMARE_PROGRESS_TEXTURE);
+        for (ResourceLocation moon : MOON_PHASE_TEXTURES) textures.getTexture(moon);
+        SpaceField.warmTextures(textures);
+        texturesWarm = true;
+    }
+
+    private void updatePresence(long now) {
+        long elapsed = Math.max(0L, now - presenceUpdatedAt);
+        presenceUpdatedAt = now;
+        if (isOverlayVisible && sleepStateManager.isSleeping()) {
+            presence = Math.min(1f, presence + elapsed / (float) Math.max(1, config.getOverlayFadeInMs()));
+        } else {
+            presence = Math.max(0f, presence - elapsed / (float) Math.max(1, config.getOverlayFadeOutMs()));
         }
     }
 
@@ -169,6 +197,7 @@ public class SleepOverlayRenderer {
         prewarmSummaryHeads();
         isNightmareOverlay = WellRestedClientState.isNightmareMode();
         isOverlayVisible = true;
+        presenceUpdatedAt = System.currentTimeMillis();
         outgoingSlide = null;
         outgoingAlpha = 0f;
         incomingAlpha = 1f;
@@ -262,7 +291,10 @@ public class SleepOverlayRenderer {
     }
 
     public void render(GuiGraphics context, int screenWidth, int screenHeight) {
-        if (!isShowing() || !config.isEnableOverlay()) return;
+        if (!config.isEnableOverlay()) return;
+        updatePresence(System.currentTimeMillis());
+        if (!isShowing()) return;
+        overlayAlpha = easeInOut(presence);
         renderOverlay(context, screenWidth, screenHeight);
         context.flush();
         updateSlideState();
@@ -271,35 +303,27 @@ public class SleepOverlayRenderer {
     }
 
     private boolean isShowing() {
-        return sleepStateManager.isSleeping() && isOverlayVisible;
+        return isOverlayVisible && presence > 0f;
     }
 
     private void renderOverlay(GuiGraphics context, int w, int h) {
         int rgb = isNightmareOverlay ? 0x1A0000 : 0x000000;
-        float strength = config.getOverlayOpacity();
+        float strength = config.getOverlayOpacity() * overlayAlpha;
 
         int baseA = RenderUtils.alphaByte(strength * 0.6f);
-        context.fill(0, 0, w, h, (baseA << 24) | rgb);
-
         int edgeA = RenderUtils.alphaByte(strength);
         int bandH = Math.round(h * 0.42f);
         int bandW = Math.round(w * 0.30f);
-        context.fillGradient(0, 0, w, bandH, (edgeA << 24) | rgb, rgb);
-        context.fillGradient(0, h - bandH, w, h, rgb, (edgeA << 24) | rgb);
-        fillHorizontalGradient(context, 0, bandW, h, edgeA, 0, rgb);
-        fillHorizontalGradient(context, w - bandW, w, h, 0, edgeA, rgb);
+        drawVignette(context, w, h, (baseA << 24) | rgb, bandH, bandW, (edgeA << 24) | rgb, rgb);
     }
 
-    static void fillHorizontalGradient(GuiGraphics context, int x1, int x2, int y2, int alphaLeft, int alphaRight, int rgb) {
-        int step = 3;
-        int width = x2 - x1;
-        if (width <= 0) return;
-        for (int x = x1; x < x2; x += step) {
-            float t = (float) (x - x1) / width;
-            int a = Math.round(alphaLeft + (alphaRight - alphaLeft) * t);
-            int xe = Math.min(x + step, x2);
-            context.fill(x, 0, xe, y2, (a << 24) | rgb);
-        }
+    static void drawVignette(GuiGraphics context, int w, int h, int wash, int bandH, int bandW, int edge, int clear) {
+        RenderHelper.fillQuad(context, 0, 0, w, h, wash, wash, wash, wash);
+        RenderHelper.fillQuad(context, 0, 0, w, bandH, edge, clear, clear, edge);
+        RenderHelper.fillQuad(context, 0, h - bandH, w, h, clear, edge, edge, clear);
+        RenderHelper.fillQuad(context, 0, 0, bandW, h, edge, edge, clear, clear);
+        RenderHelper.fillQuad(context, w - bandW, 0, w, h, clear, clear, edge, edge);
+        context.flush();
     }
 
     private void renderContent(GuiGraphics context, int w, int h) {
@@ -338,16 +362,16 @@ public class SleepOverlayRenderer {
 
         if (isNightmareOverlay) {
             if (config.isEnableStarDust()) {
-                nightmareField.render(context, w, h);
+                nightmareField.render(context, w, h, overlayAlpha);
             }
         } else {
             boolean space = config.isEnableSpaceObjects();
             if (space) {
                 spaceField.layout(w, h, baseScale, contentZones);
-                spaceField.render(context);
+                spaceField.render(context, overlayAlpha);
             }
             if (config.isEnableStarDust()) {
-                starField.render(context, w, h, contentZones, baseScale, space ? spaceField : null);
+                starField.render(context, w, h, contentZones, baseScale, space ? spaceField : null, overlayAlpha);
             }
         }
 
@@ -358,18 +382,18 @@ public class SleepOverlayRenderer {
         if (outgoingSlide != null && outgoingAlpha > 0.01f) {
             TextLayout outgoing = outgoingCache.get(outgoingSlide, font, textAreaWidth, textScale);
             float drift = VIRTUAL_TEXT_DRIFT * baseScale * (1f - outgoingAlpha);
-            drawLayout(context, font, outgoing, centerX - drift, textTop, lineHeight, outgoingAlpha);
+            drawLayout(context, font, outgoing, centerX - drift, textTop, lineHeight, outgoingAlpha * overlayAlpha);
         }
 
         if (currentSlide != null && incomingAlpha > 0.01f) {
             TextLayout currentLayout = currentCache.get(currentSlide, font, textAreaWidth, textScale);
             float drift = VIRTUAL_TEXT_DRIFT * baseScale * (1f - incomingAlpha);
-            drawLayout(context, font, currentLayout, centerX + drift, textTop, lineHeight, incomingAlpha);
+            drawLayout(context, font, currentLayout, centerX + drift, textTop, lineHeight, incomingAlpha * overlayAlpha);
         }
 
         if (showProgress && currentSlide != null && slideState != SlideState.HIDDEN) {
             float frac = slideState == SlideState.VISIBLE ? slideProgress() : 0f;
-            drawProgress(context, centerX, progressTop, progressHeight, progressScale, frac, incomingAlpha);
+            drawProgress(context, centerX, progressTop, progressHeight, progressScale, frac, incomingAlpha * overlayAlpha);
         }
     }
 
@@ -407,7 +431,7 @@ public class SleepOverlayRenderer {
 
         context.pose().pushPose();
         context.pose().scale(1.0f / guiScale, 1.0f / guiScale, 1.0f);
-        RenderHelper.blitTexture(context, texture, x, y, pixelSize, pixelSize, config.getImageOpacity());
+        RenderHelper.blitTexture(context, texture, x, y, pixelSize, pixelSize, config.getImageOpacity() * overlayAlpha);
         context.pose().popPose();
     }
 
@@ -471,7 +495,7 @@ public class SleepOverlayRenderer {
         context.pose().pushPose();
         context.pose().scale(1.0f / guiScale, 1.0f / guiScale, 1.0f);
         ResourceLocation texture = isNightmareOverlay ? NIGHTMARE_PROGRESS_TEXTURE : PROGRESS_TEXTURE;
-        RenderHelper.blitTexture(context, texture, x, top, barWidth, barHeight, PROGRESS_TRACK_ALPHA);
+        RenderHelper.blitTexture(context, texture, x, top, barWidth, barHeight, PROGRESS_TRACK_ALPHA * overlayAlpha);
         RenderHelper.blitTextureLeft(context, texture, x, top, barWidth, barHeight,
                 barWidth * (1f - frac), fillAlpha);
         context.pose().popPose();

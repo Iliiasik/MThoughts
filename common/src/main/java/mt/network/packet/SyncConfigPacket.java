@@ -31,7 +31,9 @@ public record SyncConfigPacket(
         float overlayImageScale,
         boolean enableSpaceObjects,
         boolean sereneSeasonsIntegration,
-        boolean eclipticSeasonsIntegration
+        boolean eclipticSeasonsIntegration,
+        int overlayFadeInMs,
+        int overlayFadeOutMs
 ) implements MTPacket {
     public static SyncConfigPacket of(mt.config.MidnightThoughtsConfig cfg) {
         mt.config.MidnightThoughtsConfig.SleepOverlaySettings o = cfg.getSleepOverlay();
@@ -63,7 +65,9 @@ public record SyncConfigPacket(
                 o.imageScale,
                 o.enableSpaceObjects,
                 integrations.sereneSeasons,
-                integrations.eclipticSeasons
+                integrations.eclipticSeasons,
+                o.overlayFadeInMs,
+                o.overlayFadeOutMs
         );
     }
 
@@ -96,7 +100,9 @@ public record SyncConfigPacket(
             buf.readFloat(),
             buf.readBoolean(),
             buf.readBoolean(),
-            buf.readBoolean()
+            buf.readBoolean(),
+            buf.readVarInt(),
+            buf.readVarInt()
     );
     }
 
@@ -128,6 +134,8 @@ public record SyncConfigPacket(
         buf.writeBoolean(enableSpaceObjects());
         buf.writeBoolean(sereneSeasonsIntegration());
         buf.writeBoolean(eclipticSeasonsIntegration());
+        buf.writeVarInt(overlayFadeInMs());
+        buf.writeVarInt(overlayFadeOutMs());
     }
 
     @Override

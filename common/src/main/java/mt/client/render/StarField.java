@@ -1,5 +1,6 @@
 package mt.client.render;
 
+import mt.client.ui.engine.RenderHelper;
 import mt.client.ui.engine.RenderUtils;
 import net.minecraft.client.gui.GuiGraphics;
 
@@ -41,14 +42,15 @@ public class StarField {
         }
     }
 
-    public void render(GuiGraphics context, int w, int h, List<OverlayRect> content, float baseScale, SpaceField space) {
+    public void render(GuiGraphics context, int w, int h, List<OverlayRect> content, float baseScale, SpaceField space,
+                       float fade) {
         int contentMargin = Math.round(CONTENT_MARGIN_VIRTUAL * baseScale);
         int edgeMargin = Math.round(SpaceField.EDGE_MARGIN_VIRTUAL * baseScale);
         float elapsed = System.currentTimeMillis() - origin;
 
         for (int i = 0; i < STAR_COUNT; i++) {
-            float twinkle = 0.35f + 0.65f * (float) Math.sin(elapsed * speed[i] + phase[i]);
-            int a = RenderUtils.alphaByte(alpha[i] * twinkle);
+            float twinkle = SpaceField.settle(0.35f + 0.65f * (float) Math.sin(elapsed * speed[i] + phase[i]), elapsed);
+            int a = RenderUtils.alphaByte(alpha[i] * twinkle * fade);
             if (a <= 1) continue;
 
             int size = big[i] ? 2 : 1;
@@ -62,8 +64,10 @@ public class StarField {
             int py = edgeMargin + Math.round(dy * usableHeight);
             if (isBlocked(content, contentMargin, space, px, py)) continue;
 
-            context.fill(px, py, px + size, py + size, (a << 24) | 0xFFFFFF);
+            int color = (a << 24) | 0xFFFFFF;
+            RenderHelper.fillQuad(context, px, py, px + size, py + size, color, color, color, color);
         }
+        context.flush();
     }
 
     private static boolean isBlocked(List<OverlayRect> content, int contentMargin, SpaceField space, int px, int py) {

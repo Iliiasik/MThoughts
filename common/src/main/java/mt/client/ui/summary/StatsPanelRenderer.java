@@ -53,7 +53,7 @@ public final class StatsPanelRenderer {
         if (ThemeColors.pictureStyle()) {
             RenderHelper.blitTexture(context, SummaryConstants.getStatsPanelTexture(),
                     x, y, width, height, fadeAlpha);
-            areas.add(new HoverArea(x, y, width, height, lines(values(player))));
+            areas.add(new HoverArea(x, y, width, height, () -> lines(values(player))));
             return;
         }
 

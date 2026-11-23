@@ -84,6 +84,8 @@ public final class MidnightThoughtsConfigValidation {
         }
         o.fadeInDurationMs = clampInt(o.fadeInDurationMs, 0, MidnightThoughtsConfig.FADE_MAX_MS, "sleepOverlay.fadeInDurationMs");
         o.fadeOutDurationMs = clampInt(o.fadeOutDurationMs, 0, MidnightThoughtsConfig.FADE_MAX_MS, "sleepOverlay.fadeOutDurationMs");
+        o.overlayFadeInMs = clampInt(o.overlayFadeInMs, 0, MidnightThoughtsConfig.FADE_MAX_MS, "sleepOverlay.overlayFadeInMs");
+        o.overlayFadeOutMs = clampInt(o.overlayFadeOutMs, 0, MidnightThoughtsConfig.FADE_MAX_MS, "sleepOverlay.overlayFadeOutMs");
         o.overlayOpacity = clampFloat(o.overlayOpacity, 0f, 1f, 0.4f, "sleepOverlay.overlayOpacity");
         o.textOpacity = clampFloat(o.textOpacity, 0f, 1f, 1.0f, "sleepOverlay.textOpacity");
         o.imageOpacity = clampFloat(o.imageOpacity, 0f, 1f, 0.6f, "sleepOverlay.imageOpacity");

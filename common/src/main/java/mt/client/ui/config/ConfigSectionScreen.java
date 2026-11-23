@@ -119,6 +119,9 @@ public class ConfigSectionScreen extends OptionsSubScreen {
         options.addSmall(
                 percent("text_scale", 50, 150, o.textScale, value -> o.textScale = value),
                 percent("image_scale", 50, 150, o.imageScale, value -> o.imageScale = value));
+        options.addSmall(
+                fade("overlay_fade_in", o.overlayFadeInMs, value -> o.overlayFadeInMs = value),
+                fade("overlay_fade_out", o.overlayFadeOutMs, value -> o.overlayFadeOutMs = value));
         options.addBig(percent("special_slide_chance", 0, 100, o.specialSlideChance,
                 value -> o.specialSlideChance = value));
     }

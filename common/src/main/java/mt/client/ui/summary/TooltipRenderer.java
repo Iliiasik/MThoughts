@@ -22,8 +22,10 @@ public final class TooltipRenderer {
                               int screenWidth, int screenHeight, float fadeAlpha) {
         for (HoverArea area : areas) {
             if (area.contains(mouseX, mouseY)) {
-                draw(context, font, mouseX, mouseY, area.lines(),
-                        layout, screenWidth, screenHeight, fadeAlpha);
+                List<String> lines = area.lines().get();
+                if (!lines.isEmpty()) {
+                    draw(context, font, mouseX, mouseY, lines, layout, screenWidth, screenHeight, fadeAlpha);
+                }
                 return;
             }
         }

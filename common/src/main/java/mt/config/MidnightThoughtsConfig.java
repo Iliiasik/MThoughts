@@ -198,6 +198,14 @@ public final class MidnightThoughtsConfig {
         return synced(SyncConfigPacket::fadeOutDurationMs, sleepOverlay.fadeOutDurationMs);
     }
 
+    public int getOverlayFadeInMs() {
+        return synced(SyncConfigPacket::overlayFadeInMs, sleepOverlay.overlayFadeInMs);
+    }
+
+    public int getOverlayFadeOutMs() {
+        return synced(SyncConfigPacket::overlayFadeOutMs, sleepOverlay.overlayFadeOutMs);
+    }
+
     public float getOverlayOpacity() {
         return synced(SyncConfigPacket::overlayOpacity, sleepOverlay.overlayOpacity);
     }
@@ -295,6 +303,8 @@ public final class MidnightThoughtsConfig {
         public int maxSlideDisplayTimeMs = 8000;
         public int fadeInDurationMs = 300;
         public int fadeOutDurationMs = 300;
+        public int overlayFadeInMs = 300;
+        public int overlayFadeOutMs = 200;
         public float overlayOpacity = 0.4f;
         public float textOpacity = 1.0f;
         public float imageOpacity = 0.6f;
