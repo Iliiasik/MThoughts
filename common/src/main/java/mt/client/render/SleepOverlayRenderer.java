@@ -136,7 +136,6 @@ public class SleepOverlayRenderer {
 
         if (sleepStateManager.isSleeping() && isOverlayVisible) {
             syncNightmareState(now);
-            updateSlideState();
             if (config.isEnableStarDust() && !isNightmareOverlay) {
                 starField.tick(now);
             }
@@ -384,7 +383,7 @@ public class SleepOverlayRenderer {
                     centerX + imageSize / 2, imageTop + imageSize));
         }
         if (progressTop >= 0) {
-            int halfProgress = Math.max(20, Math.round(VIRTUAL_PROGRESS_WIDTH * progressScale)) / 2;
+            int halfProgress = Math.round(VIRTUAL_PROGRESS_WIDTH * progressScale) / 2;
             zones.add(new OverlayRect(centerX - halfProgress, progressTop,
                     centerX + halfProgress, progressTop + progressHeight));
         }
